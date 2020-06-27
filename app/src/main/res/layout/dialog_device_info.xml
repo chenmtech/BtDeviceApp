@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="设备地址："/>
+            android:text="@string/device_address"/>
         <TextView
             android:id="@+id/tv_device_address"
             android:layout_width="0dp"
@@ -28,7 +28,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="设备类型："/>
+            android:text="@string/device_type"/>
         <TextView
             android:id="@+id/tv_device_type"
             android:layout_width="0dp"
@@ -43,13 +43,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="设备名称："/>
+            android:text="@string/device_name"/>
         <EditText
             android:id="@+id/et_device_nickname"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="给设备取个名字"
             android:inputType="text"/>
     </LinearLayout>
 
@@ -61,21 +60,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="设备图像："/>
+            android:text="@string/device_image"/>
         <com.cmtech.android.bledevice.view.RoundImageView
             android:id="@+id/iv_tab_image"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@mipmap/ic_unknown_device"
-            android:contentDescription="设备图像"/>
+            android:src="@mipmap/ic_unknown_device"/>
     </LinearLayout>
 
     <CheckBox
-        android:id="@+id/cb_device_isautoconnect"
+        android:id="@+id/cb_device_auto_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="打开设备后自动连接" />
+        android:text="@string/auto_connect_when_open" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -86,19 +84,19 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/minWidth0DpButtonStyle"
-            android:text="取消"/>
+            android:text="@string/cancel"/>
         <Button
             android:id="@+id/btn_set_default"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/minWidth0DpButtonStyle"
-            android:text="恢复默认"/>
+            android:text="@string/restore_default"/>
         <Button
             android:id="@+id/btn_ok"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/minWidth0DpButtonStyle"
-            android:text="确定"/>
+            android:text="@string/ok"/>
     </LinearLayout>
 
 

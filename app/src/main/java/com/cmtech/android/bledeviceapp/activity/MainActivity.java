@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     private void updateMainLayout(IDevice device) {
         if(device == null) {
-            tbManager.setTitle(getString(R.string.app_name), getString(R.string.no_device_opened));
+            tbManager.setTitle(getString(R.string.app_name), "");
             tbManager.setBattery(INVALID_BATTERY);
             updateConnectFAButton(CLOSED.getIcon());
             invalidateOptionsMenu();

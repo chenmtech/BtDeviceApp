@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">康明智联</string>
-    <string name="welcome_word">欢迎使用康明智联</string>
+    <string name="welcome_word">康明智联</string>
     <string name="unknown">未知</string>
     <string name="no_more">没有更多了</string>
     <string name="anonymous">匿名</string>
     <string name="invalid_device_info">无效设备信息</string>
     <string name="invalid_image_dir">无效图像路径</string>
     <string name="invalid_device_type">无效设备类型</string>
-    <string name="cfg_device_info">配置设备基本信息</string>
+    <string name="cfg_device_basic_info">配置设备基本信息</string>
     <string name="add_device_failure">添加设备失败</string>
     <string name="pause_show">暂停显示</string>
     <string name="open">开</string>
@@ -20,6 +20,11 @@
     <string name="pls_stop_record_firstly">请先停止记录。</string>
     <string name="pls_turn_on_ecg_firstly">请先打开心电。</string>
     <string name="pls_be_quiet_when_record">记录时请保持安静。</string>
+    <string name="device_address">设备地址:</string>
+    <string name="device_type">设备类型:</string>
+    <string name="device_name">设备名称:</string>
+    <string name="device_image">设备图像:</string>
+
 
     <string name="hr_too_high">心率过高</string>
     <string name="hr_too_low">心率过低</string>
@@ -47,7 +52,7 @@
     <string name="temperature">℃</string>
     <string name="add_device">添加设备</string>
     <string name="delete_device">删除设备</string>
-    <string name="wont_delete_info_by_device">删除设备后，设备记录的信息不会被删除。</string>
+    <string name="wont_delete_info_by_device">删除设备后不会丢失设备产生的记录。</string>
     <string name="user_record">用户记录</string>
     <string name="open_store">康明商城</string>
     <string name="about_km">关于康明</string>
@@ -72,6 +77,8 @@
     <string name="web_device">网络设备</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
+    <string name="restore_default">恢复默认</string>
+    <string name="auto_connect_when_open">打开后自动连接</string>
     <string name="delete">删除</string>
     <string name="modify">修改</string>
     <string name="delete_record">删除记录</string>
@@ -79,6 +86,7 @@
     <string name="logout_account">退出账户</string>
     <string name="really_logout_account">退出账户后，该账户的云端记录不会丢失。</string>
     <string name="battery">电量</string>
+    <string name="refresh_when_drag_down">下拉刷新</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>

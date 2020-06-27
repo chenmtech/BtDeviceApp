@@ -74,7 +74,7 @@
         <activity android:name=".activity.AccountActivity" />
 
         <activity android:name=".activity.DeviceInfoActivity"
-            android:label= "@string/cfg_device_info"
+            android:label= "@string/cfg_device_basic_info"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
 
 

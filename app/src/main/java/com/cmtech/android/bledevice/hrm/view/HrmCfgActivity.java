@@ -21,9 +21,10 @@ import com.cmtech.android.bledeviceapp.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.hrm.model.HrmCfg.DEFAULT_HR_HIGH_LIMIT;
+import static com.cmtech.android.bledevice.hrm.model.HrmCfg.DEFAULT_HR_LOW_LIMIT;
+
 public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Formatter, NumberPicker.OnScrollListener, NumberPicker.OnValueChangeListener {
-    private static final int HR_LIMIT_LOWEST = 30;
-    private static final int HR_LIMIT_HGIHEST = 180;
     private static final int HR_LIMIT_INTERVAL = 5;
     public static final int RESULT_ECG_LOCK_CHANGED = RESULT_FIRST_USER;
     private boolean ecgLock = true;
@@ -89,7 +90,7 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         });
 
         List<String> hrLimitValues = new ArrayList<>();
-        for(int i = HR_LIMIT_LOWEST; i <= HR_LIMIT_HGIHEST; i+=HR_LIMIT_INTERVAL) {
+        for(int i = DEFAULT_HR_LOW_LIMIT; i <= DEFAULT_HR_HIGH_LIMIT; i+=HR_LIMIT_INTERVAL) {
             hrLimitValues.add(String.valueOf(i));
         }
         npHrLow = findViewById(R.id.np_hr_low);
@@ -99,7 +100,7 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrLow.setOnValueChangedListener(this);
         npHrLow.setMinValue(0);
         npHrLow.setMaxValue(hrLimitValues.size()-1);
-        npHrLow.setValue((hrCfg.getHrLow() - HR_LIMIT_LOWEST)/HR_LIMIT_INTERVAL);
+        npHrLow.setValue((hrCfg.getHrLow() - DEFAULT_HR_LOW_LIMIT)/HR_LIMIT_INTERVAL);
         npHrHigh = findViewById(R.id.np_hr_high);
         npHrHigh.setDisplayedValues(hrLimitValues.toArray(new String[0]));
         npHrHigh.setFormatter(this);
@@ -107,7 +108,7 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrHigh.setOnValueChangedListener(this);
         npHrHigh.setMinValue(0);
         npHrHigh.setMaxValue(hrLimitValues.size()-1);
-        npHrHigh.setValue((hrCfg.getHrHigh() - HR_LIMIT_LOWEST)/HR_LIMIT_INTERVAL);
+        npHrHigh.setValue((hrCfg.getHrHigh() - DEFAULT_HR_LOW_LIMIT)/HR_LIMIT_INTERVAL);
 
         cbWarn = findViewById(R.id.cb_hr_warn);
         cbWarn.setChecked(hrCfg.needWarn());
@@ -121,8 +122,8 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int low = npHrLow.getValue()*HR_LIMIT_INTERVAL+HR_LIMIT_LOWEST;
-                int high = npHrHigh.getValue()*HR_LIMIT_INTERVAL+HR_LIMIT_LOWEST;
+                int low = npHrLow.getValue()*HR_LIMIT_INTERVAL+DEFAULT_HR_LOW_LIMIT;
+                int high = npHrHigh.getValue()*HR_LIMIT_INTERVAL+DEFAULT_HR_LOW_LIMIT;
                 if(high <= low) {
                     Toast.makeText(HrmCfgActivity.this, getString(R.string.hr_limit_wrong), Toast.LENGTH_SHORT).show();
                     return;

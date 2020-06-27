@@ -111,7 +111,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         });
 
         // 设置设备打开后是否自动连接
-        cbIsAutoConnect = findViewById(R.id.cb_device_isautoconnect);
+        cbIsAutoConnect = findViewById(R.id.cb_device_auto_connect);
         cbIsAutoConnect.setChecked(deviceInfo.isAutoConnect());
 
         Button btnOk = findViewById(R.id.btn_ok);
@@ -215,7 +215,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 String selection = MediaStore.Images.Media._ID + "=" + id;
                 imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
             } else if("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(docId));
                 imagePath = getImagePath(contentUri, null);
             }
 

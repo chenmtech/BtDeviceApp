@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">KM IOT</string>
-    <string name="welcome_word">Welcome to use KM IOT</string>
+    <string name="welcome_word">KM IOT</string>
     <string name="unknown">unknown</string>
     <string name="no_more">no more</string>
     <string name="anonymous">anonymous</string>
     <string name="invalid_device_info">invalid device info</string>
     <string name="invalid_image_dir">invalid image directory</string>
     <string name="invalid_device_type">invalid device type</string>
-    <string name="cfg_device_info">Configure Device Info</string>
+    <string name="cfg_device_basic_info">Configure Device Info</string>
     <string name="add_device_failure">adding device failure</string>
     <string name="pause_show">show paused</string>
     <string name="open">open</string>
@@ -20,6 +20,11 @@
     <string name="pls_stop_record_firstly">Stop the record firstly, please.</string>
     <string name="pls_turn_on_ecg_firstly">Turn on the ECG firstly, please.</string>
     <string name="pls_be_quiet_when_record">Stay quietly when record.</string>
+    <string name="refresh_when_drag_down">refresh when dragging down</string>
+    <string name="device_address">Device Addr:</string>
+    <string name="device_type">Device Type:</string>
+    <string name="device_name">Device Name:</string>
+    <string name="device_image">Device Image:</string>
 
     <string name="hr_too_high">Your heart rate is too high</string>
     <string name="hr_too_low">Your heart rate is too low</string>
@@ -72,6 +77,8 @@
     <string name="web_device">Web Devices</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="restore_default">Restore Default</string>
+    <string name="auto_connect_when_open">Auto connect when opened.</string>
     <string name="delete">delete</string>
     <string name="modify">modify</string>
     <string name="delete_record">Delete Record</string>

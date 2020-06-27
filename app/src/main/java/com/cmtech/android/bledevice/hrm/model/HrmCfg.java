@@ -18,7 +18,7 @@ import java.io.Serializable;
  */
 public class HrmCfg extends LitePalSupport implements Serializable {
     private final static long serialVersionUID = 1L;
-    public static final int DEFAULT_HR_LOW_LIMIT = 50;
+    public static final int DEFAULT_HR_LOW_LIMIT = 30;
     public static final int DEFAULT_HR_HIGH_LIMIT = 180;
     public static final boolean DEFAULT_HR_WARN = true;
     public static final int DEFAULT_HR_SPEAK_PERIOD = 5; // unit: m

@@ -14,6 +14,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.view.BitmapUtil;
 
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
+import static java.lang.String.format;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -84,7 +85,7 @@ public class MainToolbarManager {
             tvBattery.setVisibility(View.GONE);
         } else {
             tvBattery.setVisibility(View.VISIBLE);
-            tvBattery.setText(String.valueOf(battery));
+            tvBattery.setText(String.format("%d%%", battery));
             int level = (int)(battery/25.0);
             if(level > 3) level = 3;
             drawable.setLevel(level);

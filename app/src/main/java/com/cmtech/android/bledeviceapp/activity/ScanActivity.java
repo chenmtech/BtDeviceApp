@@ -15,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
@@ -31,8 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.SCAN_DURATION;
-import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingLongToast;
-import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 
 /**
@@ -48,12 +47,10 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE
  */
 
 public class ScanActivity extends AppCompatActivity {
-    private static final String TAG = "ScanActivity";
     private static final ScanFilter SCAN_FILTER = null;
-    //public static final String REGISTERED_DEVICE_ADDRESS_LIST = "registered_device_address_list";
 
-    private final List<BleDeviceDetailInfo> foundDevInfos = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
-    private List<String> regAddrs = new ArrayList<>(); // 已注册的设备mac地址列表
+    private final List<BleDeviceDetailInfo> scannedDevInfos = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
+    private List<String> registeredDevAddrs = new ArrayList<>(); // 已注册的设备mac地址列表
     private SwipeRefreshLayout srlDevice;
     private ScanAdapter devAdapter;
     private RecyclerView rvDevice;
@@ -75,11 +72,11 @@ public class ScanActivity extends AppCompatActivity {
         public void onScanFailed(int errorCode) {
             switch (errorCode) {
                 case CODE_ALREADY_STARTED:
-                    showMessageUsingLongToast("扫描中，请稍等");
+                    Toast.makeText(ScanActivity.this, R.string.scan_failed_already_started, Toast.LENGTH_SHORT).show();
                     break;
 
                 case CODE_BLE_CLOSED:
-                    showMessageUsingLongToast("蓝牙已关闭");
+                    Toast.makeText(ScanActivity.this, R.string.scan_failed_bt_closed, Toast.LENGTH_SHORT).show();
                     srlDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -87,7 +84,7 @@ public class ScanActivity extends AppCompatActivity {
                     break;
 
                 case CODE_BLE_INNER_ERROR:
-                    showMessageUsingLongToast("蓝牙错误，请重启蓝牙。");
+                    Toast.makeText(ScanActivity.this, R.string.scan_failed_ble_inner_error, Toast.LENGTH_SHORT).show();
                     srlDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
                     break;
@@ -107,14 +104,14 @@ public class ScanActivity extends AppCompatActivity {
         // 获取已注册设备地址列表
         Intent intent = getIntent();
         if(intent != null) {
-            regAddrs = (List<String>) intent.getSerializableExtra("device_address_list");
+            registeredDevAddrs = (List<String>) intent.getSerializableExtra("device_address_list");
         }
 
         // 初始化扫描设备列表
         rvDevice = findViewById(R.id.rv_device);
         rvDevice.setLayoutManager(new LinearLayoutManager(this));
         rvDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        devAdapter = new ScanAdapter(foundDevInfos, regAddrs, this);
+        devAdapter = new ScanAdapter(scannedDevInfos, registeredDevAddrs, this);
         rvDevice.setAdapter(devAdapter);
 
         srlDevice = findViewById(R.id.srl_device);
@@ -136,7 +133,7 @@ public class ScanActivity extends AppCompatActivity {
     private void startScan() {
         mHandle.removeCallbacksAndMessages(null);
 
-        foundDevInfos.clear();
+        scannedDevInfos.clear();
         devAdapter.notifyDataSetChanged();
         BleScanner.stopScan(bleScanCallback);
         srlDevice.setRefreshing(true);
@@ -205,20 +202,14 @@ public class ScanActivity extends AppCompatActivity {
         srlDevice.setRefreshing(false);
 
         AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
-        byte[] uuidBytes = null;
         if(serviceUUID != null) {
-            uuidBytes = new byte[]{serviceUUID.getData()[1], serviceUUID.getData()[0]};
+            byte[] uuidBytes = new byte[]{serviceUUID.getData()[1], serviceUUID.getData()[0]};
+            String uuidShortString = HexUtil.encodeHexStr(uuidBytes);
+            DeviceInfo registerInfo = new BleDeviceInfo(detailInfo.getAddress(), uuidShortString);
+            Intent intent = new Intent(ScanActivity.this, DeviceInfoActivity.class);
+            intent.putExtra(DEVICE_INFO, registerInfo);
+            startActivityForResult(intent, 1);
         }
-        if(uuidBytes == null) {
-            showMessageUsingShortToast("不支持的设备类型");
-            return;
-        }
-
-        String uuidShortString = HexUtil.encodeHexStr(uuidBytes);
-        DeviceInfo registerInfo = new BleDeviceInfo(detailInfo.getAddress(), uuidShortString);
-        Intent intent = new Intent(ScanActivity.this, DeviceInfoActivity.class);
-        intent.putExtra(DEVICE_INFO, registerInfo);
-        startActivityForResult(intent, 1);
     }
 
     private void addDevice(final BleDeviceDetailInfo device) {
@@ -227,7 +218,7 @@ public class ScanActivity extends AppCompatActivity {
         ViseLog.e("Find device: " + device);
 
         boolean isNewDevice = true;
-        for(BleDeviceDetailInfo dv : foundDevInfos) {
+        for(BleDeviceDetailInfo dv : scannedDevInfos) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
                 isNewDevice = false;
                 break;
@@ -235,7 +226,7 @@ public class ScanActivity extends AppCompatActivity {
         }
 
         if(isNewDevice) {
-            foundDevInfos.add(device);
+            scannedDevInfos.add(device);
             devAdapter.notifyDataSetChanged();
         }
     }
