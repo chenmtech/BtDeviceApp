@@ -2,8 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal">
+    android:layout_margin="4dp"
+    android:orientation="vertical">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/primary_dark"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -11,26 +15,34 @@
         android:layout_margin="4dp"
         android:layout_gravity="center_vertical"
         android:gravity="center_horizontal"
-        android:ems="1"
-        android:text="@string/record_note"/>
+        android:text="@string/record_note"
+        android:textSize="16sp"/>
 
-    <EditText
-        android:id="@+id/et_note"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical"
-        android:ems="10"
-        android:gravity="start|top"
-        android:inputType="textMultiLine"
-        android:enabled="false"/>
-
-    <Button
-        android:id="@+id/btn_save"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:ems="1"
-        android:text="@string/edit"/>
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/et_note"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:background="@color/primary_dark"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine"
+            android:enabled="false"/>
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ems="1"
+            android:text="@string/edit"/>
+
+    </LinearLayout>
+
 
 </LinearLayout>

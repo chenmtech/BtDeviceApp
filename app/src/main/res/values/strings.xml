@@ -60,6 +60,8 @@
     <string name="max_hr">最大心率:</string>
     <string name="average_hr">平均心率:</string>
     <string name="hr_histogram">心率直方图</string>
+    <string name="hr_linechart">心率变化图</string>
+    <string name="thermo_linechart">体温变化图</string>
     <string name="time">时间</string>
     <string name="temperature">℃</string>
     <string name="add_device">添加设备</string>

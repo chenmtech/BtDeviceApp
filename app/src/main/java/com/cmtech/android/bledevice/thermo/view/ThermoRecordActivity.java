@@ -57,7 +57,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
 
         lineChart = findViewById(R.id.line_chart);
         lineChart.setXAxisValueFormatter(2);
-        lineChart.showFloatLineChart(record.getTemp(), "体温变化", Color.BLUE);
+        lineChart.showFloatLineChart(record.getTemp(), getResources().getString(R.string.thermo_linechart), Color.BLUE);
 
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.temperature);

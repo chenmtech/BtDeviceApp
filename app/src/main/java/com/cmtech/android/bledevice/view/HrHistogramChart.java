@@ -41,7 +41,6 @@ public class HrHistogramChart extends BarChart {
     private List<BarEntry> hrBarEntries = new ArrayList<>();
     private List<String> hrBarXStrings = new ArrayList<>();
 
-    private final static String DEFAULT_LEGEND_STRING = "直方图";
     private final String legendString;
 
     static {
@@ -138,7 +137,7 @@ public class HrHistogramChart extends BarChart {
 
         Legend legend = getLegend();
         legend.setForm(Legend.LegendForm.SQUARE);
-        legend.setTextSize(20f);
+        legend.setTextSize(12f);
         //显示位置
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);

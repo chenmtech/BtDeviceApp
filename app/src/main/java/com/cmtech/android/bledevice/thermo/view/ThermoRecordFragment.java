@@ -47,7 +47,7 @@ public class ThermoRecordFragment extends Fragment {
 
         lineChart = view.findViewById(R.id.line_chart);
         lineChart.setXAxisValueFormatter(2);
-        lineChart.showFloatLineChart(new ArrayList<Float>(), TITLE, Color.BLUE);
+        lineChart.showFloatLineChart(new ArrayList<Float>(), getResources().getString(R.string.thermo_linechart), Color.BLUE);
 
         TextView tvYUnit = view.findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.temperature);
@@ -69,7 +69,7 @@ public class ThermoRecordFragment extends Fragment {
     }
 
     public void updateThermoLineChart(List<Float> thermo) {
-        lineChart.showFloatLineChart(thermo, TITLE, Color.BLUE);
+        lineChart.showFloatLineChart(thermo, getResources().getString(R.string.thermo_linechart), Color.BLUE);
     }
 
     public void updateThermoRecordStatus(boolean isRecord) {

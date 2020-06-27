@@ -92,7 +92,7 @@ public class HrRecordActivity extends AppCompatActivity {
 
         hrLineChart = findViewById(R.id.line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
-        hrLineChart.showShortLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
+        hrLineChart.showShortLineChart(record.getFilterHrList(), getResources().getString(R.string.hr_linechart), Color.BLUE);
 
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.BPM);

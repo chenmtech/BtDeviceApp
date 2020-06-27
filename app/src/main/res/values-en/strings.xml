@@ -60,6 +60,8 @@
     <string name="max_hr">Max HR:</string>
     <string name="average_hr">Ave HR:</string>
     <string name="hr_histogram">HR Histogram</string>
+    <string name="hr_linechart">HR Line Chart</string>
+    <string name="thermo_linechart">Thermo Line Chart</string>
     <string name="time">Time</string>
     <string name="temperature">℃</string>
     <string name="add_device">Add Device</string>

@@ -27,6 +27,8 @@ import java.util.List;
 public class MyLineChart extends LineChart {
     private static final int DEFAULT_X_VALUE_INTERVAL = 10;
 
+    private String legendString;
+
     public MyLineChart(Context context) {
         super(context);
         initialize();
@@ -103,7 +105,7 @@ public class MyLineChart extends LineChart {
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
         legend.setDrawInside(false);
-        legend.setEnabled(false);
+        legend.setEnabled(true);
 
         Description description = new Description();
         setDescription(description);
@@ -122,7 +124,7 @@ public class MyLineChart extends LineChart {
         initLineDataSet(lineDataSet, color, LineDataSet.Mode.LINEAR);
         LineData lineData = new LineData(lineDataSet);
         setData(lineData);
-        setNoDataText("暂无数据");
+        setNoDataText("");
         Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.hr_linechart_fade);
         setChartFillDrawable(drawable);
     }
@@ -139,7 +141,7 @@ public class MyLineChart extends LineChart {
         initLineDataSet(lineDataSet, color, LineDataSet.Mode.LINEAR);
         LineData lineData = new LineData(lineDataSet);
         setData(lineData);
-        setNoDataText("暂无数据");
+        setNoDataText("");
         Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.hr_linechart_fade);
         setChartFillDrawable(drawable);
     }
