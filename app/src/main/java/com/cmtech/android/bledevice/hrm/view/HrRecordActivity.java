@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +37,7 @@ public class HrRecordActivity extends AppCompatActivity {
     private HrHistogramChart hrHistChart; // HR histogram chart
 
     private EditText etNote;
-    private Button btnSave;
+    private ImageButton ibEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,9 +109,10 @@ public class HrRecordActivity extends AppCompatActivity {
         etNote = findViewById(R.id.et_note);
         etNote.setText(record.getNote());
         etNote.setEnabled(false);
-        btnSave = findViewById(R.id.btn_save);
-        btnSave.setText(R.string.edit);
-        btnSave.setOnClickListener(new View.OnClickListener() {
+
+        ibEdit = findViewById(R.id.ib_edit);
+        ibEdit.setImageResource(R.mipmap.ic_edit_32px);
+        ibEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(etNote.isEnabled()) {
@@ -121,10 +123,10 @@ public class HrRecordActivity extends AppCompatActivity {
                         record.save();
                     }
                     etNote.setEnabled(false);
-                    btnSave.setText(R.string.edit);
+                    ibEdit.setImageResource(R.mipmap.ic_edit_32px);
                 } else {
                     etNote.setEnabled(true);
-                    btnSave.setText(R.string.save);
+                    ibEdit.setImageResource(R.mipmap.ic_save_32px);
                 }
             }
         });

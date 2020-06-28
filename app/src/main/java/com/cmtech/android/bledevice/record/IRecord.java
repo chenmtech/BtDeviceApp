@@ -13,7 +13,7 @@ package com.cmtech.android.bledevice.record;
  * Version:        1.0
  */
 public interface IRecord extends IRecordJson {
-    int INVALID_ID = 1;
+    int INVALID_ID = -1;
 
     int getId();
     String getVer();

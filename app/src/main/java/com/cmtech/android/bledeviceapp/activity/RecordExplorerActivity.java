@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.record.RecordType.TH;
@@ -248,7 +249,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 final boolean result = (code == CODE_SUCCESS);
                 if (result) {
                     int id = (Integer) rlt;
-                    if (id == -1) {
+                    if (id == INVALID_ID) {
                         ViseLog.e("uploading");
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new RecordWebAsyncTask.RecordWebCallback() {
                             @Override

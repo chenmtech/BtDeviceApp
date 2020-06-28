@@ -39,7 +39,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private ImageButton btnReplayCtrl; // 转换播放状态
 
     private EditText etNote;
-    private Button btnSave;
+    private ImageButton ibEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,9 +137,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         etNote = findViewById(R.id.et_note);
         etNote.setText(record.getNote());
         etNote.setEnabled(false);
-        btnSave = findViewById(R.id.btn_save);
-        btnSave.setText(R.string.edit);
-        btnSave.setOnClickListener(new View.OnClickListener() {
+
+        ibEdit = findViewById(R.id.ib_edit);
+        ibEdit.setImageResource(R.mipmap.ic_edit_32px);
+        ibEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(etNote.isEnabled()) {
@@ -150,10 +151,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                         record.save();
                     }
                     etNote.setEnabled(false);
-                    btnSave.setText(R.string.edit);
+                    ibEdit.setImageResource(R.mipmap.ic_edit_32px);
                 } else {
                     etNote.setEnabled(true);
-                    btnSave.setText(R.string.save);
+                    ibEdit.setImageResource(R.mipmap.ic_save_32px);
                 }
             }
         });
