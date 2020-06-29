@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.hrm.view;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -221,6 +222,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                 @Override
                 public void run() {
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
+                    tvSwitchMode.setVisibility(View.VISIBLE);
                     if(inHrMode) {
                         flInHrMode.setVisibility(View.VISIBLE);
                         flInEcgMode.setVisibility(View.GONE);
@@ -228,9 +230,15 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         fragAdapter.removeFragment(ecgRecFrag);
                         pager.setCurrentItem(fragAdapter.getCount()-1);
                         tvSwitchMode.setText(R.string.ecg_switch_off);
+                        tvSwitchMode.setTextColor(Color.BLACK);
+                        tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
+                                getResources().getDrawable(R.mipmap.ic_hr_24px, null), null, null);
                     } else {
                         fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
                         tvSwitchMode.setText(R.string.ecg_switch_on);
+                        tvSwitchMode.setTextColor(Color.WHITE);
+                        tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
+                                getResources().getDrawable(R.mipmap.ic_ecg_24px, null), null, null);
                     }
                 }
             });

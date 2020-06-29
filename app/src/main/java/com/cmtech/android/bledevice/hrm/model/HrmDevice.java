@@ -157,12 +157,14 @@ public class HrmDevice extends AbstractDevice {
         isHrRecord = isRecord;
         if(isRecord) {
             hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
-            if(listener != null && hrRecord != null)
+            if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
+                Toast.makeText(context, R.string.start_record, Toast.LENGTH_SHORT).show();
+            }
         } else {
             if(hrRecord != null) {
                 if (hrRecord.getFilterHrList().size() < 6) {
-                    MyApplication.showMessageUsingShortToast("记录太短，未保存。");
+                    Toast.makeText(context, R.string.record_too_short, Toast.LENGTH_SHORT).show();
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
                     for(int i = 0; i < hrRecord.getHrHistogram().size(); i++) {
@@ -174,6 +176,7 @@ public class HrmDevice extends AbstractDevice {
                     }
                     hrRecord.setRecordSecond(sum);
                     hrRecord.save();
+                    Toast.makeText(context, R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -206,11 +209,12 @@ public class HrmDevice extends AbstractDevice {
             if(ecgRecord == null) return;
 
             if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
-                MyApplication.showMessageUsingShortToast("记录太短，未保存。");
+                Toast.makeText(context, R.string.record_too_short, Toast.LENGTH_SHORT).show();
             } else {
                 ecgRecord.setCreateTime(new Date().getTime());
                 ecgRecord.setRecordSecond(ecgRecord.getEcgData().size()/sampleRate);
                 ecgRecord.save();
+                Toast.makeText(context, R.string.save_record_success, Toast.LENGTH_SHORT).show();
             }
         }
         if(listener != null) {
@@ -489,7 +493,7 @@ public class HrmDevice extends AbstractDevice {
 
                         if(waitSpeak) {
                             waitSpeak = false;
-                            String str = "当前心率" + heartRateData.getBpm();
+                            String str = MyApplication.getStr(R.string.current_hr) + heartRateData.getBpm();
                             MyApplication.getTTS().speak(str);
                             ViseLog.e(str);
                         }

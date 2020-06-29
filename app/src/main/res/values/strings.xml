@@ -36,8 +36,11 @@
     <string name="record_time">记录时间</string>
     <string name="edit">编辑</string>
     <string name="save">保存</string>
+    <string name="start_record">开始记录</string>
+    <string name="stop_record">停止记录</string>
+    <string name="recording">记录中</string>
 
-
+    <string name="current_hr">当前心率</string>
     <string name="hr_too_high">心率过高</string>
     <string name="hr_too_low">心率过低</string>
     <string name="BPM">次/分钟</string>
@@ -49,6 +52,7 @@
     <string name="eeg_record">脑电记录</string>
     <string name="open_record_failure">打开记录失败</string>
     <string name="save_record_success">保存记录成功</string>
+    <string name="record_too_short">记录时长太短，未保存</string>
     <string name="upload_record_success">上传记录成功</string>
     <string name="update_record_success">更新记录成功</string>
     <string name="wait_pls">请稍等</string>

@@ -88,11 +88,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
             android:layout_margin="5dp"
-            android:drawableTop="@mipmap/ic_ecg_32px"
+            android:drawableTop="@mipmap/ic_ecg_24px"
             android:text="@string/ecg_switch_off"
             android:textSize="10sp"
             android:textColor="@color/white"
-            android:visibility="visible"/>
+            android:visibility="gone"/>
 
     </FrameLayout>
 
