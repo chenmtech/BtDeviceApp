@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -124,9 +123,11 @@ public class HrRecordActivity extends AppCompatActivity {
                     }
                     etNote.setEnabled(false);
                     ibEdit.setImageResource(R.mipmap.ic_edit_32px);
+                    etNote.clearFocus();
                 } else {
                     etNote.setEnabled(true);
                     ibEdit.setImageResource(R.mipmap.ic_save_32px);
+                    etNote.requestFocus();
                 }
             }
         });
