@@ -32,6 +32,7 @@ import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
@@ -105,7 +106,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     Toast.makeText(getContext(), R.string.cannot_switch_mode, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getContext()));
                 builder.setTitle(R.string.switch_mode)
                         .setMessage(R.string.reconnect_after_disconnect)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -152,7 +153,6 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         HrmCfg cfg = device.getConfig();
 
         Intent intent = new Intent(getActivity(), HrmCfgActivity.class);
-        intent.putExtra("ecg_lock", device.inHrMode());
         intent.putExtra("hr_cfg", cfg);
         startActivityForResult(intent, 1);
     }

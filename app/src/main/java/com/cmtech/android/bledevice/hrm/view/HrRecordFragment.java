@@ -63,6 +63,7 @@ public class HrRecordFragment extends Fragment {
         ibStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                assert getParentFragment() != null;
                 ((HrmFragment)getParentFragment()).setHrRecord(true);
             }
         });
@@ -70,6 +71,7 @@ public class HrRecordFragment extends Fragment {
         ibStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                assert getParentFragment() != null;
                 ((HrmFragment)getParentFragment()).setHrRecord(false);
             }
         });
@@ -77,11 +79,11 @@ public class HrRecordFragment extends Fragment {
 
     public void updateHrInfo(List<Short> hrList, short hrMax, short hrAve) {
         if(hrMax <= 0)
-            tvHrMax.setText("__");
+            tvHrMax.setText(R.string.ellipsis);
         else
             tvHrMax.setText(String.valueOf(hrMax));
         if(hrAve <= 0)
-            tvHrAve.setText("__");
+            tvHrAve.setText(R.string.ellipsis);
         else
             tvHrAve.setText(String.valueOf(hrAve));
         lineChart.showShortLineChart(hrList, getResources().getString(R.string.hr_linechart), Color.BLUE);

@@ -21,20 +21,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="已停止："
-            android:textSize="20dp"/>
+            android:textSize="20sp"/>
 
         <TextView
             android:id="@+id/tv_note"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="__"
-            android:textSize="20dp"/>
+            android:text="@string/ellipsis"
+            android:textSize="20sp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="秒"
-            android:textSize="20dp"/>
+            android:text="@string/second"
+            android:textSize="20sp"/>
     </LinearLayout>
 
 

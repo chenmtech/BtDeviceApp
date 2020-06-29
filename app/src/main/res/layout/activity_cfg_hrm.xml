@@ -25,55 +25,6 @@
                 android:layout_height="4dp"
                 android:background="@color/primary_dark"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text="心电功能"
-                android:textSize="18sp"
-                android:textColor="@color/black"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="当前状态："
-                    android:textSize="18dp"/>
-
-                <TextView
-                    android:id="@+id/tv_ecg_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="10dp"
-                    android:text="已上锁"
-                    android:textColor="@color/black"
-                    android:textSize="22dp"/>
-                <Button
-                    android:id="@+id/btn_ecg_switch"
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    style="@style/minWidth0DpButtonStyle"
-                    android:text="解锁"/>
-
-            </LinearLayout>
-
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:layout_margin="10dp"
-                android:text="*解锁心电功能会增加设备功耗。"
-                android:textColor="@color/red"
-                android:textSize="15dp"/>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -99,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="播报频率："
-                    android:textSize="18dp"/>
+                    android:textSize="18sp"/>
 
                 <EditText
                     android:id="@+id/et_speak_period"
@@ -108,7 +59,7 @@
                     android:layout_gravity="center"
                     android:gravity="center_horizontal"
                     android:text="5"
-                    android:textSize="22dp"
+                    android:textSize="22sp"
                     android:minWidth="40dp"/>
 
                 <TextView
@@ -118,7 +69,7 @@
                     android:layout_marginEnd="10dp"
                     android:text="分钟/次"
                     android:textColor="@color/black"
-                    android:textSize="18dp"/>
+                    android:textSize="18sp"/>
 
             </LinearLayout>
 
@@ -163,7 +114,7 @@
                         android:layout_gravity="center_vertical"
                         android:gravity="center_horizontal"
                         android:text="下限\n次/分钟"
-                        android:textSize="10dp"/>
+                        android:textSize="10sp"/>
 
                     <NumberPicker
                         android:id="@+id/np_hr_low"
@@ -187,7 +138,7 @@
                         android:layout_gravity="center_vertical"
                         android:gravity="center_horizontal"
                         android:text="上限\n次/分钟"
-                        android:textSize="10dp"/>
+                        android:textSize="10sp"/>
                     <NumberPicker
                         android:id="@+id/np_hr_high"
                         android:layout_width="wrap_content"
@@ -211,7 +162,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 style="@style/minWidth0DpButtonStyle"
-                android:text="确定"/>
+                android:text="@string/ok"/>
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

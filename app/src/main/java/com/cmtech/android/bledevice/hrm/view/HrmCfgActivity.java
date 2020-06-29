@@ -1,9 +1,7 @@
 package com.cmtech.android.bledevice.hrm.view;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -12,7 +10,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.NumberPicker;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.hrm.model.HrmCfg;
@@ -26,12 +23,7 @@ import static com.cmtech.android.bledevice.hrm.model.HrmCfg.DEFAULT_HR_LOW_LIMIT
 
 public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Formatter, NumberPicker.OnScrollListener, NumberPicker.OnValueChangeListener {
     private static final int HR_LIMIT_INTERVAL = 5;
-    public static final int RESULT_ECG_LOCK_CHANGED = RESULT_FIRST_USER;
-    private boolean ecgLock = true;
     private HrmCfg hrCfg;
-
-    private TextView tvStatus; // current ecg lock status
-    private Button btnSwitch; // switch ecg lock status
 
     private NumberPicker npHrLow;
     private NumberPicker npHrHigh;
@@ -51,43 +43,10 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         Toolbar toolbar = findViewById(R.id.tb_hrm_cfg);
         setSupportActionBar(toolbar);
 
-        tvStatus = findViewById(R.id.tv_ecg_status);
-        btnSwitch = findViewById(R.id.btn_ecg_switch);
-
         Intent intent = getIntent();
         if(intent != null) {
-            ecgLock = intent.getBooleanExtra("ecg_lock", true);
             hrCfg = (HrmCfg) intent.getSerializableExtra("hr_cfg");
         }
-
-        if(ecgLock) {
-            btnSwitch.setText("解锁");
-            tvStatus.setText("已上锁");
-        } else {
-            btnSwitch.setText("上锁");
-            tvStatus.setText("已解锁");
-        }
-        btnSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(HrmCfgActivity.this);
-                builder.setTitle("切换心电功能")
-                        .setMessage("将重新连接设备。")
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                Intent intent = new Intent();
-                                intent.putExtra("ecg_lock", !ecgLock);
-                                setResult(RESULT_ECG_LOCK_CHANGED, intent);
-                                HrmCfgActivity.this.finish();
-                            }
-                        })
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-
-                            }
-                        }).show();
-            }
-        });
 
         List<String> hrLimitValues = new ArrayList<>();
         for(int i = DEFAULT_HR_LOW_LIMIT; i <= DEFAULT_HR_HIGH_LIMIT; i+=HR_LIMIT_INTERVAL) {

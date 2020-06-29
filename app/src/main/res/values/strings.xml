@@ -16,7 +16,7 @@
     <string name="ellipsis">…</string>
     <string name="cannot_switch_mode">设备未连接，无法切换工作模式。</string>
     <string name="switch_mode">切换模式</string>
-    <string name="reconnect_after_disconnect">设备将断开后重连。</string>
+    <string name="reconnect_after_disconnect">设备将断开重连。</string>
     <string name="pls_stop_record_firstly">请先停止记录。</string>
     <string name="pls_turn_on_ecg_firstly">请先打开心电。</string>
     <string name="pls_be_quiet_when_record">记录时请保持安静。</string>
@@ -67,7 +67,7 @@
     <string name="add_device">添加设备</string>
     <string name="delete_device">删除设备</string>
     <string name="wont_delete_info_by_device">删除设备不会丢失设备记录。</string>
-    <string name="user_record">用户记录</string>
+    <string name="query_record">查阅记录</string>
     <string name="open_store">康明商城</string>
     <string name="about_km">关于康明</string>
     <string name="exit">退出</string>

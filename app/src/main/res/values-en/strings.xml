@@ -67,7 +67,7 @@
     <string name="add_device">Add Device</string>
     <string name="delete_device">Delete Device</string>
     <string name="wont_delete_info_by_device">The info recorded by this device wont be deleted.</string>
-    <string name="user_record">User Record</string>
+    <string name="query_record">Query Record</string>
     <string name="open_store">KM Store</string>
     <string name="about_km">about KM</string>
     <string name="exit">exit</string>
