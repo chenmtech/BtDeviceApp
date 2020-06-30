@@ -28,33 +28,56 @@ public class BleThermoRecord10 extends BasicRecord {
 
     private BleThermoRecord10() {
         super(THERMO);
-        highestTemp = 0.0f;
-        temp = new ArrayList<>();
+        initData();
     }
 
     private BleThermoRecord10(long createTime, String devAddress, User creator, String note) {
         super(THERMO, "1.0", createTime, devAddress, creator, note, true);
-        highestTemp = 0.0f;
-        temp = new ArrayList<>();
+        initData();
     }
 
     private BleThermoRecord10(JSONObject json)  throws JSONException {
         super(THERMO, "1.0", json, false);
     }
 
-    @Override
-    public JSONObject toJson() {
-        return null;
+    private void initData() {
+        highestTemp = 0.0f;
+        temp = new ArrayList<>();
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) {
-        return false;
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = super.toJson();
+        json.put("recordTypeCode", getTypeCode());
+        json.put("highestTemp", highestTemp);
+        StringBuilder builder = new StringBuilder();
+        for(Float ele : temp) {
+            builder.append(ele).append(',');
+        }
+        json.put("temp", builder.toString());
+        return json;
+    }
+
+    @Override
+    public boolean setDataFromJson(JSONObject json) throws JSONException{
+        if(json == null) {
+            return false;
+        }
+
+        highestTemp = (float)json.getDouble("highestTemp");
+        String tempStr = json.getString("temp");
+        List<Float> temp = new ArrayList<>();
+        String[] strings = tempStr.split(",");
+        for(String str : strings) {
+            temp.add(Float.parseFloat(str));
+        }
+        this.temp = temp;
+        return save();
     }
 
     @Override
     public boolean noData() {
-        return true;
+        return temp.isEmpty();
     }
 
     public List<Float> getTemp() {
@@ -75,6 +98,6 @@ public class BleThermoRecord10 extends BasicRecord {
 
     @Override
     public String toString() {
-        return super.toString() + "-" + highestTemp + "-" + temp + "-" + getNote();
+        return super.toString() + "-" + highestTemp + "-" + temp;
     }
 }

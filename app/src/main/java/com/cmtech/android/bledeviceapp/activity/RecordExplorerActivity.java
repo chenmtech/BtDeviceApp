@@ -41,6 +41,7 @@ import java.util.Map;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledevice.record.RecordType.EEG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.record.RecordType.TH;
 import static com.cmtech.android.bledevice.record.RecordType.THERMO;
@@ -61,7 +62,7 @@ import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCES
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
-    private static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{HR, ECG, THERMO, TH};
+    private static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{HR, ECG, THERMO, EEG, TH};
     private static final int READ_RECORD_BASIC_INFO_NUM = 20;
 
     private long updateTime; // update time in record list
@@ -172,6 +173,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     private void updateRecords(final long from) {
         IRecord record = RecordFactory.create(recordType, from, null, AccountManager.getAccount(), "");
+        if(record == null) {
+            ViseLog.e("The record type is not supported.");
+            return;
+        }
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, READ_RECORD_BASIC_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override

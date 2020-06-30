@@ -32,6 +32,9 @@ public class RecordFactory {
             case THERMO:
                 return BleThermoRecord10.class;
 
+            case EEG:
+                return BleEegRecord10.class;
+
             case TH:
                 return BleTempHumidRecord10.class;
 
@@ -46,7 +49,7 @@ public class RecordFactory {
             try {
                 Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, User.class, String.class);
                 constructor.setAccessible(true);
-                return (IRecord) constructor.newInstance(createTime, devAddress, creator, note);
+                return constructor.newInstance(createTime, devAddress, creator, note);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -79,9 +82,13 @@ public class RecordFactory {
 
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
-            return LitePal.select(BasicRecord.QUERY_STR)
-                    .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
-                    .order("createTime desc").limit(num).find(recordClass);
+            try {
+                return LitePal.select(BasicRecord.QUERY_STR)
+                        .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
+                        .order("createTime desc").limit(num).find(recordClass);
+            } catch (Exception e) {
+                return null;
+            }
         }
         return null;
     }
@@ -89,7 +96,11 @@ public class RecordFactory {
     public static IRecord createFromLocalDb(RecordType type, long createTime, String devAddress) {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
-            return LitePal.where("createTime = ? and devAddress = ?", ""+createTime, devAddress).findFirst(recordClass);
+            try {
+                return LitePal.where("createTime = ? and devAddress = ?", ""+createTime, devAddress).findFirst(recordClass);
+            } catch (Exception e) {
+                return null;
+            }
         }
         return null;
     }
