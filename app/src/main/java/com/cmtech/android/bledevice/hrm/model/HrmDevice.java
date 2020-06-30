@@ -191,7 +191,7 @@ public class HrmDevice extends AbstractDevice {
         if(isRecord && !ecgOn) {
             Toast.makeText(context, R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
             if(listener != null) {
-                listener.onEcgSignalRecorded(false);
+                listener.onEcgSignalRecordStatusUpdated(false);
             }
             return;
         }
@@ -218,7 +218,7 @@ public class HrmDevice extends AbstractDevice {
             }
         }
         if(listener != null) {
-            listener.onEcgSignalRecorded(isRecord);
+            listener.onEcgSignalRecordStatusUpdated(isRecord);
         }
     }
 

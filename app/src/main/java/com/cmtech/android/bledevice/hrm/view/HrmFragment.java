@@ -256,7 +256,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onEcgSignalRecorded(boolean isRecord) {
+    public void onEcgSignalRecordStatusUpdated(boolean isRecord) {
         ecgRecFrag.updateRecordStatus(isRecord);
     }
 

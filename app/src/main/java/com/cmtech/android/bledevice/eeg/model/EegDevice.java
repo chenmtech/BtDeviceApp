@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.eeg.model;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
@@ -12,6 +13,7 @@ import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleEegRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
@@ -208,7 +210,7 @@ public class EegDevice extends AbstractDevice {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
-                MyApplication.showMessageUsingShortToast("记录时请保持安静。");
+                Toast.makeText(context, R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
                 isEegRecord = true;
             }
         } else {

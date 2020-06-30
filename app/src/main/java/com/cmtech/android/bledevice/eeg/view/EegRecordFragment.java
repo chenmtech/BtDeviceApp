@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.hrm.view.HrmFragment;
 import com.cmtech.android.bledeviceapp.R;
 
+import java.util.Objects;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.view
@@ -26,7 +28,7 @@ import com.cmtech.android.bledeviceapp.R;
  * Version:        1.0
  */
 public class EegRecordFragment extends Fragment {
-    public static final int TITLE_ID = R.string.ecg_record;
+    public static final int TITLE_ID = R.string.eeg_record;
 
     ImageButton ibRecord;
     TextView tvTimeLength;
@@ -49,6 +51,7 @@ public class EegRecordFragment extends Fragment {
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                assert getParentFragment() != null;
                 ((EegFragment)getParentFragment()).setEegRecord(!isRecord);
             }
         });
@@ -61,19 +64,19 @@ public class EegRecordFragment extends Fragment {
     public void updateRecordStatus(boolean isRecord) {
         if(isRecord) {
             ibRecord.setImageResource(R.mipmap.ic_stop_32px);
-            tvRecordStatus.setText("已记录：");
+            tvRecordStatus.setText(R.string.recording);
         } else {
             ibRecord.setImageResource(R.mipmap.ic_start_32px);
-            tvRecordStatus.setText("已停止：");
+            tvRecordStatus.setText(R.string.start_record);
         }
         this.isRecord = isRecord;
     }
 
     public void setEcgRecordTime(final int second) {
-        getActivity().runOnUiThread(new Runnable() {
+        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tvTimeLength.setText(""+second);
+                tvTimeLength.setText(String.valueOf(second));
             }
         });
     }

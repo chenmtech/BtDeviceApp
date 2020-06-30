@@ -24,7 +24,7 @@ public interface OnHrmListener {
     void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean inHrMode); // fragment updated
     void onHrRecordStatusUpdated(boolean isRecord);
     void onEcgSignalShowed(int ecgSignal); // ecg signal showed
-    void onEcgSignalRecorded(boolean isRecord); // ecg signal recorded
+    void onEcgSignalRecordStatusUpdated(boolean isRecord); // ecg signal recorded
     void onEcgOnStatusUpdated(boolean isOpen);
     void onEcgRecordTimeUpdated(int second);
 }
