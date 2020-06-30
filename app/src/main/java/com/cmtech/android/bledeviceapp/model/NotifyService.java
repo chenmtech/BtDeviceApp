@@ -15,6 +15,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.BleDeviceInfo;
 import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.ScanException;
@@ -96,7 +97,11 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         List<String> notifyContents = new ArrayList<>();
         List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
         for (IDevice device : openedDevices) {
-            notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
+            if(device.getState() != DeviceState.CONNECT || device.getNotifyInfo().equals(""))
+                notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
+            else {
+                notifyContents.add(device.getAddress() + ": " + device.getNotifyInfo());
+            }
         }
         Notification notification = createNotification(notifyContents);
         startForeground(NOTIFY_ID, notification);
@@ -151,6 +156,11 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     @Override
     public void onBatteryUpdated(IDevice device) {
+    }
+
+    @Override
+    public void onNotificationInfoUpdated(IDevice device) {
+
     }
 
     private Notification createNotification(List<String> notifyContents) {

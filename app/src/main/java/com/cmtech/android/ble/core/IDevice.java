@@ -18,6 +18,7 @@ public interface IDevice extends IConnector.IConnectorCallback {
     int getBattery();
     void setBattery(final int battery);
     DeviceState getState(); // get state
+    String getNotifyInfo();
     void addListener(OnDeviceListener listener);
     void removeListener(OnDeviceListener listener);
 
@@ -33,5 +34,6 @@ public interface IDevice extends IConnector.IConnectorCallback {
         void onStateUpdated(final IDevice device); // state updated
         void onExceptionNotified(final IDevice device, BleException ex); // exception notified
         void onBatteryUpdated(final IDevice device); // battery level updated
+        void onNotificationInfoUpdated(final IDevice device);
     }
 }

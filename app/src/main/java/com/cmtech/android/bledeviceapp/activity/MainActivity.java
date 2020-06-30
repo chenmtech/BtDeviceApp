@@ -485,6 +485,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
+    @Override
+    public void onNotificationInfoUpdated(IDevice device) {
+
+    }
+
     // Fragment更新
     @Override
     public void onFragmentUpdated() {
