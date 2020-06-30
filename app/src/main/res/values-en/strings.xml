@@ -40,6 +40,7 @@
     <string name="start_record">Start recording</string>
     <string name="stop_record">Stop recording</string>
     <string name="recording">Recording</string>
+    <string name="temperature_of_body">Temp. </string>
 
     <string name="current_hr">The current heart rate is </string>
     <string name="hr_too_high">Your heart rate is too high</string>

@@ -39,6 +39,7 @@
     <string name="start_record">开始记录</string>
     <string name="stop_record">停止记录</string>
     <string name="recording">记录中</string>
+    <string name="temperature_of_body">体温</string>
 
     <string name="current_hr">当前心率</string>
     <string name="hr_too_high">心率过高</string>

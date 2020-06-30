@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.thermo.model;
 
+import android.widget.Toast;
+
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
@@ -145,7 +147,7 @@ public class ThermoDevice extends AbstractDevice {
             if(record != null) {
                 record.setCreateTime(new Date().getTime());
                 record.save();
-                MyApplication.showMessageUsingShortToast("体温记录已保存");
+                Toast.makeText(MyApplication.getContext(), MyApplication.getStr(R.string.save_record_success), Toast.LENGTH_SHORT).show();
                 record = null;
             }
         }
@@ -186,7 +188,7 @@ public class ThermoDevice extends AbstractDevice {
                     if(isRecord && record != null) {
                         record.setHighestTemp(highestTemp);
                     }
-                    setNotifyInfo("体温" + highestTemp + MyApplication.getStr(R.string.temperature));
+                    setNotifyInfo(MyApplication.getStr(R.string.temperature_of_body) + highestTemp + MyApplication.getStr(R.string.temperature));
                 }
             }
 
