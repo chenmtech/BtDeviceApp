@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.thm.model;
 
+import android.widget.Toast;
+
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
@@ -11,6 +13,7 @@ import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.cmtech.bmefile.ByteUtil;
@@ -113,7 +116,7 @@ public class ThmDevice extends AbstractDevice {
         record.setHeatIndex(tempHumidData.calculateHeatIndex());
         record.setLocation(loc);
         record.save();
-        MyApplication.showMessageUsingShortToast("温湿度数据已保存");
+        Toast.makeText(MyApplication.getContext(), MyApplication.getStr(R.string.save_record_success), Toast.LENGTH_SHORT).show();
     }
 
     // start measurement
@@ -187,5 +190,6 @@ public class ThmDevice extends AbstractDevice {
             if(listener != null)
                 listener.onTempHumidDataUpdated(tempHumidData);
         }
+        setNotifyInfo("温度" + tempHumidData.getTemp()/100.0f + " 湿度" + tempHumidData.getHumid()/100.0f);
     }
 }

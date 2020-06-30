@@ -19,6 +19,7 @@ public interface IDevice extends IConnector.IConnectorCallback {
     void setBattery(final int battery);
     DeviceState getState(); // get state
     String getNotifyInfo();
+    void setNotifyInfo(String notifyInfo);
     void addListener(OnDeviceListener listener);
     void removeListener(OnDeviceListener listener);
 

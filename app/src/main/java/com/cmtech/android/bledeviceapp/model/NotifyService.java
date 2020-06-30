@@ -94,16 +94,20 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     }
 
     private void sendNotification() {
-        List<String> notifyContents = new ArrayList<>();
+        List<String> notifyContent = new ArrayList<>();
         List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
         for (IDevice device : openedDevices) {
-            if(device.getState() != DeviceState.CONNECT || device.getNotifyInfo().equals(""))
-                notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
-            else {
-                notifyContents.add(device.getAddress() + ": " + device.getNotifyInfo());
+            StringBuilder builder = new StringBuilder();
+            builder.append(device.getName()).append("(").append(device.getAddress().substring(device.getAddress().length()-5)).append(")").append(": ");
+            if(device.getState() != DeviceState.CONNECT || device.getNotifyInfo().equals("")) {
+                builder.append(device.getState().getDescription());
             }
+            else {
+                builder.append(device.getNotifyInfo());
+            }
+            notifyContent.add(builder.toString());
         }
-        Notification notification = createNotification(notifyContents);
+        Notification notification = createNotification(notifyContent);
         startForeground(NOTIFY_ID, notification);
     }
 
@@ -160,7 +164,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     @Override
     public void onNotificationInfoUpdated(IDevice device) {
-
+        sendNotification();
     }
 
     private Notification createNotification(List<String> notifyContents) {
@@ -176,6 +180,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
             }
         }
         notifyBuilder.setStyle(inboxStyle);
+
         Notification notification = notifyBuilder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;
         notification.flags |= Notification.FLAG_NO_CLEAR;

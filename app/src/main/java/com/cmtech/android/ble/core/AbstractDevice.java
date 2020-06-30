@@ -18,7 +18,7 @@ public abstract class AbstractDevice implements IDevice{
     private Context context; // context
     private final DeviceInfo info; // information
     private int battery; // battery level
-    protected String notifyInfo;
+    private String notifyInfo;
     private final List<OnDeviceListener> listeners; // connCallback listeners
     protected final IConnector connector; // connector
 
@@ -87,6 +87,15 @@ public abstract class AbstractDevice implements IDevice{
     @Override
     public String getNotifyInfo() {
         return notifyInfo;
+    }
+    @Override
+    public void setNotifyInfo(String notifyInfo) {
+        this.notifyInfo = notifyInfo;
+        for (final OnDeviceListener listener : listeners) {
+            if (listener != null) {
+                listener.onNotificationInfoUpdated(this);
+            }
+        }
     }
     @Override
     public final void addListener(OnDeviceListener listener) {

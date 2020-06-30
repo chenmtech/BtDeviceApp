@@ -491,12 +491,13 @@ public class HrmDevice extends AbstractDevice {
                                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
                         }
 
+                        String str = MyApplication.getStr(R.string.current_hr) + heartRateData.getBpm();
                         if(waitSpeak) {
                             waitSpeak = false;
-                            String str = MyApplication.getStr(R.string.current_hr) + heartRateData.getBpm();
                             MyApplication.getTTS().speak(str);
                             ViseLog.e(str);
                         }
+                        setNotifyInfo(str);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

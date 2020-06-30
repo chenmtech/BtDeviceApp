@@ -11,6 +11,7 @@ import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.vise.log.ViseLog;
@@ -185,6 +186,7 @@ public class ThermoDevice extends AbstractDevice {
                     if(isRecord && record != null) {
                         record.setHighestTemp(highestTemp);
                     }
+                    setNotifyInfo("体温" + highestTemp + MyApplication.getStr(R.string.temperature));
                 }
             }
 
