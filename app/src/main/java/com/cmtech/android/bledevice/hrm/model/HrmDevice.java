@@ -178,6 +178,7 @@ public class HrmDevice extends AbstractDevice {
                     hrRecord.setRecordSecond(sum);
                     hrRecord.save();
                     ViseLog.e(hrRecord);
+                    ViseLog.e(LitePal.findAll(BleHrRecord10.class));
                     Toast.makeText(context, R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
             }

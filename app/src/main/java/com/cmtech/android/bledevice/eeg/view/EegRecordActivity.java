@@ -48,6 +48,7 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
 
         record = LitePal.where("id = ?", ""+recordId).findFirst(BleEegRecord10.class);
+        ViseLog.e(record);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();

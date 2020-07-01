@@ -16,7 +16,7 @@ import static com.cmtech.android.bledevice.record.RecordType.EEG;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.record
- * ClassName:      EegRecord10
+ * ClassName:      BleEegRecord10
  * Description:    java类作用描述
  * Author:         作者名
  * CreateDate:     2020/3/28 上午7:11
@@ -102,10 +102,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
 
     public List<Integer> getEegData() {
         return eegData;
-    }
-
-    public void setEegData(List<Integer> eegData) {
-        this.eegData.addAll(eegData);
     }
 
     @Override

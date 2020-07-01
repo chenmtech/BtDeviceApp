@@ -22,7 +22,7 @@ import org.litepal.crud.LitePalSupport;
  * Version:        1.0
  */
 public class BasicRecord extends LitePalSupport implements IRecord {
-    public static final String QUERY_STR = "createTime, devAddress, creatorPlat, creatorId, note, needUpload"; // used to create from local DB
+    public static final String QUERY_STR = "ver, createTime, devAddress, creatorPlat, creatorId, note, needUpload"; // used to create from local DB
 
     private int id;
     private String ver; // record version

@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
+import com.cmtech.android.bledevice.eeg.view.EegRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
@@ -24,7 +25,7 @@ public enum RecordType {
     HR(2, R.string.hr_record, R.mipmap.ic_hr_24px, HrRecordActivity.class),
     THERMO(3, R.string.thermo_record, R.mipmap.ic_thermo_24px, ThermoRecordActivity.class),
     TH(4, R.string.th_record, R.drawable.ic_thm_default_icon, null),
-    EEG(5, R.string.eeg_record, R.mipmap.ic_eeg_24px, EcgRecordActivity.class);
+    EEG(5, R.string.eeg_record, R.mipmap.ic_eeg_24px, EegRecordActivity.class);
 
     private String name;
     private int code;

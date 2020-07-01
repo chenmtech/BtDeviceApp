@@ -94,6 +94,8 @@
             android:launchMode="singleTask"/>
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity"
             android:launchMode="singleTask"/>
+        <activity android:name="com.cmtech.android.bledevice.eeg.view.EegRecordActivity"
+            android:launchMode="singleTask"/>
 
         <service
             android:name=".model.NotifyService"

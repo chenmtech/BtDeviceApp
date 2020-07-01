@@ -52,6 +52,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             setResult(RESULT_CANCELED);
             finish();
         }
+        ViseLog.e(record);
         if(record.getNote() == null) {
             record.setNote("");
             record.save();

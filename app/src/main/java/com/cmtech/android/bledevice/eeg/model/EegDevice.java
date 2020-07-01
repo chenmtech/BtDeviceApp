@@ -206,6 +206,7 @@ public class EegDevice extends AbstractDevice {
     public void setEegRecord(final boolean isRecord) {
         if(isEegRecord == isRecord) return;
 
+        isEegRecord = isRecord;
         if(isRecord) {
             eegRecord = (BleEegRecord10) RecordFactory.create(EEG, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
             ViseLog.e(eegRecord);
@@ -214,18 +215,16 @@ public class EegDevice extends AbstractDevice {
                 eegRecord.setCaliValue(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
                 Toast.makeText(context, R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
-                isEegRecord = true;
             }
         } else {
             if(eegRecord == null) return;
 
             eegRecord.setCreateTime(new Date().getTime());
-            eegRecord.setRecordSecond(eegRecord.getDataNum()/sampleRate);
+            eegRecord.setRecordSecond(eegRecord.getEegData().size()/sampleRate);
             eegRecord.save();
             ViseLog.e(eegRecord);
             ViseLog.e(LitePal.findAll(BleEegRecord10.class));
             ViseLog.e("eeg record saved");
-            isEegRecord = false;
         }
 
         if(listener != null) {
