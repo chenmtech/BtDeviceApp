@@ -184,7 +184,7 @@ public class AccountActivity extends AppCompatActivity {
         ivImage = findViewById(R.id.iv_account_image);
         cacheImagePath = account.getIcon();
         if(TextUtils.isEmpty(cacheImagePath)) {
-            Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivImage);
+            Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
         } else {
             Glide.with(MyApplication.getContext()).load(cacheImagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
         }

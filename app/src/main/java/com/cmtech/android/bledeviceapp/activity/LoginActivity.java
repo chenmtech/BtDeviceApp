@@ -29,6 +29,7 @@ import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
 
+import static android.Manifest.permission_group.SMS;
 import static com.cmtech.android.bledeviceapp.AppConstant.HW_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.SMS_PLAT_NAME;
 

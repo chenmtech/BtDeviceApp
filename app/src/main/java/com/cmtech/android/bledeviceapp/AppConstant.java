@@ -56,7 +56,7 @@ public class AppConstant {
             put(QQ_PLAT_NAME, R.mipmap.ic_qq);
             put(WX_PLAT_NAME, R.mipmap.ic_wechat);
             put(HW_PLAT_NAME, R.mipmap.ic_huawei);
-            put(SMS_PLAT_NAME, R.mipmap.ic_sms);
+            put(SMS_PLAT_NAME, R.mipmap.ic_user);
         }
     }; // supported login platform
 
