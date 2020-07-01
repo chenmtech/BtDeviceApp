@@ -52,6 +52,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotifyService;
+import com.cmtech.android.bledeviceapp.model.PhoneAccount;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
@@ -72,6 +73,7 @@ import cn.sharesdk.wechat.friends.Wechat;
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
+import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
@@ -619,6 +621,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             } else if(account.getPlatName().equals(WX_PLAT_NAME)) {
                 Platform plat = ShareSDK.getPlatform(Wechat.NAME);
                 plat.removeAccount(true);
+            } else if(account.getPlatName().equals(PHONE_PLAT_NAME)) {
+                PhoneAccount.removeAccount();
             }
 
             AccountManager.clearLocalIcon();

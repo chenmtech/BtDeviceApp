@@ -7,6 +7,7 @@ import com.cmtech.android.bledevice.ecg.device.EcgFactory;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory;
 import com.cmtech.android.bledevice.eeg.model.EegFactory;
 import com.cmtech.android.bledevice.hrm.model.HrmFactory;
+import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledevice.thm.model.ThmFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
@@ -20,6 +21,12 @@ import java.util.UUID;
 
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
+
+import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledevice.record.RecordType.EEG;
+import static com.cmtech.android.bledevice.record.RecordType.HR;
+import static com.cmtech.android.bledevice.record.RecordType.TH;
+import static com.cmtech.android.bledevice.record.RecordType.THERMO;
 
 /**
  * AppConstant: App constant
@@ -46,17 +53,18 @@ public class AppConstant {
             add(EegFactory.EEG_DEVICE_TYPE);
         }
     }; // supported device type
+    public static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{HR, ECG, THERMO, EEG};
 
     public static final String QQ_PLAT_NAME = QQ.NAME;
     public static final String WX_PLAT_NAME = Wechat.NAME;
     public static final String HW_PLAT_NAME = "HW";
-    public static final String SMS_PLAT_NAME = "SMS";
+    public static final String PHONE_PLAT_NAME = "PH";
     public static final Map<String, Integer> SUPPORT_LOGIN_PLATFORM = new HashMap<String, Integer>() {
         {
             put(QQ_PLAT_NAME, R.mipmap.ic_qq);
             put(WX_PLAT_NAME, R.mipmap.ic_wechat);
             put(HW_PLAT_NAME, R.mipmap.ic_huawei);
-            put(SMS_PLAT_NAME, R.mipmap.ic_user);
+            put(PHONE_PLAT_NAME, R.mipmap.ic_user);
         }
     }; // supported login platform
 

@@ -47,6 +47,7 @@ import static com.cmtech.android.bledevice.record.RecordType.TH;
 import static com.cmtech.android.bledevice.record.RecordType.THERMO;
 import static com.cmtech.android.bledevice.record.RecordType.UNKNOWN;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
 
 /**
   *
@@ -62,7 +63,6 @@ import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCES
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
-    private static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{HR, ECG, THERMO, EEG, TH};
     private static final int READ_RECORD_BASIC_INFO_NUM = 20;
 
     private long updateTime; // update time in record list

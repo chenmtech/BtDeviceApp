@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">KM IOT</string>
     <string name="welcome_word">KM IOT</string>
+    <string name="login_pls">Login</string>
+    <string name="phone_login">Login with phone</string>
     <string name="unknown">unknown</string>
     <string name="no_more">no more</string>
     <string name="anonymous">anonymous</string>

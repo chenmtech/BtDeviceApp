@@ -16,6 +16,8 @@ import android.widget.Toast;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.PhoneAccount;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.mob.MobSDK;
 
 import java.util.HashMap;
@@ -29,21 +31,26 @@ import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
 
-import static android.Manifest.permission_group.SMS;
 import static com.cmtech.android.bledeviceapp.AppConstant.HW_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.AppConstant.SMS_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
 
 public class LoginActivity extends AppCompatActivity {
     private ImageButton qqLogin;
     private ImageButton wxLogin;
     private ImageButton hwLogin;
-    private ImageButton smsLogin;
+    private ImageButton phoneLogin;
     private CheckBox cbGrant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        User phoneAccount = PhoneAccount.getAccount();
+        if(phoneAccount != null) {
+            login(PHONE_PLAT_NAME, phoneAccount.getPlatId(), phoneAccount.getName(), phoneAccount.getIcon());
+            return;
+        }
 
         Platform plat = ShareSDK.getPlatform(QQ.NAME);
         if(plat.isAuthValid()) {
@@ -85,12 +92,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        smsLogin = findViewById(R.id.ib_sms_login);
-        smsLogin.setOnClickListener(new View.OnClickListener() {
+        phoneLogin = findViewById(R.id.ib_phone_login);
+        phoneLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!checkPrivacyGrant()) return;
-                loginUsingSMS(LoginActivity.this);
+                loginUsingPhone(LoginActivity.this);
             }
         });
 
@@ -167,7 +174,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivityForResult(intent, 1);
     }
 
-    private void loginUsingSMS(Context context) {
+    private void loginUsingPhone(Context context) {
         RegisterPage page = new RegisterPage();
         page.setTempCode(null);
         page.setRegisterCallback(new EventHandler() {
@@ -177,7 +184,7 @@ public class LoginActivity extends AppCompatActivity {
                     String country = (String) phoneMap.get("country");
                     String phone = (String) phoneMap.get("phone");
                     String platId = country+phone;
-                    login(SMS_PLAT_NAME, platId, phone, "");
+                    login(PHONE_PLAT_NAME, platId, phone, "");
                 } else{
                     // TODO 处理错误的结果
                 }
