@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
 import com.cmtech.android.bledeviceapp.model.User;
+import com.vise.log.ViseLog;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -83,10 +84,12 @@ public class RecordFactory {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
+                ViseLog.e(LitePal.findAll(BleEegRecord10.class));
                 return LitePal.select(BasicRecord.QUERY_STR)
                         .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
                         .order("createTime desc").limit(num).find(recordClass);
             } catch (Exception e) {
+                ViseLog.e(e);
                 return null;
             }
         }

@@ -157,6 +157,7 @@ public class HrmDevice extends AbstractDevice {
         isHrRecord = isRecord;
         if(isRecord) {
             hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
+            ViseLog.e(hrRecord);
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
                 Toast.makeText(context, R.string.start_record, Toast.LENGTH_SHORT).show();
@@ -176,6 +177,7 @@ public class HrmDevice extends AbstractDevice {
                     }
                     hrRecord.setRecordSecond(sum);
                     hrRecord.save();
+                    ViseLog.e(hrRecord);
                     Toast.makeText(context, R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
             }

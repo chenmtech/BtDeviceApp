@@ -56,7 +56,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
-        recordSecond = 0;
         eegData = new ArrayList<>();
     }
 

@@ -40,11 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
-import static com.cmtech.android.bledevice.record.RecordType.ECG;
-import static com.cmtech.android.bledevice.record.RecordType.EEG;
-import static com.cmtech.android.bledevice.record.RecordType.HR;
-import static com.cmtech.android.bledevice.record.RecordType.TH;
-import static com.cmtech.android.bledevice.record.RecordType.THERMO;
 import static com.cmtech.android.bledevice.record.RecordType.UNKNOWN;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
@@ -198,7 +193,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
 
+                ViseLog.e(recordType);
                 List<? extends IRecord> records = RecordFactory.createBasicFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_BASIC_INFO_NUM);
+                ViseLog.e(records);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {
