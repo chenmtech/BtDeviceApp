@@ -19,14 +19,14 @@ import static com.cmtech.android.bledevice.view.ScanEcgView.SECOND_PER_GRID;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
- * EcgFileRollWaveView: 用于播放心电记录的卷轴滚动式的波形显示视图
+ * RollSignalRecordWaveView: 用于播放信号记录的卷轴滚动式的波形显示视图
  * Created by bme on 2018/12/06.
  */
 
-public class RollEcgRecordWaveView extends ColorRollWaveView {
+public class RollSignalRecordWaveView extends ColorRollWaveView {
     private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
-    private ISignalRecord ecgRecord; // 要播放的Ecg文件
+    private ISignalRecord signalRecord; // 要播放的信号记录
     private boolean replaying = false; // 是否正在播放
     private int num = 0; // 当前读取的文件中的第几个数据
     private int interval = 0; // 每次更新显示的时间间隔，为采样间隔的整数倍
@@ -42,14 +42,14 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
                 @Override
                 public void run() {
                     try {
-                        if(ecgRecord.isEOD()) {
+                        if(signalRecord.isEOD()) {
                             stopShow();
                         } else {
                             // 读出数据
                             for (int i = 0; i < dataNumReadEachUpdate; i++, num++) {
-                                cacheData.add(ecgRecord.readData());
+                                cacheData.add(signalRecord.readData());
                                 cacheMarked.add(false);
-                                if (ecgRecord.isEOD()) {
+                                if (signalRecord.isEOD()) {
                                     break;
                                 }
                             }
@@ -57,7 +57,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
                             cacheData.clear();
                             cacheMarked.clear();
                             if(listener != null) {
-                                listener.onDataLocationUpdated(num, ecgRecord.getSampleRate());
+                                listener.onDataLocationUpdated(num, signalRecord.getSampleRate());
                             }
                         }
                     } catch (IOException e) {
@@ -109,13 +109,13 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         }
     };
 
-    public RollEcgRecordWaveView(Context context) {
+    public RollSignalRecordWaveView(Context context) {
         super(context);
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
     }
 
-    public RollEcgRecordWaveView(Context context, AttributeSet attrs) {
+    public RollSignalRecordWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
@@ -127,21 +127,21 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         return true;
     }
 
-    public void setEcgRecord(ISignalRecord ecgRecord) {
+    public void setSignalRecord(ISignalRecord signalRecord) {
         stopShow();
-        this.ecgRecord = ecgRecord;
-        int sampleInterval = 1000/ecgRecord.getSampleRate();
+        this.signalRecord = signalRecord;
+        int sampleInterval = 1000/signalRecord.getSampleRate();
         dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_SHOW_INTERVAL /sampleInterval));
         interval = dataNumReadEachUpdate *sampleInterval;
-        ecgRecord.seekData(0);
+        signalRecord.seekData(0);
         num = 0;
 
         initialShowSetup();
     }
 
     private void initialShowSetup() {
-        int value1mV = ecgRecord.getCaliValue();
-        int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * ecgRecord.getSampleRate())); // 计算横向分辨率
+        int value1mV = signalRecord.getCaliValue();
+        int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * signalRecord.getSampleRate())); // 计算横向分辨率
         float valuePerPixel = value1mV * MV_PER_GRID / PIXEL_PER_GRID; // 计算纵向分辨率
         setResolution(pixelPerData, valuePerPixel);
         setPixelPerGrid(PIXEL_PER_GRID);
@@ -154,9 +154,9 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
     }
 
     public void startShow() {
-        if(!replaying && ecgRecord != null && interval > 0) {
-            if(ecgRecord.isEOD()) {
-                ecgRecord.seekData(0);
+        if(!replaying && signalRecord != null && interval > 0) {
+            if(signalRecord.isEOD()) {
+                signalRecord.seekData(0);
                 clearData();
                 num = 0;
             }
@@ -190,15 +190,15 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
 
     // 显示指定秒数的信号
     public void showAtSecond(int second) {
-        showAt(second* ecgRecord.getSampleRate());
+        showAt(second* signalRecord.getSampleRate());
     }
 
     // 显示指定数据位置信号
     public void showAt(long location) {
-        if(ecgRecord == null) return;
+        if(signalRecord == null) return;
 
-        if(location >= ecgRecord.getDataNum()) {
-            location = ecgRecord.getDataNum()-1;
+        if(location >= signalRecord.getDataNum()) {
+            location = signalRecord.getDataNum()-1;
         } else if(location < 0) {
             location = 0;
         }
@@ -207,11 +207,11 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
             begin = 0;
         }
 
-        ecgRecord.seekData((int)begin);
+        signalRecord.seekData((int)begin);
         clearData();
         while(begin++ <= location) {
             try {
-                addData(ecgRecord.readData(), false);
+                addData(signalRecord.readData(), false);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
@@ -223,7 +223,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         num = (int)location;
 
         if(listener != null) {
-            listener.onDataLocationUpdated(num, ecgRecord.getSampleRate());
+            listener.onDataLocationUpdated(num, signalRecord.getSampleRate());
         }
     }
 

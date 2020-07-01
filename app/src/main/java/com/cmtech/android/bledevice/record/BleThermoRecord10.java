@@ -6,6 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordType.THERMO;
@@ -49,7 +51,6 @@ public class BleThermoRecord10 extends BasicRecord {
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
         json.put("recordTypeCode", getTypeCode());
-        json.put("highestTemp", highestTemp);
         StringBuilder builder = new StringBuilder();
         for(Float ele : temp) {
             builder.append(ele).append(',');
@@ -64,7 +65,6 @@ public class BleThermoRecord10 extends BasicRecord {
             return false;
         }
 
-        highestTemp = (float)json.getDouble("highestTemp");
         String tempStr = json.getString("temp");
         List<Float> temp = new ArrayList<>();
         String[] strings = tempStr.split(",");
@@ -72,6 +72,7 @@ public class BleThermoRecord10 extends BasicRecord {
             temp.add(Float.parseFloat(str));
         }
         this.temp = temp;
+        this.highestTemp = Collections.max(temp);
         return save();
     }
 

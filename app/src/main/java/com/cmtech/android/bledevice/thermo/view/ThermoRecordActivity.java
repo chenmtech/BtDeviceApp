@@ -4,15 +4,25 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
+import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
+
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -33,6 +43,10 @@ public class ThermoRecordActivity extends AppCompatActivity {
 
     private MyLineChart lineChart; //
 
+
+    private EditText etNote;
+    private ImageButton ibEdit;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,8 +59,35 @@ public class ThermoRecordActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         }
+        if(record.getNote() == null) {
+            record.setNote("");
+            record.save();
+        }
 
-        initUI();
+        if(record.noData()) {
+            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new RecordWebAsyncTask.RecordWebCallback() {
+                @Override
+                public void onFinish(int code, Object result) {
+                    if (code == CODE_SUCCESS) {
+                        JSONObject json = (JSONObject) result;
+
+                        try {
+                            if(record.setDataFromJson(json)) {
+                                initUI();
+                                return;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    Toast.makeText(ThermoRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_CANCELED);
+                    finish();
+                }
+            }).execute(record);
+        } else {
+            initUI();
+        }
     }
 
     private void initUI() {
@@ -61,5 +102,31 @@ public class ThermoRecordActivity extends AppCompatActivity {
 
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.temperature);
+
+        etNote = findViewById(R.id.et_note);
+        etNote.setText(record.getNote());
+        etNote.setEnabled(false);
+
+        ibEdit = findViewById(R.id.ib_edit);
+        ibEdit.setImageResource(R.mipmap.ic_edit_32px);
+        ibEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(etNote.isEnabled()) {
+                    String note = etNote.getText().toString();
+                    if(!record.getNote().equals(note)) {
+                        record.setNote(etNote.getText().toString());
+                        record.setNeedUpload(true);
+                        record.save();
+                    }
+                    etNote.setEnabled(false);
+                    ibEdit.setImageResource(R.mipmap.ic_edit_32px);
+                } else {
+                    etNote.setEnabled(true);
+                    ibEdit.setImageResource(R.mipmap.ic_save_32px);
+                }
+            }
+        });
+
     }
 }

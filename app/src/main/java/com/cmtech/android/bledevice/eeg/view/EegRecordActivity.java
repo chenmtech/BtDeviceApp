@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.hrm.view;
+package com.cmtech.android.bledevice.eeg.view;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +9,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledevice.record.BleEegRecord10;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollSignalRecordWaveView;
@@ -26,8 +26,8 @@ import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 
-public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
-    private BleEcgRecord10 record;
+public class EegRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
+    private BleEegRecord10 record;
 
     private RecordIntroLayout introLayout;
 
@@ -43,11 +43,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record_ecg);
+        setContentView(R.layout.activity_record_eeg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
 
-        record = LitePal.where("id = ?", ""+recordId).findFirst(BleEcgRecord10.class);
+        record = LitePal.where("id = ?", ""+recordId).findFirst(BleEegRecord10.class);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
@@ -73,7 +73,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                             e.printStackTrace();
                         }
                     }
-                    Toast.makeText(EcgRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EegRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
                     setResult(RESULT_CANCELED);
                     finish();
                 }
@@ -93,7 +93,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         introLayout = findViewById(R.id.layout_record_intro);
         introLayout.redraw(record);
 
-        signalView = findViewById(R.id.scan_ecg_view);
+        signalView = findViewById(R.id.scan_eeg_view);
         signalView.setListener(this);
         signalView.setSignalRecord(record);
         signalView.setZeroLocation(RollWaveView.DEFAULT_ZERO_LOCATION);
