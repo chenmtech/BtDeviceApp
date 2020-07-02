@@ -1,8 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -18,7 +16,6 @@ import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
@@ -47,25 +44,26 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM
  */
 
 public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.ViewHolder>{
-    private static final int SELECT_BG_COLOR = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
+    private static final int SELECT_COLOR = R.color.secondary;
+    private static final int UNSELECT_COLOR = R.color.primary_dark;
     private static final int INVALID_POS = -1;
+
     private final RecordExplorerActivity activity;
-    private final List<IRecord> allRecords;
-    private int selPos = INVALID_POS;
-    private Drawable defaultBg; // default background
+    private final List<IRecord> records;
+    private int position = INVALID_POS;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View view;
 
+        View selectIndicate;
         TextView tvCreatorName; //
         ImageView ivCreatorImage;
         TextView tvCreateTime; //
         TextView tvAddress;
-        TextView tvNote; // record description
+        TextView tvNote; //
         ImageView ivUpload;
         ImageView ivDelete;
         LinearLayout llRecordInfo;
-        View viewIndicate;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -77,14 +75,14 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             tvNote = view.findViewById(R.id.tv_note);
             ivUpload = view.findViewById(R.id.iv_need_upload);
             ivDelete = view.findViewById(R.id.iv_delete);
-            llRecordInfo = view.findViewById(R.id.ll_record_basic_info);
-            viewIndicate = view.findViewById(R.id.view_indicate);
+            llRecordInfo = view.findViewById(R.id.ll_basic_info);
+            selectIndicate = view.findViewById(R.id.view_select_indicate);
         }
     }
 
-    public RecordListAdapter(RecordExplorerActivity activity, List<IRecord> allRecords) {
+    public RecordListAdapter(RecordExplorerActivity activity, List<IRecord> records) {
         this.activity = activity;
-        this.allRecords = allRecords;
+        this.records = records;
     }
 
     @NonNull
@@ -92,38 +90,37 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record, parent, false);
         final ViewHolder holder = new ViewHolder(view);
-        defaultBg = holder.view.getBackground();
 
         holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(FastClickUtil.isFastClick()) return;
 
-                int prePos = selPos;
-                selPos = holder.getAdapterPosition();
-                if(prePos >= 0 && prePos < allRecords.size()) {
+                int prePos = position;
+                position = holder.getAdapterPosition();
+                if(prePos >= 0 && prePos < records.size()) {
                     notifyItemChanged(prePos);
                 }
-                notifyItemChanged(selPos);
-                activity.openRecord(allRecords.get(selPos));
+                notifyItemChanged(position);
+                activity.openRecord(records.get(position));
             }
         });
 
         holder.ivDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.deleteRecord(allRecords.get(holder.getAdapterPosition()));
+                activity.deleteRecord(records.get(holder.getAdapterPosition()));
             }
         });
 
         holder.ivUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BasicRecord record = (BasicRecord) allRecords.get(holder.getAdapterPosition());
+                BasicRecord record = (BasicRecord) records.get(holder.getAdapterPosition());
                 record = (BasicRecord) RecordFactory.createFromLocalDb(RecordType.getType(record.getTypeCode()), record.getCreateTime(), record.getDevAddress());
                 if(record == null)
                     return;
-                allRecords.set(holder.getAdapterPosition(), record);
+                records.set(holder.getAdapterPosition(), record);
                 activity.uploadRecord(record);
             }
         });
@@ -132,7 +129,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        IRecord record = allRecords.get(position);
+        IRecord record = records.get(position);
         if(record == null) return;
 
         holder.tvCreatorName.setText(record.getCreatorName());
@@ -149,7 +146,11 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
         holder.tvAddress.setText(record.getDevAddress());
 
-        holder.tvNote.setText(record.getNote());
+        if(TextUtils.isEmpty(record.getNote())) {
+            holder.tvNote.setText(R.string.null_content);
+        } else {
+            holder.tvNote.setText(record.getNote());
+        }
 
         if(record.needUpload()) {
             holder.ivUpload.setVisibility(View.VISIBLE);
@@ -157,16 +158,16 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             holder.ivUpload.setVisibility(View.GONE);
         }
 
-        if(position == selPos) {
-            holder.viewIndicate.setBackgroundColor(SELECT_BG_COLOR);
+        if(position == this.position) {
+            holder.selectIndicate.setBackgroundResource(SELECT_COLOR);
         } else {
-            holder.viewIndicate.setBackgroundColor(activity.getResources().getColor(R.color.primary_dark));
+            holder.selectIndicate.setBackgroundResource(UNSELECT_COLOR);
         }
     }
 
     @Override
     public int getItemCount() {
-        return allRecords.size();
+        return records.size();
     }
 
     public void updateRecordList() {
@@ -174,19 +175,19 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     }
 
     public IRecord getSelectedRecord() {
-        if(selPos == INVALID_POS) return null;
-        return allRecords.get(selPos);
+        if(position == INVALID_POS) return null;
+        return records.get(position);
     }
 
     public void unselected() {
-        selPos = INVALID_POS;
+        position = INVALID_POS;
     }
 
     public void notifySelectedItemChanged() {
         ViseLog.e("activity result");
-        IRecord record = allRecords.get(selPos);
-        allRecords.set(selPos, LitePal.find(record.getClass(), record.getId()));
-        notifyItemChanged(selPos);
+        IRecord record = records.get(position);
+        records.set(position, LitePal.find(record.getClass(), record.getId()));
+        notifyItemChanged(position);
     }
 
 
