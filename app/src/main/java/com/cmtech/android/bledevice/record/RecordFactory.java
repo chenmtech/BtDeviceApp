@@ -84,7 +84,6 @@ public class RecordFactory {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                ViseLog.e(LitePal.findAll(BleEegRecord10.class));
                 return LitePal.select(BasicRecord.QUERY_STR)
                         .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
                         .order("createTime desc").limit(num).find(recordClass);

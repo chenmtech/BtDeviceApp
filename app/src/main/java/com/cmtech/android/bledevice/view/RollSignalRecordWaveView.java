@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.cmtech.android.bledevice.view.ScanEcgView.MV_PER_GRID;
-import static com.cmtech.android.bledevice.view.ScanEcgView.PIXEL_PER_GRID;
-import static com.cmtech.android.bledevice.view.ScanEcgView.SECOND_PER_GRID;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
@@ -135,18 +132,6 @@ public class RollSignalRecordWaveView extends ColorRollWaveView {
         interval = dataNumReadEachUpdate *sampleInterval;
         signalRecord.seekData(0);
         num = 0;
-
-        initialShowSetup();
-    }
-
-    private void initialShowSetup() {
-        int value1mV = signalRecord.getCaliValue();
-        int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * signalRecord.getSampleRate())); // 计算横向分辨率
-        float valuePerPixel = value1mV * MV_PER_GRID / PIXEL_PER_GRID; // 计算纵向分辨率
-        setResolution(pixelPerData, valuePerPixel);
-        setPixelPerGrid(PIXEL_PER_GRID);
-        clearData();
-        initialize();
     }
 
     public boolean isStart() {

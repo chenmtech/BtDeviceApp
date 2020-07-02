@@ -16,9 +16,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
-import com.vise.log.ViseLog;
-
-import org.litepal.LitePal;
 
 import java.util.Date;
 import java.util.UUID;
@@ -209,7 +206,6 @@ public class EegDevice extends AbstractDevice {
         isEegRecord = isRecord;
         if(isRecord) {
             eegRecord = (BleEegRecord10) RecordFactory.create(EEG, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
-            ViseLog.e(eegRecord);
             if(eegRecord != null) {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);
@@ -222,9 +218,7 @@ public class EegDevice extends AbstractDevice {
             eegRecord.setCreateTime(new Date().getTime());
             eegRecord.setRecordSecond(eegRecord.getEegData().size()/sampleRate);
             eegRecord.save();
-            ViseLog.e(eegRecord);
-            ViseLog.e(LitePal.findAll(BleEegRecord10.class));
-            ViseLog.e("eeg record saved");
+            Toast.makeText(context, R.string.save_record_success, Toast.LENGTH_SHORT).show();
         }
 
         if(listener != null) {

@@ -17,8 +17,8 @@
         android:layout_marginStart="6dp"
         android:layout_marginEnd="6dp">
 
-        <com.cmtech.android.bledevice.view.RollSignalRecordWaveView
-            android:id="@+id/scan_eeg_view"
+        <com.cmtech.android.bledevice.view.RollEegRecordWaveView
+            android:id="@+id/roll_eeg_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             cmtech:background_color="#666"

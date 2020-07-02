@@ -93,7 +93,7 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
         tvCaliValue1mV = view.findViewById(R.id.tv_ecg_1mv_cali_value);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
         tvPauseMessage = view.findViewById(R.id.tv_message);
-        ecgView = view.findViewById(R.id.scan_ecg_view);
+        ecgView = view.findViewById(R.id.roll_ecg_view);
 
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));

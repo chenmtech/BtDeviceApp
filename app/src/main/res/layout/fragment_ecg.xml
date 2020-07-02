@@ -68,7 +68,7 @@
         android:layout_weight="2">
 
         <com.cmtech.android.bledevice.ecg.view.ScanEcgView
-            android:id="@+id/scan_ecg_view"
+            android:id="@+id/roll_ecg_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             cmtech:background_color="#666"

@@ -278,6 +278,7 @@ public class ScanWaveView extends View {
     }
 
     private void drawData(int data) {
+        ViseLog.e("ScanWaveView" + yValuePerPixel);
         int dataY = initY - Math.round(data / yValuePerPixel);
         if (isFirstData) {
             preY = dataY;

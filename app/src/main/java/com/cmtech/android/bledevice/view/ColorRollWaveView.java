@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.graphics.Path;
 import android.util.AttributeSet;
 
+import com.vise.log.ViseLog;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,6 +82,7 @@ public class ColorRollWaveView extends RollWaveView {
         addData(data[begin], markers[begin]);
         preX = initX;
         preY = initY - Math.round(data[begin]/yRes);
+        ViseLog.e("ColorRollWaveView" + yRes);
         Path path = new Path();
         path.moveTo(preX, preY);
         wavePaint.setColor((markers[begin]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);

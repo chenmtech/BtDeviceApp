@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
-import com.cmtech.android.bledevice.view.RollSignalRecordWaveView;
+import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -31,7 +31,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private RecordIntroLayout introLayout;
 
-    private RollSignalRecordWaveView signalView; // signalView
+    private RollEcgRecordWaveView ecgView; // ecgView
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
@@ -94,10 +94,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         introLayout = findViewById(R.id.layout_record_intro);
         introLayout.redraw(record);
 
-        signalView = findViewById(R.id.scan_ecg_view);
-        signalView.setListener(this);
-        signalView.setSignalRecord(record);
-        signalView.setZeroLocation(RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView = findViewById(R.id.roll_ecg_view);
+        ecgView.setListener(this);
+        ecgView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvTotalTime = findViewById(R.id.tv_total_time);
@@ -105,10 +104,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnReplayCtrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(signalView.isStart()) {
-                    signalView.stopShow();
+                if(ecgView.isStart()) {
+                    ecgView.stopShow();
                 } else {
-                    signalView.startShow();
+                    ecgView.startShow();
                 }
             }
         });
@@ -118,7 +117,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(b) {
-                    signalView.showAtSecond(i);
+                    ecgView.showAtSecond(i);
                 }
             }
             @Override
@@ -159,7 +158,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             }
         });
 
-        signalView.startShow();
+        ecgView.startShow();
     }
 
     @Override
@@ -183,7 +182,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     protected void onDestroy() {
         super.onDestroy();
 
-        if(signalView != null)
-            signalView.stopShow();
+        if(ecgView != null)
+            ecgView.stopShow();
     }
 }

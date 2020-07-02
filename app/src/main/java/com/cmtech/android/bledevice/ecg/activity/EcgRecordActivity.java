@@ -92,7 +92,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvHrNum = findViewById(R.id.tv_note);
 
         signalLayout = findViewById(R.id.layout_signal_part);
-        signalView = findViewById(R.id.scan_ecg_view);
+        signalView = findViewById(R.id.roll_ecg_view);
         signalView.setListener(this);
         rvComments = findViewById(R.id.rv_comment_list);
         LinearLayoutManager commentLayoutManager = new LinearLayoutManager(this);
