@@ -1,27 +1,23 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
-import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
@@ -68,6 +64,8 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         TextView tvNote; // record description
         ImageView ivUpload;
         ImageView ivDelete;
+        LinearLayout llRecordInfo;
+        View viewIndicate;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -79,6 +77,8 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             tvNote = view.findViewById(R.id.tv_note);
             ivUpload = view.findViewById(R.id.iv_need_upload);
             ivDelete = view.findViewById(R.id.iv_delete);
+            llRecordInfo = view.findViewById(R.id.ll_record_basic_info);
+            viewIndicate = view.findViewById(R.id.view_indicate);
         }
     }
 
@@ -94,7 +94,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         final ViewHolder holder = new ViewHolder(view);
         defaultBg = holder.view.getBackground();
 
-        holder.view.setOnClickListener(new View.OnClickListener() {
+        holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(FastClickUtil.isFastClick()) return;
@@ -158,9 +158,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         }
 
         if(position == selPos) {
-            holder.view.setBackgroundColor(SELECT_BG_COLOR);
+            holder.viewIndicate.setBackgroundColor(SELECT_BG_COLOR);
         } else {
-            holder.view.setBackground(defaultBg);
+            holder.viewIndicate.setBackgroundColor(activity.getResources().getColor(R.color.primary_dark));
         }
     }
 

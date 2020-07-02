@@ -54,11 +54,11 @@
     <string name="th_record">温湿度记录</string>
     <string name="eeg_record">脑电记录</string>
     <string name="open_record_failure">打开记录失败</string>
-    <string name="save_record_success">保存记录成功</string>
+    <string name="save_record_success">记录已保存</string>
     <string name="record_too_short">记录时长太短，未保存</string>
-    <string name="upload_record_success">上传记录成功</string>
-    <string name="update_record_success">更新记录成功</string>
-    <string name="wait_pls">请稍等</string>
+    <string name="upload_record_success">记录已上传</string>
+    <string name="update_record_success">记录已更新</string>
+    <string name="wait_pls">加载中…</string>
     <string name="operation_failure">出错了</string>
     <string name="web_failure">网络错误</string>
     <string name="operation_success">操作成功</string>

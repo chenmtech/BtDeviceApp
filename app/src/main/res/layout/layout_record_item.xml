@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="10dp">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:id="@+id/ll_creator"
@@ -24,11 +23,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="@string/anonymous"
+            android:textSize="12sp"
             android:textColor="@color/secondary_text"
             android:maxLength="12"/>
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_record_basic_info"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -70,18 +71,24 @@
 
     </LinearLayout>
 
+    <View
+        android:id="@+id/view_indicate"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@color/primary_dark"/>
+
     <ImageView
         android:id="@+id/iv_need_upload"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="center_vertical"
         android:layout_margin="6dp"
         android:src="@mipmap/ic_upload_24px"/>
 
     <ImageView
         android:id="@+id/iv_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="center_vertical"
         android:layout_margin="6dp"
         android:src="@mipmap/ic_delete_24px"/>

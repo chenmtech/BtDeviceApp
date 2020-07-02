@@ -22,7 +22,7 @@
     <string name="pls_stop_record_firstly">Stop the record firstly, please.</string>
     <string name="pls_turn_on_ecg_firstly">Turn on the ECG firstly, please.</string>
     <string name="pls_be_quiet_when_record">Stay quietly when record.</string>
-    <string name="refresh_when_drag_down">refresh when dragging down</string>
+    <string name="refresh_when_drag_down">Drag down to refresh</string>
     <string name="device_address">Device Addr:</string>
     <string name="device_type">Device Type:</string>
     <string name="device_name">Device Name:</string>
@@ -59,7 +59,7 @@
     <string name="record_too_short">Not record because of too short length.</string>
     <string name="upload_record_success">upload record success.</string>
     <string name="update_record_success">update record success.</string>
-    <string name="wait_pls">Wait please…</string>
+    <string name="wait_pls">loading…</string>
     <string name="operation_failure">somethings wrong.</string>
     <string name="web_failure">Web Failure.</string>
     <string name="operation_success">operation success.</string>
