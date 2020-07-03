@@ -40,14 +40,14 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
-import static com.cmtech.android.bledevice.record.RecordType.UNKNOWN;
+import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
 
 /**
   *
-  * ClassName:      HrRecordExplorerActivity
-  * Description:    Ecg记录浏览Activity
+  * ClassName:      RecordExplorerActivity
+  * Description:    记录浏览Activity
   * Author:         chenm
   * CreateDate:     2018/11/10 下午5:34
   * UpdateUser:     chenm
@@ -60,14 +60,14 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
     private static final int READ_RECORD_BASIC_INFO_NUM = 20;
 
-    private long updateTime; // update time in record list
     private List<IRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter recordAdapter; // Adapter
     private RecyclerView recordView; // RecycleView
-    private TextView tvPromptInfo; // prompt info
+    private TextView tvNoRecord; // no record
     private Spinner typeSpinner;
-    private RecordType recordType = UNKNOWN; // record type in record list
+    private RecordType recordType = ALL; // record type in record list
 
+    private long updateTime; // update time in record list
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +81,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // init spinner
-        typeSpinner = findViewById(R.id.spinner_record);
+        typeSpinner = findViewById(R.id.spinner_record_type);
         List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
         for (RecordType type : SUPPORT_RECORD_TYPES) {
             Map<String, Object> item = new HashMap<String, Object>();
@@ -132,8 +132,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
             }
         });
 
-        tvPromptInfo = findViewById(R.id.tv_prompt_info);
-        tvPromptInfo.setText(R.string.no_record);
+        tvNoRecord = findViewById(R.id.tv_no_record);
+        tvNoRecord.setText(R.string.no_record);
     }
 
     @Override
@@ -288,11 +288,11 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private void updateRecordView() {
         if(allRecords.isEmpty()) {
             recordView.setVisibility(View.INVISIBLE);
-            tvPromptInfo.setVisibility(View.VISIBLE);
+            tvNoRecord.setVisibility(View.VISIBLE);
         }else {
             recordView.setVisibility(View.VISIBLE);
-            tvPromptInfo.setVisibility(View.INVISIBLE);
+            tvNoRecord.setVisibility(View.INVISIBLE);
         }
-        recordAdapter.updateRecordList();
+        recordAdapter.notifyDataSetChanged();
     }
 }

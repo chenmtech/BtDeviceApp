@@ -52,7 +52,9 @@ public class AppConstant {
             add(WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE);
             add(EegFactory.EEG_DEVICE_TYPE);
         }
-    }; // supported device type
+    }; // supported device types
+
+    // supported record types
     public static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{HR, ECG, THERMO, EEG};
 
     public static final String QQ_PLAT_NAME = QQ.NAME;

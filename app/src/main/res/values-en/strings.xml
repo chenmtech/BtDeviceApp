@@ -48,7 +48,7 @@
     <string name="hr_too_high">Your heart rate is too high</string>
     <string name="hr_too_low">Your heart rate is too low</string>
     <string name="BPM">BPM</string>
-    <string name="unknown_record">unknown-type record</string>
+    <string name="all_record">All Record</string>
     <string name="hr_record">HR Record</string>
     <string name="ecg_record">ECG Record</string>
     <string name="thermo_record">Thermo Record</string>
@@ -57,6 +57,7 @@
     <string name="open_record_failure">open record failure</string>
     <string name="save_record_success">save record success.</string>
     <string name="record_too_short">Not record because of too short length.</string>
+    <string name="record_damage">The record is damaged.</string>
     <string name="upload_record_success">upload record success.</string>
     <string name="update_record_success">update record success.</string>
     <string name="wait_pls">loading…</string>

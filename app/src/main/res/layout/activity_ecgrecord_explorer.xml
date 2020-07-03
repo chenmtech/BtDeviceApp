@@ -29,7 +29,7 @@
             android:visibility="invisible"/>
 
         <TextView
-            android:id="@+id/tv_prompt_info"
+            android:id="@+id/tv_no_record"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"

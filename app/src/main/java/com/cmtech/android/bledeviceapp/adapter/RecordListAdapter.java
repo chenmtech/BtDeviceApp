@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -44,7 +45,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM
  */
 
 public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.ViewHolder>{
-    private static final int SELECT_COLOR = R.color.secondary;
+    private static final int SELECT_COLOR = R.color.accent;
     private static final int UNSELECT_COLOR = R.color.primary_dark;
     private static final int INVALID_POS = -1;
 
@@ -58,6 +59,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         View selectIndicate;
         TextView tvCreatorName; //
         ImageView ivCreatorImage;
+        ImageView ivRecordType;
         TextView tvCreateTime; //
         TextView tvAddress;
         TextView tvNote; //
@@ -71,6 +73,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             tvCreatorName = view.findViewById(R.id.tv_creator_name);
             ivCreatorImage = view.findViewById(R.id.iv_creator_image);
             tvCreateTime = view.findViewById(R.id.tv_create_time);
+            ivRecordType = view.findViewById(R.id.iv_record_type);
             tvAddress = view.findViewById(R.id.tv_device_address);
             tvNote = view.findViewById(R.id.tv_note);
             ivUpload = view.findViewById(R.id.iv_need_upload);
@@ -109,6 +112,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.ivDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(FastClickUtil.isFastClick()) return;
                 activity.deleteRecord(records.get(holder.getAdapterPosition()));
             }
         });
@@ -116,10 +120,13 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.ivUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(FastClickUtil.isFastClick()) return;
                 BasicRecord record = (BasicRecord) records.get(holder.getAdapterPosition());
                 record = (BasicRecord) RecordFactory.createFromLocalDb(RecordType.getType(record.getTypeCode()), record.getCreateTime(), record.getDevAddress());
-                if(record == null)
+                if(record == null || record.noData()) {
+                    Toast.makeText(activity, R.string.record_damage, Toast.LENGTH_SHORT).show();
                     return;
+                }
                 records.set(holder.getAdapterPosition(), record);
                 activity.uploadRecord(record);
             }
@@ -141,6 +148,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             Glide.with(activity).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
         }
 
+        holder.ivRecordType.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
 
@@ -170,10 +178,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         return records.size();
     }
 
-    public void updateRecordList() {
-        notifyDataSetChanged();
-    }
-
     public IRecord getSelectedRecord() {
         if(position == INVALID_POS) return null;
         return records.get(position);
@@ -184,11 +188,8 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     }
 
     public void notifySelectedItemChanged() {
-        ViseLog.e("activity result");
         IRecord record = records.get(position);
         records.set(position, LitePal.find(record.getClass(), record.getId()));
         notifyItemChanged(position);
     }
-
-
 }

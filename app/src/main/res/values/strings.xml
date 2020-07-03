@@ -47,7 +47,7 @@
     <string name="hr_too_high">心率过高</string>
     <string name="hr_too_low">心率过低</string>
     <string name="BPM">次/分钟</string>
-    <string name="unknown_record">未知记录</string>
+    <string name="all_record">所有记录</string>
     <string name="hr_record">心率记录</string>
     <string name="ecg_record">心电记录</string>
     <string name="thermo_record">体温记录</string>
@@ -56,6 +56,7 @@
     <string name="open_record_failure">打开记录失败</string>
     <string name="save_record_success">记录已保存</string>
     <string name="record_too_short">记录时长太短，未保存</string>
+    <string name="record_damage">记录已损坏</string>
     <string name="upload_record_success">记录已上传</string>
     <string name="update_record_success">记录已更新</string>
     <string name="wait_pls">加载中…</string>

@@ -20,7 +20,7 @@ import com.cmtech.android.bledeviceapp.R;
  * Version:        1.0
  */
 public enum RecordType {
-    UNKNOWN(0, R.string.unknown_record, 0, null),
+    ALL(0, R.string.all_record, R.mipmap.ic_all_record, null),
     ECG(1, R.string.ecg_record, R.mipmap.ic_ecg_24px, EcgRecordActivity.class),
     HR(2, R.string.hr_record, R.mipmap.ic_hr_24px, HrRecordActivity.class),
     THERMO(3, R.string.thermo_record, R.mipmap.ic_thermo_24px, ThermoRecordActivity.class),
@@ -45,7 +45,7 @@ public enum RecordType {
                 return type;
             }
         }
-        return UNKNOWN;
+        return ALL;
     }
 
     public static String getName(int code) {

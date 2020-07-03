@@ -14,7 +14,7 @@
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light">
         <Spinner
-            android:id="@+id/spinner_record"
+            android:id="@+id/spinner_record_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </android.support.v7.widget.Toolbar>
@@ -34,7 +34,7 @@
             android:visibility="invisible"/>
 
         <TextView
-            android:id="@+id/tv_prompt_info"
+            android:id="@+id/tv_no_record"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"

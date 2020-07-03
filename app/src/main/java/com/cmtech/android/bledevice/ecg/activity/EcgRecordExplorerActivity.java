@@ -87,7 +87,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
             }
         });
 
-        tvPromptInfo = findViewById(R.id.tv_prompt_info);
+        tvPromptInfo = findViewById(R.id.tv_no_record);
         tvPromptInfo.setText("无记录");
 
         onRecordListChanged();
