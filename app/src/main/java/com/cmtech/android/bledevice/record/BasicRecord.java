@@ -9,6 +9,9 @@ import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
+import static com.cmtech.android.bledevice.record.RecordType.ALL;
+import static com.cmtech.android.bledevice.record.RecordType.ECG;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.record
@@ -44,6 +47,10 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         note = "";
         needUpload = true;
         this.type = type;
+    }
+
+    BasicRecord(long createTime, String devAddress, User creator, String note) {
+        this(ALL, "1.0", createTime, devAddress, creator, note, true);
     }
 
     BasicRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note, boolean needUpload) {

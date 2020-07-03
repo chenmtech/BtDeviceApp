@@ -24,6 +24,9 @@ import java.util.List;
 public class RecordFactory {
     public static Class<? extends IRecord> getRecordClass(RecordType type) {
         switch (type) {
+            case ALL:
+                return BasicRecord.class;
+
             case ECG:
                 return BleEcgRecord10.class;
 
