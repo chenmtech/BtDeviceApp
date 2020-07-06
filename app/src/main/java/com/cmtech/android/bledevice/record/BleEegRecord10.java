@@ -47,7 +47,7 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     private BleEegRecord10(JSONObject json) throws JSONException{
-        super(EEG, "1.0", json, false);
+        super(json, false);
         initData();
         recordSecond = json.getInt("recordSecond");
     }
@@ -62,7 +62,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        json.put("recordTypeCode", getTypeCode());
         json.put("sampleRate", sampleRate);
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);

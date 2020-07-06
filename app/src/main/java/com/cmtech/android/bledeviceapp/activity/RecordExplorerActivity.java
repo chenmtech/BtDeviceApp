@@ -181,7 +181,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         JSONArray jsonArr = (JSONArray) result;
                         for(int i = 0; i < jsonArr.length(); i++) {
                             JSONObject json = (JSONObject) jsonArr.get(i);
-                            BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(recordType, json);
+                            BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(json);
                             if(newRecord != null) {
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
                             }

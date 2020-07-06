@@ -67,12 +67,12 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.needUpload = needUpload;
     }
 
-    BasicRecord(RecordType type, String ver, JSONObject json, boolean needUpload) throws JSONException{
+    BasicRecord(JSONObject json, boolean needUpload) throws JSONException{
         if(json == null) {
             throw new NullPointerException("The json is null.");
         }
-        this.type = type;
-        this.ver = ver;
+        this.ver = json.getString("ver");
+        this.type = RecordType.getType(json.getInt("recordTypeCode"));
         this.createTime = json.getLong("createTime");
         this.devAddress = json.getString("devAddress");
         this.creatorPlat = AccountManager.getAccount().getPlatName();
@@ -165,6 +165,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     public JSONObject toJson() throws JSONException{
         JSONObject json = new JSONObject();
         json.put("ver", ver);
+        json.put("recordTypeCode", type.getCode());
         json.put("createTime", createTime);
         json.put("devAddress", devAddress);
         json.put("creatorPlat", creatorPlat);

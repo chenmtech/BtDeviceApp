@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.record;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.log.ViseLog;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
@@ -61,20 +62,21 @@ public class RecordFactory {
         return null;
     }
 
-    public static IRecord createFromJson(RecordType type, JSONObject json) {
+    public static IRecord createFromJson(JSONObject json) {
         if(json == null) {
             return null;
         }
 
-        Class<? extends IRecord> recordClass = getRecordClass(type);
-        if(recordClass != null) {
-            try {
+        try {
+            RecordType type = RecordType.getType(json.getInt("recordTypeCode"));
+            Class<? extends IRecord> recordClass = getRecordClass(type);
+            if(recordClass != null) {
                 Constructor constructor = recordClass.getDeclaredConstructor(JSONObject.class);
                 constructor.setAccessible(true);
                 return recordClass.cast(constructor.newInstance(json));
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }

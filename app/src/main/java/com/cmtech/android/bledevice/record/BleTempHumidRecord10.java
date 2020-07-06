@@ -38,7 +38,7 @@ public class BleTempHumidRecord10 extends BasicRecord {
     }
 
     private BleTempHumidRecord10(JSONObject json)  throws JSONException{
-         super(TH, "1.0", json, false);
+         super(json, false);
     }
 
     @Override

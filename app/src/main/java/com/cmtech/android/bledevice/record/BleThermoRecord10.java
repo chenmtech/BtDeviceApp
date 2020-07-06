@@ -39,7 +39,7 @@ public class BleThermoRecord10 extends BasicRecord {
     }
 
     private BleThermoRecord10(JSONObject json)  throws JSONException {
-        super(THERMO, "1.0", json, false);
+        super(json, false);
     }
 
     private void initData() {
@@ -50,7 +50,6 @@ public class BleThermoRecord10 extends BasicRecord {
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        json.put("recordTypeCode", getTypeCode());
         StringBuilder builder = new StringBuilder();
         for(Float ele : temp) {
             builder.append(ele).append(',');

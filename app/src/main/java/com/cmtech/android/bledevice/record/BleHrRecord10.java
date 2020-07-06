@@ -63,7 +63,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     }
 
     private BleHrRecord10(JSONObject json) throws JSONException{
-        super(HR, "1.0", json, false);
+        super(json, false);
         hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         initData();
         this.recordSecond = json.getInt("recordSecond");
@@ -85,7 +85,6 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        json.put("recordTypeCode", getTypeCode());
         StringBuilder builder = new StringBuilder();
         for(Short ele : filterHrList) {
             builder.append(ele).append(',');
