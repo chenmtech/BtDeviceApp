@@ -22,6 +22,7 @@ import java.util.UUID;
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
 
+import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.EEG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
@@ -55,7 +56,7 @@ public class AppConstant {
     }; // supported device types
 
     // supported record types
-    public static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{HR, ECG, THERMO, EEG};
+    public static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{ALL, HR, ECG, THERMO, EEG};
 
     public static final String QQ_PLAT_NAME = QQ.NAME;
     public static final String WX_PLAT_NAME = Wechat.NAME;

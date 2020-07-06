@@ -8,7 +8,13 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import static com.cmtech.android.bledevice.record.RecordType.ALL;
+import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -81,21 +87,46 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<? extends IRecord> createBasicFromLocalDb(RecordType type, User creator, long from, int num) {
+    public static List<? extends IRecord> createBasicRecordsFromLocalDb(RecordType type, User creator, long fromTime, int num) {
         if(creator == null) {
             return null;
         }
 
-        Class<? extends IRecord> recordClass = getRecordClass(type);
-        if(recordClass != null) {
-            try {
-                return LitePal.select(BasicRecord.QUERY_STR)
-                        .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
-                        .order("createTime desc").limit(num).find(recordClass);
-            } catch (Exception e) {
-                ViseLog.e(e);
-                return null;
+        if(type != ALL) {
+            Class<? extends IRecord> recordClass = getRecordClass(type);
+            if (recordClass != null) {
+                try {
+                    return LitePal.select(BasicRecord.QUERY_STR)
+                            .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
+                            .order("createTime desc").limit(num).find(recordClass);
+                } catch (Exception e) {
+                    ViseLog.e(e);
+                }
             }
+        } else {
+            List<IRecord> records = new ArrayList<>();
+            for(RecordType type1 : SUPPORT_RECORD_TYPES) {
+                if(type1 == ALL) break;
+                Class<? extends IRecord> recordClass = getRecordClass(type1);
+                if (recordClass != null) {
+                    try {
+                        records.addAll(LitePal.select(BasicRecord.QUERY_STR)
+                                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
+                                .order("createTime desc").limit(num).find(recordClass));
+                    } catch (Exception e) {
+                        ViseLog.e(e);
+                    }
+                }
+            }
+            if(records.isEmpty()) return null;
+
+            Collections.sort(records, new Comparator<IRecord>() {
+                @Override
+                public int compare(IRecord o1, IRecord o2) {
+                    return (int)(o1.getCreateTime() - o2.getCreateTime());
+                }
+            });
+            return records.subList(0, Math.min(records.size(), num));
         }
         return null;
     }
