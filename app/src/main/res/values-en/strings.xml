@@ -34,7 +34,7 @@
     <string name="thermo_monitor_name">Thermometer</string>
     <string name="km_temp_humid_monitor_name">KM Temp/Humid Monitor</string>
     <string name="km_eeg_monitor_name">KM EEG Monitor</string>
-    <string name="record_note">Note:</string>
+    <string name="note">Note:</string>
     <string name="null_content">  </string>
     <string name="record_time">Time</string>
     <string name="edit">Edit</string>
@@ -43,6 +43,9 @@
     <string name="stop_record">Stop recording</string>
     <string name="recording">Recording</string>
     <string name="temperature_of_body">Temp. </string>
+    <string name="modify_account_info">Modify the account info</string>
+    <string name="account_name">Account Name:</string>
+    <string name="account_portrait">Account Portrait:</string>
 
     <string name="current_hr">The current heart rate is </string>
     <string name="hr_too_high">Your heart rate is too high</string>

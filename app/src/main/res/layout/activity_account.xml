@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary"
-        toolbar:title="修改用户信息"
+        toolbar:title="@string/modify_account_info"
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
@@ -20,119 +20,67 @@
         android:background="@color/divider"/>
 
     <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-            <TextView
-                android:labelFor="@id/et_account_id"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:gravity="end"
-                android:textSize="18sp"
-                android:text="ID号："/>
-            <TextView
-                android:id="@+id/et_account_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="未知"
-                android:textSize="18sp"/>
-
-            <ImageButton
-                android:id="@+id/ib_update_from_web"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:src="@mipmap/ic_update_24px"
-                android:background="@color/primary"
-                android:layout_marginStart="10dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-            <TextView
-                android:labelFor="@id/et_account_name"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:gravity="end"
-                android:textSize="18sp"
-                android:text="昵称："/>
-
-            <EditText
-                android:id="@+id/et_account_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical"
-                android:maxLength="12"
-                android:hint="请输入"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2">
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:gravity="end"
-                android:textSize="18sp"
-                android:text="头像："/>
-            <com.cmtech.android.bledevice.view.RoundImageView
-                android:id="@+id/iv_account_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center_vertical"
-                android:src="@mipmap/ic_user"
-                android:contentDescription="用户头像"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2">
-            <TextView
-                android:labelFor="@id/et_account_description"
-                android:layout_width="100dp"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|end"
-                android:textSize="18sp"
-                android:text="简介："/>
-            <EditText
-                android:id="@+id/et_account_description"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_gravity="center_vertical"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:maxLength="50"
-                android:hint="请输入"/>
-        </LinearLayout>
-
+        android:layout_height="wrap_content">
         <TextView
-            android:layout_width="match_parent"
+            android:labelFor="@id/et_account_name"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="*请注意保护您的私人敏感信息。"
-            android:textColor="@color/red"/>
+            android:layout_gravity="center_vertical"
+            android:gravity="end"
+            android:textSize="18sp"
+            android:text="@string/account_name"/>
 
+        <EditText
+            android:id="@+id/et_account_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:maxLength="12"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="end"
+            android:textSize="18sp"
+            android:text="@string/account_portrait"/>
+        <com.cmtech.android.bledevice.view.RoundImageView
+            android:id="@+id/iv_account_image"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_vertical"
+            android:src="@mipmap/ic_user"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+        <TextView
+            android:labelFor="@id/et_account_note"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|end"
+            android:textSize="18sp"
+            android:text="@string/note"/>
+        <EditText
+            android:id="@+id/et_account_note"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:maxLength="50"/>
     </LinearLayout>
 
     <LinearLayout
@@ -146,7 +94,7 @@
             android:layout_weight="1"
             android:layout_margin="10sp"
             android:background="@color/accent"
-            android:text="取消"
+            android:text="@string/cancel"
             android:textSize="18sp"
             android:textColor="@color/white"/>
 
@@ -157,7 +105,7 @@
             android:layout_weight="1"
             android:layout_margin="10sp"
             android:background="@color/accent"
-            android:text="确定"
+            android:text="@string/ok"
             android:textSize="18sp"
             android:textColor="@color/white"/>
     </LinearLayout>

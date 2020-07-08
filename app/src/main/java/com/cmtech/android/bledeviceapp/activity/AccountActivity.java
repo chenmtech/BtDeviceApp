@@ -1,13 +1,11 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.TargetApi;
-import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
@@ -30,7 +28,6 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -47,142 +44,30 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 public class AccountActivity extends AppCompatActivity {
     private EditText etName;
     private ImageView ivImage;
-    private EditText etDescription;
+    private EditText etNote;
     private String cacheImagePath = ""; // 头像文件路径缓存
 
     private final User account = AccountManager.getAccount();
-
-    private class GetAccountFromWebTask extends AsyncTask<Void, Void, Boolean> {
-        private ProgressDialog dialog;
-        private boolean isUpdated = false;
-        private String userId = "";
-        private String name = "";
-        private String description = "";
-        private Bitmap image = null;
-        private boolean isReturn = false;
-
-        private GetAccountFromWebTask(String userId) {
-            this.userId = userId;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            dialog = ProgressDialog.show(AccountActivity.this, "从网络获取", "获取中，请稍等...");
-            dialog.show();
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            isReturn = false;
-            UserUtil.getUserInfo(userId, new UserUtil.IGetUserInfoCallback() {
-                @Override
-                public void onReceived(String userId, String name, String description, Bitmap image) {
-                    if(userId != null) {
-                        GetAccountFromWebTask.this.isUpdated = true;
-                        GetAccountFromWebTask.this.name = name;
-                        GetAccountFromWebTask.this.description = description;
-                        GetAccountFromWebTask.this.image = image;
-                    } else {
-                        GetAccountFromWebTask.this.isUpdated = false;
-                    }
-                    isReturn = true;
-                }
-            });
-
-            int waitSecond = 0;
-            while (!isReturn && (waitSecond < 5)) {
-                try {
-                    Thread.sleep(1000);
-                    waitSecond++;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            return isReturn && GetAccountFromWebTask.this.isUpdated;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean isUpdated) {
-            dialog.dismiss();
-            if(isUpdated) {
-                etName.setText(name);
-                etDescription.setText(description);
-            }
-            etName.setText(name);
-            etDescription.setText(description);
-        }
-    }
-
-    private class SaveAccountToWebTask extends AsyncTask<Void, Void, Boolean> {
-        private ProgressDialog dialog;
-        private boolean isSaved = false;
-        private boolean isReturn = false;
-
-        @Override
-        protected void onPreExecute() {
-            dialog = ProgressDialog.show(AccountActivity.this, "保存至网络", "保存中，请稍等...");
-            dialog.show();
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            isReturn = false;
-
-            UserUtil.saveUser(account.getPlatId(), account.getName(), account.getNote(), null, new UserUtil.ISaveUserInfoCallback() {
-                @Override
-                public void onReceived(boolean success) {
-                    isSaved = success;
-                    isReturn = true;
-                }
-            });
-
-            int waitSecond = 0;
-            while (!isReturn && (waitSecond < 5)) {
-                try {
-                    Thread.sleep(1000);
-                    waitSecond++;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            return isReturn && isSaved;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean isSaved) {
-            dialog.dismiss();
-            if(isSaved) {
-                Toast.makeText(AccountActivity.this, "保存成功", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent();
-                setResult(RESULT_OK, intent);
-                finish();
-            } else {
-                Toast.makeText(AccountActivity.this, "保存失败", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
 
-        if(!AccountManager.isLogin()) finish();
+        if(!AccountManager.isLogin())  {
+            Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
+            finish();
+        }
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_set_account_info);
         setSupportActionBar(toolbar);
 
-        TextView tvId = findViewById(R.id.et_account_id);
-        tvId.setText(account.getShortPlatId());
-
         etName = findViewById(R.id.et_account_name);
         etName.setText(account.getName());
 
         ivImage = findViewById(R.id.iv_account_image);
-        cacheImagePath = account.getIcon();
+        cacheImagePath = account.getLocalIcon();
         if(TextUtils.isEmpty(cacheImagePath)) {
             Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
         } else {
@@ -195,16 +80,8 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
 
-        etDescription = findViewById(R.id.et_account_description);
-        etDescription.setText(account.getNote());
-
-        ImageButton ibUpdateFromWeb = findViewById(R.id.ib_update_from_web);
-        ibUpdateFromWeb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new GetAccountFromWebTask(account.getPlatId()).execute();
-            }
-        });
+        etNote = findViewById(R.id.et_account_note);
+        etNote.setText(account.getNote());
 
         Button btnOk = findViewById(R.id.btn_account_info_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -213,36 +90,37 @@ public class AccountActivity extends AppCompatActivity {
                 User account = AccountManager.getAccount();
                 account.setName(etName.getText().toString());
 
-                if(!cacheImagePath.equals(account.getIcon())) {
+                if(!cacheImagePath.equals(account.getLocalIcon())) {
                     // 把原来的图像文件删除
-                    if(!TextUtils.isEmpty(account.getIcon())) {
-                        File imageFile = new File(account.getIcon());
+                    if(!TextUtils.isEmpty(account.getLocalIcon())) {
+                        File imageFile = new File(account.getLocalIcon());
                         imageFile.delete();
                     }
 
                     // 把当前图像保存到DIR_IMAGE，以ID号为文件名
                     if(TextUtils.isEmpty(cacheImagePath)) {
-                        account.setIcon("");
+                        account.setLocalIcon("");
                     } else {
                         try {
                             ivImage.setDrawingCacheEnabled(true);
                             Bitmap bitmap = ivImage.getDrawingCache();
-                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getPlatId() + ".jpg");
+                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getPlatName()+account.getPlatId() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
-                            account.setIcon(filePath);
+                            account.setLocalIcon(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            account.setIcon("");
+                            account.setLocalIcon("");
                         }
                     }
                 }
 
-                account.setNote(etDescription.getText().toString());
+                account.setNote(etNote.getText().toString());
                 account.save();
-
-                new SaveAccountToWebTask().execute();
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
+                finish();
             }
         });
 
@@ -251,7 +129,6 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-                intent.putExtra("logout", false);
                 setResult(RESULT_CANCELED, intent);
                 finish();
             }

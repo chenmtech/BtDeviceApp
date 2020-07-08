@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private static final String TAG = "MainActivity";
     private final static int RC_ADD_DEVICE = 1;     // return code for adding new devices
     private final static int RC_MODIFY_DEVICE_INFO = 2;       // return code for modifying device info
+    private final static int RC_MODIFY_ACCOUNT = 3;
 
     private LocalDevicesFragment localDevicesFragment;
     //WebDevicesFragment webDevicesFragment;
@@ -223,6 +224,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         View headerView = navView.getHeaderView(0);
         tvAccountName = headerView.findViewById(R.id.tv_account_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
+        ivAccountImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AccountActivity.class);
+                startActivityForResult(intent, RC_MODIFY_ACCOUNT);
+            }
+        });
+
         ibChangeAccount = headerView.findViewById(R.id.ib_change_account);
         ibChangeAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -343,6 +352,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                             tbManager.setBattery(device.getBattery());
                         }
                     }
+                }
+                break;
+
+            case RC_MODIFY_ACCOUNT:
+                if(resultCode == RESULT_OK) {
+                    updateNavigationHeader();
                 }
                 break;
         }
