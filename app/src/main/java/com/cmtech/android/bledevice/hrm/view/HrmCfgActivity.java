@@ -25,12 +25,12 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
     private static final int HR_LIMIT_INTERVAL = 5;
     private HrmCfg hrCfg;
 
+    private CheckBox cbSpeak;
+    private NumberPicker npSpeechFrequency;
+
+    private CheckBox cbWarn;
     private NumberPicker npHrLow;
     private NumberPicker npHrHigh;
-    private CheckBox cbWarn;
-
-    private EditText etSpeakPeriod;
-    private CheckBox cbSpeak;
 
     private Button btnOk;
 
@@ -47,6 +47,17 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         if(intent != null) {
             hrCfg = (HrmCfg) intent.getSerializableExtra("hr_cfg");
         }
+
+        cbSpeak = findViewById(R.id.cb_hr_speak);
+        cbSpeak.setChecked(hrCfg.isSpeak());
+
+        npSpeechFrequency = findViewById(R.id.np_speech_frequency);
+        npSpeechFrequency.setMaxValue(10);
+        npSpeechFrequency.setMinValue(1);
+        npSpeechFrequency.setValue(hrCfg.getSpeakPeriod());
+
+        cbWarn = findViewById(R.id.cb_hr_warn);
+        cbWarn.setChecked(hrCfg.needWarn());
 
         List<String> hrLimitValues = new ArrayList<>();
         for(int i = DEFAULT_HR_LOW_LIMIT; i <= DEFAULT_HR_HIGH_LIMIT; i+=HR_LIMIT_INTERVAL) {
@@ -69,36 +80,26 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrHigh.setMaxValue(hrLimitValues.size()-1);
         npHrHigh.setValue((hrCfg.getHrHigh() - DEFAULT_HR_LOW_LIMIT)/HR_LIMIT_INTERVAL);
 
-        cbWarn = findViewById(R.id.cb_hr_warn);
-        cbWarn.setChecked(hrCfg.needWarn());
-
-        etSpeakPeriod = findViewById(R.id.et_speak_period);
-        etSpeakPeriod.setText(String.valueOf(hrCfg.getSpeakPeriod()));
-        cbSpeak = findViewById(R.id.cb_hr_speak);
-        cbSpeak.setChecked(hrCfg.isSpeak());
-
         btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean isSpeak = cbSpeak.isChecked();
+                int speakPeriod = npSpeechFrequency.getValue();
+
+                boolean isWarn = cbWarn.isChecked();
                 int low = npHrLow.getValue() * HR_LIMIT_INTERVAL + DEFAULT_HR_LOW_LIMIT;
                 int high = npHrHigh.getValue() * HR_LIMIT_INTERVAL + DEFAULT_HR_LOW_LIMIT;
                 if(high <= low) {
                     Toast.makeText(HrmCfgActivity.this, getString(R.string.hr_limit_wrong), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                boolean isWarn = cbWarn.isChecked();
-                int speakPeriod = Integer.parseInt(etSpeakPeriod.getText().toString());
-                if(speakPeriod <= 0) {
-                    Toast.makeText(HrmCfgActivity.this, "语音播报频率不能小于等于0", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                boolean isSpeak = cbSpeak.isChecked();
+
+                hrCfg.setSpeak(isSpeak);
+                hrCfg.setSpeakPeriod(speakPeriod);
+                hrCfg.setNeedWarn(isWarn);
                 hrCfg.setHrLow(low);
                 hrCfg.setHrHigh(high);
-                hrCfg.setNeedWarn(isWarn);
-                hrCfg.setSpeakPeriod(speakPeriod);
-                hrCfg.setSpeak(isSpeak);
 
                 Intent intent = new Intent();
                 intent.putExtra("hr_cfg", hrCfg);

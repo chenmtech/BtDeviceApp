@@ -45,6 +45,12 @@
     <string name="modify_account_info">修改用户信息</string>
     <string name="account_name">用户名称:</string>
     <string name="account_portrait">用户头像:</string>
+    <string name="hr_voice_speech">心率语音播报:</string>
+    <string name="enable">开启</string>
+    <string name="minute_per_time">分钟/次</string>
+    <string name="hr_abnormal_alarm">心率异常报警:</string>
+    <string name="low_limit">下限\n次/分钟</string>
+    <string name="high_limit">上限\n次/分钟</string>
 
 
     <string name="current_hr">当前心率</string>
