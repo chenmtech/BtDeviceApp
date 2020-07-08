@@ -52,6 +52,7 @@
     <string name="hr_abnormal_alarm">HR Abnormal Alarm:</string>
     <string name="low_limit">Low Limit\nBPM</string>
     <string name="high_limit">High Limit\nBPM</string>
+    <string name="and">and</string>
 
     <string name="current_hr">The current heart rate is </string>
     <string name="hr_too_high">Your heart rate is too high</string>

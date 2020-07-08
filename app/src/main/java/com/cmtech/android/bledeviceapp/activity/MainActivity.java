@@ -442,14 +442,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                     finish();
                 }
             });
-            builder.setNegativeButton(R.string.minimize_app, new DialogInterface.OnClickListener() {
+            /*builder.setNegativeButton(R.string.minimize_app, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     stopNotifyService = false;
                     openDrawer(false);
                     MainActivity.this.moveTaskToBack(false);
                 }
-            });
+            });*/
             builder.show();
         } else {
             stopNotifyService = true;
@@ -480,7 +480,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 }
             }
         });
-
     }
 
     // 异常通知

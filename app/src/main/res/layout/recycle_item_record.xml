@@ -85,7 +85,9 @@
                 android:text="@string/null_content"
                 android:textColor="@color/black"
                 android:textSize="12sp"
-                android:maxLength="10"/>
+                android:maxLines="1"
+                android:maxEms="10"
+                android:ellipsize="end"/>
         </LinearLayout>
 
     </LinearLayout>

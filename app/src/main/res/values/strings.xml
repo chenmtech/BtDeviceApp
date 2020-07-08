@@ -51,6 +51,7 @@
     <string name="hr_abnormal_alarm">心率异常报警:</string>
     <string name="low_limit">下限\n次/分钟</string>
     <string name="high_limit">上限\n次/分钟</string>
+    <string name="and">和</string>
 
 
     <string name="current_hr">当前心率</string>

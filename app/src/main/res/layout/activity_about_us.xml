@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary"
-        toolbar:title="关于康明"
+        toolbar:title="@string/about_km"
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
@@ -44,10 +44,17 @@
             android:text="@string/service_agreement"/>
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="@string/and"/>
+
+        <TextView
             android:id="@+id/tv_privacy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:text="@string/privacy_policy_http"/>
+
     </LinearLayout>
 </RelativeLayout>
