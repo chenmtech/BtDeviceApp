@@ -15,7 +15,7 @@
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,18 +25,11 @@
                 android:layout_height="4dp"
                 android:background="@color/primary_dark"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:background="@color/primary_dark"/>
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="心率播报"
+                android:text="心率语音播报:"
                 android:textSize="18sp"
                 android:textColor="@color/black"/>
 
@@ -44,19 +37,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
-                <TextView
+
+                <CheckBox
+                    android:id="@+id/cb_hr_speak"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="播报频率："
-                    android:textSize="18sp"/>
+                    android:text="开启"
+                    android:textSize="20sp"/>
 
                 <EditText
                     android:id="@+id/et_speak_period"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:gravity="center_horizontal"
                     android:text="5"
                     android:textSize="22sp"
@@ -65,20 +59,12 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
                     android:layout_marginEnd="10dp"
                     android:text="分钟/次"
                     android:textColor="@color/black"
                     android:textSize="18sp"/>
 
             </LinearLayout>
-
-            <CheckBox
-                android:id="@+id/cb_hr_speak"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="开启语音播报" />
 
             <View
                 android:layout_width="match_parent"
@@ -91,9 +77,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:text="心率报警"
+                android:text="心率异常报警:"
                 android:textSize="18sp"
                 android:textColor="@color/black"/>
+
+            <CheckBox
+                android:id="@+id/cb_hr_warn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="开启"
+                android:textSize="20sp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -114,7 +108,7 @@
                         android:layout_gravity="center_vertical"
                         android:gravity="center_horizontal"
                         android:text="下限\n次/分钟"
-                        android:textSize="10sp"/>
+                        android:textSize="12sp"/>
 
                     <NumberPicker
                         android:id="@+id/np_hr_low"
@@ -138,7 +132,7 @@
                         android:layout_gravity="center_vertical"
                         android:gravity="center_horizontal"
                         android:text="上限\n次/分钟"
-                        android:textSize="10sp"/>
+                        android:textSize="12sp"/>
                     <NumberPicker
                         android:id="@+id/np_hr_high"
                         android:layout_width="wrap_content"
@@ -148,13 +142,6 @@
                         android:focusableInTouchMode="false"/>
                 </LinearLayout>
             </LinearLayout>
-
-            <CheckBox
-                android:id="@+id/cb_hr_warn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="心率异常时报警" />
 
             <Button
                 android:id="@+id/btn_ok"

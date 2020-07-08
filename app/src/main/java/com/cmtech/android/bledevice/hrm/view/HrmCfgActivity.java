@@ -81,8 +81,8 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int low = npHrLow.getValue()*HR_LIMIT_INTERVAL+DEFAULT_HR_LOW_LIMIT;
-                int high = npHrHigh.getValue()*HR_LIMIT_INTERVAL+DEFAULT_HR_LOW_LIMIT;
+                int low = npHrLow.getValue() * HR_LIMIT_INTERVAL + DEFAULT_HR_LOW_LIMIT;
+                int high = npHrHigh.getValue() * HR_LIMIT_INTERVAL + DEFAULT_HR_LOW_LIMIT;
                 if(high <= low) {
                     Toast.makeText(HrmCfgActivity.this, getString(R.string.hr_limit_wrong), Toast.LENGTH_SHORT).show();
                     return;
