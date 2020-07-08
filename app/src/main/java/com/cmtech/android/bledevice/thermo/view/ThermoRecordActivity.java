@@ -9,7 +9,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.MyLineChart;
@@ -108,7 +107,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
         etNote.setEnabled(false);
 
         ibEdit = findViewById(R.id.ib_edit);
-        ibEdit.setImageResource(R.mipmap.ic_edit_32px);
+        ibEdit.setImageResource(R.mipmap.ic_edit_24px);
         ibEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,10 +119,10 @@ public class ThermoRecordActivity extends AppCompatActivity {
                         record.save();
                     }
                     etNote.setEnabled(false);
-                    ibEdit.setImageResource(R.mipmap.ic_edit_32px);
+                    ibEdit.setImageResource(R.mipmap.ic_edit_24px);
                 } else {
                     etNote.setEnabled(true);
-                    ibEdit.setImageResource(R.mipmap.ic_save_32px);
+                    ibEdit.setImageResource(R.mipmap.ic_save_24px);
                 }
             }
         });

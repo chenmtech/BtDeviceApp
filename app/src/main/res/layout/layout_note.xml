@@ -28,7 +28,7 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_margin="4dp"
-            android:src="@mipmap/ic_edit_32px"
+            android:src="@mipmap/ic_edit_24px"
             android:background="@color/primary"
             android:visibility="visible"/>
     </RelativeLayout>
