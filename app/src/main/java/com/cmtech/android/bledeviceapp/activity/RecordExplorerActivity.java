@@ -58,14 +58,14 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
-    private static final int READ_RECORD_BASIC_INFO_NUM = 20;
+    private static final int DOWNLOAD_RECORD_BASIC_INFO_NUM = 20;
 
     private List<IRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter recordAdapter; // Adapter
     private RecyclerView recordView; // RecycleView
     private TextView tvNoRecord; // no record
     private Spinner typeSpinner;
-    private RecordType recordType = ALL; // record type in record list
+    private RecordType recordType = null; // record type in record list
 
     private long updateTime; // update time in record list
 
@@ -173,7 +173,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, READ_RECORD_BASIC_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, DOWNLOAD_RECORD_BASIC_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == CODE_SUCCESS) { // download success, save into local records
@@ -193,7 +193,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
 
-                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_BASIC_INFO_NUM);
+                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(recordType, AccountManager.getAccount(), from, DOWNLOAD_RECORD_BASIC_INFO_NUM);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {

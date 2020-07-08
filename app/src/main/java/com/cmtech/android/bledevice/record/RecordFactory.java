@@ -106,7 +106,7 @@ public class RecordFactory {
         } else {
             List<IRecord> records = new ArrayList<>();
             for(RecordType type1 : SUPPORT_RECORD_TYPES) {
-                if(type1 == ALL) break;
+                if(type1 == ALL) continue;
                 Class<? extends IRecord> recordClass = getRecordClass(type1);
                 if (recordClass != null) {
                     try {
@@ -123,7 +123,7 @@ public class RecordFactory {
             Collections.sort(records, new Comparator<IRecord>() {
                 @Override
                 public int compare(IRecord o1, IRecord o2) {
-                    return (int)(o1.getCreateTime() - o2.getCreateTime());
+                    return (int)(o2.getCreateTime() - o1.getCreateTime());
                 }
             });
             return records.subList(0, Math.min(records.size(), num));

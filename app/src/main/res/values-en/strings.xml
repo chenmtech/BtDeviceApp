@@ -107,7 +107,7 @@
     <string name="delete_record">Delete Record</string>
     <string name="really_wanna_delete_record">Deleting the record cannot be undo. Sure to delete it?</string>
     <string name="logout_account">Logout the account</string>
-    <string name="really_logout_account">The records of this account on the web wont be deleted after logout.</string>
+    <string name="really_logout_account">The records of this account which is not uploaded to the cloud may be deleted after logout.</string>
     <string name="battery">BAT</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
