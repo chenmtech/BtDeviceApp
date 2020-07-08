@@ -68,6 +68,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private RecordType recordType = null; // record type in record list
 
     private long updateTime; // update time in record list
+    private String noteFilterStr = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +119,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
-                    updateRecords(updateTime);
+                    updateRecords(updateTime, noteFilterStr);
                 }
             }
 
@@ -163,17 +164,17 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateRecordView();
 
         updateTime = new Date().getTime();
-        updateRecords(updateTime);
+        updateRecords(updateTime, noteFilterStr);
     }
 
-    private void updateRecords(final long from) {
+    private void updateRecords(final long from, final String noteFilterStr) {
         IRecord record = RecordFactory.create(recordType, from, null, AccountManager.getAccount(), "");
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
         }
 
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, DOWNLOAD_RECORD_BASIC_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{DOWNLOAD_RECORD_BASIC_INFO_NUM, noteFilterStr}, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == CODE_SUCCESS) { // download success, save into local records

@@ -49,7 +49,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     private ProgressDialog progressDialog;
     private final int cmd;
     private final boolean isShowProgress;
-    private final Object param;
+    private final Object[] params;
     private final RecordWebCallback callback;
 
     private int code = 1;
@@ -64,9 +64,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
         this(context, cmd, null, isShowProgress, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, Object param, boolean isShowProgress, RecordWebCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean isShowProgress, RecordWebCallback callback) {
         this.cmd = cmd;
-        this.param = param;
+        this.params = params;
 
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
@@ -204,8 +204,17 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
             // DOWNLOAD BASIC INFO
             case RECORD_CMD_DOWNLOAD_BASIC_INFO:
-                int downloadNum = (param == null) ? DEFAULT_DOWNLOAD_BASIC_INFO_NUM_PER_TIME : (Integer)param;
-                KMWebService.downloadRecordInfo(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, downloadNum, new Callback() {
+                int downloadNum = 0;
+                String noteFilterStr = "";
+                if(params == null || params.length == 0) {
+                    downloadNum = DEFAULT_DOWNLOAD_BASIC_INFO_NUM_PER_TIME;
+                } else if(params.length == 1) {
+                    downloadNum = (Integer) params[0];
+                } else if(params.length == 2) {
+                    downloadNum = (Integer) params[0];
+                    noteFilterStr = (String) params[1];
+                }
+                KMWebService.downloadRecordBasicInfo(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, downloadNum, noteFilterStr, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;

@@ -103,7 +103,7 @@ public class KMWebService {
         }
     }
 
-    public static void downloadRecordInfo(String platName, String platId, IRecord record, int num, Callback callback) {
+    public static void downloadRecordBasicInfo(String platName, String platId, IRecord record, int num, String noteFilterStr, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "downloadInfo");
@@ -114,6 +114,7 @@ public class KMWebService {
             json.put("creatorPlat", record.getCreatorPlat());
             json.put("creatorId", record.getCreatorId());
             json.put("num", num);
+            json.put("noteFilterStr", noteFilterStr);
             HttpUtils.requestPost(KMURL + "Record?", json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
