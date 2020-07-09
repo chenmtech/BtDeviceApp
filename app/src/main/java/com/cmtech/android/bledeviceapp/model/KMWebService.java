@@ -51,6 +51,29 @@ public class KMWebService {
         HttpUtils.requestGet(KMURL + "Account?", data, callback);
     }
 
+    public static void uploadUser(User user, Callback callback) {
+        try {
+            JSONObject json = user.toJson();
+            json.put("cmd", "upload");
+            ViseLog.e(json.toString());
+            HttpUtils.requestPost(KMURL + "Account?", json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void downloadUser(User user, Callback callback) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "download");
+            json.put("platName", user.getPlatName());
+            json.put("platId", user.getPlatId());
+            HttpUtils.requestPost(KMURL + "Account?", json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void queryRecord(int recordTypeCode, long createTime, String devAddress, Callback callback) {
         Map<String, String> data = new HashMap<>();
         data.put("recordTypeCode", String.valueOf(recordTypeCode));

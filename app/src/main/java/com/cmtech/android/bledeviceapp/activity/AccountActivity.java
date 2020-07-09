@@ -24,17 +24,26 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
+import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.UserWebAsyncTask;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
+import static com.cmtech.android.bledeviceapp.model.UserWebAsyncTask.USER_CMD_DOWNLOAD;
 
 /**
  *  AccountActivity: 账户设置Activity
@@ -63,25 +72,14 @@ public class AccountActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_set_account_info);
         setSupportActionBar(toolbar);
 
-        etName = findViewById(R.id.et_account_name);
-        etName.setText(account.getName());
+        initUI();
 
-        ivImage = findViewById(R.id.iv_account_image);
-        cacheImagePath = account.getLocalIcon();
-        if(TextUtils.isEmpty(cacheImagePath)) {
-            Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
-        } else {
-            Glide.with(MyApplication.getContext()).load(cacheImagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
-        }
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openAlbum();
             }
         });
-
-        etNote = findViewById(R.id.et_account_note);
-        etNote.setText(account.getNote());
 
         Button btnOk = findViewById(R.id.btn_account_info_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -118,9 +116,42 @@ public class AccountActivity extends AppCompatActivity {
 
                 account.setNote(etNote.getText().toString());
                 account.save();
-                Intent intent = new Intent();
-                setResult(RESULT_OK, intent);
-                finish();
+
+                new UserWebAsyncTask(AccountActivity.this, UserWebAsyncTask.USER_CMD_UPLOAD, new UserWebAsyncTask.UserWebCallback() {
+                    @Override
+                    public void onFinish(int code, Object result) {
+                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.web_failure;
+                        Toast.makeText(AccountActivity.this, strId, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent();
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                }).execute(account);
+            }
+        });
+
+        Button btnDownload = findViewById(R.id.btn_download);
+        btnDownload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new UserWebAsyncTask(AccountActivity.this, USER_CMD_DOWNLOAD, new UserWebAsyncTask.UserWebCallback() {
+                    @Override
+                    public void onFinish(int code, Object result) {
+                        if (code == CODE_SUCCESS) {
+                            JSONObject json = (JSONObject) result;
+
+                            try {
+                                if(account.setDataFromJson(json)) {
+                                    initUI();
+                                    return;
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        Toast.makeText(AccountActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                    }
+                }).execute(account);
             }
         });
 
@@ -133,9 +164,22 @@ public class AccountActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
 
+    private void initUI() {
+        etName = findViewById(R.id.et_account_name);
+        etName.setText(account.getName());
 
+        ivImage = findViewById(R.id.iv_account_image);
+        cacheImagePath = account.getLocalIcon();
+        if(TextUtils.isEmpty(cacheImagePath)) {
+            Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
+        } else {
+            Glide.with(MyApplication.getContext()).load(cacheImagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
+        }
 
+        etNote = findViewById(R.id.et_account_note);
+        etNote.setText(account.getNote());
     }
 
     @Override

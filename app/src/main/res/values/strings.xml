@@ -120,6 +120,7 @@
     <string name="really_logout_account">账户未上传到云端的记录可能会丢失。确定退出吗？</string>
     <string name="battery">电量</string>
     <string name="refresh_when_drag_down">下拉刷新</string>
+    <string name="download">下载</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">当前无设备打开</string>

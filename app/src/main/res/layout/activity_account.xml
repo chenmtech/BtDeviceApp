@@ -22,7 +22,8 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
         <TextView
             android:labelFor="@id/et_account_name"
             android:layout_width="100dp"
@@ -44,7 +45,8 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
         <TextView
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -95,6 +97,17 @@
             android:layout_margin="10sp"
             android:background="@color/accent"
             android:text="@string/cancel"
+            android:textSize="18sp"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/btn_download"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="10sp"
+            android:background="@color/accent"
+            android:text="@string/download"
             android:textSize="18sp"
             android:textColor="@color/white"/>
 
