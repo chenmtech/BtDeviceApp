@@ -1,17 +1,26 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
+import android.util.Base64;
 
+import com.cmtech.android.bledevice.record.IRecordJson;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -31,7 +40,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
   * Version:        1.0
  */
 
-public class User extends LitePalSupport implements Serializable{
+public class User extends LitePalSupport implements Serializable, IRecordJson {
     private int id; // id
     private String platName = ""; // platform name
     private String platId = ""; // platform ID
@@ -97,7 +106,7 @@ public class User extends LitePalSupport implements Serializable{
         this.localIcon = localIcon;
     }
     // download user's web icon to local file system
-    public void downloadIcon(final IDownloadLocalIcon callback) {
+    public void downloadIcon(final IDownloadUserIconCallback callback) {
         HttpUtils.requestGet(icon, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -107,24 +116,64 @@ public class User extends LitePalSupport implements Serializable{
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        byte[] bytes = response.body().bytes();
-                        final Bitmap bitmap = BitmapUtil.byteToBitmap(bytes);
-                        String fileName = id+".jpg";
-                        File toFile = FileUtil.getFile(DIR_IMAGE, fileName);
-                        BitmapUtil.saveBitmap(bitmap, toFile);
-                        localIcon = toFile.getCanonicalPath();
-                        save();
-                        if(callback != null) {
-                            callback.onSuccess(localIcon);
-                        }
+                    byte[] bytes = Objects.requireNonNull(response.body()).bytes();
+                    final Bitmap bitmap = BitmapUtil.byteToBitmap(bytes);
+                    String fileName = id+".jpg";
+                    assert DIR_IMAGE != null;
+                    File toFile = FileUtil.getFile(DIR_IMAGE, fileName);
+                    BitmapUtil.saveBitmap(bitmap, toFile);
+                    localIcon = toFile.getCanonicalPath();
+                    save();
+                    if(callback != null) {
+                        callback.onSuccess(localIcon);
                     }
                 }
             }
         });
-
     }
 
+    @Override
+    public boolean setDataFromJson(JSONObject json) throws JSONException {
+        if(json == null) {
+            return false;
+        }
+
+        name = json.getString("name");
+        note = json.getString("note");
+        String iconStr = json.getString("iconStr");
+        if(!"".equals(iconStr)) {
+            Bitmap bitmap = BitmapUtil.byteToBitmap(Base64.decode(iconStr, Base64.DEFAULT));
+            if(bitmap != null) {
+                File toFile = FileUtil.getFile(DIR_IMAGE, platName+platId + ".jpg");
+                BitmapUtil.saveBitmap(bitmap, toFile);
+                try {
+                    localIcon = toFile.getCanonicalPath();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return save();
+    }
+
+    @Override
+    public JSONObject toJson() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("platName", platName);
+        json.put("platId", platId);
+        json.put("name", name);
+        json.put("note", note);
+
+        String iconStr = "";
+        if(!"".equals(localIcon)) {
+            Bitmap bitmap = BitmapFactory.decodeFile(localIcon);
+            iconStr = BitmapUtil.bitmapToString(bitmap);
+        }
+        json.put("iconStr", iconStr);
+        return json;
+    }
+
+    @NonNull
     @Override
     public String toString() {
         return "Plat: " + getPlatName() + " Id: " + getShortPlatId() + " Name：" + name + ' '
@@ -145,7 +194,7 @@ public class User extends LitePalSupport implements Serializable{
         return (platName + platId).equals(other.platName+other.platId);
     }
 
-    public interface IDownloadLocalIcon {
-        void onSuccess(String localIcon);
+    public interface IDownloadUserIconCallback {
+        void onSuccess(String iconFilePath);
     }
 }

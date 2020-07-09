@@ -661,13 +661,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             if(TextUtils.isEmpty(account.getLocalIcon())) {
                 ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
                 if(!TextUtils.isEmpty(account.getIcon())) {
-                    account.downloadIcon(new User.IDownloadLocalIcon() {
+                    account.downloadIcon(new User.IDownloadUserIconCallback() {
                         @Override
-                        public void onSuccess(final String localIcon) {
+                        public void onSuccess(final String iconFilePath) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Glide.with(MainActivity.this).load(localIcon).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+                                    Glide.with(MainActivity.this).load(iconFilePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
                                 }
                             });
                         }
