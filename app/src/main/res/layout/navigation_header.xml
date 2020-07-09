@@ -16,11 +16,12 @@
         android:id="@+id/tv_account_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="4dp"
         android:layout_below="@+id/iv_account_image"
         android:layout_centerHorizontal="true"
-        android:text="匿名"
+        android:text="@string/anonymous"
         android:textColor="@color/secondary_text"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:maxLength="12"/>
 
     <ImageButton
