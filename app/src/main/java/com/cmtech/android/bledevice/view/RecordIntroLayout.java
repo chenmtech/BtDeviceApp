@@ -61,11 +61,11 @@ public class RecordIntroLayout extends RelativeLayout {
 
         tvCreatorName.setText(record.getCreatorName());
         User account = AccountManager.getAccount();
-        if(TextUtils.isEmpty(account.getLocalIcon())) {
+        if(TextUtils.isEmpty(account.getIcon())) {
             // load icon by platform name
             ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
         } else {
-            Glide.with(getContext()).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
+            Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
         }
 
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());

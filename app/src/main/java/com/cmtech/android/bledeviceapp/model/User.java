@@ -3,14 +3,13 @@ package com.cmtech.android.bledeviceapp.model;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Base64;
 
-import com.cmtech.android.bledevice.record.IRecordJson;
-import com.cmtech.android.bledeviceapp.util.HttpUtils;
+import com.cmtech.android.bledeviceapp.interfac.IMyJson;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.crud.LitePalSupport;
@@ -18,13 +17,6 @@ import org.litepal.crud.LitePalSupport;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
@@ -40,14 +32,13 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
   * Version:        1.0
  */
 
-public class User extends LitePalSupport implements Serializable, IRecordJson {
+public class User extends LitePalSupport implements Serializable, IMyJson {
     private int id; // id
     private String platName = ""; // platform name
     private String platId = ""; // platform ID
     private String name = ""; // name
-    private String icon = ""; // web address of icon
     private String note = ""; // note
-    private String localIcon = ""; // local file address of icon
+    private String icon = ""; // icon file path in local disk
 
     public User() {
     }
@@ -63,9 +54,8 @@ public class User extends LitePalSupport implements Serializable, IRecordJson {
         this.platName = user.platName;
         this.platId = user.platId;
         this.name = user.name;
-        this.icon = user.icon;
         this.note = user.note;
-        this.localIcon = user.localIcon;
+        this.icon = user.icon;
     }
 
     public int getId() {
@@ -75,23 +65,11 @@ public class User extends LitePalSupport implements Serializable, IRecordJson {
     public String getPlatId() {
         return platId;
     }
-    public String getShortPlatId() {
-        if(platId.length() > 3) {
-            return String.format("%s****%s", platId.substring(0, 3), platId.substring(platId.length() - 3));
-        } else
-            return platId;
-    }
     public String getName() {
         return name;
     }
     public void setName(String name) {
         this.name = name;
-    }
-    public String getIcon() {
-        return icon;
-    }
-    public void setIcon(String icon) {
-        this.icon = icon;
     }
     public String getNote() {
         return note;
@@ -99,13 +77,13 @@ public class User extends LitePalSupport implements Serializable, IRecordJson {
     public void setNote(String note) {
         this.note = note;
     }
-    public String getLocalIcon() {
-        return localIcon;
+    public String getIcon() {
+        return icon;
     }
-    public void setLocalIcon(String localIcon) {
-        this.localIcon = localIcon;
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
-    // download user's web icon to local file system
+    /* download user's web icon to local file system
     public void downloadIcon(final IDownloadUserIconCallback callback) {
         HttpUtils.requestGet(icon, new Callback() {
             @Override
@@ -131,6 +109,7 @@ public class User extends LitePalSupport implements Serializable, IRecordJson {
             }
         });
     }
+    */
 
     @Override
     public boolean setDataFromJson(JSONObject json) throws JSONException {
@@ -141,13 +120,14 @@ public class User extends LitePalSupport implements Serializable, IRecordJson {
         name = json.getString("name");
         note = json.getString("note");
         String iconStr = json.getString("iconStr");
-        if(!"".equals(iconStr)) {
+        if(!TextUtils.isEmpty(iconStr)) {
             Bitmap bitmap = BitmapUtil.byteToBitmap(Base64.decode(iconStr, Base64.DEFAULT));
             if(bitmap != null) {
+                assert DIR_IMAGE != null;
                 File toFile = FileUtil.getFile(DIR_IMAGE, platName+platId + ".jpg");
                 BitmapUtil.saveBitmap(bitmap, toFile);
                 try {
-                    localIcon = toFile.getCanonicalPath();
+                    icon = toFile.getCanonicalPath();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -165,8 +145,8 @@ public class User extends LitePalSupport implements Serializable, IRecordJson {
         json.put("note", note);
 
         String iconStr = "";
-        if(!"".equals(localIcon)) {
-            Bitmap bitmap = BitmapFactory.decodeFile(localIcon);
+        if(!TextUtils.isEmpty(icon)) {
+            Bitmap bitmap = BitmapFactory.decodeFile(icon);
             iconStr = BitmapUtil.bitmapToString(bitmap);
         }
         json.put("iconStr", iconStr);
@@ -176,8 +156,8 @@ public class User extends LitePalSupport implements Serializable, IRecordJson {
     @NonNull
     @Override
     public String toString() {
-        return "Plat: " + getPlatName() + " Id: " + getShortPlatId() + " Name：" + name + ' '
-                + " Icon：" + icon + " Note：" + note + " localIcon: " + localIcon;
+        return "PlatName: " + getPlatName() + ",PlatId: " + getPlatId() + ",Name：" + name + ' '
+                + ",Note：" + note + ",icon: " + icon;
     }
 
     @Override
@@ -194,7 +174,7 @@ public class User extends LitePalSupport implements Serializable, IRecordJson {
         return (platName + platId).equals(other.platName+other.platId);
     }
 
-    public interface IDownloadUserIconCallback {
+    /*public interface IDownloadUserIconCallback {
         void onSuccess(String iconFilePath);
-    }
+    }*/
 }

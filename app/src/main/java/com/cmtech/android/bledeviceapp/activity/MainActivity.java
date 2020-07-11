@@ -654,31 +654,19 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             //throw new IllegalStateException();
             finish();
         } else {
-            if(account.getName() != null && !"".equals(account.getName().trim())) {
-                tvAccountName.setText(account.getName());
+            String name = account.getName();
+            if(TextUtils.isEmpty(name)) {
+                tvAccountName.setText(R.string.anonymous);
+            } else {
+                tvAccountName.setText(name);
             }
 
-            if(TextUtils.isEmpty(account.getLocalIcon())) {
+            if(TextUtils.isEmpty(account.getIcon())) {
                 ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
-                if(!TextUtils.isEmpty(account.getIcon())) {
-                    account.downloadIcon(new User.IDownloadUserIconCallback() {
-                        @Override
-                        public void onSuccess(final String iconFilePath) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Glide.with(MainActivity.this).load(iconFilePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
-                                }
-                            });
-                        }
-                    });
-                }
             } else {
-                Glide.with(this).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+                Glide.with(this).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
             }
         }
-
-
     }
 
     // 更新MainLayout的可视性

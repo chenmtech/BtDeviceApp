@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
+import com.cmtech.android.bledeviceapp.interfac.IMyJson;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.interf
@@ -12,7 +14,7 @@ package com.cmtech.android.bledevice.record;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface IRecord extends IRecordJson {
+public interface IRecord extends IMyJson {
     int INVALID_ID = -1;
 
     int getId();

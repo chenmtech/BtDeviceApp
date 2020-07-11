@@ -23,7 +23,6 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.FastClickUtil;
-import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
@@ -141,11 +140,11 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
         holder.tvCreatorName.setText(record.getCreatorName());
         User account = AccountManager.getAccount();
-        if(TextUtils.isEmpty(account.getLocalIcon())) {
+        if(TextUtils.isEmpty(account.getIcon())) {
             // load icon by platform name
             holder.ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
         } else {
-            Glide.with(activity).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
+            Glide.with(activity).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
         }
 
         holder.ivRecordType.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());

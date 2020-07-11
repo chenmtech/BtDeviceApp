@@ -13,19 +13,16 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
-import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
@@ -41,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.model.UserWebAsyncTask.USER_CMD_DOWNLOAD;
 
@@ -88,16 +84,16 @@ public class AccountActivity extends AppCompatActivity {
                 User account = AccountManager.getAccount();
                 account.setName(etName.getText().toString());
 
-                if(!cacheImagePath.equals(account.getLocalIcon())) {
+                if(!cacheImagePath.equals(account.getIcon())) {
                     // 把原来的图像文件删除
-                    if(!TextUtils.isEmpty(account.getLocalIcon())) {
-                        File imageFile = new File(account.getLocalIcon());
+                    if(!TextUtils.isEmpty(account.getIcon())) {
+                        File imageFile = new File(account.getIcon());
                         imageFile.delete();
                     }
 
                     // 把当前图像保存到DIR_IMAGE，以ID号为文件名
                     if(TextUtils.isEmpty(cacheImagePath)) {
-                        account.setLocalIcon("");
+                        account.setIcon("");
                     } else {
                         try {
                             ivImage.setDrawingCacheEnabled(true);
@@ -107,10 +103,10 @@ public class AccountActivity extends AppCompatActivity {
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
-                            account.setLocalIcon(filePath);
+                            account.setIcon(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            account.setLocalIcon("");
+                            account.setIcon("");
                         }
                     }
                 }
@@ -126,31 +122,6 @@ public class AccountActivity extends AppCompatActivity {
                         Intent intent = new Intent();
                         setResult(RESULT_OK, intent);
                         finish();
-                    }
-                }).execute(account);
-            }
-        });
-
-        Button btnDownload = findViewById(R.id.btn_download);
-        btnDownload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new UserWebAsyncTask(AccountActivity.this, USER_CMD_DOWNLOAD, new UserWebAsyncTask.UserWebCallback() {
-                    @Override
-                    public void onFinish(int code, Object result) {
-                        if (code == CODE_SUCCESS) {
-                            JSONObject json = (JSONObject) result;
-
-                            try {
-                                if(account.setDataFromJson(json)) {
-                                    initUI();
-                                    return;
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        Toast.makeText(AccountActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                     }
                 }).execute(account);
             }
@@ -172,7 +143,7 @@ public class AccountActivity extends AppCompatActivity {
         etName.setText(account.getName());
 
         ivImage = findViewById(R.id.iv_account_image);
-        cacheImagePath = account.getLocalIcon();
+        cacheImagePath = account.getIcon();
         if(TextUtils.isEmpty(cacheImagePath)) {
             Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
         } else {
@@ -203,11 +174,11 @@ public class AccountActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
-    public void onBackPressed() {
-        Intent intent = new Intent();
-        setResult(RESULT_CANCELED, intent);
-        finish();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_modify_account, menu);
+        return true;
     }
 
     @Override
@@ -217,8 +188,40 @@ public class AccountActivity extends AppCompatActivity {
                 setResult(RESULT_CANCELED, null);
                 finish();
                 break;
+
+            case R.id.download_account_info:
+                download();
+                break;
         }
         return true;
+    }
+
+    private void download() {
+        new UserWebAsyncTask(AccountActivity.this, USER_CMD_DOWNLOAD, new UserWebAsyncTask.UserWebCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                if (code == CODE_SUCCESS) {
+                    JSONObject json = (JSONObject) result;
+
+                    try {
+                        if(account.setDataFromJson(json)) {
+                            initUI();
+                            return;
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Toast.makeText(AccountActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
+            }
+        }).execute(account);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        setResult(RESULT_CANCELED, intent);
+        finish();
     }
 
     private void openAlbum() {

@@ -101,17 +101,6 @@
             android:textColor="@color/white"/>
 
         <Button
-            android:id="@+id/btn_download"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="10sp"
-            android:background="@color/accent"
-            android:text="@string/download"
-            android:textSize="18sp"
-            android:textColor="@color/white"/>
-
-        <Button
             android:id="@+id/btn_account_info_ok"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

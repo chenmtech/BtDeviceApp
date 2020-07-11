@@ -57,7 +57,7 @@ public class AccountManager {
     }
 
     public static void loginKMServer(final Context context) {
-        if(account == null) return;
+        if(!isLogin()) return;
 
         KMWebService.signUporLogin(account.getPlatName(), account.getPlatId(), new Callback() {
             @Override
@@ -106,7 +106,7 @@ public class AccountManager {
     // clear account's local icon
     public static void clearLocalIcon() {
         if(account != null) {
-            account.setLocalIcon("");
+            account.setIcon("");
             account.save();
         }
     }
