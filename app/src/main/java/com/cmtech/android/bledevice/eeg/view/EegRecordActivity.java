@@ -129,8 +129,8 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
         });
 
         int second = record.getRecordSecond();
-        tvCurrentTime.setText(DateTimeUtil.secToTime(0));
-        tvTotalTime.setText(DateTimeUtil.secToTime(second));
+        tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
+        tvTotalTime.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setMax(second);
 
         etNote = findViewById(R.id.et_note);
@@ -164,7 +164,7 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
     @Override
     public void onDataLocationUpdated(long dataLocation, int sampleRate) {
         int second = (int)(dataLocation/ sampleRate);
-        tvCurrentTime.setText(DateTimeUtil.secToTime(second));
+        tvCurrentTime.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setProgress(second);
     }
 

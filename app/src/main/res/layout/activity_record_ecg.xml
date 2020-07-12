@@ -31,7 +31,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|bottom"
-            android:text="00:00:00"
             android:textColor="#fff"
             android:textSize="16sp"/>
     </FrameLayout>
@@ -67,7 +66,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="6dp"
-            android:text="00:00:00"
             android:textColor="@color/primary_text"
             android:textSize="12sp"/>
     </LinearLayout>

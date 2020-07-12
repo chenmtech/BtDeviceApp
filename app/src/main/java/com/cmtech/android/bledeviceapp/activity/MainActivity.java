@@ -43,6 +43,7 @@ import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
@@ -69,7 +70,6 @@ import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
-import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 
 /**
@@ -467,8 +467,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 if(deviceFrag != null) deviceFrag.updateState();
                 if(fragTabManager.isFragmentSelected(device)) {
                     updateConnectFAButton(device.getState().getIcon());
-                    Toast.makeText(MainActivity.this, device.getState().getDescription(), Toast.LENGTH_SHORT).show();
                     updateCloseMenuItem(true);
+                    if(!MyApplication.isRunInBackground())
+                        Toast.makeText(MainActivity.this, device.getState().getDescription(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -477,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     // 异常通知
     @Override
     public void onExceptionNotified(IDevice device, BleException ex) {
-        showMessageUsingShortToast(device.getAddress() + "-" + ex.getDescription());
+        Toast.makeText(MainActivity.this, ex.getDescription(), Toast.LENGTH_SHORT).show();
     }
 
     // 电量更新
@@ -564,7 +565,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(device == null) return;
 
         if(fragTabManager.isFragmentOpened(device)) {
-            showMessageUsingShortToast(getString(R.string.pls_close_device_firstly));
+            Toast.makeText(MainActivity.this, R.string.pls_close_device_firstly, Toast.LENGTH_SHORT).show();
             return;
         }
 

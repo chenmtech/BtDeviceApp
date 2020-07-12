@@ -42,6 +42,17 @@ public class DateTimeUtil {
         return timeStr;
     }
 
+    // a integer to xx m xx s
+    public static String secToMinute(int time) {
+        int minute = 0;
+        int second = 0;
+        if(time > 0) {
+            minute = time / 60;
+            second = time % 60;
+        }
+        return unitFormat(minute)+"'"+unitFormat(second)+"''";
+    }
+
     // a integer to xx时xx分xx秒
     public static String secToTimeInChinese(int time) {
         String timeStr = null;
@@ -93,11 +104,9 @@ public class DateTimeUtil {
     }
 
     private static String unitFormat(int i) {
-        String retStr = null;
         if (i >= 0 && i < 10)
-            retStr = "0" + Integer.toString(i);
+            return  "0" + i;
         else
-            retStr = "" + i;
-        return retStr;
+            return "" + i;
     }
 }

@@ -92,7 +92,8 @@
             android:text="@string/ecg_switch_off"
             android:textSize="10sp"
             android:textColor="@color/white"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            tools:ignore="SmallSp" />
 
     </FrameLayout>
 

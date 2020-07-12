@@ -109,12 +109,6 @@ public class MyApplication extends Application {
         return tts;
     }
 
-    public static void showMessageUsingShortToast(String msg) {
-        Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
-    }
-
     public static String getStr(int strId) {
         return instance.getString(strId);
     }

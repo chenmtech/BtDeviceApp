@@ -49,7 +49,7 @@ public class MyLineChart extends LineChart {
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return DateTimeUtil.secToTime((int)value * interval);
+                return DateTimeUtil.secToMinute((int)value * interval);
             }
         });
     }
@@ -75,13 +75,8 @@ public class MyLineChart extends LineChart {
         xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
         xAxis.setDrawGridLines(false);
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                return DateTimeUtil.secToTime((int)value* DEFAULT_X_VALUE_INTERVAL);
-            }
-        });
         xAxis.setLabelCount(4,false);
+        xAxis.setAvoidFirstLastClipping(true);
 
         YAxis leftYAxis = getAxisLeft();
         YAxis rightYaxis = getAxisRight();
