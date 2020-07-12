@@ -180,10 +180,13 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
         hrNum++;
         hrAve = (short)(hrSum/hrNum);
 
-        long tmp;
-        if(preTime == 0) tmp = 2; // the first HR
-        else tmp = Math.round((time-preTime)/1000.0); // ms to second
-        int interval = (tmp > HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH) ? HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH : (int)tmp;
+        int interval = 0;
+        if(preTime == 0) { // the first HR
+            interval = 2;
+        } else {
+            long tmp = Math.round((time-preTime)/1000.0); // ms to second
+            interval = (tmp > HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH) ? HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH : (int)tmp;
+        }
         preTime = time;
         for(HrHistogramElement<Integer> ele : hrHistogram) {
             if(hr < ele.maxValue) {
@@ -193,11 +196,11 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
         }
 
         short fHr = hrMAFilter.process(hr, interval);
-        if(fHr != INVALID_HEART_RATE) {
-            filterHrList.add(fHr);
-            return true;
-        }
-        return false;
+
+        if(fHr == INVALID_HEART_RATE) return false;
+
+        filterHrList.add(fHr);
+        return true;
     }
 
    /* // load hr record from a file

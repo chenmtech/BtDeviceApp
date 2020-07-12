@@ -14,11 +14,18 @@ import org.litepal.LitePal;
 
 import java.io.IOException;
 
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.tencent.qq.QQ;
+import cn.sharesdk.wechat.friends.Wechat;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
@@ -56,7 +63,7 @@ public class AccountManager {
         AccountManager.account = account;
     }
 
-    public static void loginKMServer(final Context context) {
+    public static void webLogin(final Context context) {
         if(!isLogin()) return;
 
         KMWebService.signUporLogin(account.getPlatName(), account.getPlatId(), new Callback() {
@@ -94,7 +101,21 @@ public class AccountManager {
     }
 
     // logout account
-    public static void logout() {
+    public static void logout(boolean isRemoved) {
+        if(!isLogin()) return;
+
+        if(isRemoved) {
+            if(account.getPlatName().equals(QQ_PLAT_NAME)) {
+                Platform plat = ShareSDK.getPlatform(QQ.NAME);
+                plat.removeAccount(true);
+            } else if(account.getPlatName().equals(WX_PLAT_NAME)) {
+                Platform plat = ShareSDK.getPlatform(Wechat.NAME);
+                plat.removeAccount(true);
+            } else if(account.getPlatName().equals(PHONE_PLAT_NAME)) {
+                PhoneAccount.removeAccount();
+            }
+        }
+
         account = null;
     }
 
@@ -104,10 +125,10 @@ public class AccountManager {
     }
 
     // clear account's local icon
-    public static void clearLocalIcon() {
+    /*public static void clearLocalIcon() {
         if(account != null) {
             account.setIcon("");
             account.save();
         }
-    }
+    }*/
 }

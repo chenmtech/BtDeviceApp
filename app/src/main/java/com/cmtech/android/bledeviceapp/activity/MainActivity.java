@@ -627,21 +627,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             return;
         }
 
-        User account = AccountManager.getAccount();
-        if(account != null) {
-            if(account.getPlatName().equals(QQ_PLAT_NAME)) {
-                Platform plat = ShareSDK.getPlatform(QQ.NAME);
-                plat.removeAccount(true);
-            } else if(account.getPlatName().equals(WX_PLAT_NAME)) {
-                Platform plat = ShareSDK.getPlatform(Wechat.NAME);
-                plat.removeAccount(true);
-            } else if(account.getPlatName().equals(PHONE_PLAT_NAME)) {
-                PhoneAccount.removeAccount();
-            }
-
-            AccountManager.clearLocalIcon();
-            AccountManager.logout();
-        }
+        AccountManager.logout(true);
 
         Intent intent = new Intent(MainActivity.this, SplashActivity.class);
         startActivity(intent);

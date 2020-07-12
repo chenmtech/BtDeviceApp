@@ -59,6 +59,10 @@ public class SystemTTS extends UtteranceProgressListener implements TTS, TextToS
         });
     }
 
+    public void speak(int strId) {
+        speak(mContext.getResources().getString(strId));
+    }
+
     public void speak(String playText) {
         if (!isSuccess) {
             return;

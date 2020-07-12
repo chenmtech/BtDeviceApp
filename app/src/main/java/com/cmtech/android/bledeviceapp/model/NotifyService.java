@@ -55,12 +55,20 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
         notifyTitle = getString(R.string.welcome_text_format, getString(R.string.app_name));
         noDevice = getString(R.string.no_device_opened);
+    }
 
-        //initDeviceManager();
 
-        //initNotificationBuilder();
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
 
-        //sendNotification();
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        initDeviceManager();
+        initNotificationBuilder();
+        sendNotification();
+        return START_STICKY;
     }
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
@@ -100,7 +108,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         for (IDevice device : openedDevices) {
             StringBuilder builder = new StringBuilder();
             builder.append(device.getName()).append("(").append(device.getAddress().substring(device.getAddress().length()-5)).append(")").append(": ");
-            if(device.getState() != DeviceState.CONNECT || device.getNotifyInfo().equals("")) {
+            if(device.getState() != DeviceState.CONNECT || "".equals(device.getNotifyInfo())) {
                 builder.append(device.getState().getDescription());
             }
             else {
@@ -113,25 +121,6 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        initDeviceManager();
-
-        initNotificationBuilder();
-
-        Intent innerIntent = new Intent(this, GrayInnerService.class);
-        startService(innerIntent);
-
-        sendNotification();
-
-        return START_STICKY;
-    }
-
-    @Override
     public void onDestroy() {
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
@@ -140,7 +129,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         DeviceManager.clear();
 
         stopForeground(true);
-        AccountManager.logout();
+        AccountManager.logout(false);
 
         try {
             Thread.sleep(500);
@@ -204,25 +193,4 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
             return NotifyService.this;
         }
     }
-
-    /**
-     * 给 API >= 18 的平台上用的灰色保活手段
-     */
-    public static class GrayInnerService extends Service {
-
-        @Override
-        public int onStartCommand(Intent intent, int flags, int startId) {
-            startForeground(NOTIFY_ID, new Notification());
-            stopForeground(true);
-            stopSelf();
-            return super.onStartCommand(intent, flags, startId);
-        }
-
-        @Nullable
-        @Override
-        public IBinder onBind(Intent intent) {
-            return null;
-        }
-    }
-
 }

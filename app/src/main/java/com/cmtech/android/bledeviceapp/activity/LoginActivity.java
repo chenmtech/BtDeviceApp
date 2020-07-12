@@ -199,7 +199,7 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
 
-        AccountManager.loginKMServer(this);
+        AccountManager.webLogin(this);
     }
 
 }

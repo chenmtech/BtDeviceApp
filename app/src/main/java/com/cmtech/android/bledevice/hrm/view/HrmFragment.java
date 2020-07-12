@@ -167,19 +167,10 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     //debugFrag.updateHrMeas(hrData.toString());
 
                     int bpm = hrData.getBpm();
-                    tvHrInEcgMode.setText(String.valueOf(bpm));
-                    tvHrInHrMode.setText(String.valueOf(bpm));
-
-                    HrmCfg cfg = device.getConfig();
-                    if(cfg.needWarn()) {
-                        String warnStr = null;
-                        if(bpm > cfg.getHrHigh())
-                            warnStr = getResources().getString(R.string.hr_too_high);
-                        else if(bpm < cfg.getHrLow()) {
-                            warnStr = getResources().getString(R.string.hr_too_low);
-                        }
-                        if(warnStr != null)
-                            warnUsingTTS(warnStr);
+                    if(device.inHrMode()) {
+                        tvHrInHrMode.setText(String.valueOf(bpm));
+                    } else {
+                        tvHrInEcgMode.setText(String.valueOf(bpm));
                     }
                 }
             });
@@ -303,10 +294,6 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             device.removeListener();
 
         ecgView.stop();
-    }
-
-    public void warnUsingTTS(String warnStr) {
-        MyApplication.getTTS().speak(warnStr);
     }
 
     public void setHrRecord(boolean isRecord) {

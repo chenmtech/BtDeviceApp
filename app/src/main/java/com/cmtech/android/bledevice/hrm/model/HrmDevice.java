@@ -486,21 +486,35 @@ public class HrmDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     try {
                         BleHeartRateData heartRateData = new BleHeartRateData(data);
-                        if(listener != null) {
-                            listener.onHRUpdated(heartRateData);
-                        }
-                        if(isHrRecord && hrRecord.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
-                            if(listener != null)
-                                listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
+                        int bpm = heartRateData.getBpm();
+                        String currentHr = MyApplication.getStr(R.string.current_hr) + bpm;
+                        boolean hrStatisticUpdated = (isHrRecord && hrRecord.process((short) bpm, heartRateData.getTime()));
+
+                        if(config.needWarn()) {
+                            if(bpm > config.getHrHigh())
+                                MyApplication.getTTS().speak(R.string.hr_too_high);
+                            else if(bpm < config.getHrLow()) {
+                                MyApplication.getTTS().speak(R.string.hr_too_low);
+                            }
                         }
 
-                        String str = MyApplication.getStr(R.string.current_hr) + heartRateData.getBpm();
                         if(waitSpeak) {
                             waitSpeak = false;
-                            MyApplication.getTTS().speak(str);
-                            ViseLog.e(str);
+                            MyApplication.getTTS().speak(currentHr);
+                            ViseLog.e(currentHr);
                         }
-                        setNotifyInfo(str);
+
+                        if(MyApplication.isRunInBackground()) {
+                            setNotifyInfo(currentHr);
+                        } else {
+                            if (listener != null) {
+                                listener.onHRUpdated(heartRateData);
+
+                                if (hrStatisticUpdated) {
+                                    listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
+                                }
+                            }
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -627,8 +641,10 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void showEcgSignal(int ecgSignal) {
-        if (listener != null) {
-            listener.onEcgSignalShowed(ecgSignal);
+        if(!MyApplication.isRunInBackground()) {
+            if (listener != null) {
+                listener.onEcgSignalShowed(ecgSignal);
+            }
         }
     }
 

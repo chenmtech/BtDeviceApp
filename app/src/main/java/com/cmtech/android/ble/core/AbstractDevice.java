@@ -88,6 +88,7 @@ public abstract class AbstractDevice implements IDevice{
     public String getNotifyInfo() {
         return notifyInfo;
     }
+
     @Override
     public void setNotifyInfo(String notifyInfo) {
         this.notifyInfo = notifyInfo;
@@ -97,16 +98,19 @@ public abstract class AbstractDevice implements IDevice{
             }
         }
     }
+
     @Override
     public final void addListener(OnDeviceListener listener) {
         if(!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
+
     @Override
     public final void removeListener(OnDeviceListener listener) {
         listeners.remove(listener);
     }
+
     @Override
     public DeviceState getState() {
         return connector.getState();
@@ -132,6 +136,7 @@ public abstract class AbstractDevice implements IDevice{
     public void connect() {
         connector.connect();
     }
+
     @Override
     public void disconnect(boolean forever) {
         connector.disconnect(forever);

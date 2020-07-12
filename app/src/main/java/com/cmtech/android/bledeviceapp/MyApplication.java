@@ -1,7 +1,9 @@
 package com.cmtech.android.bledeviceapp;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -24,6 +26,8 @@ import static com.cmtech.android.bledeviceapp.AppConstant.RECONNECT_INTERVAL;
 public class MyApplication extends Application {
     private static MyApplication instance;
     private static SystemTTS tts; // text to speech
+
+    private static int startedActivityCount = 0;
 
     @Override
     public void onCreate() {
@@ -53,6 +57,43 @@ public class MyApplication extends Application {
         tts = SystemTTS.getInstance(getApplicationContext());
 
         CrashHandler.getInstance().init(this);
+
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+            }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+                startedActivityCount++;
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+                startedActivityCount--;
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        });
     }
 
     public static MyApplication getInstance() {
@@ -74,13 +115,11 @@ public class MyApplication extends Application {
         toast.show();
     }
 
-    public static void showMessageUsingLongToast(String msg) {
-        Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
-    }
-
     public static String getStr(int strId) {
         return instance.getString(strId);
+    }
+
+    public static boolean isRunInBackground() {
+        return (startedActivityCount == 0);
     }
 }
