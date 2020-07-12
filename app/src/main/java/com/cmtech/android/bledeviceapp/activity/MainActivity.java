@@ -52,7 +52,6 @@ import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotifyService;
-import com.cmtech.android.bledeviceapp.model.PhoneAccount;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
@@ -64,19 +63,12 @@ import org.litepal.LitePal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import cn.sharesdk.framework.Platform;
-import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.tencent.qq.QQ;
-import cn.sharesdk.wechat.friends.Wechat;
+import java.util.Objects;
 
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
-import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
-import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 
@@ -342,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         updateDeviceList();
                         Drawable drawable;
                         if(TextUtils.isEmpty(device.getIcon())) {
-                            drawable = ContextCompat.getDrawable(this, DeviceType.getFromUuid(device.getUuid()).getDefaultIcon());
+                            drawable = ContextCompat.getDrawable(this, Objects.requireNonNull(DeviceType.getFromUuid(device.getUuid())).getDefaultIcon());
                         } else {
                             drawable = new BitmapDrawable(getResources(), device.getIcon());
                         }

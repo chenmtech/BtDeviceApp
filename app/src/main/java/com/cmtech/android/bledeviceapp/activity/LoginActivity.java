@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
         qqLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!checkPrivacyGrant()) return;
+                if(!isPrivacyGrantChecked()) return;
                 Platform plat = ShareSDK.getPlatform(QQ.NAME);
                 loginUsingQQorWechat(plat);
             }
@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
         wxLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!checkPrivacyGrant()) return;
+                if(!isPrivacyGrantChecked()) return;
                 Platform plat = ShareSDK.getPlatform(Wechat.NAME);
                 loginUsingQQorWechat(plat);
             }
@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
         hwLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!checkPrivacyGrant()) return;
+                if(!isPrivacyGrantChecked()) return;
                 loginUsingHuaweiAccount();
             }
         });
@@ -96,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
         phoneLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!checkPrivacyGrant()) return;
+                if(!isPrivacyGrantChecked()) return;
                 loginUsingPhone(LoginActivity.this);
             }
         });
@@ -110,12 +110,12 @@ public class LoginActivity extends AppCompatActivity {
         tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    private boolean checkPrivacyGrant() {
+    private boolean isPrivacyGrantChecked() {
         boolean granted = cbGrant.isChecked();
         if(granted) {
             MobSDK.submitPolicyGrantResult(granted, null);
         } else {
-            Toast.makeText(this, "如您已同意本软件服务协议和隐私政策，请勾选。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.pls_check_privacy, Toast.LENGTH_SHORT).show();
         }
         return granted;
     }
@@ -184,9 +184,9 @@ public class LoginActivity extends AppCompatActivity {
                     String country = (String) phoneMap.get("country");
                     String phone = (String) phoneMap.get("phone");
                     String platId = country+phone;
-                    login(PHONE_PLAT_NAME, platId, phone, "");
+                    login(PHONE_PLAT_NAME, platId, "", "");
                 } else{
-                    // TODO 处理错误的结果
+                    Toast.makeText(LoginActivity.this, MyApplication.getStr(R.string.login_failure), Toast.LENGTH_SHORT).show();
                 }
             }
         });

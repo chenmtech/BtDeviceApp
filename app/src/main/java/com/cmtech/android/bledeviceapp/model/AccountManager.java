@@ -2,16 +2,19 @@ package com.cmtech.android.bledeviceapp.model;
 
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
+import java.io.File;
 import java.io.IOException;
 
 import cn.sharesdk.framework.Platform;
@@ -54,7 +57,7 @@ public class AccountManager {
     public static void login(String platName, String platId, String name, String icon) {
         User account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(User.class);
         if(account == null) {
-            account = new User(platName, platId, name, icon);
+            account = new User(platName, platId, name, "", icon);
         } else {
             account.setName(name);
             account.setIcon(icon);
@@ -114,6 +117,14 @@ public class AccountManager {
             } else if(account.getPlatName().equals(PHONE_PLAT_NAME)) {
                 PhoneAccount.removeAccount();
             }
+
+            if(!TextUtils.isEmpty(account.getIcon())) {
+                try {
+                    FileUtil.deleteFile(new File(account.getIcon()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         account = null;
@@ -123,12 +134,4 @@ public class AccountManager {
     public static boolean isLogin() {
         return account != null;
     }
-
-    // clear account's local icon
-    /*public static void clearLocalIcon() {
-        if(account != null) {
-            account.setIcon("");
-            account.save();
-        }
-    }*/
 }

@@ -43,10 +43,11 @@ public class User extends LitePalSupport implements Serializable, IMyJson {
     public User() {
     }
 
-    public User(String platName, String platId, String name, String icon) {
+    public User(String platName, String platId, String name, String note, String icon) {
         this.platName = platName;
         this.platId = platId;
         this.name = name;
+        this.note = note;
         this.icon = icon;
     }
 
