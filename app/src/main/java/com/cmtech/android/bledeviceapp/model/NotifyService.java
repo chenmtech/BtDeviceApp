@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.BleDeviceInfo;
@@ -55,11 +56,11 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         notifyTitle = getString(R.string.welcome_text_format, getString(R.string.app_name));
         noDevice = getString(R.string.no_device_opened);
 
-        initDeviceManager();
+        //initDeviceManager();
 
-        initNotificationBuilder();
+        //initNotificationBuilder();
 
-        sendNotification();
+        //sendNotification();
     }
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
@@ -118,6 +119,15 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        initDeviceManager();
+
+        initNotificationBuilder();
+
+        Intent innerIntent = new Intent(this, GrayInnerService.class);
+        startService(innerIntent);
+
+        sendNotification();
+
         return START_STICKY;
     }
 
@@ -192,6 +202,26 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     public class BleNotifyServiceBinder extends Binder {
         public NotifyService getService() {
             return NotifyService.this;
+        }
+    }
+
+    /**
+     * 给 API >= 18 的平台上用的灰色保活手段
+     */
+    public static class GrayInnerService extends Service {
+
+        @Override
+        public int onStartCommand(Intent intent, int flags, int startId) {
+            startForeground(NOTIFY_ID, new Notification());
+            stopForeground(true);
+            stopSelf();
+            return super.onStartCommand(intent, flags, startId);
+        }
+
+        @Nullable
+        @Override
+        public IBinder onBind(Intent intent) {
+            return null;
         }
     }
 
