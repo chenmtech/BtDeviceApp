@@ -24,6 +24,41 @@
         android:layout_height="1dp"
         android:background="@color/divider"/>
 
+    <LinearLayout
+        android:id="@+id/ll_search_record"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="备注包含:"
+            android:textSize="12sp"/>
+
+        <EditText
+            android:id="@+id/et_note_filter_string"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="12sp"/>
+
+        <ImageButton
+            android:id="@+id/ib_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_search_24px"
+            android:background="@color/primary"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"/>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

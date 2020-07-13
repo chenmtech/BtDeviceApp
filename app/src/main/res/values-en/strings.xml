@@ -120,6 +120,7 @@
     <string name="really_logout_account">The records of this account which is not uploaded to the cloud may be deleted after logout.</string>
     <string name="battery">BAT</string>
     <string name="download">Download</string>
+    <string name="search">Search</string>
     <string name="pls_check_privacy">Please check the privacy policy of KM Co..</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>

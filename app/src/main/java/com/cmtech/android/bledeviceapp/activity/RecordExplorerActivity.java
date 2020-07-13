@@ -10,9 +10,13 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -66,9 +70,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private TextView tvNoRecord; // no record
     private Spinner typeSpinner;
     private RecordType recordType = null; // record type in record list
-
+    private String noteFilterStr = ""; // record note filter string
     private long updateTime; // update time in record list
-    private String noteFilterStr = "";
+
+    private LinearLayout llSearchRecord;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +124,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
-                    updateRecords(updateTime, noteFilterStr);
+                    updateRecords(updateTime);
                 }
             }
 
@@ -135,6 +140,26 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         tvNoRecord = findViewById(R.id.tv_no_record);
         tvNoRecord.setText(R.string.no_record);
+
+        llSearchRecord = findViewById(R.id.ll_search_record);
+        llSearchRecord.setVisibility(View.GONE);
+
+        final EditText etNoteFilter = findViewById(R.id.et_note_filter_string);
+        ImageButton ibSearch = findViewById(R.id.ib_search);
+        ibSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String noteFilterStr = etNoteFilter.getText().toString();
+                setNoteFilterStr(noteFilterStr.trim());
+                llSearchRecord.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search_record, menu);
+        return true;
     }
 
     @Override
@@ -143,6 +168,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
             case android.R.id.home:
                 setResult(RESULT_CANCELED, null);
                 finish();
+                break;
+
+            case R.id.search_record:
+                llSearchRecord.setVisibility(View.VISIBLE);
                 break;
         }
         return true;
@@ -159,15 +188,28 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private void setRecordType(final RecordType type) {
         if(this.recordType == type) return;
         this.recordType = type;
+
         allRecords.clear();
         recordAdapter.unselected();
         updateRecordView();
 
         updateTime = new Date().getTime();
-        updateRecords(updateTime, noteFilterStr);
+        updateRecords(updateTime);
     }
 
-    private void updateRecords(final long from, final String noteFilterStr) {
+    private void setNoteFilterStr(String noteFilterStr) {
+        if(this.noteFilterStr.equalsIgnoreCase(noteFilterStr)) return;
+        this.noteFilterStr = noteFilterStr;
+
+        allRecords.clear();
+        recordAdapter.unselected();
+        updateRecordView();
+
+        updateTime = new Date().getTime();
+        updateRecords(updateTime);
+    }
+
+    private void updateRecords(final long from) {
         IRecord record = RecordFactory.create(recordType, from, null, AccountManager.getAccount(), "");
         if(record == null) {
             ViseLog.e("The record type is not supported.");
