@@ -22,6 +22,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.ScanException;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledeviceapp.activity.SplashActivity;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -90,7 +91,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         notifyBuilder.setShowWhen(true); //右上角的时间显示
         notifyBuilder.setContentTitle(notifyTitle); //设置通知栏的标题与内容
 
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, SplashActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
         notifyBuilder.setContentIntent(pi);
 
@@ -103,6 +104,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     }
 
     private void sendNotification() {
+        ViseLog.e("receive a notification.");
         List<String> notifyContent = new ArrayList<>();
         List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
         for (IDevice device : openedDevices) {

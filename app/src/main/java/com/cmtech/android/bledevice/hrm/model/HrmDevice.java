@@ -507,6 +507,7 @@ public class HrmDevice extends AbstractDevice {
                         if(MyApplication.isRunInBackground()) {
                             setNotifyInfo(currentHr);
                         } else {
+                            setNotifyInfo(currentHr);
                             if (listener != null) {
                                 listener.onHRUpdated(heartRateData);
 
