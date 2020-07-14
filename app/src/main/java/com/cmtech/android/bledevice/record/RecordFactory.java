@@ -1,9 +1,10 @@
 package com.cmtech.android.bledevice.record;
 
+import android.text.TextUtils;
+
 import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.log.ViseLog;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
@@ -87,7 +88,7 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<? extends IRecord> createBasicRecordsFromLocalDb(RecordType type, User creator, long fromTime, int num) {
+    public static List<? extends IRecord> createBasicRecordsFromLocalDb(RecordType type, User creator, long fromTime, String noteFilterStr, int num) {
         if(creator == null) {
             return null;
         }
@@ -96,9 +97,15 @@ public class RecordFactory {
             Class<? extends IRecord> recordClass = getRecordClass(type);
             if (recordClass != null) {
                 try {
-                    return LitePal.select(BasicRecord.QUERY_STR)
-                            .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
-                            .order("createTime desc").limit(num).find(recordClass);
+                    if(TextUtils.isEmpty(noteFilterStr)) {
+                        return LitePal.select(BasicRecord.QUERY_STR)
+                                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
+                                .order("createTime desc").limit(num).find(recordClass);
+                    } else {
+                        return LitePal.select(BasicRecord.QUERY_STR)
+                                .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
+                                .order("createTime desc").limit(num).find(recordClass);
+                    }
                 } catch (Exception e) {
                     ViseLog.e(e);
                 }
@@ -110,9 +117,15 @@ public class RecordFactory {
                 Class<? extends IRecord> recordClass = getRecordClass(type1);
                 if (recordClass != null) {
                     try {
-                        records.addAll(LitePal.select(BasicRecord.QUERY_STR)
-                                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
-                                .order("createTime desc").limit(num).find(recordClass));
+                        if(TextUtils.isEmpty(noteFilterStr)) {
+                            records.addAll(LitePal.select(BasicRecord.QUERY_STR)
+                                    .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
+                                    .order("createTime desc").limit(num).find(recordClass));
+                        } else {
+                            records.addAll(LitePal.select(BasicRecord.QUERY_STR)
+                                    .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
+                                    .order("createTime desc").limit(num).find(recordClass));
+                        }
                     } catch (Exception e) {
                         ViseLog.e(e);
                     }

@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
-import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
 
@@ -151,7 +150,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String noteFilterStr = etNoteFilter.getText().toString();
                 setNoteFilterStr(noteFilterStr.trim());
-                llSearchRecord.setVisibility(View.GONE);
             }
         });
     }
@@ -171,7 +169,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 break;
 
             case R.id.search_record:
-                llSearchRecord.setVisibility(View.VISIBLE);
+                if(llSearchRecord.getVisibility() == View.VISIBLE)
+                    llSearchRecord.setVisibility(View.GONE);
+                else
+                    llSearchRecord.setVisibility(View.VISIBLE);
                 break;
         }
         return true;
@@ -236,7 +237,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
 
-                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(recordType, AccountManager.getAccount(), from, DOWNLOAD_RECORD_BASIC_INFO_NUM);
+                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(recordType, AccountManager.getAccount(), from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {
