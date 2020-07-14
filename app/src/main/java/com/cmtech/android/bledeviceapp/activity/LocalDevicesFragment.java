@@ -29,6 +29,7 @@ import com.cmtech.android.bledeviceapp.adapter.LocalDeviceAdapter;
 public class LocalDevicesFragment extends Fragment {
     public static final int TITLE_ID = R.string.local_device;
     private LocalDeviceAdapter localDeviceAdapter;
+    private RecyclerView rvDevices;
 
     @Nullable
     @Override
@@ -42,7 +43,13 @@ public class LocalDevicesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // 初始化已注册设备列表
-        RecyclerView rvDevices = view.findViewById(R.id.rv_local_device);
+        rvDevices = view.findViewById(R.id.rv_local_device);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvDevices.setLayoutManager(layoutManager);
         rvDevices.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
@@ -51,6 +58,7 @@ public class LocalDevicesFragment extends Fragment {
     }
 
     public void update() {
-        localDeviceAdapter.update();
+        if(localDeviceAdapter != null)
+            localDeviceAdapter.update();
     }
 }

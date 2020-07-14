@@ -460,8 +460,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // 更新设备列表Adapter
-                updateDeviceList();
                 // 更新设备的Fragment界面
                 DeviceFragment deviceFrag = fragTabManager.findFragment(device);
                 if(deviceFrag != null) deviceFrag.updateState();
@@ -471,6 +469,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                     if(!MyApplication.isRunInBackground())
                         Toast.makeText(MainActivity.this, device.getState().getDescription(), Toast.LENGTH_SHORT).show();
                 }
+                // 更新设备列表Adapter
+                updateDeviceList();
             }
         });
     }
