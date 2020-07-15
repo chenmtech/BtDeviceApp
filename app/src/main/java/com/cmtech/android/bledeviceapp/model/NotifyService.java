@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -76,14 +77,11 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         notifyTitle = getString(R.string.welcome_text_format, getString(R.string.app_name));
         noDevice = getString(R.string.no_device_opened);
 
-        initNotificationBuilder();
-        sendNotification();
-        initDeviceManager();
+        /*
         for(IDevice device : DeviceManager.getBleDeviceList()) {
             device.open(this);
         }
-
-
+        */
     }
 
 
@@ -92,10 +90,15 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         return binder;
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ViseLog.e("notifyservice onStartCommand");
-        return START_STICKY;
+        initNotificationBuilder();
+        sendNotification();
+        initDeviceManager();
+        flags = START_STICKY;
+        return super.onStartCommand(intent, flags, startId);
     }
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
@@ -171,11 +174,11 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     @Override
     public void onStateUpdated(final IDevice device) {
-        try(OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(toFile))) {
+        /*try(OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(toFile))) {
             writer.append(device.getAddress()).append(device.getState().toString());
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
 
         sendNotification();
     }

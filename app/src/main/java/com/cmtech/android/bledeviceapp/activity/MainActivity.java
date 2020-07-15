@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
         for(IDevice device : openedDevices) {
             if(device.getState() != CLOSED) {
-                //createAndOpenFragment(device);
+                createAndOpenFragment(device);
             }
         }
     }
