@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.BleDeviceInfo;
@@ -21,14 +20,20 @@ import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.ScanException;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.activity.SplashActivity;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
 import org.litepal.LitePal;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
 
 /**
@@ -50,12 +55,35 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     private String noDevice; // 无设备打开时的通知串
     private NotificationCompat.Builder notifyBuilder;
 
+    private File toFile = FileUtil.getFile(DIR_CACHE, "state.txt");
+
     @Override
     public void onCreate() {
         super.onCreate();
+        ViseLog.e("notifyservice onCreate");
+
+        /*int c;
+        StringBuilder text = new StringBuilder();
+        try(InputStreamReader reader = new InputStreamReader(new FileInputStream(toFile))) {
+            while ((c = reader.read()) != -1) {
+                text.append((char)c);
+            }
+            ViseLog.e(text.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
 
         notifyTitle = getString(R.string.welcome_text_format, getString(R.string.app_name));
         noDevice = getString(R.string.no_device_opened);
+
+        initNotificationBuilder();
+        sendNotification();
+        initDeviceManager();
+        for(IDevice device : DeviceManager.getBleDeviceList()) {
+            device.open(this);
+        }
+
+
     }
 
 
@@ -66,9 +94,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        initDeviceManager();
-        initNotificationBuilder();
-        sendNotification();
+        ViseLog.e("notifyservice onStartCommand");
         return START_STICKY;
     }
 
@@ -145,6 +171,12 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     @Override
     public void onStateUpdated(final IDevice device) {
+        try(OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(toFile))) {
+            writer.append(device.getAddress()).append(device.getState().toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         sendNotification();
     }
 

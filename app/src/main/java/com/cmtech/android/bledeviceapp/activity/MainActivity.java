@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
         for(IDevice device : openedDevices) {
             if(device.getState() != CLOSED) {
-                createAndOpenFragment(device);
+                //createAndOpenFragment(device);
             }
         }
     }
@@ -410,8 +410,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     @Override
     protected void onDestroy() {
-        ViseLog.e("MainActivity.onDestroy()");
-        super.onDestroy();
+        ViseLog.e("before MainActivity.onDestroy()");
+        ViseLog.e("after MainActivity.onDestroy()");
 
         DeviceManager.removeListener(this);
 
@@ -420,6 +420,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
             stopService(stopIntent);
         }
+        super.onDestroy();
     }
 
     private void requestFinish() {
