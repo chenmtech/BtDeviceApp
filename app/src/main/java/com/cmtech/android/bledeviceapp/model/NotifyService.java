@@ -5,24 +5,16 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
-import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.exception.ScanException;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.SplashActivity;
 import com.vise.log.ViseLog;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -38,10 +30,9 @@ import java.util.List;
 
 public class NotifyService extends Service implements IDevice.OnCommonDeviceListener {
     private static final String TAG = "NotifyService";
-    private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
+    private static final int NOTIFY_ID = 1; // id不可设置为0,否则不能设置为前台service
     private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
     private String notifyTitle; // 通知栏标题
-    private String noDevice; // 无设备打开时的通知串
     private NotificationCompat.Builder notifyBuilder;
 
     @Override
@@ -50,7 +41,6 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
         ViseLog.e("notifyservice onCreate");
 
         notifyTitle = getString(R.string.welcome_text_format, getString(R.string.app_name));
-        noDevice = getString(R.string.no_device_opened);
 
         initNotificationBuilder();
     }
@@ -63,14 +53,13 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ViseLog.e("notifyservice onStartCommand");
-        sendNotification();
+        sendNotification("");
         return START_STICKY;
     }
 
     private void initNotificationBuilder() {
         notifyBuilder = new NotificationCompat.Builder(this, "default");
         notifyBuilder.setSmallIcon(R.mipmap.ic_kang); //设置状态栏的通知图标
-        notifyBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_kang)); //设置通知栏横条的图标
         notifyBuilder.setAutoCancel(false); //禁止用户点击删除按钮删除
         notifyBuilder.setOngoing(true); //禁止滑动删除
         notifyBuilder.setShowWhen(true); //右上角的时间显示
@@ -88,22 +77,10 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
         }
     }
 
-    private void sendNotification() {
+    private void sendNotification(String notifyContent) {
         ViseLog.e("receive a notification.");
-        List<String> notifyContent = new ArrayList<>();
-        List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
-        for (IDevice device : openedDevices) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(device.getName()).append("(").append(device.getAddress().substring(device.getAddress().length()-5)).append(")").append(": ");
-            if(device.getState() != DeviceState.CONNECT || "".equals(device.getNotifyInfo())) {
-                builder.append(device.getState().getDescription());
-            }
-            else {
-                builder.append(device.getNotifyInfo());
-            }
-            notifyContent.add(builder.toString());
-        }
-        Notification notification = createNotification(notifyContent);
+        notifyBuilder.setContentText(notifyContent);
+        Notification notification = notifyBuilder.build();
         startForeground(NOTIFY_ID, notification);
     }
 
@@ -130,18 +107,7 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
 
     @Override
     public void onStateUpdated(final IDevice device) {
-        sendNotification();
-    }
-
-    @Override
-    public void onExceptionNotified(IDevice device, BleException ex) {
-        if (ex instanceof ScanException) {
-            if (((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BT_CLOSED) {
-                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
-        }
+        sendNotification(getDeviceSimpleName(device) + device.getState().getDescription());
     }
 
     @Override
@@ -150,34 +116,16 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
 
     @Override
     public void onNotificationInfoUpdated(IDevice device) {
-        sendNotification();
-    }
-
-    private Notification createNotification(List<String> notifyContents) {
-        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-        inboxStyle.setBigContentTitle(notifyTitle);
-        if (notifyContents == null || notifyContents.isEmpty()) {
-            notifyBuilder.setContentText(noDevice);
-            inboxStyle.addLine(noDevice);
-        } else {
-            notifyBuilder.setContentText(getString(R.string.some_devices_opened, notifyContents.size()));
-            for (String content : notifyContents) {
-                inboxStyle.addLine(content);
-            }
-        }
-        notifyBuilder.setStyle(inboxStyle);
-
-        Notification notification = notifyBuilder.build();
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-        notification.flags |= Notification.FLAG_NO_CLEAR;
-        notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
-        //创建通知
-        return notification;
+        sendNotification(getDeviceSimpleName(device) + device.getNotifyInfo());
     }
 
     public class BleNotifyServiceBinder extends Binder {
         public NotifyService getService() {
             return NotifyService.this;
         }
+    }
+
+    private String getDeviceSimpleName(IDevice device) {
+        return device.getName() + "(" + device.getAddress().substring(device.getAddress().length()-5) + "):";
     }
 }

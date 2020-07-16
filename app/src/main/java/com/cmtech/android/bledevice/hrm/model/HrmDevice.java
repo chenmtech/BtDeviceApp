@@ -498,10 +498,8 @@ public class HrmDevice extends AbstractDevice {
                             ViseLog.e(currentHr);
                         }
 
-                        if(MyApplication.isRunInBackground()) {
-                            setNotifyInfo(currentHr);
-                        } else {
-                            setNotifyInfo(currentHr);
+                        setNotifyInfo(currentHr);
+                        if (!MyApplication.isRunInBackground()) {
                             if (listener != null) {
                                 listener.onHRUpdated(heartRateData);
 

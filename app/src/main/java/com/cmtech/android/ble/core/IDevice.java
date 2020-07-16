@@ -34,8 +34,7 @@ public interface IDevice extends IConnector.IConnectorCallback {
     // connCallback listener interface
     interface OnCommonDeviceListener {
         void onStateUpdated(final IDevice device); // state updated
-        void onExceptionNotified(final IDevice device, BleException ex); // exception notified
         void onBatteryUpdated(final IDevice device); // battery level updated
-        void onNotificationInfoUpdated(final IDevice device);
+        void onNotificationInfoUpdated(final IDevice device); // notification info updated
     }
 }

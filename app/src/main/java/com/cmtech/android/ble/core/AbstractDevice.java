@@ -1,6 +1,7 @@
 package com.cmtech.android.ble.core;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.OtherException;
@@ -19,10 +20,13 @@ public abstract class AbstractDevice implements IDevice{
     private final DeviceInfo info; // information
     private int battery; // battery level
     private String notifyInfo;
-    private final List<OnCommonDeviceListener> listeners; // connCallback listeners
+    private final List<OnCommonDeviceListener> commonListeners; // connCallback listeners
     protected final IConnector connector; // connector
 
     public AbstractDevice(Context context, DeviceInfo info) {
+        if(context == null) {
+            throw new NullPointerException("The context is null.");
+        }
         if(info == null) {
             throw new NullPointerException("The info is null.");
         }
@@ -33,7 +37,7 @@ public abstract class AbstractDevice implements IDevice{
         } else {
             connector = new WebConnector(this.getAddress(), this);
         }
-        listeners = new ArrayList<>();
+        commonListeners = new ArrayList<>();
         battery = INVALID_BATTERY;
         notifyInfo = "";
     }
@@ -82,7 +86,7 @@ public abstract class AbstractDevice implements IDevice{
     public void setBattery(final int battery) {
         if(this.battery != battery) {
             this.battery = battery;
-            for (final OnCommonDeviceListener listener : listeners) {
+            for (final OnCommonDeviceListener listener : commonListeners) {
                 if (listener != null) {
                     listener.onBatteryUpdated(this);
                 }
@@ -97,7 +101,7 @@ public abstract class AbstractDevice implements IDevice{
     @Override
     public void setNotifyInfo(String notifyInfo) {
         this.notifyInfo = notifyInfo;
-        for (final OnCommonDeviceListener listener : listeners) {
+        for (final OnCommonDeviceListener listener : commonListeners) {
             if (listener != null) {
                 listener.onNotificationInfoUpdated(this);
             }
@@ -106,14 +110,14 @@ public abstract class AbstractDevice implements IDevice{
 
     @Override
     public final void addCommonListener(OnCommonDeviceListener listener) {
-        if(!listeners.contains(listener)) {
-            listeners.add(listener);
+        if(!commonListeners.contains(listener)) {
+            commonListeners.add(listener);
         }
     }
 
     @Override
     public final void removeCommonListener(OnCommonDeviceListener listener) {
-        listeners.remove(listener);
+        commonListeners.remove(listener);
     }
 
     @Override
@@ -162,16 +166,12 @@ public abstract class AbstractDevice implements IDevice{
 
     @Override
     public void handleException(BleException ex) {
-        for(OnCommonDeviceListener listener : listeners) {
-            if(listener != null) {
-                listener.onExceptionNotified(this, ex);
-            }
-        }
+        Toast.makeText(getContext(), ex.getDescription(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onConnectStateUpdated() {
-        for(OnCommonDeviceListener listener : listeners) {
+        for(OnCommonDeviceListener listener : commonListeners) {
             if(listener != null) {
                 listener.onStateUpdated(this);
             }

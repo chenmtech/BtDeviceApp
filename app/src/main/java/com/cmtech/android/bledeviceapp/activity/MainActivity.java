@@ -42,7 +42,6 @@ import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceInfo;
-import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
@@ -473,12 +472,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 updateDeviceList();
             }
         });
-    }
-
-    // 异常通知
-    @Override
-    public void onExceptionNotified(IDevice device, BleException ex) {
-        Toast.makeText(MainActivity.this, ex.getDescription(), Toast.LENGTH_SHORT).show();
     }
 
     // 电量更新
