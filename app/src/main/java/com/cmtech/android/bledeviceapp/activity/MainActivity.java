@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 账户头像控件
     private ImageButton ibChangeAccount; // 切换账户控件
-    private boolean stopNotifyService = false; // 是否停止通知服务
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             notifyService = ((NotifyService.BleNotifyServiceBinder)iBinder).getService();
             // 成功绑定后初始化UI，否则请求退出
             if(notifyService != null) {
-                initUI();
+                initialize();
             } else {
                 requestFinish();
             }
@@ -153,7 +152,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     }
 
     // 主界面初始化
-    private void initUI() {
+    private void initialize() {
+        initDeviceManager();
+
         // 初始化工具条管理器
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -203,12 +204,22 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         initMainLayout();
 
         // 为已经打开的设备创建并打开Fragment
-        List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
+        /*List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
         for(IDevice device : openedDevices) {
             if(device.getState() != CLOSED) {
                 createAndOpenFragment(device);
             }
+        }*/
+    }
+
+    // 初始化DeviceManager
+    private void initDeviceManager() {
+        List<BleDeviceInfo> infos = LitePal.findAll(BleDeviceInfo.class);
+        if (infos == null || infos.isEmpty()) return;
+        for (DeviceInfo info : infos) {
+            DeviceManager.createNewDevice(info);
         }
+        DeviceManager.addListener(notifyService);
     }
 
     private void initNavigation() {
@@ -410,16 +421,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     @Override
     protected void onDestroy() {
-        ViseLog.e("before MainActivity.onDestroy()");
-        ViseLog.e("after MainActivity.onDestroy()");
+        ViseLog.e("MainActivity.onDestroy()");
 
         DeviceManager.removeListener(this);
 
         unbindService(serviceConnection);
-        if(stopNotifyService) {
-            Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
-            stopService(stopIntent);
-        }
+        Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
+        stopService(stopIntent);
+
         super.onDestroy();
     }
 
@@ -431,21 +440,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             builder.setPositiveButton(R.string.force_exit, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    stopNotifyService = true;
                     finish();
                 }
             });
-            /*builder.setNegativeButton(R.string.minimize_app, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    stopNotifyService = false;
-                    openDrawer(false);
-                    MainActivity.this.moveTaskToBack(false);
-                }
-            });*/
             builder.show();
         } else {
-            stopNotifyService = true;
             finish();
         }
     }
