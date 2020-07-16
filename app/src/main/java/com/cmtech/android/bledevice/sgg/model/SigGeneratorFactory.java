@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.sgg.model;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.sgg.view.SigGeneratorFragment;
@@ -21,8 +23,8 @@ public class SigGeneratorFactory extends DeviceFactory {
     }
 
     @Override
-    public IDevice createDevice() {
-        return new SigGeneratorDevice(info);
+    public IDevice createDevice(Context context) {
+        return new SigGeneratorDevice(context, info);
     }
 
     @Override

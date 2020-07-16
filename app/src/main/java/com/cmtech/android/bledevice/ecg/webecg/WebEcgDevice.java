@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecg.webecg;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -93,8 +94,8 @@ public class WebEcgDevice extends AbstractEcgDevice {
     };
 
     // 构造器
-    public WebEcgDevice(DeviceInfo registerInfo) {
-        super(registerInfo);
+    public WebEcgDevice(Context context, DeviceInfo registerInfo) {
+        super(context, registerInfo);
         signalProcessor = new EcgSignalProcessor(this, false);
     }
 

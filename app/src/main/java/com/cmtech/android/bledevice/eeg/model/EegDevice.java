@@ -83,12 +83,9 @@ public class EegDevice extends AbstractDevice {
     private BleEegRecord10 eegRecord;
     private boolean isEegRecord = false; // is recording eeg
 
-    private Context context;
-
-    public EegDevice(DeviceInfo registerInfo) {
-        super(registerInfo);
+    public EegDevice(Context context, DeviceInfo registerInfo) {
+        super(context, registerInfo);
     }
-
 
     public final int getSampleRate() {
         return sampleRate;
@@ -110,13 +107,9 @@ public class EegDevice extends AbstractDevice {
         this.listener = null;
     }
 
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
     @Override
-    public void open(Context context) {
-        super.open(context);
+    public void open() {
+        super.open();
     }
 
     @Override
@@ -210,7 +203,7 @@ public class EegDevice extends AbstractDevice {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
-                Toast.makeText(context, R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
             }
         } else {
             if(eegRecord == null) return;
@@ -218,7 +211,7 @@ public class EegDevice extends AbstractDevice {
             eegRecord.setCreateTime(new Date().getTime());
             eegRecord.setRecordSecond(eegRecord.getEegData().size()/sampleRate);
             eegRecord.save();
-            Toast.makeText(context, R.string.save_record_success, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
         }
 
         if(listener != null) {

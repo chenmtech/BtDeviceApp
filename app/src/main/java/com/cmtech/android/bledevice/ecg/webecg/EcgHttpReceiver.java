@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecg.webecg;
 
 
+import android.content.Context;
 import android.util.Log;
 
 import com.cmtech.android.ble.core.DeviceInfo;
@@ -49,7 +50,7 @@ public class EcgHttpReceiver {
      *
      * @param callback : 回调
      */
-    public static void retrieveDeviceInfo(String receiverId, final IEcgDeviceInfoCallback callback) {
+    public static void retrieveDeviceInfo(final Context context, String receiverId, final IEcgDeviceInfoCallback callback) {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_RECEIVER_ID, receiverId);
 
@@ -67,7 +68,7 @@ public class EcgHttpReceiver {
                 try(ResponseBody responseBody = response.body()) {
                     String responseStr = responseBody.string();
                     ViseLog.e("retrieveDeviceInfo: " + responseStr);
-                    List<WebEcgDevice> deviceList = parseDevicesWithJSONObject(responseStr);
+                    List<WebEcgDevice> deviceList = parseDevicesWithJSONObject(context, responseStr);
                     if (callback != null) {
                         callback.onReceived(deviceList);
                     }
@@ -118,7 +119,7 @@ public class EcgHttpReceiver {
         });
     }
 
-    private static List<WebEcgDevice> parseDevicesWithJSONObject(String jsonData) {
+    private static List<WebEcgDevice> parseDevicesWithJSONObject(Context context, String jsonData) {
         List<WebEcgDevice> devices = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
@@ -134,7 +135,7 @@ public class EcgHttpReceiver {
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
                 DeviceInfo info = new WebDeviceInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), creatorId);
                 ViseLog.e(info + " sr=" + sampleRate + " cali=" + caliValue + " lead=" + leadType);
-                WebEcgDevice device = (WebEcgDevice) DeviceManager.createNewDevice(info);
+                WebEcgDevice device = (WebEcgDevice) DeviceManager.createNewDevice(context, info);
                 if (device != null) {
                     device.setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultName());
                     device.setSampleRate(sampleRate);

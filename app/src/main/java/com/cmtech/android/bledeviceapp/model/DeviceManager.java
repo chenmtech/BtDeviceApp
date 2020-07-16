@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
@@ -34,13 +35,13 @@ public class DeviceManager {
     private static final List<IDevice> DEVICE_LIST = new ArrayList<IDevice>(); // 所有已注册设备列表
 
     // create a new device
-    public static IDevice createNewDevice(DeviceInfo info) {
+    public static IDevice createNewDevice(Context context, DeviceInfo info) {
         IDevice device = findDevice(info);
         if(device != null) {
             ViseLog.e("The device has existed.");
             return null;
         }
-        device = createDevice(info); // 创建设备
+        device = createDevice(context, info); // 创建设备
         if(device == null) return null;
 
         DEVICE_LIST.add(device); // 将设备添加到设备列表
@@ -70,9 +71,9 @@ public class DeviceManager {
         return null;
     }
 
-    private static IDevice createDevice(DeviceInfo info) {
+    private static IDevice createDevice(Context context, DeviceInfo info) {
         DeviceFactory factory = DeviceFactory.getFactory(info); // 获取相应的工厂
-        return (factory == null) ? null : factory.createDevice();
+        return (factory == null) ? null : factory.createDevice(context);
     }
 
     // 删除一个设备
@@ -120,15 +121,15 @@ public class DeviceManager {
         return devices;
     }
 
-    public static void removeListener(IDevice.OnDeviceListener listener) {
+    public static void addCommonListenerForAllDevices(IDevice.OnCommonDeviceListener listener) {
         for(IDevice device : DEVICE_LIST) {
-            device.removeListener(listener);
+            device.addCommonListener(listener);
         }
     }
 
-    public static void addListener(IDevice.OnDeviceListener listener) {
+    public static void removeCommonListenerForAllDevices(IDevice.OnCommonDeviceListener listener) {
         for(IDevice device : DEVICE_LIST) {
-            device.addListener(listener);
+            device.removeCommonListener(listener);
         }
     }
 
@@ -149,7 +150,7 @@ public class DeviceManager {
         return false;
     }
 
-    public static void updateWebDevices() {
+    public static void updateWebDevices(Context context) {
         // 获取网络广播设备列表
         final List<IDevice> currentWebDevices = getWebDeviceList();
 
@@ -161,7 +162,7 @@ public class DeviceManager {
 
         final boolean[] finish = new boolean[1];
 
-        EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getAccount().getPlatId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo(context, AccountManager.getAccount().getPlatId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgDevice> deviceList) {
                 if(deviceList == null || deviceList.isEmpty()) {

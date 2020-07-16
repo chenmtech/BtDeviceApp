@@ -77,7 +77,7 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE
  *  Created by bme on 2018/2/19.
  */
 
-public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceListener, TabFragManager.OnFragmentUpdatedListener {
+public class MainActivity extends AppCompatActivity implements IDevice.OnCommonDeviceListener, TabFragManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
     private final static int RC_ADD_DEVICE = 1;     // return code for adding new devices
     private final static int RC_MODIFY_DEVICE_INFO = 2;       // return code for modifying device info
@@ -217,9 +217,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         List<BleDeviceInfo> infos = LitePal.findAll(BleDeviceInfo.class);
         if (infos == null || infos.isEmpty()) return;
         for (DeviceInfo info : infos) {
-            DeviceManager.createNewDevice(info);
+            DeviceManager.createNewDevice(this, info);
         }
-        DeviceManager.addListener(notifyService);
+        DeviceManager.addCommonListenerForAllDevices(notifyService);
     }
 
     private void initNavigation() {
@@ -321,11 +321,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 if(resultCode == RESULT_OK) {
                     BleDeviceInfo info = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
                     if(info != null) {
-                        IDevice device = DeviceManager.createNewDevice(info);
+                        IDevice device = DeviceManager.createNewDevice(this, info);
                         if(device != null) {
                             if(info.save()) {
                                 updateDeviceList();
-                                device.addListener(notifyService);
+                                device.addCommonListener(notifyService);
                             } else {
                                 Toast.makeText(MainActivity.this, R.string.add_device_failure, Toast.LENGTH_SHORT).show();
                                 DeviceManager.deleteDevice(device);
@@ -423,7 +423,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     protected void onDestroy() {
         ViseLog.e("MainActivity.onDestroy()");
 
-        DeviceManager.removeListener(this);
+        DeviceManager.removeCommonListenerForAllDevices(this);
 
         unbindService(serviceConnection);
         Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);

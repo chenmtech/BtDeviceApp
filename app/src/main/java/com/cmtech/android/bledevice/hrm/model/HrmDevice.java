@@ -134,10 +134,8 @@ public class HrmDevice extends AbstractDevice {
     private Timer ttsTimer = new Timer();
     private volatile boolean waitSpeak = false; // is waiting for warn-speaking
 
-    private Context context;
-
-    public HrmDevice(DeviceInfo registerInfo) {
-        super(registerInfo);
+    public HrmDevice(Context context, DeviceInfo registerInfo) {
+        super(context, registerInfo);
         HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
         if (config == null) {
             config = new HrmCfg();
@@ -145,10 +143,6 @@ public class HrmDevice extends AbstractDevice {
             config.save();
         }
         this.config = config;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
     }
 
     public void setHrRecord(boolean isRecord) {
@@ -160,12 +154,12 @@ public class HrmDevice extends AbstractDevice {
             ViseLog.e(hrRecord);
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
-                Toast.makeText(context, R.string.start_record, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
             }
         } else {
             if(hrRecord != null) {
                 if (hrRecord.getFilterHrList().size() < 6) {
-                    Toast.makeText(context, R.string.record_too_short, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
                     for(int i = 0; i < hrRecord.getHrHistogram().size(); i++) {
@@ -179,7 +173,7 @@ public class HrmDevice extends AbstractDevice {
                     hrRecord.save();
                     ViseLog.e(hrRecord);
                     ViseLog.e(LitePal.findAll(BleHrRecord10.class));
-                    Toast.makeText(context, R.string.save_record_success, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -192,7 +186,7 @@ public class HrmDevice extends AbstractDevice {
         if(isEcgRecord == isRecord) return;
 
         if(isRecord && !ecgOn) {
-            Toast.makeText(context, R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
             if(listener != null) {
                 listener.onEcgSignalRecordStatusUpdated(false);
             }
@@ -206,18 +200,18 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);
                 ecgRecord.setLeadTypeCode(leadType.getCode());
-                Toast.makeText(context, R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
             }
         } else {
             if(ecgRecord == null) return;
 
             if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
-                Toast.makeText(context, R.string.record_too_short, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
             } else {
                 ecgRecord.setCreateTime(new Date().getTime());
                 ecgRecord.setRecordSecond(ecgRecord.getEcgData().size()/sampleRate);
                 ecgRecord.save();
-                Toast.makeText(context, R.string.save_record_success, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
             }
         }
         if(listener != null) {
@@ -250,7 +244,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(isEcgRecord && !ecgOn) {
-            Toast.makeText(context, R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT).show();
             if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
         }
@@ -285,8 +279,8 @@ public class HrmDevice extends AbstractDevice {
     }
 
     @Override
-    public void open(Context context) {
-        super.open(context);
+    public void open() {
+        super.open();
     }
 
     @Override

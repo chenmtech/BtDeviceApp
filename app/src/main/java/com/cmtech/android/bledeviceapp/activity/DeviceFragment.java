@@ -67,10 +67,10 @@ public abstract class DeviceFragment extends Fragment{
         // 更新状态
         updateState();
 
-        // 注册设备状态观察者
+        // 注册通用监听器
         MainActivity activity = (MainActivity) getActivity();
         if(activity != null) {
-            device.addListener(activity);
+            device.addCommonListener(activity);
         }
     }
 

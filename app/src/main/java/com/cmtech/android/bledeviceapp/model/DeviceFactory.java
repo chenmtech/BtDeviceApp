@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
@@ -55,6 +57,6 @@ public abstract class DeviceFactory {
         return factory;
     }
 
-    public abstract IDevice createDevice(); // create Device
+    public abstract IDevice createDevice(Context context); // create Device
     public abstract DeviceFragment createFragment(); // create Fragment
 }

@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.thm.model;
 
+import android.content.Context;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -74,8 +75,8 @@ public class ThmDevice extends AbstractDevice {
     }
 
     // 构造器
-    public ThmDevice(DeviceInfo registerInfo) {
-        super(registerInfo);
+    public ThmDevice(Context context, DeviceInfo registerInfo) {
+        super(context, registerInfo);
     }
 
     @Override

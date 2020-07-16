@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.thermo.model;
 
+import android.content.Context;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -63,8 +64,8 @@ public class ThermoDevice extends AbstractDevice {
     private BleThermoRecord10 record;
     private boolean isRecord = false;
 
-    public ThermoDevice(DeviceInfo registerInfo) {
-        super(registerInfo);
+    public ThermoDevice(Context context, DeviceInfo registerInfo) {
+        super(context, registerInfo);
     }
 
     @Override

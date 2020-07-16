@@ -17,7 +17,6 @@ import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledevice.view.ScanEegView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 
 import java.util.ArrayList;
@@ -58,7 +57,6 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (EegDevice) getDevice();
-        device.setContext(getContext());
         return inflater.inflate(R.layout.fragment_device_eeg, container, false);
     }
 
@@ -84,9 +82,7 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
         eegView.setListener(this);
 
         // 打开设备
-        MainActivity activity = (MainActivity) getActivity();
-        if(activity != null)
-            device.open(activity.getNotifyService());
+        device.open();
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.eeg.model;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.eeg.view.EegFragment;
@@ -35,8 +37,8 @@ public class EegFactory extends DeviceFactory {
     }
 
     @Override
-    public IDevice createDevice() {
-        return new EegDevice(info);
+    public IDevice createDevice(Context context) {
+        return new EegDevice(context, info);
     }
 
     @Override

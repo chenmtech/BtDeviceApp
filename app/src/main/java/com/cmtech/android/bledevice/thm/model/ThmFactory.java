@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.thm.model;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.thm.view.ThmFragment;
@@ -23,8 +25,8 @@ public class ThmFactory extends DeviceFactory {
     }
 
     @Override
-    public IDevice createDevice() {
-        return new ThmDevice(info);
+    public IDevice createDevice(Context context) {
+        return new ThmDevice(context, info);
     }
 
     @Override

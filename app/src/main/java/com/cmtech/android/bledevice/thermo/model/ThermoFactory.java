@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.thermo.model;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
@@ -22,8 +24,8 @@ public class ThermoFactory extends DeviceFactory {
     }
 
     @Override
-    public IDevice createDevice() {
-        return new ThermoDevice(info);
+    public IDevice createDevice(Context context) {
+        return new ThermoDevice(context, info);
     }
 
     @Override

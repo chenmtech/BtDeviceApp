@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecg.device;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -98,8 +99,8 @@ public class EcgDevice extends AbstractEcgDevice {
 
 
     // 构造器
-    public EcgDevice(DeviceInfo registerInfo) {
-        super(registerInfo);
+    public EcgDevice(Context context, DeviceInfo registerInfo) {
+        super(context, registerInfo);
         dataProcessor = new EcgDataProcessor(this);
     }
 

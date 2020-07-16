@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecg.webecg;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
@@ -21,8 +23,8 @@ public class WebEcgFactory extends DeviceFactory {
     }
 
     @Override
-    public IDevice createDevice() {
-        return new WebEcgDevice(info);
+    public IDevice createDevice(Context context) {
+        return new WebEcgDevice(context, info);
     }
 
     @Override

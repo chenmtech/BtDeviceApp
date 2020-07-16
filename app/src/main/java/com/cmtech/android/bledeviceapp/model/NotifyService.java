@@ -36,7 +36,7 @@ import java.util.List;
  * Version:        1.0
  */
 
-public class NotifyService extends Service implements IDevice.OnDeviceListener {
+public class NotifyService extends Service implements IDevice.OnCommonDeviceListener {
     private static final String TAG = "NotifyService";
     private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
     private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
@@ -112,7 +112,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
 
-        DeviceManager.removeListener(this);
+        DeviceManager.removeCommonListenerForAllDevices(this);
         DeviceManager.clear();
 
         stopForeground(true);

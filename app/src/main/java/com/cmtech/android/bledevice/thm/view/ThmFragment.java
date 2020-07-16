@@ -10,12 +10,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledevice.thm.model.OnThmListener;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidData;
+import com.cmtech.android.bledevice.thm.model.OnThmListener;
 import com.cmtech.android.bledevice.thm.model.ThmDevice;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 
 
 /**
@@ -80,8 +79,7 @@ public class ThmFragment extends DeviceFragment implements OnThmListener {
         device.registerListener(this);
 
         // 打开设备
-        MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotifyService());
+        device.open();
     }
 
     @Override

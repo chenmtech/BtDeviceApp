@@ -2,12 +2,12 @@ package com.cmtech.android.ble.core;
 
 import android.content.Context;
 
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.OtherException;
+import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.core.DeviceState.CONNECT;
@@ -19,24 +19,29 @@ public abstract class AbstractDevice implements IDevice{
     private final DeviceInfo info; // information
     private int battery; // battery level
     private String notifyInfo;
-    private final List<OnDeviceListener> listeners; // connCallback listeners
+    private final List<OnCommonDeviceListener> listeners; // connCallback listeners
     protected final IConnector connector; // connector
 
-    public AbstractDevice(DeviceInfo info) {
+    public AbstractDevice(Context context, DeviceInfo info) {
         if(info == null) {
             throw new NullPointerException("The info is null.");
         }
+        this.context = context;
         this.info = info;
         if(info.isLocal()) {
             connector = new BleConnector(this.getAddress(), this);
         } else {
             connector = new WebConnector(this.getAddress(), this);
         }
-        listeners = new LinkedList<>();
+        listeners = new ArrayList<>();
         battery = INVALID_BATTERY;
         notifyInfo = "";
     }
 
+    @Override
+    public Context getContext() {
+        return context;
+    }
     @Override
     public DeviceInfo getInfo() {
         return info;
@@ -77,7 +82,7 @@ public abstract class AbstractDevice implements IDevice{
     public void setBattery(final int battery) {
         if(this.battery != battery) {
             this.battery = battery;
-            for (final OnDeviceListener listener : listeners) {
+            for (final OnCommonDeviceListener listener : listeners) {
                 if (listener != null) {
                     listener.onBatteryUpdated(this);
                 }
@@ -92,7 +97,7 @@ public abstract class AbstractDevice implements IDevice{
     @Override
     public void setNotifyInfo(String notifyInfo) {
         this.notifyInfo = notifyInfo;
-        for (final OnDeviceListener listener : listeners) {
+        for (final OnCommonDeviceListener listener : listeners) {
             if (listener != null) {
                 listener.onNotificationInfoUpdated(this);
             }
@@ -100,14 +105,14 @@ public abstract class AbstractDevice implements IDevice{
     }
 
     @Override
-    public final void addListener(OnDeviceListener listener) {
+    public final void addCommonListener(OnCommonDeviceListener listener) {
         if(!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
 
     @Override
-    public final void removeListener(OnDeviceListener listener) {
+    public final void removeCommonListener(OnCommonDeviceListener listener) {
         listeners.remove(listener);
     }
 
@@ -117,11 +122,10 @@ public abstract class AbstractDevice implements IDevice{
     }
 
     @Override
-    public void open(Context context) {
+    public void open() {
         if (context == null) {
             throw new NullPointerException("The context is null.");
         }
-        this.context = context;
 
         if (connector.open(context) && info.isAutoConnect())
             connect();
@@ -158,7 +162,7 @@ public abstract class AbstractDevice implements IDevice{
 
     @Override
     public void handleException(BleException ex) {
-        for(OnDeviceListener listener : listeners) {
+        for(OnCommonDeviceListener listener : listeners) {
             if(listener != null) {
                 listener.onExceptionNotified(this, ex);
             }
@@ -167,7 +171,7 @@ public abstract class AbstractDevice implements IDevice{
 
     @Override
     public void onConnectStateUpdated() {
-        for(OnDeviceListener listener : listeners) {
+        for(OnCommonDeviceListener listener : listeners) {
             if(listener != null) {
                 listener.onStateUpdated(this);
             }

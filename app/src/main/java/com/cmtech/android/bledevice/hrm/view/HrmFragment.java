@@ -24,10 +24,8 @@ import com.cmtech.android.bledevice.hrm.model.OnHrmListener;
 import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledevice.view.ScanEcgView;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 
 import java.util.ArrayList;
@@ -79,7 +77,6 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (HrmDevice) getDevice();
-        device.setContext(getContext());
         return inflater.inflate(R.layout.fragment_device_hrm, container, false);
     }
 
@@ -132,9 +129,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         ecgView.setListener(this);
 
         // 打开设备
-        MainActivity activity = (MainActivity) getActivity();
-        if(activity != null)
-            device.open(activity.getNotifyService());
+        device.open();
     }
 
     @Override

@@ -13,11 +13,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledevice.thermo.model.OnThermoListener;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 
 import java.util.ArrayList;
@@ -90,8 +89,7 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
         device.registerListener(this);
 
         // 打开设备
-        MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotifyService());
+        device.open();
     }
 
     public void setThermoRecord(boolean isRecord) {

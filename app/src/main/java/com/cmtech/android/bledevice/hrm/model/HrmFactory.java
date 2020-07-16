@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.hrm.model;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.hrm.view.HrmFragment;
@@ -35,8 +37,8 @@ public class HrmFactory extends DeviceFactory {
     }
 
     @Override
-    public IDevice createDevice() {
-        return new HrmDevice(info);
+    public IDevice createDevice(Context context) {
+        return new HrmDevice(context, info);
     }
 
     @Override

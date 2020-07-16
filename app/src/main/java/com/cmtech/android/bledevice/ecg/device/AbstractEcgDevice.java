@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecg.device;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
@@ -35,8 +36,8 @@ public abstract class AbstractEcgDevice extends AbstractDevice implements IEcgDe
     private int value1mV; // 定标之前1mV值
     private boolean isSaveRecord = false; // 是否保存心电记录
 
-    public AbstractEcgDevice(DeviceInfo registerInfo) {
-        super(registerInfo);
+    public AbstractEcgDevice(Context context, DeviceInfo registerInfo) {
+        super(context, registerInfo);
 
         // 从数据库获取设备的配置信息
         EcgConfiguration config = LitePal.where("macAddress = ?", getAddress()).findFirst(EcgConfiguration.class);

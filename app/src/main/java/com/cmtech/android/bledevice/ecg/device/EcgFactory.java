@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecg.device;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecg.fragment.EcgFragment;
@@ -22,8 +24,8 @@ public class EcgFactory extends DeviceFactory {
     }
 
     @Override
-    public IDevice createDevice() {
-        return new EcgDevice(info);
+    public IDevice createDevice(Context context) {
+        return new EcgDevice(context, info);
     }
 
     @Override
