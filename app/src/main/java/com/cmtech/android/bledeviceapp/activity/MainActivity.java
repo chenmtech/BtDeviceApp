@@ -438,13 +438,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     protected void onDestroy() {
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
-        /*DeviceManager.removeCommonListenerForAllDevices(this);
+        //DeviceManager.removeCommonListenerForAllDevices(this);
 
         unbindService(serviceConnection);
         Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
         stopService(stopIntent);
 
-        DeviceManager.clear();*/
+        //DeviceManager.clear();
 
         ViseLog.e("killProcess");
         android.os.Process.killProcess(android.os.Process.myPid());
