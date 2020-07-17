@@ -53,7 +53,8 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ViseLog.e("notifyservice onStartCommand");
-        sendNotification("");
+        DeviceManager.addCommonListenerForAllDevices(this);
+        sendNotification("暂无设备实时信息");
         return START_STICKY;
     }
 
@@ -90,11 +91,9 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
         super.onDestroy();
 
         DeviceManager.removeCommonListenerForAllDevices(this);
-        DeviceManager.clear();
 
         stopForeground(true);
-        AccountManager.logout(false);
-
+/*
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
@@ -102,7 +101,7 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
         }
 
         ViseLog.e("killProcess");
-        android.os.Process.killProcess(android.os.Process.myPid());
+        android.os.Process.killProcess(android.os.Process.myPid());*/
     }
 
     @Override

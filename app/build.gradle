@@ -61,7 +61,7 @@ MobSDK {
     }
 
     SMSSDK {
-        gui false
+        gui true
         autoSMS true
     }
 

@@ -1,8 +1,11 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -101,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             notifyService = ((NotifyService.BleNotifyServiceBinder)iBinder).getService();
             // 成功绑定后初始化UI，否则请求退出
             if(notifyService != null) {
-                initialize();
+                initializeUI();
             } else {
                 requestFinish();
             }
@@ -135,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         ViseLog.e(AccountManager.getAccount());
 
+        initDeviceManager();
+
         // 启动并绑定通知服务
         Intent serviceIntent = new Intent(this, NotifyService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -151,9 +156,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     // 主界面初始化
-    private void initialize() {
-        initDeviceManager();
-
+    private void initializeUI() {
         // 初始化工具条管理器
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -218,7 +221,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         for (DeviceInfo info : infos) {
             DeviceManager.createNewDevice(this, info);
         }
-        DeviceManager.addCommonListenerForAllDevices(notifyService);
     }
 
     private void initNavigation() {
@@ -421,14 +423,15 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     @Override
     protected void onDestroy() {
         ViseLog.e("MainActivity.onDestroy()");
-
+        super.onDestroy();
         DeviceManager.removeCommonListenerForAllDevices(this);
 
         unbindService(serviceConnection);
         Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
         stopService(stopIntent);
 
-        super.onDestroy();
+        DeviceManager.clear();
+        System.exit(0);//正常退出App
     }
 
     private void requestFinish() {
@@ -613,17 +616,23 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             return;
         }
 
-        AccountManager.logout(true);
+        //AccountManager.logout(true);
 
-        Intent intent = new Intent(MainActivity.this, SplashActivity.class);
-        startActivity(intent);
-        finish();
+        //Intent intent = new Intent(MainActivity.this, SplashActivity.class);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //startActivity(intent);
+        //finish();
+        Intent intent = getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
+        PendingIntent restartIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager mgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
+        System.exit(0);
     }
 
     private void updateNavigationHeader() {
         User account = AccountManager.getAccount();
         if(account == null) {
-            //throw new IllegalStateException();
             finish();
         } else {
             String name = account.getName();

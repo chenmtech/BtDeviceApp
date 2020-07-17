@@ -27,9 +27,6 @@ import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
-import cn.smssdk.EventHandler;
-import cn.smssdk.SMSSDK;
-import cn.smssdk.gui.RegisterPage;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.HW_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
@@ -175,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUsingPhone(Context context) {
-        RegisterPage page = new RegisterPage();
+        /*RegisterPage page = new RegisterPage();
         page.setTempCode(null);
         page.setRegisterCallback(new EventHandler() {
             public void afterEvent(int event, int result, Object data) {
@@ -190,7 +187,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-        page.show(context);
+        page.show(context);*/
+        login(PHONE_PLAT_NAME, "8615019187404", "", "");
     }
 
     private void login(String platName, String platId, String name, String icon) {
