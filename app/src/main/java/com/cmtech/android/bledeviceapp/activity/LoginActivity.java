@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.PhoneAccount;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.mob.MobSDK;
+import com.vise.log.ViseLog;
 
 import java.util.HashMap;
 
@@ -27,6 +29,9 @@ import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
+import cn.smssdk.EventHandler;
+import cn.smssdk.SMSSDK;
+import cn.smssdk.gui.RegisterPage;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.HW_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
@@ -42,6 +47,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        if(true) {
+            //loginUsingPhone(this);
+            login(PHONE_PLAT_NAME, "8615019187404", "", "");
+            return;
+        }
 
         User phoneAccount = PhoneAccount.getAccount();
         if(phoneAccount != null) {
@@ -132,6 +143,14 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        ViseLog.e("killProcess");
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
     private void loginUsingQQorWechat(Platform plat) {
         final String platName = plat.getName();
         ShareSDK.setActivity(LoginActivity.this);
@@ -172,7 +191,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUsingPhone(Context context) {
-        /*RegisterPage page = new RegisterPage();
+        RegisterPage page = new RegisterPage();
         page.setTempCode(null);
         page.setRegisterCallback(new EventHandler() {
             public void afterEvent(int event, int result, Object data) {
@@ -187,8 +206,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-        page.show(context);*/
-        login(PHONE_PLAT_NAME, "8615019187404", "", "");
+        page.show(context);
     }
 
     private void login(String platName, String platId, String name, String icon) {

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +115,14 @@ public class SplashActivity extends AppCompatActivity {
             stopCountDown();
         } catch (InterruptedException ignored) {
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        ViseLog.e("killProcess");
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     private void startCountDown() {

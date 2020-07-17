@@ -21,7 +21,16 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="com.example.receiver.receivebroadcast"/>
     <uses-feature android:name="android.hardware.location.network" />
+    <!--声明要使用的权限-->
+
+    <permission
+        android:name="com.example.receiver.receivebroadcast"
+        android:label="BroadcastReceiverPermission"
+        android:protectionLevel="signature">
+    </permission>
+
 
     <application
         android:name=".MyApplication"

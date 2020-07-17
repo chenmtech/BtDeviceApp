@@ -1,11 +1,8 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -106,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             if(notifyService != null) {
                 initializeUI();
             } else {
-                requestFinish();
+                finish();
             }
         }
 
@@ -128,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ViseLog.e("MainActivity onCreate.");
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
@@ -156,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     // 主界面初始化
+    @SuppressLint("WrongConstant")
     private void initializeUI() {
         // 初始化工具条管理器
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -285,7 +284,20 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                         startActivity(intent);
                         return true;
                     case R.id.nav_exit: // exit
-                        requestFinish();
+                        if(DeviceManager.hasDeviceOpen()) {
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle(R.string.exit_app);
+                            builder.setMessage(R.string.pls_close_device_firstly);
+                            builder.setPositiveButton(R.string.force_exit, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    finish();
+                                }
+                            });
+                            builder.show();
+                        } else {
+                            finish();
+                        }
                         return true;
                 }
                 return false;
@@ -413,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 if(fragment != null) {
                     closeFragment(fragment);
                 } else {
-                    requestFinish();
+                    finish();
                 }
                 break;
         }
@@ -424,31 +436,16 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     protected void onDestroy() {
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
-        DeviceManager.removeCommonListenerForAllDevices(this);
+        /*DeviceManager.removeCommonListenerForAllDevices(this);
 
         unbindService(serviceConnection);
         Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
         stopService(stopIntent);
 
-        DeviceManager.clear();
-        System.exit(0);//正常退出App
-    }
+        DeviceManager.clear();*/
 
-    private void requestFinish() {
-        if(DeviceManager.hasDeviceOpen()) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.exit_app);
-            builder.setMessage(R.string.pls_close_device_firstly);
-            builder.setPositiveButton(R.string.force_exit, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    finish();
-                }
-            });
-            builder.show();
-        } else {
-            finish();
-        }
+        ViseLog.e("killProcess");
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     @Override
@@ -616,18 +613,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             return;
         }
 
-        //AccountManager.logout(true);
+        AccountManager.logout(true);
 
-        //Intent intent = new Intent(MainActivity.this, SplashActivity.class);
-        //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        //startActivity(intent);
-        //finish();
-        Intent intent = getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage(getBaseContext().getPackageName());
-        PendingIntent restartIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_ONE_SHOT);
-        AlarmManager mgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
-        System.exit(0);
+        final Intent intent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     private void updateNavigationHeader() {
