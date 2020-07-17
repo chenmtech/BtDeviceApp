@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.activity.SplashActivity;
 import com.vise.log.ViseLog;
 

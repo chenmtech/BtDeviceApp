@@ -262,6 +262,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 if(FastClickUtil.isFastClick())
                     return true;
 
+                switchDrawer(false);
+
                 Intent intent;
                 switch (item.getItemId()) {
                     case R.id.nav_add_device: // add device
@@ -410,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         DeviceFragment fragment;
         switch (item.getItemId()) {
             case android.R.id.home:
-                openDrawer(true);
+                switchDrawer(true);
                 break;
 
             case R.id.toolbar_config:
@@ -450,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     @Override
     public void onBackPressed() {
-        openDrawer(!drawerLayout.isDrawerOpen(GravityCompat.START));
+        switchDrawer(!drawerLayout.isDrawerOpen(GravityCompat.START));
     }
 
     // 设备状态更新
@@ -506,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         DeviceFragment fragment = fragTabManager.findFragment(device);
         if(fragment != null) {
-            openDrawer(false);
+            switchDrawer(false);
             fragTabManager.showFragment(fragment);
         } else {
             if(device.getState() == CLOSED)
@@ -519,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         DeviceFactory factory = DeviceFactory.getFactory(device.getInfo());
         if(factory != null) {
-            openDrawer(false);
+            switchDrawer(false);
             Drawable drawable;
             if(TextUtils.isEmpty(device.getIcon())) {
                 DeviceType deviceType = DeviceType.getFromUuid(device.getUuid());
@@ -598,11 +600,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     // 打开或关闭侧滑菜单
-    private void openDrawer(boolean open) {
-        if(open) {
-            drawerLayout.openDrawer(GravityCompat.START);
+    private void switchDrawer(boolean isOpen) {
+        if(isOpen) {
+            drawerLayout.openDrawer(GravityCompat.START, false);
         } else {
-            drawerLayout.closeDrawer(GravityCompat.START);
+            drawerLayout.closeDrawer(GravityCompat.START, false);
         }
     }
 

@@ -186,6 +186,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        ViseLog.e("RecordExplorerActivity onDestroy");
+    }
+
     private void setRecordType(final RecordType type) {
         if(this.recordType == type) return;
         this.recordType = type;
