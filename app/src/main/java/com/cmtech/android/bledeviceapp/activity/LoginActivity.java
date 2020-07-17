@@ -1,11 +1,9 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -20,7 +18,6 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.PhoneAccount;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.mob.MobSDK;
-import com.vise.log.ViseLog;
 
 import java.util.HashMap;
 
@@ -33,13 +30,11 @@ import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.HW_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
 
 public class LoginActivity extends AppCompatActivity {
     private ImageButton qqLogin;
     private ImageButton wxLogin;
-    private ImageButton hwLogin;
     private ImageButton phoneLogin;
     private CheckBox cbGrant;
 
@@ -91,15 +86,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        hwLogin = findViewById(R.id.ib_huawei_login);
-        hwLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!isPrivacyGrantChecked()) return;
-                loginUsingHuaweiAccount();
-            }
-        });
-
         phoneLogin = findViewById(R.id.ib_phone_login);
         phoneLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,26 +115,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        switch (requestCode) {
-            case 1: // 华为登录返回码
-                if (resultCode == RESULT_OK && data != null) {
-                    String platId = data.getStringExtra("platId");
-                    String userName = data.getStringExtra("userName");
-                    String icon = data.getStringExtra("icon");
-                    login(HW_PLAT_NAME, platId, userName, icon);
-                }
-                break;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
     public void onBackPressed() {
-        super.onBackPressed();
 
-        ViseLog.e("killProcess");
-        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     private void loginUsingQQorWechat(Platform plat) {
@@ -183,11 +151,6 @@ public class LoginActivity extends AppCompatActivity {
             //单独授权，OnComplete返回的hashmap是空的
             plat.authorize();
         }
-    }
-
-    private void loginUsingHuaweiAccount() {
-        Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
-        startActivityForResult(intent, 1);
     }
 
     private void loginUsingPhone(Context context) {

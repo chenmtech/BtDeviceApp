@@ -83,32 +83,6 @@
                     android:text="@string/phone_login"/>
             </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:orientation="horizontal">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <ImageButton
-                    android:id="@+id/ib_huawei_login"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"
-                    android:background="@color/white"
-                    android:src="@mipmap/ic_huawei"/>
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="华为账号登录"/>
-            </LinearLayout>
-
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

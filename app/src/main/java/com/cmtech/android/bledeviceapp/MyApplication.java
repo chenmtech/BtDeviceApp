@@ -105,6 +105,11 @@ public class MyApplication extends Application {
         return instance.getApplicationContext();
     }
 
+    public static void killProcess() {
+        ViseLog.e("killProcess");
+        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
     public static SystemTTS getTTS() {
         return tts;
     }

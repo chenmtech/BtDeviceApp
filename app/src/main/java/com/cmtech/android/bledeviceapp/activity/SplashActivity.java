@@ -14,11 +14,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.SPLASH_ACTIVITY_COUNT_DOWN_SECOND;
@@ -85,7 +87,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void initialize() {
         tvSecond = findViewById(R.id.tv_count_second);
-        tvSecond.setText(String.format("%d%s", SPLASH_ACTIVITY_COUNT_DOWN_SECOND, getString(R.string.second)));
+        tvSecond.setText(String.format(Locale.getDefault(), "%d%s", SPLASH_ACTIVITY_COUNT_DOWN_SECOND, getString(R.string.second)));
 
         startCountDown();
     }
@@ -97,7 +99,7 @@ public class SplashActivity extends AppCompatActivity {
                 for(int result : grantResults) {
                     if(result != PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(this, "The app exits because of no permission.", Toast.LENGTH_SHORT).show();
-                        finish();
+                        MyApplication.killProcess();
                         break;
                     }
                 }
@@ -121,8 +123,7 @@ public class SplashActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
 
-        ViseLog.e("killProcess");
-        android.os.Process.killProcess(android.os.Process.myPid());
+        MyApplication.killProcess();
     }
 
     private void startCountDown() {

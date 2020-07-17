@@ -60,13 +60,11 @@ public class AppConstant {
 
     public static final String QQ_PLAT_NAME = QQ.NAME;
     public static final String WX_PLAT_NAME = Wechat.NAME;
-    public static final String HW_PLAT_NAME = "HW";
     public static final String PHONE_PLAT_NAME = "PH";
     public static final Map<String, Integer> SUPPORT_LOGIN_PLATFORM = new HashMap<String, Integer>() {
         {
             put(QQ_PLAT_NAME, R.mipmap.ic_qq);
             put(WX_PLAT_NAME, R.mipmap.ic_wechat);
-            put(HW_PLAT_NAME, R.mipmap.ic_huawei);
             put(PHONE_PLAT_NAME, R.mipmap.ic_user);
         }
     }; // supported login platform
