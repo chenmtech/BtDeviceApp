@@ -446,8 +446,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         //DeviceManager.clear();
 
-        ViseLog.e("killProcess");
-        android.os.Process.killProcess(android.os.Process.myPid());
+        MyApplication.killProcess();
     }
 
     @Override
