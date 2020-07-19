@@ -13,13 +13,12 @@ import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.activity.SplashActivity;
 import com.vise.log.ViseLog;
 
 
 /**
- * ClassName:      NotifyService
+ * ClassName:      NotificationService
  * Description:    通知服务
  * Author:         chenm
  * CreateDate:     2018-12-09 07:02
@@ -29,10 +28,10 @@ import com.vise.log.ViseLog;
  * Version:        1.0
  */
 
-public class NotifyService extends Service implements IDevice.OnCommonDeviceListener {
+public class NotificationService extends Service implements IDevice.OnCommonDeviceListener {
     private static final String TAG = "NotifyService";
-    private static final int NOTIFY_ID = 1; // id不可设置为0,否则不能设置为前台service
-    private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
+    private static final int NOTIFY_ID = 1;
+    private final NotificationServiceBinder binder = new NotificationServiceBinder();
     private String notifyTitle; // 通知栏标题
     private NotificationCompat.Builder notifyBuilder;
 
@@ -65,6 +64,7 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
         notifyBuilder.setAutoCancel(false); //禁止用户点击删除按钮删除
         notifyBuilder.setOngoing(true); //禁止滑动删除
         notifyBuilder.setShowWhen(true); //右上角的时间显示
+        notifyBuilder.setWhen(System.currentTimeMillis());
         notifyBuilder.setContentTitle(notifyTitle); //设置通知栏的标题与内容
 
         Intent intent = new Intent(this, SplashActivity.class);
@@ -82,6 +82,7 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
     private void sendNotification(String notifyContent) {
         ViseLog.e("receive a notification.");
         notifyBuilder.setContentText(notifyContent);
+        notifyBuilder.setWhen(System.currentTimeMillis());
         Notification notification = notifyBuilder.build();
         startForeground(NOTIFY_ID, notification);
     }
@@ -94,9 +95,6 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
         DeviceManager.removeCommonListenerForAllDevices(this);
 
         stopForeground(true);
-
-        /*ViseLog.e("killProcess");
-        android.os.Process.killProcess(android.os.Process.myPid());*/
     }
 
     @Override
@@ -113,9 +111,9 @@ public class NotifyService extends Service implements IDevice.OnCommonDeviceList
         sendNotification(getDeviceSimpleName(device) + device.getNotifyInfo());
     }
 
-    public class BleNotifyServiceBinder extends Binder {
-        public NotifyService getService() {
-            return NotifyService.this;
+    public class NotificationServiceBinder extends Binder {
+        public NotificationService getService() {
+            return NotificationService.this;
         }
     }
 

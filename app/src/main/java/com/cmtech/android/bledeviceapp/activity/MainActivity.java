@@ -51,7 +51,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
-import com.cmtech.android.bledeviceapp.model.NotifyService;
+import com.cmtech.android.bledeviceapp.model.NotificationService;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     private LocalDevicesFragment localDevicesFragment;
     //WebDevicesFragment webDevicesFragment;
-    private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
+    private NotificationService notificationService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
     private DeviceTabFragManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager tbManager; // 工具条管理器
     private DrawerLayout drawerLayout; // 侧滑界面
@@ -98,9 +98,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            notifyService = ((NotifyService.BleNotifyServiceBinder)iBinder).getService();
+            notificationService = ((NotificationService.NotificationServiceBinder)iBinder).getService();
             // 成功绑定后初始化UI，否则请求退出
-            if(notifyService != null) {
+            if(notificationService != null) {
                 initializeUI();
             } else {
                 finish();
@@ -109,17 +109,17 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            if(notifyService != null) {
-                Intent intent = new Intent(MainActivity.this, NotifyService.class);
+            if(notificationService != null) {
+                Intent intent = new Intent(MainActivity.this, NotificationService.class);
                 stopService(intent);
-                notifyService = null;
+                notificationService = null;
             }
             finish();
         }
     };
 
-    public NotifyService getNotifyService() {
-        return notifyService;
+    public NotificationService getNotificationService() {
+        return notificationService;
     }
 
     @Override
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         initDeviceManager();
 
         // 启动并绑定通知服务
-        Intent serviceIntent = new Intent(this, NotifyService.class);
+        Intent serviceIntent = new Intent(this, NotificationService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
         } else {
@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                         if(device != null) {
                             if(info.save()) {
                                 updateDeviceList();
-                                device.addCommonListener(notifyService);
+                                device.addCommonListener(notificationService);
                             } else {
                                 Toast.makeText(MainActivity.this, R.string.add_device_failure, Toast.LENGTH_SHORT).show();
                                 DeviceManager.deleteDevice(device);
@@ -441,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         //DeviceManager.removeCommonListenerForAllDevices(this);
 
         unbindService(serviceConnection);
-        Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
+        Intent stopIntent = new Intent(MainActivity.this, NotificationService.class);
         stopService(stopIntent);
 
         //DeviceManager.clear();

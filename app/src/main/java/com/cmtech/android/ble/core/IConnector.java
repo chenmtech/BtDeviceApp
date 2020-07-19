@@ -10,9 +10,9 @@ public interface IConnector {
     DeviceState getState(); // get device state about connection
 
     interface IConnectorCallback {
-        boolean onConnectSuccess(); // operate when connection success
-        void onConnectFailure(); // operate when connection failure
-        void onDisconnect(); // operate when disconnection
-        void onConnectStateUpdated(); // connect state updated
+        boolean onConnectSuccess(); // operation when connection success
+        void onConnectFailure(); // operation when connection failure
+        void onDisconnect(); // operation when disconnection
+        void onConnectStateUpdated(); // operation when connect state updated
     }
 }

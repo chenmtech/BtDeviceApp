@@ -31,7 +31,7 @@ public interface IDevice extends IConnector.IConnectorCallback {
     void switchState(); // switch state
     void handleException(BleException ex); // handle exception
 
-    // connCallback listener interface
+    // common device listener interface
     interface OnCommonDeviceListener {
         void onStateUpdated(final IDevice device); // state updated
         void onBatteryUpdated(final IDevice device); // battery level updated
