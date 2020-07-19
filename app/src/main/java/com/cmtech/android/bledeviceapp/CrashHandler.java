@@ -90,8 +90,8 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         collectCrashInfo(ex);
         // 保存错误日志
         saveErrorLog();
-        //TODO: 这里可以加一个网络的请求，发送错误log给后台
-//  sendErrorLog();
+        // 这里可以加一个网络的请求，发送错误log给后台
+        // sendErrorLog();
         return true;
     }
 
