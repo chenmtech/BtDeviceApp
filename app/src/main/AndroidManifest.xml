@@ -105,7 +105,7 @@
             android:launchMode="singleTask"/>
 
         <service
-            android:name=".model.NotifyService"
+            android:name=".model.NotificationService"
             android:enabled="true"
             android:exported="false"
             android:priority="1000">

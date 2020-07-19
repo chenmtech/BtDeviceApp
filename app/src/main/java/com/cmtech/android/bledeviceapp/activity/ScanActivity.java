@@ -19,9 +19,9 @@ import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
-import com.cmtech.android.ble.core.BleDeviceInfo;
+import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.BleScanner;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.bledeviceapp.R;
@@ -205,7 +205,7 @@ public class ScanActivity extends AppCompatActivity {
         if(serviceUUID != null) {
             byte[] uuidBytes = new byte[]{serviceUUID.getData()[1], serviceUUID.getData()[0]};
             String uuidShortString = HexUtil.encodeHexStr(uuidBytes);
-            DeviceInfo registerInfo = new BleDeviceInfo(detailInfo.getAddress(), uuidShortString);
+            DeviceCommonInfo registerInfo = new BleDeviceCommonInfo(detailInfo.getAddress(), uuidShortString);
             Intent intent = new Intent(ScanActivity.this, DeviceInfoActivity.class);
             intent.putExtra(DEVICE_INFO, registerInfo);
             startActivityForResult(intent, 1);

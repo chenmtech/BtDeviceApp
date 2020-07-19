@@ -2,10 +2,10 @@
 
 <litepal>
     <dbname value = "BtDeviceApp"/>
-    <version value="49"/>
+    <version value="50"/>
     <list>
         <mapping class="com.cmtech.android.bledeviceapp.model.User"/>
-        <mapping class="com.cmtech.android.ble.core.BleDeviceInfo"/>
+        <mapping class="com.cmtech.android.ble.core.BleDeviceCommonInfo"/>
         <mapping class="com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment"/>
         <mapping class="com.cmtech.android.bledevice.ecg.record.EcgRecord"/>
         <mapping class="com.cmtech.android.bledevice.ecg.device.EcgConfiguration"/>

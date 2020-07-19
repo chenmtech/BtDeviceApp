@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.thm.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.thm.view.ThmFragment;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -20,7 +20,7 @@ public class ThmFactory extends DeviceFactory {
 
     public static final DeviceType THM_DEVICE_TYPE = new DeviceType(THM_UUID, THM_DEFAULT_ICON, THM_DEFAULT_NAME, THM_FACTORY);
 
-    private ThmFactory(DeviceInfo info) {
+    private ThmFactory(DeviceCommonInfo info) {
         super(info);
     }
 

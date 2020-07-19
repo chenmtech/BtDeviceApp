@@ -19,7 +19,7 @@ import java.io.Serializable;
  * Version:        1.0
  */
 
-public abstract class DeviceInfo extends LitePalSupport implements Serializable {
+public abstract class DeviceCommonInfo extends LitePalSupport implements Serializable {
     private static final long serialVersionUID = 1L;
     public static final String DEFAULT_NAME = ""; // 缺省设备名
     public static final String DEFAULT_ICON = ""; // 缺省设备图标路径名
@@ -33,14 +33,14 @@ public abstract class DeviceInfo extends LitePalSupport implements Serializable 
     private String icon = DEFAULT_ICON; // 设备图标完整路径
     private boolean autoConnect = DEFAULT_AUTO_CONNECT; // 设备打开后是否自动连接
 
-    protected DeviceInfo(String address, String uuid, boolean local) {
+    protected DeviceCommonInfo(String address, String uuid, boolean local) {
         this.address = address;
         this.uuid = uuid;
         this.local = local;
     }
 
-    protected DeviceInfo(String address, String uuid, boolean local, String name, String icon,
-                         boolean autoConnect) {
+    protected DeviceCommonInfo(String address, String uuid, boolean local, String name, String icon,
+                               boolean autoConnect) {
         this.address = address;
         this.uuid = uuid;
         this.local = local;
@@ -80,7 +80,7 @@ public abstract class DeviceInfo extends LitePalSupport implements Serializable 
         this.autoConnect = autoConnect;
     }
 
-    public void update(DeviceInfo info) {
+    public void update(DeviceCommonInfo info) {
         if (address.equalsIgnoreCase(info.address) && uuid.equalsIgnoreCase(info.uuid)) {
             name = info.name;
             icon = info.icon;
@@ -98,7 +98,7 @@ public abstract class DeviceInfo extends LitePalSupport implements Serializable 
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DeviceInfo that = (DeviceInfo) o;
+        DeviceCommonInfo that = (DeviceCommonInfo) o;
         return address.equalsIgnoreCase(that.address) && this.local == that.local;
     }
 

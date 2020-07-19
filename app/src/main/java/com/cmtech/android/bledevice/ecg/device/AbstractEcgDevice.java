@@ -6,7 +6,7 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.interfac.IEcgDevice;
@@ -36,7 +36,7 @@ public abstract class AbstractEcgDevice extends AbstractDevice implements IEcgDe
     private int value1mV; // 定标之前1mV值
     private boolean isSaveRecord = false; // 是否保存心电记录
 
-    public AbstractEcgDevice(Context context, DeviceInfo registerInfo) {
+    public AbstractEcgDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
 
         // 从数据库获取设备的配置信息

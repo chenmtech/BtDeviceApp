@@ -6,7 +6,7 @@ import com.cmtech.android.ble.exception.BleException;
 /**
  *
  * ClassName:      IBleConnectCallback
- * Description:    连接回调接口
+ * Description:    BLE设备连接回调接口
  * Author:         chenm
  * CreateDate:     2019-09-19 07:02
  * UpdateUser:     chenm

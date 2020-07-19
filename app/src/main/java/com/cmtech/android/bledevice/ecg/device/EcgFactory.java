@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.ecg.device;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecg.fragment.EcgFragment;
 import com.cmtech.android.bledeviceapp.R;
@@ -19,7 +19,7 @@ public class EcgFactory extends DeviceFactory {
 
     public static final DeviceType ECG_DEVICE_TYPE = new DeviceType(ECG_UUID, ECG_DEFAULT_ICON, ECG_DEFAULT_NAME, ECG_FACTORY);
 
-    private EcgFactory(DeviceInfo info) {
+    private EcgFactory(DeviceCommonInfo info) {
         super(info);
     }
 

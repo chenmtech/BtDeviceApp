@@ -7,7 +7,7 @@ import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
@@ -75,7 +75,7 @@ public class ThmDevice extends AbstractDevice {
     }
 
     // 构造器
-    public ThmDevice(Context context, DeviceInfo registerInfo) {
+    public ThmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
     }
 
@@ -191,6 +191,6 @@ public class ThmDevice extends AbstractDevice {
             if(listener != null)
                 listener.onTempHumidDataUpdated(tempHumidData);
         }
-        setNotifyInfo("温度" + tempHumidData.getTemp()/100.0f + " 湿度" + tempHumidData.getHumid()/100.0f);
+        setNotificationInfo("温度" + tempHumidData.getTemp()/100.0f + " 湿度" + tempHumidData.getHumid()/100.0f);
     }
 }

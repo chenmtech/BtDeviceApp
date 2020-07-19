@@ -16,7 +16,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.core.DeviceState;
+import com.cmtech.android.ble.core.DeviceConnectState;
 import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrm.model.HrmCfg;
 import com.cmtech.android.bledevice.hrm.model.HrmDevice;
@@ -100,7 +100,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         tvSwitchMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(device.getState() != DeviceState.CONNECT) {
+                if(device.getConnectState() != DeviceConnectState.CONNECT) {
                     Toast.makeText(getContext(), R.string.cannot_switch_mode, Toast.LENGTH_SHORT).show();
                     return;
                 }

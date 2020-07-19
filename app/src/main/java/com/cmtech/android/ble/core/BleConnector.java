@@ -9,14 +9,14 @@ import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.exception.BleException;
 import com.vise.log.ViseLog;
 
-import static com.cmtech.android.ble.core.DeviceState.CLOSED;
-import static com.cmtech.android.ble.core.DeviceState.CONNECT;
-import static com.cmtech.android.ble.core.DeviceState.DISCONNECT;
-import static com.cmtech.android.ble.core.DeviceState.FAILURE;
+import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
+import static com.cmtech.android.ble.core.DeviceConnectState.CONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.DISCONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.FAILURE;
 
 /**
  * ClassName:      BleConnector
- * Description:    低功耗蓝牙设备类
+ * Description:    低功耗蓝牙Connector
  * Author:         chenm
  * CreateDate:     2018-02-19 07:02
  * UpdateUser:     chenm
@@ -50,7 +50,7 @@ public class BleConnector extends AbstractConnector {
                 BleConnector.this.bleGatt = bleGatt;
                 gattCmdExecutor.start();
 
-                if (!connCallback.onConnectSuccess()) {
+                if (!connectorCallback.onConnectSuccess()) {
                     disconnect(false);
                 } else {
                     setState(CONNECT);
@@ -69,7 +69,7 @@ public class BleConnector extends AbstractConnector {
                     gattCmdExecutor.stop();
                 setState(FAILURE);
                 reconnect();
-                connCallback.onConnectFailure();
+                connectorCallback.onConnectFailure();
             }
         }
 
@@ -84,7 +84,7 @@ public class BleConnector extends AbstractConnector {
                     gattCmdExecutor.stop();
                 setState(DISCONNECT);
                 reconnect();
-                connCallback.onDisconnect();
+                connectorCallback.onDisconnect();
             }
         }
     };
@@ -97,7 +97,7 @@ public class BleConnector extends AbstractConnector {
         return bleGatt;
     }
 
-    // 设备是否包含gatt elements
+    // 设备是否包含所有指定gatt elements
     public boolean containGattElements(BleGattElement[] elements) {
         for (BleGattElement element : elements) {
             if (element == null || element.transformToGattObject(this) == null)
@@ -113,6 +113,7 @@ public class BleConnector extends AbstractConnector {
 
     @Override
     public boolean open(Context context) {
+        ViseLog.e("BleConnector.open()");
         boolean success = super.open(context);
         if(success)
             gattCmdExecutor = new BleSerialGattCommandExecutor(this);
@@ -137,16 +138,18 @@ public class BleConnector extends AbstractConnector {
     @Override
     public void connect() {
         if(BleScanner.isBleDisabled()) {
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            if(context != null) {
+                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
             return;
         }
+        ViseLog.e("BleConnector.connect()");
         super.connect();
         new BleGatt(context, address, connectCallback).connect();
     }
 
-    // 强制断开
     @Override
     public void disconnect(boolean forever) {
         ViseLog.e("BleConnector.disconnect(): " + (forever ? "forever" : ""));

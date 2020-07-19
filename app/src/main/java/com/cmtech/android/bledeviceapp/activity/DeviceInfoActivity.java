@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.ble.core.BleDeviceInfo;
+import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
@@ -32,8 +32,8 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_AUTO_CONNECT;
-import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_ICON;
+import static com.cmtech.android.ble.core.DeviceCommonInfo.DEFAULT_AUTO_CONNECT;
+import static com.cmtech.android.ble.core.DeviceCommonInfo.DEFAULT_ICON;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
@@ -44,7 +44,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 public class DeviceInfoActivity extends AppCompatActivity {
     public static final String DEVICE_INFO = "device_info";
 
-    private BleDeviceInfo deviceInfo; //
+    private BleDeviceCommonInfo deviceInfo; //
     private TextView tvAddress;
     private TextView tvType;
     private EditText etName; //
@@ -59,7 +59,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null) {
-            deviceInfo = (BleDeviceInfo) intent.getSerializableExtra(DEVICE_INFO);
+            deviceInfo = (BleDeviceCommonInfo) intent.getSerializableExtra(DEVICE_INFO);
             if(deviceInfo == null) {
                 Toast.makeText(this, R.string.invalid_device_info, Toast.LENGTH_SHORT).show();
                 finish();

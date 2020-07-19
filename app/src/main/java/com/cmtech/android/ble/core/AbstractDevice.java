@@ -11,35 +11,35 @@ import com.vise.log.ViseLog;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.ble.core.DeviceState.CONNECT;
-import static com.cmtech.android.ble.core.DeviceState.DISCONNECT;
-import static com.cmtech.android.ble.core.DeviceState.FAILURE;
+import static com.cmtech.android.ble.core.DeviceConnectState.CONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.DISCONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.FAILURE;
 
 public abstract class AbstractDevice implements IDevice{
     private Context context; // context
-    private final DeviceInfo info; // information
-    private int battery; // battery level
-    private String notifyInfo;
-    private final List<OnCommonDeviceListener> commonListeners; // connCallback listeners
+    private final DeviceCommonInfo commonInfo; // common information
+    private int batteryLevel; // battery level
+    private String notificationInfo;
+    private final List<OnCommonDeviceListener> commonListeners; // common device listeners
     protected final IConnector connector; // connector
 
-    public AbstractDevice(Context context, DeviceInfo info) {
+    public AbstractDevice(Context context, DeviceCommonInfo commonInfo) {
         if(context == null) {
             throw new NullPointerException("The context is null.");
         }
-        if(info == null) {
+        if(commonInfo == null) {
             throw new NullPointerException("The info is null.");
         }
         this.context = context;
-        this.info = info;
-        if(info.isLocal()) {
+        this.commonInfo = commonInfo;
+        if(commonInfo.isLocal()) {
             connector = new BleConnector(this.getAddress(), this);
         } else {
             connector = new WebConnector(this.getAddress(), this);
         }
         commonListeners = new ArrayList<>();
-        battery = INVALID_BATTERY;
-        notifyInfo = "";
+        batteryLevel = INVALID_BATTERY_LEVEL;
+        notificationInfo = "";
     }
 
     @Override
@@ -47,60 +47,60 @@ public abstract class AbstractDevice implements IDevice{
         return context;
     }
     @Override
-    public DeviceInfo getInfo() {
-        return info;
+    public DeviceCommonInfo getCommonInfo() {
+        return commonInfo;
     }
     @Override
-    public void updateInfo(DeviceInfo info) {
-        this.info.update(info);
+    public void updateCommonInfo(DeviceCommonInfo info) {
+        this.commonInfo.update(info);
     }
     @Override
     public boolean isLocal() {
-        return info.isLocal();
+        return commonInfo.isLocal();
     }
     @Override
     public final String getAddress() {
-        return info.getAddress();
+        return commonInfo.getAddress();
     }
     @Override
     public String getUuid() {
-        return info.getUuid();
+        return commonInfo.getUuid();
     }
     @Override
     public String getName() {
-        return info.getName();
+        return commonInfo.getName();
     }
     @Override
     public void setName(String name) {
-        info.setName(name);
+        commonInfo.setName(name);
     }
     @Override
     public String getIcon() {
-        return info.getIcon();
+        return commonInfo.getIcon();
     }
     @Override
-    public int getBattery() {
-        return battery;
+    public int getBatteryLevel() {
+        return batteryLevel;
     }
     @Override
-    public void setBattery(final int battery) {
-        if(this.battery != battery) {
-            this.battery = battery;
+    public void setBatteryLevel(final int batteryLevel) {
+        if(this.batteryLevel != batteryLevel) {
+            this.batteryLevel = batteryLevel;
             for (final OnCommonDeviceListener listener : commonListeners) {
                 if (listener != null) {
-                    listener.onBatteryUpdated(this);
+                    listener.onBatteryLevelUpdated(this);
                 }
             }
         }
     }
     @Override
-    public String getNotifyInfo() {
-        return notifyInfo;
+    public String getNotificationInfo() {
+        return notificationInfo;
     }
 
     @Override
-    public void setNotifyInfo(String notifyInfo) {
-        this.notifyInfo = notifyInfo;
+    public void setNotificationInfo(String notificationInfo) {
+        this.notificationInfo = notificationInfo;
         for (final OnCommonDeviceListener listener : commonListeners) {
             if (listener != null) {
                 listener.onNotificationInfoUpdated(this);
@@ -121,7 +121,7 @@ public abstract class AbstractDevice implements IDevice{
     }
 
     @Override
-    public DeviceState getState() {
+    public DeviceConnectState getConnectState() {
         return connector.getState();
     }
 
@@ -131,7 +131,7 @@ public abstract class AbstractDevice implements IDevice{
             throw new NullPointerException("The context is null.");
         }
 
-        if (connector.open(context) && info.isAutoConnect())
+        if (connector.open(context) && commonInfo.isAutoConnect())
             connect();
     }
 
@@ -159,21 +159,21 @@ public abstract class AbstractDevice implements IDevice{
         } else if (connector.getState() == CONNECT) {
             disconnect(true);
         } else { // 无效操作
-            if(context != null)
-                handleException(new OtherException(context.getString(R.string.invalid_operation)));
+            handleException(new OtherException(context.getString(R.string.invalid_operation)));
         }
     }
 
     @Override
     public void handleException(BleException ex) {
-        Toast.makeText(getContext(), ex.getDescription(), Toast.LENGTH_SHORT).show();
+        if(context != null)
+            Toast.makeText(context, ex.getDescription(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onConnectStateUpdated() {
         for(OnCommonDeviceListener listener : commonListeners) {
             if(listener != null) {
-                listener.onStateUpdated(this);
+                listener.onConnectStateUpdated(this);
             }
         }
     }
@@ -183,12 +183,12 @@ public abstract class AbstractDevice implements IDevice{
         if (this == o) return true;
         if (!(o instanceof AbstractDevice)) return false;
         AbstractDevice that = (AbstractDevice) o;
-        return info.equals(that.info);
+        return commonInfo.equals(that.commonInfo);
     }
 
     @Override
     public int hashCode() {
-        return (info != null) ? info.hashCode() : 0;
+        return (commonInfo != null) ? commonInfo.hashCode() : 0;
     }
 
 }

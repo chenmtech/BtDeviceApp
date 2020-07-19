@@ -5,36 +5,36 @@ import android.content.Context;
 import com.cmtech.android.ble.exception.BleException;
 
 public interface IDevice extends IConnector.IConnectorCallback {
-    int INVALID_BATTERY = -1; // invalid battery level
+    int INVALID_BATTERY_LEVEL = -1; // invalid battery level
 
     Context getContext();
-    DeviceInfo getInfo();
-    void updateInfo(DeviceInfo info);
-    boolean isLocal(); // is local connCallback
+    DeviceCommonInfo getCommonInfo();
+    void updateCommonInfo(DeviceCommonInfo info);
+    boolean isLocal(); // is local
     String getAddress();
     String getName();
     void setName(String name);
     String getUuid();
     String getIcon();
-    int getBattery();
-    void setBattery(final int battery);
-    DeviceState getState(); // get state
-    String getNotifyInfo();
-    void setNotifyInfo(String notifyInfo);
+    int getBatteryLevel();
+    void setBatteryLevel(final int batteryLevel);
+    DeviceConnectState getConnectState(); // get connect state
+    String getNotificationInfo();
+    void setNotificationInfo(String notifyInfo);
     void addCommonListener(OnCommonDeviceListener listener);
     void removeCommonListener(OnCommonDeviceListener listener);
 
-    void open(); // open connCallback
-    void close(); // close connCallback
-    void connect(); // connect connCallback
-    void disconnect(boolean forever); // disconnect connCallback. if forever=true, no reconnection occurred, otherwise reconnect it.
-    void switchState(); // switch state
+    void open(); // open device
+    void close(); // close device
+    void connect(); // connect device
+    void disconnect(boolean forever); // disconnect device. if forever=true, no reconnection occurred, otherwise reconnect it.
+    void switchState(); // switch device state
     void handleException(BleException ex); // handle exception
 
     // common device listener interface
     interface OnCommonDeviceListener {
-        void onStateUpdated(final IDevice device); // state updated
-        void onBatteryUpdated(final IDevice device); // battery level updated
+        void onConnectStateUpdated(final IDevice device); // connect state updated
+        void onBatteryLevelUpdated(final IDevice device); // battery level updated
         void onNotificationInfoUpdated(final IDevice device); // notification info updated
     }
 }

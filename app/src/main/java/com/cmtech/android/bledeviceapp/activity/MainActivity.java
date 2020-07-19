@@ -37,11 +37,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.ble.core.BleDeviceInfo;
+import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.BleScanner;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.WebDeviceInfo;
+import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
@@ -65,8 +65,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.cmtech.android.ble.core.DeviceState.CLOSED;
-import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
+import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
+import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
@@ -215,9 +215,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     // 初始化DeviceManager
     private void initDeviceManager() {
-        List<BleDeviceInfo> infos = LitePal.findAll(BleDeviceInfo.class);
+        List<BleDeviceCommonInfo> infos = LitePal.findAll(BleDeviceCommonInfo.class);
         if (infos == null || infos.isEmpty()) return;
-        for (DeviceInfo info : infos) {
+        for (DeviceCommonInfo info : infos) {
             DeviceManager.createNewDevice(this, info);
         }
     }
@@ -310,19 +310,19 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private void updateMainLayout(IDevice device) {
         if(device == null) {
             tbManager.setTitle(getString(R.string.app_name), "");
-            tbManager.setBattery(INVALID_BATTERY);
+            tbManager.setBattery(INVALID_BATTERY_LEVEL);
             updateConnectFAButton(CLOSED.getIcon());
             invalidateOptionsMenu();
             updateMainLayoutVisibility(false);
         } else {
             String title = device.getName();
-            DeviceInfo registerInfo = device.getInfo();
+            DeviceCommonInfo registerInfo = device.getCommonInfo();
             if(!device.isLocal()) {
-                title += ("-" + ((WebDeviceInfo) registerInfo).getBroadcastName());
+                title += ("-" + ((WebDeviceCommonInfo) registerInfo).getBroadcastName());
             }
             tbManager.setTitle(title, device.getAddress());
-            tbManager.setBattery(device.getBattery());
-            updateConnectFAButton(device.getState().getIcon());
+            tbManager.setBattery(device.getBatteryLevel());
+            updateConnectFAButton(device.getConnectState().getIcon());
             updateCloseMenuItem(true);
             updateMainLayoutVisibility(true);
         }
@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         switch (requestCode) {
             case RC_ADD_DEVICE: // return for add device
                 if(resultCode == RESULT_OK) {
-                    BleDeviceInfo info = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
+                    BleDeviceCommonInfo info = (BleDeviceCommonInfo) data.getSerializableExtra(DEVICE_INFO);
                     if(info != null) {
                         IDevice device = DeviceManager.createNewDevice(this, info);
                         if(device != null) {
@@ -352,11 +352,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
             case RC_MODIFY_DEVICE_INFO: // return code for modify device info
                 if ( resultCode == RESULT_OK) {
-                    BleDeviceInfo info = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
+                    BleDeviceCommonInfo info = (BleDeviceCommonInfo) data.getSerializableExtra(DEVICE_INFO);
                     IDevice device = DeviceManager.findDevice(info);
                     if(device != null) {
-                        device.updateInfo(info);
-                        device.getInfo().save();
+                        device.updateCommonInfo(info);
+                        device.getCommonInfo().save();
                         updateDeviceList();
                         Drawable drawable;
                         if(TextUtils.isEmpty(device.getIcon())) {
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                         fragTabManager.updateTabInfo(fragTabManager.findFragment(device), drawable, device.getName());
                         if(fragTabManager.isFragmentSelected(device)) {
                             tbManager.setTitle(device.getName(), device.getAddress());
-                            tbManager.setBattery(device.getBattery());
+                            tbManager.setBattery(device.getBatteryLevel());
                         }
                     }
                 }
@@ -457,7 +457,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     // 设备状态更新
     @Override
-    public void onStateUpdated(final IDevice device) {
+    public void onConnectStateUpdated(final IDevice device) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -465,10 +465,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 DeviceFragment deviceFrag = fragTabManager.findFragment(device);
                 if(deviceFrag != null) deviceFrag.updateState();
                 if(fragTabManager.isFragmentSelected(device)) {
-                    updateConnectFAButton(device.getState().getIcon());
+                    updateConnectFAButton(device.getConnectState().getIcon());
                     updateCloseMenuItem(true);
                     if(!MyApplication.isRunInBackground())
-                        Toast.makeText(MainActivity.this, device.getState().getDescription(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, device.getConnectState().getDescription(), Toast.LENGTH_SHORT).show();
                 }
                 // 更新设备列表Adapter
                 updateDeviceList();
@@ -478,12 +478,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     // 电量更新
     @Override
-    public void onBatteryUpdated(final IDevice device) {
+    public void onBatteryLevelUpdated(final IDevice device) {
         if(fragTabManager.isFragmentSelected(device)) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tbManager.setBattery(device.getBattery());
+                    tbManager.setBattery(device.getBatteryLevel());
                 }
             });
         }
@@ -511,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             switchDrawer(false);
             fragTabManager.showFragment(fragment);
         } else {
-            if(device.getState() == CLOSED)
+            if(device.getConnectState() == CLOSED)
                 createAndOpenFragment(device);
         }
     }
@@ -519,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private void createAndOpenFragment(IDevice device) {
         if(device == null) return;
 
-        DeviceFactory factory = DeviceFactory.getFactory(device.getInfo());
+        DeviceFactory factory = DeviceFactory.getFactory(device.getCommonInfo());
         if(factory != null) {
             switchDrawer(false);
             Drawable drawable;
@@ -569,8 +569,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(device.getInfo() instanceof BleDeviceInfo) {
-                    if(LitePal.delete(BleDeviceInfo.class, device.getInfo().getId()) != 0) {
+                if(device.getCommonInfo() instanceof BleDeviceCommonInfo) {
+                    if(LitePal.delete(BleDeviceCommonInfo.class, device.getCommonInfo().getId()) != 0) {
                         DeviceManager.deleteDevice(device);
                         updateDeviceList();
                     } else {
@@ -587,9 +587,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     // 修改设备注册信息 
-    public void modifyDeviceInfo(final DeviceInfo deviceInfo) {
+    public void modifyDeviceInfo(final DeviceCommonInfo deviceCommonInfo) {
         Intent intent = new Intent(this, DeviceInfoActivity.class);
-        intent.putExtra(DEVICE_INFO, deviceInfo);
+        intent.putExtra(DEVICE_INFO, deviceCommonInfo);
         startActivityForResult(intent, RC_MODIFY_DEVICE_INFO);
     }
 

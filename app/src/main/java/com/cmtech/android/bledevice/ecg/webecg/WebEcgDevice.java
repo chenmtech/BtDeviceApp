@@ -5,8 +5,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.ble.core.DeviceState;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceConnectState;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.bledevice.ecg.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
 import com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor;
@@ -85,7 +85,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
                             }
                             ViseLog.e("timerPeriod=" + timerPeriod + "sampleInterval=" + sampleInterval + "lastDataPackId=" + lastDataPackId);
                         }
-                        if (getState() == DeviceState.CONNECT)
+                        if (getConnectState() == DeviceConnectState.CONNECT)
                             handler.sendEmptyMessageDelayed(MSG_READ_DATA_PACKET, 1000);
                     }
                 });
@@ -94,7 +94,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
     };
 
     // 构造器
-    public WebEcgDevice(Context context, DeviceInfo registerInfo) {
+    public WebEcgDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
         signalProcessor = new EcgSignalProcessor(this, false);
     }

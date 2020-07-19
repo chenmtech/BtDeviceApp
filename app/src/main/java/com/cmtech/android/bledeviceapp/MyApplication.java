@@ -5,18 +5,13 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
-import android.widget.Toast;
 
-import com.cmtech.android.ble.BleConfig;
 import com.cmtech.android.bledeviceapp.util.SystemTTS;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
-
-import static com.cmtech.android.bledeviceapp.AppConstant.RECONNECT_INTERVAL;
 
 /**
  * MyApplication
@@ -38,9 +33,6 @@ public class MyApplication extends Application {
         // init LitePal
         LitePal.initialize(getApplicationContext());
         LitePal.getDatabase();
-
-        // configure the BLE library
-        BleConfig.setReconnInterval(RECONNECT_INTERVAL);
 
         // init MobSDK
         MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");

@@ -17,7 +17,7 @@ import com.cmtech.android.ble.utils.HexUtil;
  */
 
 class BleGattCommand{
-    private final BleConnector device; // 执行命令的设备
+    private final BleConnector connector; // 执行命令的连接器
     private final BleGattElement element; // 命令操作的element
     private final BleGattCmdType bleGattCmdType; // 命令类型
     protected IBleDataCallback dataCallback; // 数据操作回调
@@ -25,10 +25,10 @@ class BleGattCommand{
     private final IBleDataCallback receiveCallback; // 如果是notify或indicate操作，存放notify或indicate的回调
     private final String description; // 命令描述字符串
 
-    private BleGattCommand(BleConnector device, BleGattElement element, BleGattCmdType bleGattCmdType,
+    private BleGattCommand(BleConnector connector, BleGattElement element, BleGattCmdType bleGattCmdType,
                            IBleDataCallback dataCallback,
                            byte[] writtenData, IBleDataCallback receiveCallback, String description) {
-        this.device = device;
+        this.connector = connector;
         this.element = element;
         this.bleGattCmdType = bleGattCmdType;
         this.dataCallback = dataCallback;
@@ -41,7 +41,7 @@ class BleGattCommand{
         if(gattCommand == null)
             throw new IllegalArgumentException("BleGattCommand is null.");
 
-        this.device = gattCommand.device;
+        this.connector = gattCommand.connector;
         this.element = gattCommand.element;
         this.bleGattCmdType = gattCommand.bleGattCmdType;
         this.dataCallback = gattCommand.dataCallback;
@@ -50,8 +50,8 @@ class BleGattCommand{
         this.description = gattCommand.description;
     }
 
-    public BleConnector getDevice() {
-        return device;
+    public BleConnector getConnector() {
+        return connector;
     }
 
     /**
@@ -66,11 +66,11 @@ class BleGattCommand{
             dataCallback.onSuccess(null, null);
             return true;
         }
-        if(device == null || device.getBleGatt() == null || element == null) {
+        if(connector == null || connector.getBleGatt() == null || element == null) {
             throw new IllegalStateException("The gatt or element of the non-instant commands is null.");
         }
 
-        BleGatt bleGatt = device.getBleGatt();
+        BleGatt bleGatt = connector.getBleGatt();
         switch (bleGattCmdType) {
             case GATT_CMD_READ:
                 bleGatt.readData(element, dataCallback);
@@ -94,7 +94,7 @@ class BleGattCommand{
     }
 
     static class Builder {
-        private BleConnector device;
+        private BleConnector innerConnector;
         private BleGattElement element;
         private BleGattCmdType bleGattCmdType;
         private byte[] data;
@@ -104,8 +104,8 @@ class BleGattCommand{
         Builder() {
         }
 
-        Builder setDevice(BleConnector device) {
-            this.device = device;
+        Builder setInnerConnector(BleConnector innerConnector) {
+            this.innerConnector = innerConnector;
             return this;
         }
 
@@ -142,7 +142,7 @@ class BleGattCommand{
                 return new BleGattCommand(null, null, bleGattCmdType, dataCallback,
                         null, null, "<" + bleGattCmdType + ">");
             }
-            if(device == null || device.getBleGatt() == null || element == null) {
+            if(innerConnector == null || innerConnector.getBleGatt() == null || element == null) {
                 return null;
             }
             if (bleGattCmdType == BleGattCmdType.GATT_CMD_WRITE
@@ -167,7 +167,7 @@ class BleGattCommand{
             }
             description += ">";
 
-            return new BleGattCommand(device, element, bleGattCmdType, dataCallback, data, receiveCallback, description);
+            return new BleGattCommand(innerConnector, element, bleGattCmdType, dataCallback, data, receiveCallback, description);
         }
     }
 }

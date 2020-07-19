@@ -21,20 +21,20 @@ import java.util.concurrent.ThreadFactory;
  */
 
 class BleSerialGattCommandExecutor {
-    private final BleConnector device; // 设备
+    private final BleConnector connector; // 连接器
     private ExecutorService gattCmdService; // gatt命令执行Service
 
-    BleSerialGattCommandExecutor(BleConnector device) {
-        if(device == null) {
+    BleSerialGattCommandExecutor(BleConnector connector) {
+        if(connector == null) {
             throw new IllegalArgumentException("BleConnector is null");
         }
 
-        this.device = device;
+        this.connector = connector;
     }
 
     // 启动Gatt命令执行器
     final void start() {
-        if(device.getBleGatt() == null || isAlive()) {
+        if(connector.getBleGatt() == null || isAlive()) {
             return;
         }
 
@@ -65,7 +65,7 @@ class BleSerialGattCommandExecutor {
     // Gatt操作
     // 读
     final void read(BleGattElement element, IBleDataCallback dataCallback) {
-        BleSerialGattCommand command = BleSerialGattCommand.create(device, element, BleGattCmdType.GATT_CMD_READ,
+        BleSerialGattCommand command = BleSerialGattCommand.create(connector, element, BleGattCmdType.GATT_CMD_READ,
                 null, dataCallback, null);
         if(command != null)
             executeCommand(command);
@@ -73,7 +73,7 @@ class BleSerialGattCommandExecutor {
 
     // 写多字节
     final void write(BleGattElement element, byte[] data, IBleDataCallback dataCallback) {
-        BleSerialGattCommand command = BleSerialGattCommand.create(device, element, BleGattCmdType.GATT_CMD_WRITE,
+        BleSerialGattCommand command = BleSerialGattCommand.create(connector, element, BleGattCmdType.GATT_CMD_WRITE,
                 data, dataCallback, null);
         if(command != null)
             executeCommand(command);
@@ -91,7 +91,7 @@ class BleSerialGattCommandExecutor {
 
     private void notify(BleGattElement element, boolean enable
             , IBleDataCallback dataCallback, IBleDataCallback receiveCallback) {
-        BleSerialGattCommand command = BleSerialGattCommand.create(device, element, BleGattCmdType.GATT_CMD_NOTIFY,
+        BleSerialGattCommand command = BleSerialGattCommand.create(connector, element, BleGattCmdType.GATT_CMD_NOTIFY,
                 (enable) ? new byte[]{0x01} : new byte[]{0x00}, dataCallback, receiveCallback);
         if(command != null)
             executeCommand(command);
@@ -104,7 +104,7 @@ class BleSerialGattCommandExecutor {
 
     private void indicate(BleGattElement element, boolean enable
             , IBleDataCallback dataCallback, IBleDataCallback receiveCallback) {
-        BleSerialGattCommand command = BleSerialGattCommand.create(device, element, BleGattCmdType.GATT_CMD_INDICATE,
+        BleSerialGattCommand command = BleSerialGattCommand.create(connector, element, BleGattCmdType.GATT_CMD_INDICATE,
                 (enable) ? new byte[]{0x01} : new byte[]{0x00}, dataCallback, receiveCallback);
         if(command != null)
             executeCommand(command);
@@ -112,7 +112,7 @@ class BleSerialGattCommandExecutor {
 
     // 无需等待响应立刻执行完毕
     final void runInstantly(IBleDataCallback dataCallback) {
-        BleSerialGattCommand command = BleSerialGattCommand.create(device, null, BleGattCmdType.GATT_CMD_INSTANT_RUN,
+        BleSerialGattCommand command = BleSerialGattCommand.create(connector, null, BleGattCmdType.GATT_CMD_INSTANT_RUN,
                 null, dataCallback, null);
         if(command != null)
             executeCommand(command);

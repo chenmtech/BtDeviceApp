@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.eeg.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.eeg.view.EegFragment;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -32,7 +32,7 @@ public class EegFactory extends DeviceFactory {
     public static final DeviceType EEG_DEVICE_TYPE = new DeviceType(EEG_UUID, EEG_DEFAULT_ICON, EEG_DEFAULT_NAME, EEG_FACTORY);
 
 
-    private EegFactory(DeviceInfo info) {
+    private EegFactory(DeviceCommonInfo info) {
         super(info);
     }
 

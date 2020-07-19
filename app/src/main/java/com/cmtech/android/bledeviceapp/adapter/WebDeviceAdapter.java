@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.WebDeviceInfo;
+import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -87,8 +87,8 @@ public class WebDeviceAdapter extends RecyclerView.Adapter<WebDeviceAdapter.View
 
         holder.name.setText(device.getName());
         holder.address.setText(device.getAddress());
-        holder.status.setText(device.getState().getDescription());
-        holder.broadcastName.setText(((WebDeviceInfo)device.getInfo()).getBroadcastName());
+        holder.status.setText(device.getConnectState().getDescription());
+        holder.broadcastName.setText(((WebDeviceCommonInfo)device.getCommonInfo()).getBroadcastName());
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.cmtech.android.bledeviceapp.R;
 /**
   *
   * ClassName:      DeviceState
-  * Description:    connCallback state
+  * Description:    device connect state
   * Author:         chenm
   * CreateDate:     2018/4/21 下午4:47
   * UpdateUser:     chenm
@@ -15,7 +15,7 @@ import com.cmtech.android.bledeviceapp.R;
   * Version:        1.0
  */
 
-public class DeviceState {
+public class DeviceConnectState {
     private static final int CLOSED_CODE = 0x00; // closed
     private static final int CONNECT_CODE = 0x01; // connected
     private static final int FAILURE_CODE = 0x02;// connect failure
@@ -23,18 +23,18 @@ public class DeviceState {
     private static final int CONNECTING_CODE = 0x04; // connecting
     private static final int DISCONNECTING_CODE = 0x05; // disconnecting
 
-    public static final DeviceState CLOSED = new DeviceState(CLOSED_CODE, MyApplication.getStr(R.string.closed), R.mipmap.ic_disconnect_32px);
-    public static final DeviceState CONNECT = new DeviceState(CONNECT_CODE, MyApplication.getStr(R.string.connected), R.mipmap.ic_connected_32px);
-    public static final DeviceState FAILURE = new DeviceState(FAILURE_CODE, MyApplication.getStr(R.string.connect_failure), R.mipmap.ic_disconnect_32px);
-    public static final DeviceState DISCONNECT = new DeviceState(DISCONNECT_CODE, MyApplication.getStr(R.string.disconnected), R.mipmap.ic_disconnect_32px);
-    public static final DeviceState CONNECTING = new DeviceState(CONNECTING_CODE, MyApplication.getStr(R.string.connecting), R.drawable.connecting);
-    public static final DeviceState DISCONNECTING = new DeviceState(DISCONNECTING_CODE, MyApplication.getStr(R.string.disconnecting), R.drawable.connecting);
+    public static final DeviceConnectState CLOSED = new DeviceConnectState(CLOSED_CODE, MyApplication.getStr(R.string.closed), R.mipmap.ic_disconnect_32px);
+    public static final DeviceConnectState CONNECT = new DeviceConnectState(CONNECT_CODE, MyApplication.getStr(R.string.connected), R.mipmap.ic_connected_32px);
+    public static final DeviceConnectState FAILURE = new DeviceConnectState(FAILURE_CODE, MyApplication.getStr(R.string.connect_failure), R.mipmap.ic_disconnect_32px);
+    public static final DeviceConnectState DISCONNECT = new DeviceConnectState(DISCONNECT_CODE, MyApplication.getStr(R.string.disconnected), R.mipmap.ic_disconnect_32px);
+    public static final DeviceConnectState CONNECTING = new DeviceConnectState(CONNECTING_CODE, MyApplication.getStr(R.string.connecting), R.drawable.connecting);
+    public static final DeviceConnectState DISCONNECTING = new DeviceConnectState(DISCONNECTING_CODE, MyApplication.getStr(R.string.disconnecting), R.drawable.connecting);
 
     private final int code; // code
     private String description; // state description
     private int icon; // state icon
 
-    private DeviceState(int code, String description, int icon) {
+    private DeviceConnectState(int code, String description, int icon) {
         this.code = code;
         this.description = description;
         this.icon = icon;

@@ -35,35 +35,38 @@ public class BleScanner {
     private static volatile boolean bleInnerError = false; // 是否发生蓝牙内部错误，比如由于频繁扫描引起的错误
 
     // 开始扫描
-    public static void startScan(ScanFilter scanFilter, final IBleScanCallback bleCallback) {
-        if(bleCallback == null) {
-            throw new NullPointerException("The IBleCallback is null");
+    public static void startScan(ScanFilter scanFilter, final IBleScanCallback bleScanCallback) {
+        if(bleScanCallback == null) {
+            throw new NullPointerException("The IBleScanCallback is null");
         }
 
         ScanCallbackAdapter cbAdapter = null;
         synchronized (BleScanner.class) {
             if (BleScanner.isBleDisabled()) {
-                bleCallback.onScanFailed(CODE_BLE_CLOSED);
+                bleScanCallback.onScanFailed(CODE_BLE_CLOSED);
                 return;
             }
             if (bleInnerError) {
-                bleCallback.onScanFailed(CODE_BLE_INNER_ERROR);
+                bleScanCallback.onScanFailed(CODE_BLE_INNER_ERROR);
                 return;
             }
             for (ScanCallbackAdapter callback : callbacks) {
-                if (callback.callback == bleCallback) {
+                if (callback.callback == bleScanCallback) {
                     cbAdapter = callback;
                     break;
                 }
             }
             if (cbAdapter == null) {
-                cbAdapter = new ScanCallbackAdapter(bleCallback);
+                cbAdapter = new ScanCallbackAdapter(bleScanCallback);
                 callbacks.add(cbAdapter);
             } else {
-                bleCallback.onScanFailed(IBleScanCallback.CODE_ALREADY_STARTED);
+                bleScanCallback.onScanFailed(IBleScanCallback.CODE_ALREADY_STARTED);
                 return;
             }
         }
+
+        ViseLog.e("Scan started");
+
         BluetoothLeScanner scanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
         ScanSettings.Builder settingsBuilder = new ScanSettings.Builder()
                 .setScanMode(SCAN_MODE_LOW_POWER)
@@ -76,8 +79,8 @@ public class BleScanner {
     }
 
     // 停止扫描
-    public static void stopScan(IBleScanCallback bleCallback) {
-        if(bleCallback == null) {
+    public static void stopScan(IBleScanCallback bleScanCallback) {
+        if(bleScanCallback == null) {
             throw new NullPointerException("The IBleScanCallback is null.");
         }
 
@@ -87,7 +90,7 @@ public class BleScanner {
                 return;
             }
             for(ScanCallbackAdapter callback : callbacks) {
-                if(callback.callback == bleCallback) {
+                if(callback.callback == bleScanCallback) {
                     cbAdapter = callback;
                     break;
                 }

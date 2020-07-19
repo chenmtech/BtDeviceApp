@@ -2,7 +2,7 @@ package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.vise.log.ViseLog;
@@ -23,14 +23,14 @@ import java.lang.reflect.Constructor;
 
 
 public abstract class DeviceFactory {
-    protected final DeviceInfo info; // device info
+    protected final DeviceCommonInfo info; // device info
 
-    protected DeviceFactory(DeviceInfo info) {
+    protected DeviceFactory(DeviceCommonInfo info) {
         this.info = info;
     }
 
     // create device factory using device info
-    public static DeviceFactory getFactory(DeviceInfo info) {
+    public static DeviceFactory getFactory(DeviceCommonInfo info) {
         if(info == null) return null;
 
         DeviceType type = DeviceType.getFromUuid(info.getUuid());
@@ -47,7 +47,7 @@ public abstract class DeviceFactory {
 
         DeviceFactory factory;
         try {
-            Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(DeviceInfo.class);
+            Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(DeviceCommonInfo.class);
             constructor.setAccessible(true);
             factory = (DeviceFactory) constructor.newInstance(info);
         } catch (Exception e) {

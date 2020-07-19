@@ -17,7 +17,7 @@ public enum BleGattCmdType {
     GATT_CMD_WRITE(0x02),
     GATT_CMD_NOTIFY(0x04),
     GATT_CMD_INDICATE(0x08),
-    GATT_CMD_INSTANT_RUN(0x10); //即时执行命令属性，即不需要等待蓝牙响应，立即执行回调的命令
+    GATT_CMD_INSTANT_RUN(0x10); //即时执行命令类型，即不需要等待蓝牙响应，立即执行的命令
 
     private int code;
 

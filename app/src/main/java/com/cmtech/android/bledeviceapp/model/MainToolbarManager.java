@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.view.BitmapUtil;
 
-import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
+import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 import static java.lang.String.format;
 
 /**
@@ -75,7 +75,7 @@ public class MainToolbarManager {
     }
 
     public void setBattery(int battery) {
-        if(battery == INVALID_BATTERY) {
+        if(battery == INVALID_BATTERY_LEVEL) {
             tvBattery.setVisibility(View.GONE);
             return;
         }

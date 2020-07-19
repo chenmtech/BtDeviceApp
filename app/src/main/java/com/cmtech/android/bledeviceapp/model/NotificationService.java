@@ -98,17 +98,17 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     }
 
     @Override
-    public void onStateUpdated(final IDevice device) {
-        sendNotification(getDeviceSimpleName(device) + device.getState().getDescription());
+    public void onConnectStateUpdated(final IDevice device) {
+        sendNotification(getDeviceSimpleName(device) + device.getConnectState().getDescription());
     }
 
     @Override
-    public void onBatteryUpdated(IDevice device) {
+    public void onBatteryLevelUpdated(IDevice device) {
     }
 
     @Override
     public void onNotificationInfoUpdated(IDevice device) {
-        sendNotification(getDeviceSimpleName(device) + device.getNotifyInfo());
+        sendNotification(getDeviceSimpleName(device) + device.getNotificationInfo());
     }
 
     public class NotificationServiceBinder extends Binder {

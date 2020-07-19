@@ -5,7 +5,7 @@ import android.content.Context;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.vise.log.ViseLog;
 
@@ -46,7 +46,7 @@ public class SigGeneratorDevice extends AbstractDevice {
     private static final byte SIGGENERATOR_CTRL_START =             (byte) 0x01;        // 启动信号
 
     // 构造器
-    public SigGeneratorDevice(Context context, DeviceInfo registerInfo) {
+    public SigGeneratorDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
     }
 

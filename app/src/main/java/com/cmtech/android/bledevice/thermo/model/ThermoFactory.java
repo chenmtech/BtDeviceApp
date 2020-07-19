@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.thermo.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -19,7 +19,7 @@ public class ThermoFactory extends DeviceFactory {
 
     public static final DeviceType THERMO_DEVICE_TYPE = new DeviceType(THERMO_UUID, THERMO_DEFAULT_ICON, THERMO_DEFAULT_NAME, THERMO_FACTORY);
 
-    private ThermoFactory(DeviceInfo info) {
+    private ThermoFactory(DeviceCommonInfo info) {
         super(info);
     }
 

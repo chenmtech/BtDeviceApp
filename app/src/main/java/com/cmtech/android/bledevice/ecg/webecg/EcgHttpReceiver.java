@@ -4,8 +4,8 @@ package com.cmtech.android.bledevice.ecg.webecg;
 import android.content.Context;
 import android.util.Log;
 
-import com.cmtech.android.ble.core.DeviceInfo;
-import com.cmtech.android.ble.core.WebDeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
+import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
@@ -133,7 +133,7 @@ public class EcgHttpReceiver {
                 int caliValue = Integer.parseInt(settingObj.getString("cali_Value"));
                 int leadTypeCode = Integer.parseInt(settingObj.getString("lead_Type"));
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
-                DeviceInfo info = new WebDeviceInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), creatorId);
+                DeviceCommonInfo info = new WebDeviceCommonInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), creatorId);
                 ViseLog.e(info + " sr=" + sampleRate + " cali=" + caliValue + " lead=" + leadType);
                 WebEcgDevice device = (WebEcgDevice) DeviceManager.createNewDevice(context, info);
                 if (device != null) {

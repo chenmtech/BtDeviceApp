@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.ecg.webecg;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
@@ -18,7 +18,7 @@ public class WebEcgFactory extends DeviceFactory {
 
     public static final DeviceType ECGWEBMONITOR_DEVICE_TYPE = new DeviceType(UUID, DEFAULT_IMAGE_ID, DEFAULT_NAME, FACTORY);
 
-    private WebEcgFactory(DeviceInfo registerInfo) {
+    private WebEcgFactory(DeviceCommonInfo registerInfo) {
         super(registerInfo);
     }
 

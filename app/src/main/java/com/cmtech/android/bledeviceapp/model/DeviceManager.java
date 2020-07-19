@@ -4,9 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.WebDeviceInfo;
+import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
 import com.cmtech.android.bledeviceapp.util.UserUtil;
@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.cmtech.android.ble.core.DeviceState.CLOSED;
+import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
 
 /**
  *
@@ -35,7 +35,7 @@ public class DeviceManager {
     private static final List<IDevice> DEVICE_LIST = new ArrayList<IDevice>(); // 所有已注册设备列表
 
     // create a new device
-    public static IDevice createNewDevice(Context context, DeviceInfo info) {
+    public static IDevice createNewDevice(Context context, DeviceCommonInfo info) {
         IDevice device = findDevice(info);
         if(device != null) {
             ViseLog.e("The device has existed.");
@@ -56,7 +56,7 @@ public class DeviceManager {
     }
 
     // find a device using info
-    public static IDevice findDevice(DeviceInfo info) {
+    public static IDevice findDevice(DeviceCommonInfo info) {
         return (info == null) ? null : findDevice(info.getAddress());
     }
 
@@ -71,7 +71,7 @@ public class DeviceManager {
         return null;
     }
 
-    private static IDevice createDevice(Context context, DeviceInfo info) {
+    private static IDevice createDevice(Context context, DeviceCommonInfo info) {
         DeviceFactory factory = DeviceFactory.getFactory(info); // 获取相应的工厂
         return (factory == null) ? null : factory.createDevice(context);
     }
@@ -114,7 +114,7 @@ public class DeviceManager {
         List<IDevice> devices = new ArrayList<>();
 
         for(IDevice device : DEVICE_LIST) {
-            if(device.getState() != CLOSED) {
+            if(device.getConnectState() != CLOSED) {
                 devices.add(device);
             }
         }
@@ -135,7 +135,7 @@ public class DeviceManager {
 
     public static void clear() {
         for(IDevice device : DEVICE_LIST) {
-            if(device.getState() != CLOSED)
+            if(device.getConnectState() != CLOSED)
                 device.close();
         }
     }
@@ -143,7 +143,7 @@ public class DeviceManager {
     // 是否有打开的设备
     public static boolean hasDeviceOpen() {
         for(IDevice device : DEVICE_LIST) {
-            if(device.getState() != CLOSED) {
+            if(device.getConnectState() != CLOSED) {
                 return true;
             }
         }
@@ -155,7 +155,7 @@ public class DeviceManager {
         final List<IDevice> currentWebDevices = getWebDeviceList();
 
         for(IDevice device : currentWebDevices) {
-            if(device.getState() == CLOSED) {
+            if(device.getConnectState() == CLOSED) {
                 DEVICE_LIST.remove(device);
             }
         }
@@ -172,7 +172,7 @@ public class DeviceManager {
 
                 final int[] update = new int[]{deviceList.size()};
                 for(WebEcgDevice device : deviceList) {
-                    final WebDeviceInfo registerInfo = (WebDeviceInfo)device.getInfo();
+                    final WebDeviceCommonInfo registerInfo = (WebDeviceCommonInfo)device.getCommonInfo();
                     UserUtil.getUserInfo(registerInfo.getBroadcastId(), new UserUtil.IGetUserInfoCallback() {
                         @Override
                         public void onReceived(String userId, final String name, String description, Bitmap image) {

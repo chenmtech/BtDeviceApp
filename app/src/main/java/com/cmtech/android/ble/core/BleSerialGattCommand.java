@@ -50,7 +50,7 @@ class BleSerialGattCommand extends BleGattCommand {
         if(device.getBleGatt() == null) return null;
 
         Builder builder = new Builder();
-        BleGattCommand command = builder.setDevice(device)
+        BleGattCommand command = builder.setInnerConnector(device)
                 .setBluetoothElement(element)
                 .setBleGattCmdType(bleGattCmdType)
                 .setData(data)
@@ -92,8 +92,8 @@ class BleSerialGattCommand extends BleGattCommand {
             bleCallback.onFailure(exception);
 
         // 命令执行错误，请求断开连接
-        if(getDevice() != null) {
-            getDevice().disconnect(false);
+        if(getConnector() != null) {
+            getConnector().disconnect(false);
         }
     }
 }

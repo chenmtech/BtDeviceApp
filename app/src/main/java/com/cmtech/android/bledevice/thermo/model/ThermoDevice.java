@@ -7,7 +7,7 @@ import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
@@ -64,7 +64,7 @@ public class ThermoDevice extends AbstractDevice {
     private BleThermoRecord10 record;
     private boolean isRecord = false;
 
-    public ThermoDevice(Context context, DeviceInfo registerInfo) {
+    public ThermoDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
     }
 
@@ -190,7 +190,7 @@ public class ThermoDevice extends AbstractDevice {
                     if(isRecord && record != null) {
                         record.setHighestTemp(highestTemp);
                     }
-                    setNotifyInfo(MyApplication.getStr(R.string.temperature_of_body) + highestTemp + MyApplication.getStr(R.string.temperature));
+                    setNotificationInfo(MyApplication.getStr(R.string.temperature_of_body) + highestTemp + MyApplication.getStr(R.string.temperature));
                 }
             }
 

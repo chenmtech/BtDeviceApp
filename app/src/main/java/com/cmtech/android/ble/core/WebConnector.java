@@ -1,7 +1,7 @@
 package com.cmtech.android.ble.core;
 
-import static com.cmtech.android.ble.core.DeviceState.CONNECT;
-import static com.cmtech.android.ble.core.DeviceState.DISCONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.CONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.DISCONNECT;
 
 public class WebConnector extends AbstractConnector {
     public WebConnector(String address, IConnectorCallback connectorCallback) {
@@ -12,7 +12,7 @@ public class WebConnector extends AbstractConnector {
     public void connect() {
         super.connect();
 
-        if (!connCallback.onConnectSuccess()) {
+        if (!connectorCallback.onConnectSuccess()) {
             disconnect(true);
         } else {
             setState(CONNECT);
@@ -22,7 +22,7 @@ public class WebConnector extends AbstractConnector {
     @Override
     public void disconnect(boolean forever) {
         super.disconnect(forever);
-        connCallback.onDisconnect();
+        connectorCallback.onDisconnect();
         setState(DISCONNECT);
     }
 

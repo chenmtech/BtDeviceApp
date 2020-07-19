@@ -9,8 +9,8 @@ import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceInfo;
-import com.cmtech.android.ble.core.DeviceState;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
+import com.cmtech.android.ble.core.DeviceConnectState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
@@ -134,7 +134,7 @@ public class HrmDevice extends AbstractDevice {
     private Timer ttsTimer = new Timer();
     private volatile boolean waitSpeak = false; // is waiting for warn-speaking
 
-    public HrmDevice(Context context, DeviceInfo registerInfo) {
+    public HrmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
         HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
         if (config == null) {
@@ -422,7 +422,7 @@ public class HrmDevice extends AbstractDevice {
         boolean isSpeakChanged = (this.config.isSpeak() != config.isSpeak() || this.config.getSpeakPeriod() != config.getSpeakPeriod());
         this.config.copyFrom(config);
         this.config.save();
-        if(isSpeakChanged && getState() == DeviceState.CONNECT) {
+        if(isSpeakChanged && getConnectState() == DeviceConnectState.CONNECT) {
             if(this.config.isSpeak())
                 startSpeak(this.config.getSpeakPeriod());
             else {
@@ -498,7 +498,7 @@ public class HrmDevice extends AbstractDevice {
                             ViseLog.e(currentHr);
                         }
 
-                        setNotifyInfo(currentHr);
+                        setNotificationInfo(currentHr);
                         if (!MyApplication.isRunInBackground()) {
                             if (listener != null) {
                                 listener.onHRUpdated(heartRateData);
@@ -533,7 +533,7 @@ public class HrmDevice extends AbstractDevice {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    setBattery(data[0]);
+                    setBatteryLevel(data[0]);
                 }
 
                 @Override
@@ -551,7 +551,7 @@ public class HrmDevice extends AbstractDevice {
         ((BleConnector)connector).read(BATTLEVEL, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                setBattery(data[0]);
+                setBatteryLevel(data[0]);
             }
 
             @Override

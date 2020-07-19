@@ -7,7 +7,7 @@ import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleEegRecord10;
@@ -83,7 +83,7 @@ public class EegDevice extends AbstractDevice {
     private BleEegRecord10 eegRecord;
     private boolean isEegRecord = false; // is recording eeg
 
-    public EegDevice(Context context, DeviceInfo registerInfo) {
+    public EegDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
     }
 
@@ -270,7 +270,7 @@ public class EegDevice extends AbstractDevice {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    setBattery(data[0]);
+                    setBatteryLevel(data[0]);
                 }
 
                 @Override
@@ -286,7 +286,7 @@ public class EegDevice extends AbstractDevice {
         ((BleConnector)connector).read(BATTLEVEL, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                setBattery(data[0]);
+                setBatteryLevel(data[0]);
             }
 
             @Override

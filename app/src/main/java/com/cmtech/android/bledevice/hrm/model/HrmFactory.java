@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.hrm.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.hrm.view.HrmFragment;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -32,7 +32,7 @@ public class HrmFactory extends DeviceFactory {
     public static final DeviceType HRM_DEVICE_TYPE = new DeviceType(HRM_UUID, HRM_DEFAULT_ICON, HRM_DEFAULT_NAME, HRM_FACTORY);
 
 
-    private HrmFactory(DeviceInfo info) {
+    private HrmFactory(DeviceCommonInfo info) {
         super(info);
     }
 

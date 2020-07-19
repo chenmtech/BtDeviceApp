@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.sgg.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.sgg.view.SigGeneratorFragment;
 import com.cmtech.android.bledeviceapp.R;
@@ -18,7 +18,7 @@ public class SigGeneratorFactory extends DeviceFactory {
 
     public static final DeviceType SGG_DEVICE_TYPE = new DeviceType(SGG_UUID, SGG_DEFAULT_ICON, SGG_DEFAULT_NAME, SGG_FACTORY);
 
-    private SigGeneratorFactory(DeviceInfo info) {
+    private SigGeneratorFactory(DeviceCommonInfo info) {
         super(info);
     }
 

@@ -7,7 +7,7 @@ import android.os.Looper;
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.OtherException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static com.cmtech.android.ble.core.DeviceState.CONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.CONNECT;
 import static com.cmtech.android.bledevice.ecg.EcgConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.view.ScanEcgView.PIXEL_PER_GRID;
@@ -99,7 +99,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
 
     // 构造器
-    public EcgDevice(Context context, DeviceInfo registerInfo) {
+    public EcgDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
         dataProcessor = new EcgDataProcessor(this);
     }
@@ -282,7 +282,7 @@ public class EcgDevice extends AbstractEcgDevice {
             stopBatteryMeasure();
             containBatteryService = false;
         }
-        if (super.getState() == CONNECT && ((BleConnector) connector).isGattExecutorAlive()) {
+        if (super.getConnectState() == CONNECT && ((BleConnector) connector).isGattExecutorAlive()) {
             ((BleConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
             stopSampling();
         }
@@ -446,7 +446,7 @@ public class EcgDevice extends AbstractEcgDevice {
                     ((BleConnector) connector).read(BATTERY_DATA, new IBleDataCallback() {
                         @Override
                         public void onSuccess(byte[] data, BleGattElement element) {
-                            setBattery(data[0]);
+                            setBatteryLevel(data[0]);
                         }
 
                         @Override
