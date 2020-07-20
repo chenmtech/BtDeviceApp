@@ -16,6 +16,9 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.SplashActivity;
 import com.vise.log.ViseLog;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 /**
  * ClassName:      NotificationService
@@ -35,7 +38,9 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     private String notifyTitle; // 通知栏标题
     private NotificationCompat.Builder notifyBuilder;
 
-    @Override
+    private Timer autoNotifyTimer = new Timer();
+
+   @Override
     public void onCreate() {
         super.onCreate();
         ViseLog.e("notifyservice onCreate");
@@ -63,8 +68,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
         notifyBuilder.setSmallIcon(R.mipmap.ic_kang); //设置状态栏的通知图标
         notifyBuilder.setAutoCancel(false); //禁止用户点击删除按钮删除
         notifyBuilder.setOngoing(true); //禁止滑动删除
-        notifyBuilder.setShowWhen(true); //右上角的时间显示
-        notifyBuilder.setWhen(System.currentTimeMillis());
+        notifyBuilder.setShowWhen(false);
         notifyBuilder.setContentTitle(notifyTitle); //设置通知栏的标题与内容
 
         Intent intent = new Intent(this, SplashActivity.class);
@@ -81,10 +85,19 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
 
     private void sendNotification(String notifyContent) {
         ViseLog.e("receive a notification.");
+        autoNotifyTimer.cancel();
+
         notifyBuilder.setContentText(notifyContent);
-        notifyBuilder.setWhen(System.currentTimeMillis());
         Notification notification = notifyBuilder.build();
         startForeground(NOTIFY_ID, notification);
+
+        autoNotifyTimer = new Timer();
+        autoNotifyTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                sendNotification("");
+            }
+        }, 5000);
     }
 
     @Override

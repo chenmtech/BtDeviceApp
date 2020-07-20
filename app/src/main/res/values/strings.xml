@@ -96,7 +96,7 @@
     <string name="closed">已关闭</string>
     <string name="connected">已连接</string>
     <string name="connect_failure">连接失败</string>
-    <string name="disconnected">等待操作</string>
+    <string name="disconnected">等待命令</string>
     <string name="connecting">连接中</string>
     <string name="disconnecting">断开中</string>
     <string name="ecg_switch_on">心电模式</string>
