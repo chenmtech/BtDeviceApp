@@ -624,6 +624,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private void updateNavigationHeader() {
         User account = AccountManager.getAccount();
         if(account == null) {
+            Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();
         } else {
             String name = account.getName();

@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
@@ -30,45 +29,53 @@ import okhttp3.Response;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class UserWebAsyncTask extends AsyncTask<User, Void, Void> {
-    public static final int USER_CMD_UPLOAD = 1; // upload user command
-    public static final int USER_CMD_DOWNLOAD = 2; // download user command
+public class UserInfoWebAsyncTask extends AsyncTask<User, Void, Void> {
+    public static final int UPLOAD_CMD = 1; // upload user info command
+    public static final int DOWNLOAD_CMD = 2; // download user info command
 
     public static final int CODE_SUCCESS = 0; // success
+    public static final int CODE_FAILURE = 1; // failure
 
-    public interface UserWebCallback {
+    public static final int WAIT_TASK_SECOND = 10;
+
+    public interface UserInfoWebCallback {
         void onFinish(int code, Object result);
     }
 
-    private ProgressDialog progressDialog;
+    private final ProgressDialog progressDialog;
     private final int cmd;
-    private final boolean isShowProgress;
-    private final UserWebCallback callback;
+    private final UserInfoWebCallback callback;
 
-    private int code = 1;
+    private int code = CODE_FAILURE;
     private Object rlt = null;
-    private boolean finish = false;
+    private boolean taskFinish = false;
 
-    public UserWebAsyncTask(Context context, int cmd, UserWebCallback callback) {
+    public UserInfoWebAsyncTask(Context context, int cmd, UserInfoWebCallback callback) {
         this(context, cmd, true, callback);
     }
 
-    public UserWebAsyncTask(Context context, int cmd, boolean isShowProgress, UserWebCallback callback) {
+    public UserInfoWebAsyncTask(int cmd, UserInfoWebCallback callback) {
+        this(null, cmd, false, callback);
+    }
+
+    private UserInfoWebAsyncTask(Context context, int cmd, boolean isShowProgress, UserInfoWebCallback callback) {
         this.cmd = cmd;
 
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
-        progressDialog.setIndeterminate(false);
-        progressDialog.setCancelable(false);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-
-        this.isShowProgress = isShowProgress;
+        if(isShowProgress) {
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        } else {
+            progressDialog = null;
+        }
         this.callback = callback;
     }
 
     @Override
     protected void onPreExecute() {
-        if(isShowProgress)
+        if(progressDialog != null)
             progressDialog.show();
     }
 
@@ -80,13 +87,13 @@ public class UserWebAsyncTask extends AsyncTask<User, Void, Void> {
 
         switch (cmd) {
             // UPLOAD
-            case USER_CMD_UPLOAD:
-                KMWebService.uploadUser(user, new Callback() {
+            case UPLOAD_CMD:
+                KMWebService.uploadUserInfo(user, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        code = 1;
+                        code = CODE_FAILURE;
                         rlt = null;
-                        finish = true;
+                        taskFinish = true;
                     }
 
                     @Override
@@ -97,23 +104,23 @@ public class UserWebAsyncTask extends AsyncTask<User, Void, Void> {
                             code = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            code = 1;
+                            code = CODE_FAILURE;
                             rlt = null;
                         } finally {
-                            finish = true;
+                            taskFinish = true;
                         }
                     }
                 });
                 break;
 
             // DOWNLOAD
-            case USER_CMD_DOWNLOAD:
-                KMWebService.downloadUser(user, new Callback() {
+            case DOWNLOAD_CMD:
+                KMWebService.downloadUserInfo(user, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        code = 1;
+                        code = CODE_FAILURE;
                         rlt = null;
-                        finish = true;
+                        taskFinish = true;
                     }
 
                     @Override
@@ -126,24 +133,24 @@ public class UserWebAsyncTask extends AsyncTask<User, Void, Void> {
                             rlt = json.get("user");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            code = 1;
+                            code = CODE_FAILURE;
                             rlt = null;
                         } finally {
-                            finish = true;
+                            taskFinish = true;
                         }
                     }
                 });
                 break;
 
             default:
-                code = 1;
+                code = CODE_FAILURE;
                 rlt = null;
-                finish = true;
+                taskFinish = true;
                 break;
         }
 
         int i = 0;
-        while (!finish && i++ < 10) {
+        while (!taskFinish && i++ < WAIT_TASK_SECOND) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -158,6 +165,8 @@ public class UserWebAsyncTask extends AsyncTask<User, Void, Void> {
     @Override
     protected void onPostExecute(Void result) {
         callback.onFinish(code, rlt);
-        progressDialog.dismiss();
+
+        if(progressDialog != null)
+            progressDialog.dismiss();
     }
 }

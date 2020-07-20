@@ -51,7 +51,7 @@ public class KMWebService {
         HttpUtils.requestGet(KMURL + "Account?", data, callback);
     }
 
-    public static void uploadUser(User user, Callback callback) {
+    public static void uploadUserInfo(User user, Callback callback) {
         try {
             JSONObject json = user.toJson();
             json.put("cmd", "upload");
@@ -62,7 +62,7 @@ public class KMWebService {
         }
     }
 
-    public static void downloadUser(User user, Callback callback) {
+    public static void downloadUserInfo(User user, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "download");

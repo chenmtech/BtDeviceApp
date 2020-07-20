@@ -23,11 +23,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.UserWebAsyncTask;
+import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.UserInfoWebAsyncTask;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -39,7 +38,7 @@ import java.io.IOException;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.model.UserWebAsyncTask.USER_CMD_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.model.UserInfoWebAsyncTask.DOWNLOAD_CMD;
 
 /**
  *  AccountActivity: 账户设置Activity
@@ -50,7 +49,7 @@ public class AccountActivity extends AppCompatActivity {
     private EditText etName;
     private ImageView ivImage;
     private EditText etNote;
-    private String cacheImagePath = ""; // 头像文件路径缓存
+    private String cacheImagePath = ""; // 账户头像文件路径缓存
 
     private final User account = AccountManager.getAccount();
 
@@ -68,7 +67,11 @@ public class AccountActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_set_account_info);
         setSupportActionBar(toolbar);
 
-        initUI();
+        etName = findViewById(R.id.et_account_name);
+        ivImage = findViewById(R.id.iv_account_image);
+        etNote = findViewById(R.id.et_account_note);
+
+        updateUI();
 
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,14 +87,15 @@ public class AccountActivity extends AppCompatActivity {
                 User account = AccountManager.getAccount();
                 account.setName(etName.getText().toString());
 
-                if(!cacheImagePath.equals(account.getIcon())) {
+                String iconPath = account.getIcon();
+                if(!cacheImagePath.equals(iconPath)) {
                     // 把原来的图像文件删除
-                    if(!TextUtils.isEmpty(account.getIcon())) {
-                        File imageFile = new File(account.getIcon());
+                    if(!TextUtils.isEmpty(iconPath)) {
+                        File imageFile = new File(iconPath);
                         imageFile.delete();
                     }
 
-                    // 把当前图像保存到DIR_IMAGE，以ID号为文件名
+                    // 把当前图像保存到DIR_IMAGE
                     if(TextUtils.isEmpty(cacheImagePath)) {
                         account.setIcon("");
                     } else {
@@ -114,10 +118,10 @@ public class AccountActivity extends AppCompatActivity {
                 account.setNote(etNote.getText().toString());
                 account.save();
 
-                new UserWebAsyncTask(AccountActivity.this, UserWebAsyncTask.USER_CMD_UPLOAD, new UserWebAsyncTask.UserWebCallback() {
+                new UserInfoWebAsyncTask(AccountActivity.this, UserInfoWebAsyncTask.UPLOAD_CMD, new UserInfoWebAsyncTask.UserInfoWebCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
-                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.web_failure;
+                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
                         Toast.makeText(AccountActivity.this, strId, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
                         setResult(RESULT_OK, intent);
@@ -138,19 +142,16 @@ public class AccountActivity extends AppCompatActivity {
         });
     }
 
-    private void initUI() {
-        etName = findViewById(R.id.et_account_name);
+    private void updateUI() {
         etName.setText(account.getName());
 
-        ivImage = findViewById(R.id.iv_account_image);
         cacheImagePath = account.getIcon();
         if(TextUtils.isEmpty(cacheImagePath)) {
             Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
         } else {
-            Glide.with(MyApplication.getContext()).load(cacheImagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
+            Glide.with(this).load(cacheImagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
         }
 
-        etNote = findViewById(R.id.et_account_note);
         etNote.setText(account.getNote());
     }
 
@@ -165,7 +166,7 @@ public class AccountActivity extends AppCompatActivity {
                         cacheImagePath = handleImageBeforeKitKat(data);
                     }
                     if(!TextUtils.isEmpty(cacheImagePath)) {
-                        Glide.with(MyApplication.getContext()).load(cacheImagePath).centerCrop().into(ivImage);
+                        Glide.with(AccountActivity.this).load(cacheImagePath).centerCrop().into(ivImage);
                     }
                 }
                 break;
@@ -197,7 +198,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void download() {
-        new UserWebAsyncTask(AccountActivity.this, USER_CMD_DOWNLOAD, new UserWebAsyncTask.UserWebCallback() {
+        new UserInfoWebAsyncTask(AccountActivity.this, DOWNLOAD_CMD, new UserInfoWebAsyncTask.UserInfoWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if (code == CODE_SUCCESS) {
@@ -205,14 +206,14 @@ public class AccountActivity extends AppCompatActivity {
 
                     try {
                         if(account.setDataFromJson(json)) {
-                            initUI();
+                            updateUI();
                             return;
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
-                Toast.makeText(AccountActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                Toast.makeText(AccountActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
             }
         }).execute(account);
     }
