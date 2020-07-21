@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.IDevice;
@@ -39,7 +38,6 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     private NotificationCompat.Builder notifyBuilder;
 
     private Timer autoNotifyTimer = new Timer();
-    private PowerManager.WakeLock wakeLock = null;
 
    @Override
     public void onCreate() {
@@ -59,14 +57,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ViseLog.e("notifyservice onStartCommand");
-        //DeviceManager.addCommonListenerForAllDevices(this);
         sendNotification("");
-
-        if(wakeLock == null) {
-            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NotificationService::lock");
-            wakeLock.acquire();
-        }
         return START_STICKY;
     }
 
@@ -111,14 +102,6 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     public void onDestroy() {
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
-
-        //DeviceManager.removeCommonListenerForAllDevices(this);
-
-        if(wakeLock != null) {
-            wakeLock.release();
-            wakeLock = null;
-        }
-
         stopForeground(true);
         stopSelf();
     }

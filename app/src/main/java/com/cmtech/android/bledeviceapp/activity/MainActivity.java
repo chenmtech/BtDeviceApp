@@ -442,7 +442,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         super.onDestroy();
         //DeviceManager.removeCommonListenerForAllDevices(this);
 
-        //unbindService(serviceConnection);
         Intent stopIntent = new Intent(MainActivity.this, NotificationService.class);
         stopService(stopIntent);
 
