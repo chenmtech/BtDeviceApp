@@ -43,11 +43,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        if(true) {
+        /*if(true) {
             //loginUsingPhone(this);
             login(PHONE_PLAT_NAME, "8615019187404", "", "");
             return;
-        }
+        }*/
 
         User phoneAccount = PhoneAccount.getAccount();
         if(phoneAccount != null) {
