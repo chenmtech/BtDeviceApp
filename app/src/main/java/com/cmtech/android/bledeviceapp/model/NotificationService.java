@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.IDevice;
@@ -17,7 +18,6 @@ import com.cmtech.android.bledeviceapp.activity.SplashActivity;
 import com.vise.log.ViseLog;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -39,6 +39,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     private NotificationCompat.Builder notifyBuilder;
 
     private Timer autoNotifyTimer = new Timer();
+    private PowerManager.WakeLock wakeLock = null;
 
    @Override
     public void onCreate() {
@@ -58,8 +59,14 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ViseLog.e("notifyservice onStartCommand");
-        DeviceManager.addCommonListenerForAllDevices(this);
+        //DeviceManager.addCommonListenerForAllDevices(this);
         sendNotification("");
+
+        if(wakeLock == null) {
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NotificationService::lock");
+            wakeLock.acquire();
+        }
         return START_STICKY;
     }
 
@@ -85,19 +92,19 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
 
     private void sendNotification(String notifyContent) {
         ViseLog.e("receive a notification.");
-        autoNotifyTimer.cancel();
+        //autoNotifyTimer.cancel();
 
         notifyBuilder.setContentText(notifyContent);
         Notification notification = notifyBuilder.build();
         startForeground(NOTIFY_ID, notification);
 
-        autoNotifyTimer = new Timer();
+        /*autoNotifyTimer = new Timer();
         autoNotifyTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 sendNotification("");
             }
-        }, 5000);
+        }, 5000);*/
     }
 
     @Override
@@ -105,9 +112,15 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
 
-        DeviceManager.removeCommonListenerForAllDevices(this);
+        //DeviceManager.removeCommonListenerForAllDevices(this);
+
+        if(wakeLock != null) {
+            wakeLock.release();
+            wakeLock = null;
+        }
 
         stopForeground(true);
+        stopSelf();
     }
 
     @Override

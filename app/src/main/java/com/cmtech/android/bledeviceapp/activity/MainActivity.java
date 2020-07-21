@@ -118,9 +118,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         }
     };
 
-    public NotificationService getNotificationService() {
+    /*public NotificationService getNotificationService() {
         return notificationService;
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +145,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         } else {
             startService(serviceIntent);
         }
-        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
+        //bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
+
+        initializeUI();
 
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -340,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                         if(device != null) {
                             if(info.save()) {
                                 updateDeviceList();
-                                device.addCommonListener(notificationService);
+                                //device.addCommonListener(notificationService);
                             } else {
                                 Toast.makeText(MainActivity.this, R.string.add_device_failure, Toast.LENGTH_SHORT).show();
                                 DeviceManager.deleteDevice(device);
@@ -440,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         super.onDestroy();
         //DeviceManager.removeCommonListenerForAllDevices(this);
 
-        unbindService(serviceConnection);
+        //unbindService(serviceConnection);
         Intent stopIntent = new Intent(MainActivity.this, NotificationService.class);
         stopService(stopIntent);
 

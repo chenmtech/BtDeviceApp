@@ -79,7 +79,7 @@ public class WebDevicesFragment extends Fragment {
 
     private void updateWebDeviceList() {
         DeviceManager.updateWebDevices(getContext());
-        DeviceManager.addCommonListenerForAllDevices(((MainActivity)getActivity()).getNotificationService());
+        //DeviceManager.addCommonListenerForAllDevices(((MainActivity)getActivity()).getNotificationService());
         handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
     }
 
