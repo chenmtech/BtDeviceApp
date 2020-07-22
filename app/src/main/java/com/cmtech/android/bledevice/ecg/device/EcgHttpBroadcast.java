@@ -3,7 +3,7 @@ package com.cmtech.android.bledevice.ecg.device;
 
 import android.util.Log;
 
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
@@ -61,7 +61,7 @@ public class EcgHttpBroadcast {
     private final List<Receiver> receivers; // 接收者列表
     private OnEcgHttpBroadcastListener listener; // 广播监听器
 
-    public static class Receiver extends User {
+    public static class Receiver extends Account {
         private boolean isReceiving;
 
         Receiver() {

@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,7 +29,7 @@ public class BleTempHumidRecord10 extends BasicRecord {
         super(TH);
     }
 
-    private BleTempHumidRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleTempHumidRecord10(long createTime, String devAddress, Account creator, String note) {
         super(TH, "1.0", createTime, devAddress, creator, note, true);
         temperature = 0.0f;
         humid = 0.0f;

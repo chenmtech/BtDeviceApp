@@ -1,12 +1,11 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public class BleThermoRecord10 extends BasicRecord {
         initData();
     }
 
-    private BleThermoRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleThermoRecord10(long createTime, String devAddress, Account creator, String note) {
         super(THERMO, "1.0", createTime, devAddress, creator, note, true);
         initData();
     }

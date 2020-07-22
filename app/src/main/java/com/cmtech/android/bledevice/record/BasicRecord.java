@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,7 +10,6 @@ import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 import static com.cmtech.android.bledevice.record.RecordType.ALL;
-import static com.cmtech.android.bledevice.record.RecordType.ECG;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -49,11 +48,11 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.type = type;
     }
 
-    BasicRecord(long createTime, String devAddress, User creator, String note) {
+    BasicRecord(long createTime, String devAddress, Account creator, String note) {
         this(ALL, "1.0", createTime, devAddress, creator, note, true);
     }
 
-    BasicRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note, boolean needUpload) {
+    BasicRecord(RecordType type, String ver, long createTime, String devAddress, Account creator, String note, boolean needUpload) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -126,14 +125,14 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         return creatorId;
     }
 
-    public void setCreator(User creator) {
+    public void setCreator(Account creator) {
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
     }
 
     @Override
     public String getCreatorName() {
-        User account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(User.class);
+        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
         if(account == null)
             return creatorId;
         else {

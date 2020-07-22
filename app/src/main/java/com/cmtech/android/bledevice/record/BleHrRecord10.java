@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
@@ -55,7 +55,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
         recordSecond = 0;
     }
 
-    private BleHrRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleHrRecord10(long createTime, String devAddress, Account creator, String note) {
         super(HR, "1.0", createTime, devAddress, creator, note, true);
         hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         initData();

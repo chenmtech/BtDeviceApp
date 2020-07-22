@@ -24,9 +24,9 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.User;
-import com.cmtech.android.bledeviceapp.model.UserInfoWebAsyncTask;
+import com.cmtech.android.bledeviceapp.model.AccountInfoWebAsyncTask;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -38,7 +38,7 @@ import java.io.IOException;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.model.UserInfoWebAsyncTask.DOWNLOAD_CMD;
+import static com.cmtech.android.bledeviceapp.model.AccountInfoWebAsyncTask.DOWNLOAD_CMD;
 
 /**
  *  AccountActivity: 账户设置Activity
@@ -51,7 +51,7 @@ public class AccountActivity extends AppCompatActivity {
     private EditText etNote;
     private String cacheImagePath = ""; // 账户头像文件路径缓存
 
-    private final User account = AccountManager.getAccount();
+    private final Account account = AccountManager.getAccount();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +84,7 @@ public class AccountActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User account = AccountManager.getAccount();
+                Account account = AccountManager.getAccount();
                 account.setName(etName.getText().toString());
 
                 String iconPath = account.getIcon();
@@ -118,7 +118,7 @@ public class AccountActivity extends AppCompatActivity {
                 account.setNote(etNote.getText().toString());
                 account.save();
 
-                new UserInfoWebAsyncTask(AccountActivity.this, UserInfoWebAsyncTask.UPLOAD_CMD, new UserInfoWebAsyncTask.UserInfoWebCallback() {
+                new AccountInfoWebAsyncTask(AccountActivity.this, AccountInfoWebAsyncTask.UPLOAD_CMD, new AccountInfoWebAsyncTask.AccountInfoWebCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
                         int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
@@ -198,7 +198,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void download() {
-        new UserInfoWebAsyncTask(AccountActivity.this, DOWNLOAD_CMD, new UserInfoWebAsyncTask.UserInfoWebCallback() {
+        new AccountInfoWebAsyncTask(AccountActivity.this, DOWNLOAD_CMD, new AccountInfoWebAsyncTask.AccountInfoWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if (code == CODE_SUCCESS) {

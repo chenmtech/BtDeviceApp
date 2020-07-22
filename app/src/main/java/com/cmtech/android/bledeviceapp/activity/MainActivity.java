@@ -45,6 +45,7 @@ import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
@@ -53,7 +54,6 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotificationService;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.FastClickUtil;
 import com.vise.log.ViseLog;
@@ -623,7 +623,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     private void updateNavigationHeader() {
-        User account = AccountManager.getAccount();
+        Account account = AccountManager.getAccount();
         if(account == null) {
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();

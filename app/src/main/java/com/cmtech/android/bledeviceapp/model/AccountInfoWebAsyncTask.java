@@ -29,7 +29,7 @@ import okhttp3.Response;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class UserInfoWebAsyncTask extends AsyncTask<User, Void, Void> {
+public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
     public static final int UPLOAD_CMD = 1; // upload user info command
     public static final int DOWNLOAD_CMD = 2; // download user info command
 
@@ -38,27 +38,27 @@ public class UserInfoWebAsyncTask extends AsyncTask<User, Void, Void> {
 
     public static final int WAIT_TASK_SECOND = 10;
 
-    public interface UserInfoWebCallback {
+    public interface AccountInfoWebCallback {
         void onFinish(int code, Object result);
     }
 
     private final ProgressDialog progressDialog;
     private final int cmd;
-    private final UserInfoWebCallback callback;
+    private final AccountInfoWebCallback callback;
 
     private int code = CODE_FAILURE;
     private Object rlt = null;
     private boolean taskFinish = false;
 
-    public UserInfoWebAsyncTask(Context context, int cmd, UserInfoWebCallback callback) {
+    public AccountInfoWebAsyncTask(Context context, int cmd, AccountInfoWebCallback callback) {
         this(context, cmd, true, callback);
     }
 
-    public UserInfoWebAsyncTask(int cmd, UserInfoWebCallback callback) {
+    public AccountInfoWebAsyncTask(int cmd, AccountInfoWebCallback callback) {
         this(null, cmd, false, callback);
     }
 
-    private UserInfoWebAsyncTask(Context context, int cmd, boolean isShowProgress, UserInfoWebCallback callback) {
+    private AccountInfoWebAsyncTask(Context context, int cmd, boolean isShowProgress, AccountInfoWebCallback callback) {
         this.cmd = cmd;
 
         if(isShowProgress) {
@@ -80,15 +80,15 @@ public class UserInfoWebAsyncTask extends AsyncTask<User, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(User... users) {
-        if(users == null) return null;
+    protected Void doInBackground(Account... accounts) {
+        if(accounts == null) return null;
 
-        User user = users[0];
+        Account account = accounts[0];
 
         switch (cmd) {
             // UPLOAD
             case UPLOAD_CMD:
-                KMWebService.uploadUserInfo(user, new Callback() {
+                KMWebService.uploadAccountInfo(account, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = CODE_FAILURE;
@@ -115,7 +115,7 @@ public class UserInfoWebAsyncTask extends AsyncTask<User, Void, Void> {
 
             // DOWNLOAD
             case DOWNLOAD_CMD:
-                KMWebService.downloadUserInfo(user, new Callback() {
+                KMWebService.downloadAccountInfo(account, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = CODE_FAILURE;

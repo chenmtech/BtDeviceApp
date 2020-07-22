@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -55,7 +55,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.tvCreatorName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final User creator = commentList.get(holder.getAdapterPosition()).getCreator();
+                final Account creator = commentList.get(holder.getAdapterPosition()).getCreator();
                 Toast.makeText(view.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -64,8 +64,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             @Override
             public void onClick(View view) {
                 final EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
-                final User creator = comment.getCreator();
-                User account = AccountManager.getAccount();
+                final Account creator = comment.getCreator();
+                Account account = AccountManager.getAccount();
                 if(listener != null && creator.equals(account)) {
                     comment.setContent(holder.etContent.getText().toString());
                     long modifyTime = new Date().getTime();
@@ -84,8 +84,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull final EcgCommentAdapter.ViewHolder holder, final int position) {
         EcgNormalComment comment = commentList.get(position);
-        User creator = comment.getCreator();
-        User account = AccountManager.getAccount();
+        Account creator = comment.getCreator();
+        Account account = AccountManager.getAccount();
         if(creator.equals(account)) {
             holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
             holder.etContent.setHint("请输入。");

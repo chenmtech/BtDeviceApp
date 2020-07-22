@@ -14,9 +14,9 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.PhoneAccount;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.mob.MobSDK;
 
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }*/
 
-        User phoneAccount = PhoneAccount.getAccount();
+        Account phoneAccount = PhoneAccount.getAccount();
         if(phoneAccount != null) {
             login(PHONE_PLAT_NAME, phoneAccount.getPlatId(), phoneAccount.getName(), phoneAccount.getIcon());
             return;

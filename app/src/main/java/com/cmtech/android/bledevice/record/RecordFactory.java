@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.record;
 
 import android.text.TextUtils;
 
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
 import org.json.JSONObject;
@@ -55,11 +55,11 @@ public class RecordFactory {
         }
     }
 
-    public static IRecord create(RecordType type, long createTime, String devAddress, User creator, String note) {
+    public static IRecord create(RecordType type, long createTime, String devAddress, Account creator, String note) {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, User.class, String.class);
+                Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, Account.class, String.class);
                 constructor.setAccessible(true);
                 return constructor.newInstance(createTime, devAddress, creator, note);
             } catch (Exception e) {
@@ -88,7 +88,7 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<? extends IRecord> createBasicRecordsFromLocalDb(RecordType type, User creator, long fromTime, String noteFilterStr, int num) {
+    public static List<? extends IRecord> createBasicRecordsFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
         if(creator == null) {
             return null;
         }

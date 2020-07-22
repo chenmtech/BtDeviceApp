@@ -18,16 +18,16 @@ import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
  */
 public class PhoneAccount{
     public static boolean isAuthValid() {
-        User account = LitePal.where("platName = ?", PHONE_PLAT_NAME).findFirst(User.class);
+        Account account = LitePal.where("platName = ?", PHONE_PLAT_NAME).findFirst(Account.class);
         return (account != null);
     }
 
     public static void removeAccount() {
-        LitePal.deleteAll("User", "platName = ?", PHONE_PLAT_NAME);
+        LitePal.deleteAll("Account", "platName = ?", PHONE_PLAT_NAME);
     }
 
-    public static User getAccount() {
-        return LitePal.where("platName = ?", PHONE_PLAT_NAME).findFirst(User.class);
+    public static Account getAccount() {
+        return LitePal.where("platName = ?", PHONE_PLAT_NAME).findFirst(Account.class);
     }
 
 }

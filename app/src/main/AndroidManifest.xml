@@ -63,12 +63,15 @@
             android:screenOrientation="portrait" />
 
         <activity android:name=".activity.RecordExplorerActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
 
         <activity android:name=".activity.AboutUsActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
 
         <activity android:name=".activity.AccountActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
 
         <activity android:name=".activity.DeviceInfoActivity"
@@ -77,22 +80,29 @@
 
 
         <activity android:name="com.cmtech.android.bledevice.hrm.view.HrmCfgActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_hrmcfg"
             android:launchMode="singleTask"/>
 
         <activity android:name="com.cmtech.android.bledevice.thm.view.ThmCfgActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
 
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoCfgActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
 
         <activity android:name="com.cmtech.android.bledevice.hrm.view.HrRecordActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
         <activity android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
         <activity android:name="com.cmtech.android.bledevice.eeg.view.EegRecordActivity"
+            android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
 
         <service

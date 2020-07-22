@@ -22,8 +22,8 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
   *
-  * ClassName:      User
-  * Description:    User class
+  * ClassName:      Account
+  * Description:    Account class
   * Author:         chenm
   * CreateDate:     2018/10/27 上午3:57
   * UpdateUser:     chenm
@@ -32,7 +32,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
   * Version:        1.0
  */
 
-public class User extends LitePalSupport implements Serializable, IMyJson {
+public class Account extends LitePalSupport implements Serializable, IMyJson {
     private int id; // id
     private String platName = ""; // platform name
     private String platId = ""; // platform ID
@@ -40,10 +40,10 @@ public class User extends LitePalSupport implements Serializable, IMyJson {
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
 
-    public User() {
+    public Account() {
     }
 
-    public User(String platName, String platId, String name, String note, String icon) {
+    public Account(String platName, String platId, String name, String note, String icon) {
         this.platName = platName;
         this.platId = platId;
         this.name = name;
@@ -51,12 +51,12 @@ public class User extends LitePalSupport implements Serializable, IMyJson {
         this.icon = icon;
     }
 
-    public User(User user) {
-        this.platName = user.platName;
-        this.platId = user.platId;
-        this.name = user.name;
-        this.note = user.note;
-        this.icon = user.icon;
+    public Account(Account account) {
+        this.platName = account.platName;
+        this.platId = account.platId;
+        this.name = account.name;
+        this.note = account.note;
+        this.icon = account.icon;
     }
 
     public int getId() {
@@ -170,8 +170,8 @@ public class User extends LitePalSupport implements Serializable, IMyJson {
     public boolean equals(Object otherObject) {
         if(this == otherObject) return true;
         if(otherObject == null) return false;
-        if(!(otherObject instanceof User)) return false;
-        User other = (User) otherObject;
+        if(!(otherObject instanceof Account)) return false;
+        Account other = (Account) otherObject;
         return (platName + platId).equals(other.platName+other.platId);
     }
 

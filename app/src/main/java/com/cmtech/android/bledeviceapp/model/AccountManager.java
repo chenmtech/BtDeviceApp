@@ -44,20 +44,20 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  */
 
 public class AccountManager {
-    private static User account; // account
+    private static Account account; // account
 
     private AccountManager() {
     }
 
-    public static User getAccount() {
+    public static Account getAccount() {
         return account;
     }
 
     // login account
     public static void login(String platName, String platId, String name, String icon) {
-        User account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(User.class);
+        Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
         if(account == null) {
-            account = new User(platName, platId, name, "", icon);
+            account = new Account(platName, platId, name, "", icon);
         } else {
             account.setName(name);
             account.setIcon(icon);

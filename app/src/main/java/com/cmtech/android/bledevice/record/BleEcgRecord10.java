@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +40,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         recordSecond = 0;
     }
 
-    private BleEcgRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleEcgRecord10(long createTime, String devAddress, Account creator, String note) {
         super(ECG, "1.0", createTime, devAddress, creator, note, true);
         initData();
         recordSecond = 0;
