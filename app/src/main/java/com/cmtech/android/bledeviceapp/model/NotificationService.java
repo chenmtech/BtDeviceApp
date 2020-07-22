@@ -42,7 +42,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
    @Override
     public void onCreate() {
         super.onCreate();
-        ViseLog.e("notifyservice onCreate");
+        ViseLog.e("notifyservice.onCreate");
 
         notifyTitle = getString(R.string.welcome_text_format, getString(R.string.app_name));
 
@@ -56,7 +56,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        ViseLog.e("notifyservice onStartCommand");
+        ViseLog.e("notifyservice.onStartCommand");
         sendNotification("");
         return START_STICKY;
     }

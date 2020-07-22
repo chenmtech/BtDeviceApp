@@ -2,17 +2,14 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -95,33 +92,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private ImageView ivAccountImage; // 账户头像控件
     private ImageButton ibChangeAccount; // 切换账户控件
 
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            notificationService = ((NotificationService.NotificationServiceBinder)iBinder).getService();
-            // 成功绑定后初始化UI，否则请求退出
-            if(notificationService != null) {
-                initializeUI();
-            } else {
-                finish();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            if(notificationService != null) {
-                Intent intent = new Intent(MainActivity.this, NotificationService.class);
-                stopService(intent);
-                notificationService = null;
-            }
-            finish();
-        }
-    };
-
-    /*public NotificationService getNotificationService() {
-        return notificationService;
-    }*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -145,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         } else {
             startService(serviceIntent);
         }
-        //bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
 
         initializeUI();
 
@@ -156,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     // 主界面初始化
-    @SuppressLint("WrongConstant")
     private void initializeUI() {
         // 初始化工具条管理器
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -298,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                                     finish();
                                 }
                             });
+                            builder.setNegativeButton(R.string.cancel, null);
                             builder.show();
                         } else {
                             finish();
@@ -440,14 +409,15 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     protected void onDestroy() {
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
-        //DeviceManager.removeCommonListenerForAllDevices(this);
+
+        DeviceManager.removeCommonListenerForAllDevices(this);
 
         Intent stopIntent = new Intent(MainActivity.this, NotificationService.class);
         stopService(stopIntent);
 
-        //DeviceManager.clear();
+        DeviceManager.clear();
 
-        MyApplication.killProcess();
+        //MyApplication.killProcess();
     }
 
     @Override

@@ -138,6 +138,7 @@ public class DeviceManager {
             if(device.getConnectState() != CLOSED)
                 device.close();
         }
+        DEVICE_LIST.clear();
     }
 
     // 是否有打开的设备

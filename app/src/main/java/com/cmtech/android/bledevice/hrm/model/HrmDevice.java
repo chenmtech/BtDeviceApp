@@ -162,6 +162,7 @@ public class HrmDevice extends AbstractDevice {
                     Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
+                    hrRecord.getHrHist().clear();
                     for(int i = 0; i < hrRecord.getHrHistogram().size(); i++) {
                         hrRecord.getHrHist().add(hrRecord.getHrHistogram().get(i).getHistValue());
                     }
@@ -172,7 +173,6 @@ public class HrmDevice extends AbstractDevice {
                     hrRecord.setRecordSecond(sum);
                     hrRecord.save();
                     ViseLog.e(hrRecord);
-                    ViseLog.e(LitePal.findAll(BleHrRecord10.class));
                     Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
             }
