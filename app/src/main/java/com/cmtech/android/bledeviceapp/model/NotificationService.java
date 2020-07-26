@@ -55,7 +55,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ViseLog.e("notifyservice.onStartCommand");
-        sendNotification("");
+        sendNotification("显示实时消息");
         return START_STICKY;
     }
 
@@ -92,6 +92,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     public void onDestroy() {
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
+
         stopForeground(true);
         stopSelf();
     }

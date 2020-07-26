@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -51,10 +50,11 @@ import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotificationService;
-import com.cmtech.android.bledeviceapp.model.OnePixelReceiver;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.FastClickUtil;
+import com.just.library.ActivityManager;
+import com.just.library.PixelActivityUnion;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -93,8 +93,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private ImageView ivAccountImage; // 账户头像控件
     private ImageButton ibChangeAccount; // 切换账户控件
 
-    private OnePixelReceiver onePixelReceiver;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,12 +120,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         initializeUI();
 
         // 注册屏幕监听广播接收器
-        onePixelReceiver = new OnePixelReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("android.intent.action.SCREEN_OFF");
-        intentFilter.addAction("android.intent.action.SCREEN_ON");
-        intentFilter.addAction("android.intent.action.USER_PRESENT");
-        registerReceiver(onePixelReceiver, intentFilter);
+        PixelActivityUnion
+                .with(this)
+                .targetActivityClazz(OnePixelActivity.class)//
+                .args(null)//
+                .setActiviyManager(ActivityManager.getInstance())
+                .start();
 
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -428,7 +426,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         DeviceManager.clear();
 
-        unregisterReceiver(onePixelReceiver);
+        PixelActivityUnion.quit();
 
         //MyApplication.killProcess();
     }
