@@ -107,6 +107,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         ViseLog.e(AccountManager.getAccount());
 
+        // 注册屏幕监听广播接收器
+        PixelActivityUnion
+                .with(this)
+                .targetActivityClazz(OnePixelActivity.class)//
+                .args(null)//
+                .setActiviyManager(ActivityManager.getInstance())
+                .start();
+
         initDeviceManager();
 
         // 启动通知服务
@@ -118,14 +126,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         }
 
         initializeUI();
-
-        // 注册屏幕监听广播接收器
-        PixelActivityUnion
-                .with(this)
-                .targetActivityClazz(OnePixelActivity.class)//
-                .args(null)//
-                .setActiviyManager(ActivityManager.getInstance())
-                .start();
 
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -419,6 +419,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
 
+        PixelActivityUnion.quit();
+
         DeviceManager.removeCommonListenerForAllDevices(this);
 
         Intent stopIntent = new Intent(MainActivity.this, NotificationService.class);
@@ -426,9 +428,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         DeviceManager.clear();
 
-        PixelActivityUnion.quit();
 
-        //MyApplication.killProcess();
+        MyApplication.killProcess();
     }
 
     @Override

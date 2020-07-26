@@ -39,7 +39,8 @@
             android:configChanges="keyboardHidden|orientation|screenSize|navigation|keyboard"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:launchMode="singleTop"
+            android:finishOnTaskLaunch="false"
+            android:launchMode="singleInstance"
             android:theme="@style/OnePixelActivityStyle"/>
 
         <activity
@@ -48,7 +49,6 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -119,7 +119,7 @@
             android:name=".model.NotificationService"
             android:enabled="true"
             android:exported="false"
-            android:priority="1000"></service>
+            android:priority="1000" />
 
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity" />
