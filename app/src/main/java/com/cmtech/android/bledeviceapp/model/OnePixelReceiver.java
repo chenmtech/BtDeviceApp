@@ -22,12 +22,13 @@ import com.vise.log.ViseLog;
 public class OnePixelReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        ViseLog.e("trig receiver");
         if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {    //屏幕关闭启动1像素Activity
+            ViseLog.e("SCREEN OFF");
             Intent it = new Intent(context, OnePixelActivity.class);
             it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(it);
         } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON) || intent.getAction().equals(Intent.ACTION_USER_PRESENT)) {   //屏幕打开 结束1像素
+            ViseLog.e("SCREEN ON or USER PRESENT");
             context.sendBroadcast(new Intent("finish"));
         }
     }

@@ -428,6 +428,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         DeviceManager.clear();
 
+        unregisterReceiver(onePixelReceiver);
+
         //MyApplication.killProcess();
     }
 

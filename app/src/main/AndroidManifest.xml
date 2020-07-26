@@ -39,8 +39,7 @@
             android:configChanges="keyboardHidden|orientation|screenSize|navigation|keyboard"
             android:excludeFromRecents="true"
             android:exported="false"
-            android:finishOnTaskLaunch="false"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:theme="@style/OnePixelActivityStyle"/>
 
         <activity
