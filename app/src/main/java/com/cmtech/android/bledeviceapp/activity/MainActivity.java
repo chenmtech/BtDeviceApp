@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -50,6 +51,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotificationService;
+import com.cmtech.android.bledeviceapp.model.OnePixelReceiver;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.FastClickUtil;
@@ -81,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     private LocalDevicesFragment localDevicesFragment;
     //WebDevicesFragment webDevicesFragment;
-    private NotificationService notificationService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
     private DeviceTabFragManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager tbManager; // 工具条管理器
     private DrawerLayout drawerLayout; // 侧滑界面
@@ -91,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 账户头像控件
     private ImageButton ibChangeAccount; // 切换账户控件
+
+    private OnePixelReceiver onePixelReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         initDeviceManager();
 
-        // 启动并绑定通知服务
+        // 启动通知服务
         Intent serviceIntent = new Intent(this, NotificationService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
@@ -117,6 +120,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         }
 
         initializeUI();
+
+        // 注册屏幕监听广播接收器
+        onePixelReceiver = new OnePixelReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.intent.action.SCREEN_OFF");
+        intentFilter.addAction("android.intent.action.SCREEN_ON");
+        intentFilter.addAction("android.intent.action.USER_PRESENT");
+        registerReceiver(onePixelReceiver, intentFilter);
 
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);

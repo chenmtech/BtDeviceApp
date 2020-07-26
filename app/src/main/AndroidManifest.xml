@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <uses-feature android:name="android.hardware.location.network" />
 
     <application
@@ -34,83 +35,92 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:name">
+        <activity android:name=".activity.OnePixelActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation|keyboard"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:finishOnTaskLaunch="false"
+            android:launchMode="singleInstance"
+            android:theme="@style/OnePixelActivityStyle"/>
 
-        <activity android:name=".activity.SplashActivity"
+        <activity
+            android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activity.LoginActivity" />
-
-        <activity android:name=".activity.MainActivity"
+        <activity
+            android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.ScanActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-
-        <activity android:name=".activity.RecordExplorerActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
-
-        <activity android:name=".activity.AboutUsActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
-
-        <activity android:name=".activity.AccountActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
-
-        <activity android:name=".activity.DeviceInfoActivity"
-            android:label= "@string/cfg_device_basic_info"
+        <activity
+            android:name=".activity.RecordExplorerActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AboutUsActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AccountActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.DeviceInfoActivity"
+            android:label="@string/cfg_device_basic_info"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
-
-
-        <activity android:name="com.cmtech.android.bledevice.hrm.view.HrmCfgActivity"
-            android:screenOrientation="portrait"
+        <activity
+            android:name="com.cmtech.android.bledevice.hrm.view.HrmCfgActivity"
             android:label="@string/title_activity_hrmcfg"
-            android:launchMode="singleTask"/>
-
-        <activity android:name="com.cmtech.android.bledevice.thm.view.ThmCfgActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
-
-        <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoCfgActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
-
-        <activity android:name="com.cmtech.android.bledevice.hrm.view.HrRecordActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
-        <activity android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
-        <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
-        <activity android:name="com.cmtech.android.bledevice.eeg.view.EegRecordActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.cmtech.android.bledevice.thm.view.ThmCfgActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.cmtech.android.bledevice.thermo.view.ThermoCfgActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.cmtech.android.bledevice.hrm.view.HrRecordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.cmtech.android.bledevice.eeg.view.EegRecordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".model.NotificationService"
             android:enabled="true"
             android:exported="false"
-            android:priority="1000">
-        </service>
+            android:priority="1000"></service>
 
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity" />
@@ -118,7 +128,6 @@
             android:name="com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity"
             android:label="配置心电带设备"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
-
     </application>
 
 </manifest>

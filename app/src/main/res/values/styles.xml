@@ -15,6 +15,10 @@
         <item name="android:textColor">@color/accent</item>
     </style>
 
+    <style name="OnePixelActivityStyle" parent="android:Theme.Holo.Light.NoActionBar">//无标题
+        <item name="android:windowIsTranslucent">true</item>//透明
+    </style>
+
     <!-- Main Toolbar上Title的文本风格 -->
     <style name="MainToolbarSubTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textSize">12sp</item>

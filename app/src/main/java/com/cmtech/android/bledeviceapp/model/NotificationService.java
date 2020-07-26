@@ -37,8 +37,6 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     private String notifyTitle; // 通知栏标题
     private NotificationCompat.Builder notifyBuilder;
 
-    private Timer autoNotifyTimer = new Timer();
-
    @Override
     public void onCreate() {
         super.onCreate();
@@ -83,19 +81,11 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
 
     private void sendNotification(String notifyContent) {
         ViseLog.e("receive a notification.");
-        //autoNotifyTimer.cancel();
 
         notifyBuilder.setContentText(notifyContent);
         Notification notification = notifyBuilder.build();
         startForeground(NOTIFY_ID, notification);
 
-        /*autoNotifyTimer = new Timer();
-        autoNotifyTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                sendNotification("");
-            }
-        }, 5000);*/
     }
 
     @Override
