@@ -1,9 +1,13 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,6 +19,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -499,7 +504,28 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     @Override
     public void onNotificationInfoUpdated(IDevice device) {
-
+        //第一步：获取状态通知栏管理：
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Notification notification = null;
+        //第二步：实例化通知栏构造器NotificationCompat.Builder：
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {//判断API
+            NotificationChannel mChannel = new NotificationChannel("default", "default_name", NotificationManager.IMPORTANCE_LOW);
+            manager.createNotificationChannel(mChannel);
+            notification = new NotificationCompat.Builder(MainActivity.this, "default")
+                    .setContentTitle(getDeviceSimpleName(device))//设置通知栏标题
+                    .setContentText(device.getNotificationInfo()) //设置通知栏显示内容
+                    .setSmallIcon(R.mipmap.ic_kang)//设置通知小ICON
+                    .build();
+        } else {
+            NotificationCompat.Builder notificationBuilder =
+                    new NotificationCompat.Builder(MainActivity.this, "default")
+                            .setContentTitle(getDeviceSimpleName(device))
+                            .setContentText(device.getNotificationInfo())
+                            .setSmallIcon(DeviceType.getFromUuid(device.getUuid()).getDefaultIcon());
+            notification = notificationBuilder.build();
+        }
+        //第三步：对Builder进行配置：
+        manager.notify(2, notification);
     }
 
     // Fragment更新
@@ -508,6 +534,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         DeviceFragment fragment = (DeviceFragment)fragTabManager.getCurrentFragment();
         IDevice device = (fragment == null) ? null : fragment.getDevice();
         updateMainLayout(device);
+    }
+
+    private String getDeviceSimpleName(IDevice device) {
+        return device.getName() + "(" + device.getAddress() + ")";
     }
 
     // 打开设备

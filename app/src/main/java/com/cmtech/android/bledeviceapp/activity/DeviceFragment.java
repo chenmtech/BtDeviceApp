@@ -61,7 +61,7 @@ public abstract class DeviceFragment extends Fragment{
         if(bundle == null) throw new IllegalStateException();
         device = DeviceManager.findDevice(bundle.getString(ARG_ADDRESS));
         if(device == null) {
-            Toast.makeText(getContext(), "设备已不存在。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "设备不存在，打开失败。", Toast.LENGTH_SHORT).show();
             return;
         }
 

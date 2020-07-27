@@ -30,7 +30,7 @@ import java.util.Timer;
  * Version:        1.0
  */
 
-public class NotificationService extends Service implements IDevice.OnCommonDeviceListener {
+public class NotificationService extends Service {
     private static final String TAG = "NotifyService";
     private static final int NOTIFY_ID = 1;
     private final NotificationServiceBinder binder = new NotificationServiceBinder();
@@ -85,7 +85,6 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
         notifyBuilder.setContentText(notifyContent);
         Notification notification = notifyBuilder.build();
         startForeground(NOTIFY_ID, notification);
-
     }
 
     @Override
@@ -95,20 +94,6 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
 
         stopForeground(true);
         stopSelf();
-    }
-
-    @Override
-    public void onConnectStateUpdated(final IDevice device) {
-        sendNotification(getDeviceSimpleName(device) + device.getConnectState().getDescription());
-    }
-
-    @Override
-    public void onBatteryLevelUpdated(IDevice device) {
-    }
-
-    @Override
-    public void onNotificationInfoUpdated(IDevice device) {
-        sendNotification(getDeviceSimpleName(device) + device.getNotificationInfo());
     }
 
     public class NotificationServiceBinder extends Binder {
