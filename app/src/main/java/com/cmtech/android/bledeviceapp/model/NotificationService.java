@@ -55,7 +55,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         ViseLog.e("notifyservice.onStartCommand");
-        sendNotification("显示实时消息");
+        sendNotification(" ");
         return START_STICKY;
     }
 

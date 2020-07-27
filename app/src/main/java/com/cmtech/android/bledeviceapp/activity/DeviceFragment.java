@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 
 /**
@@ -96,9 +97,8 @@ public abstract class DeviceFragment extends Fragment{
     public void close() {
         if(device != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("关闭设备")
-                    .setMessage("断开连接,关闭设备?")
-                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            builder.setTitle(R.string.close_device)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             device.close();
 
@@ -107,11 +107,7 @@ public abstract class DeviceFragment extends Fragment{
                             }
                         }
                     })
-                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                        }
-                    }).show();
+                    .setNegativeButton(R.string.cancel, null).show();
 
         }
     }

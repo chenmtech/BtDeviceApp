@@ -103,6 +103,7 @@
     <string name="ecg_switch_off">心率模式</string>
     <string name="second">秒</string>
     <string name="exit_app">退出应用</string>
+    <string name="close_device">关闭设备</string>
     <string name="pls_close_device_firstly">请先关闭设备。</string>
     <string name="force_exit">强制退出</string>
     <string name="minimize_app">最小化</string>

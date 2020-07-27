@@ -108,12 +108,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         ViseLog.e(AccountManager.getAccount());
 
         // 注册屏幕监听广播接收器
-        PixelActivityUnion
+        /*PixelActivityUnion
                 .with(this)
                 .targetActivityClazz(OnePixelActivity.class)//
                 .args(null)//
                 .setActiviyManager(ActivityManager.getInstance())
-                .start();
+                .start();*/
 
         initDeviceManager();
 
@@ -407,7 +407,15 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 if(fragment != null) {
                     closeFragment(fragment);
                 } else {
-                    finish();
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle(R.string.exit_app);
+                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    });
+                    builder.show();
                 }
                 break;
         }
@@ -419,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
 
-        PixelActivityUnion.quit();
+        // PixelActivityUnion.quit();
 
         DeviceManager.removeCommonListenerForAllDevices(this);
 
@@ -434,8 +442,26 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     @Override
     public void onBackPressed() {
-        switchDrawer(!drawerLayout.isDrawerOpen(GravityCompat.START));
+        //switchDrawer(!drawerLayout.isDrawerOpen(GravityCompat.START));
+        if(DeviceManager.hasDeviceOpen()) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(R.string.exit_app);
+            builder.setMessage(R.string.pls_close_device_firstly);
+            builder.setPositiveButton(R.string.ok, null);
+            builder.show();
+        } else {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(R.string.exit_app);
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+            builder.show();
+        }
     }
+
 
     // 设备状态更新
     @Override

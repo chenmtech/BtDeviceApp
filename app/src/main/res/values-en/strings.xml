@@ -94,6 +94,7 @@
     <string name="upload">upload</string>
     <string name="scan">scan</string>
     <string name="closed">closed</string>
+    <string name="close_device">Close device.</string>
     <string name="connected">connected</string>
     <string name="connect_failure">connect failure</string>
     <string name="disconnected">disconnected</string>
