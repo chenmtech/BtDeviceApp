@@ -20,7 +20,7 @@
     <string name="switch_mode">切换模式</string>
     <string name="reconnect_after_disconnect">设备将断开重连。</string>
     <string name="pls_stop_record_firstly">请先停止记录。</string>
-    <string name="pls_turn_on_ecg_firstly">请先打开心电。</string>
+    <string name="pls_turn_on_ecg_firstly">记录前请先打开心电功能。</string>
     <string name="pls_be_quiet_when_record">记录时请保持安静。</string>
     <string name="device_address">设备地址:</string>
     <string name="device_type">设备类型:</string>
