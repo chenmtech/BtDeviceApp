@@ -18,7 +18,6 @@ import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
     }
 
     public LocalDeviceAdapter(MainActivity activity) {
-        this.deviceList = DeviceManager.getBleDeviceList();
+        this.deviceList = MyApplication.getDeviceManager().getBleDeviceList();
         this.activity = activity;
     }
 
@@ -130,7 +129,7 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
     }
 
     public void update() {
-        this.deviceList = DeviceManager.getBleDeviceList();
+        this.deviceList = MyApplication.getDeviceManager().getBleDeviceList();
         notifyDataSetChanged();
     }
 }

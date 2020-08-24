@@ -7,7 +7,6 @@ import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -50,7 +49,6 @@ import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
-import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
@@ -58,8 +56,6 @@ import com.cmtech.android.bledeviceapp.model.NotificationService;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.FastClickUtil;
-import com.just.library.ActivityManager;
-import com.just.library.PixelActivityUnion;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -112,16 +108,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         ViseLog.e(AccountManager.getAccount());
 
-        // 注册屏幕监听广播接收器
-        /*PixelActivityUnion
-                .with(this)
-                .targetActivityClazz(OnePixelActivity.class)//
-                .args(null)//
-                .setActiviyManager(ActivityManager.getInstance())
-                .start();*/
-
-        initDeviceManager();
-
         // 启动通知服务
         Intent serviceIntent = new Intent(this, NotificationService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -131,6 +117,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         }
 
         initializeUI();
+
+        // 为已经打开的设备创建并打开Fragment
+        List<IDevice> openedDevices = MyApplication.getDeviceManager().getOpenedDevice();
+        for(IDevice device : openedDevices) {
+            if(device.getConnectState() != CLOSED) {
+                createAndOpenFragment(device);
+            }
+        }
 
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -187,23 +181,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         // init main layout
         initMainLayout();
-
-        // 为已经打开的设备创建并打开Fragment
-        /*List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
-        for(IDevice device : openedDevices) {
-            if(device.getState() != CLOSED) {
-                createAndOpenFragment(device);
-            }
-        }*/
-    }
-
-    // 初始化DeviceManager
-    private void initDeviceManager() {
-        List<BleDeviceCommonInfo> infos = LitePal.findAll(BleDeviceCommonInfo.class);
-        if (infos == null || infos.isEmpty()) return;
-        for (DeviceCommonInfo info : infos) {
-            DeviceManager.createNewDevice(this, info);
-        }
     }
 
     private void initNavigation() {
@@ -251,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 Intent intent;
                 switch (item.getItemId()) {
                     case R.id.nav_add_device: // add device
-                        List<String> addresses = DeviceManager.getAddressList();
+                        List<String> addresses = MyApplication.getDeviceManager().getAddressList();
                         intent = new Intent(MainActivity.this, ScanActivity.class);
                         intent.putExtra("device_address_list", (Serializable) addresses);
                         startActivityForResult(intent, RC_ADD_DEVICE);
@@ -270,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                         startActivity(intent);
                         return true;
                     case R.id.nav_exit: // exit
-                        if(DeviceManager.hasDeviceOpen()) {
+                        if(MyApplication.getDeviceManager().hasDeviceOpen()) {
                             final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                             builder.setTitle(R.string.exit_app);
                             builder.setMessage(R.string.pls_close_device_firstly);
@@ -321,14 +298,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 if(resultCode == RESULT_OK) {
                     BleDeviceCommonInfo info = (BleDeviceCommonInfo) data.getSerializableExtra(DEVICE_INFO);
                     if(info != null) {
-                        IDevice device = DeviceManager.createNewDevice(this, info);
+                        IDevice device = MyApplication.getDeviceManager().createNewDevice(this, info);
                         if(device != null) {
                             if(info.save()) {
                                 updateDeviceList();
                                 //device.addCommonListener(notificationService);
                             } else {
                                 Toast.makeText(MainActivity.this, R.string.add_device_failure, Toast.LENGTH_SHORT).show();
-                                DeviceManager.deleteDevice(device);
+                                MyApplication.getDeviceManager().deleteDevice(device);
                             }
                         }
                     }
@@ -338,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             case RC_MODIFY_DEVICE_INFO: // return code for modify device info
                 if ( resultCode == RESULT_OK) {
                     BleDeviceCommonInfo info = (BleDeviceCommonInfo) data.getSerializableExtra(DEVICE_INFO);
-                    IDevice device = DeviceManager.findDevice(info);
+                    IDevice device = MyApplication.getDeviceManager().findDevice(info);
                     if(device != null) {
                         device.updateCommonInfo(info);
                         device.getCommonInfo().save();
@@ -432,15 +409,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
 
-        // PixelActivityUnion.quit();
-
-        DeviceManager.removeCommonListenerForAllDevices(this);
+        MyApplication.getDeviceManager().removeCommonListenerForAllDevices(this);
 
         Intent stopIntent = new Intent(MainActivity.this, NotificationService.class);
         stopService(stopIntent);
 
-        DeviceManager.clear();
-
+        MyApplication.getDeviceManager().clear();
 
         MyApplication.killProcess();
     }
@@ -448,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     @Override
     public void onBackPressed() {
         //switchDrawer(!drawerLayout.isDrawerOpen(GravityCompat.START));
-        if(DeviceManager.hasDeviceOpen()) {
+        if(MyApplication.getDeviceManager().hasDeviceOpen()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle(R.string.exit_app);
             builder.setMessage(R.string.pls_close_device_firstly);
@@ -609,7 +583,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(device.getCommonInfo() instanceof BleDeviceCommonInfo) {
                     if(LitePal.delete(BleDeviceCommonInfo.class, device.getCommonInfo().getId()) != 0) {
-                        DeviceManager.deleteDevice(device);
+                        MyApplication.getDeviceManager().deleteDevice(device);
                         updateDeviceList();
                     } else {
                         Toast.makeText(MainActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
@@ -648,7 +622,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     // change account
     private void changeAccount() {
-        if(DeviceManager.hasDeviceOpen()) {
+        if(MyApplication.getDeviceManager().hasDeviceOpen()) {
             Toast.makeText(this, R.string.pls_close_device_firstly, Toast.LENGTH_SHORT).show();
             return;
         }

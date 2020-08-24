@@ -32,10 +32,18 @@ import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
  */
 
 public class DeviceManager {
-    private static final List<IDevice> DEVICE_LIST = new ArrayList<IDevice>(); // 所有已注册设备列表
+    private static final DeviceManager INSTANCE = new DeviceManager();
+
+    private final List<IDevice> DEVICE_LIST = new ArrayList<>(); // 所有已注册设备列表
+
+    private DeviceManager() {}
+
+    public static DeviceManager getInstance() {
+        return INSTANCE;
+    }
 
     // create a new device
-    public static IDevice createNewDevice(Context context, DeviceCommonInfo info) {
+    public IDevice createNewDevice(Context context, DeviceCommonInfo info) {
         IDevice device = findDevice(info);
         if(device != null) {
             ViseLog.e("The device has existed.");
@@ -56,12 +64,12 @@ public class DeviceManager {
     }
 
     // find a device using info
-    public static IDevice findDevice(DeviceCommonInfo info) {
+    public IDevice findDevice(DeviceCommonInfo info) {
         return (info == null) ? null : findDevice(info.getAddress());
     }
 
     // find a device using address
-    public static IDevice findDevice(String address) {
+    public IDevice findDevice(String address) {
         if(TextUtils.isEmpty(address)) return null;
         for(IDevice device : DEVICE_LIST) {
             if(address.equalsIgnoreCase(device.getAddress())) {
@@ -71,17 +79,17 @@ public class DeviceManager {
         return null;
     }
 
-    private static IDevice createDevice(Context context, DeviceCommonInfo info) {
+    private IDevice createDevice(Context context, DeviceCommonInfo info) {
         DeviceFactory factory = DeviceFactory.getFactory(info); // 获取相应的工厂
         return (factory == null) ? null : factory.createDevice(context);
     }
 
     // 删除一个设备
-    public static void deleteDevice(IDevice device) {
+    public void deleteDevice(IDevice device) {
         DEVICE_LIST.remove(device);
     }
 
-    public static List<IDevice> getBleDeviceList() {
+    public List<IDevice> getBleDeviceList() {
         List<IDevice> devices = new ArrayList<>();
         for(IDevice device : DEVICE_LIST) {
             if(device.isLocal()) {
@@ -91,7 +99,7 @@ public class DeviceManager {
         return devices;
     }
 
-    public static List<IDevice> getWebDeviceList() {
+    public List<IDevice> getWebDeviceList() {
         List<IDevice> devices = new ArrayList<>();
         for(IDevice device : DEVICE_LIST) {
             if(!device.isLocal()) {
@@ -102,7 +110,7 @@ public class DeviceManager {
     }
 
     // 获取所有设备的Mac列表
-    public static List<String> getAddressList() {
+    public List<String> getAddressList() {
         List<String> addresses = new ArrayList<>();
         for(IDevice device : DEVICE_LIST) {
             addresses.add(device.getAddress());
@@ -110,7 +118,7 @@ public class DeviceManager {
         return addresses;
     }
 
-    public static List<IDevice> getOpenedDevice() {
+    public List<IDevice> getOpenedDevice() {
         List<IDevice> devices = new ArrayList<>();
 
         for(IDevice device : DEVICE_LIST) {
@@ -121,19 +129,19 @@ public class DeviceManager {
         return devices;
     }
 
-    public static void addCommonListenerForAllDevices(IDevice.OnCommonDeviceListener listener) {
+    public void addCommonListenerForAllDevices(IDevice.OnCommonDeviceListener listener) {
         for(IDevice device : DEVICE_LIST) {
             device.addCommonListener(listener);
         }
     }
 
-    public static void removeCommonListenerForAllDevices(IDevice.OnCommonDeviceListener listener) {
+    public void removeCommonListenerForAllDevices(IDevice.OnCommonDeviceListener listener) {
         for(IDevice device : DEVICE_LIST) {
             device.removeCommonListener(listener);
         }
     }
 
-    public static void clear() {
+    public void clear() {
         for(IDevice device : DEVICE_LIST) {
             if(device.getConnectState() != CLOSED)
                 device.close();
@@ -142,7 +150,7 @@ public class DeviceManager {
     }
 
     // 是否有打开的设备
-    public static boolean hasDeviceOpen() {
+    public boolean hasDeviceOpen() {
         for(IDevice device : DEVICE_LIST) {
             if(device.getConnectState() != CLOSED) {
                 return true;
@@ -151,7 +159,7 @@ public class DeviceManager {
         return false;
     }
 
-    public static void updateWebDevices(Context context) {
+    public void updateWebDevices(Context context) {
         // 获取网络广播设备列表
         final List<IDevice> currentWebDevices = getWebDeviceList();
 

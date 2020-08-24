@@ -6,12 +6,17 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.cmtech.android.ble.core.BleDeviceCommonInfo;
+import com.cmtech.android.ble.core.DeviceCommonInfo;
+import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.SystemTTS;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
+
+import java.util.List;
 
 /**
  * MyApplication
@@ -21,6 +26,7 @@ import org.litepal.LitePal;
 public class MyApplication extends Application {
     private static MyApplication instance;
     private static SystemTTS tts; // text to speech
+    private DeviceManager deviceManager;
 
     private static int startedActivityCount = 0;
 
@@ -86,6 +92,9 @@ public class MyApplication extends Application {
 
             }
         });
+
+        deviceManager = DeviceManager.getInstance();
+        initDeviceManager();
     }
 
     public static MyApplication getInstance() {
@@ -96,6 +105,8 @@ public class MyApplication extends Application {
     public static Context getContext() {
         return instance.getApplicationContext();
     }
+
+    public static DeviceManager getDeviceManager() {return instance.deviceManager;}
 
     public static void killProcess() {
         ViseLog.e("killProcess");
@@ -112,5 +123,13 @@ public class MyApplication extends Application {
 
     public static boolean isRunInBackground() {
         return (startedActivityCount == 0);
+    }
+
+    // 初始化DeviceManager
+    private void initDeviceManager() {
+        List<BleDeviceCommonInfo> infos = LitePal.findAll(BleDeviceCommonInfo.class);
+        for (DeviceCommonInfo info : infos) {
+            deviceManager.createNewDevice(this, info);
+        }
     }
 }

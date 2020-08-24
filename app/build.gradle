@@ -85,5 +85,4 @@ dependencies {
     implementation 'net.jcip:jcip-annotations:1.0'
     implementation 'org.litepal.android:java:3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.5.0'
-    implementation 'com.just.library:pixel:1.0.0'
 }

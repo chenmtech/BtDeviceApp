@@ -9,8 +9,8 @@ import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.DeviceManager;
 
 /**
  * DeviceFragment：设备Fragment
@@ -59,7 +59,7 @@ public abstract class DeviceFragment extends Fragment{
         // get device using address
         Bundle bundle = getArguments();
         if(bundle == null) throw new IllegalStateException();
-        device = DeviceManager.findDevice(bundle.getString(ARG_ADDRESS));
+        device = MyApplication.getDeviceManager().findDevice(bundle.getString(ARG_ADDRESS));
         if(device == null) {
             Toast.makeText(getContext(), "设备不存在，打开失败。", Toast.LENGTH_SHORT).show();
             return;

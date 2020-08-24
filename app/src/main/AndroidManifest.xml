@@ -35,13 +35,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:name">
-        <activity android:name=".activity.OnePixelActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|navigation|keyboard"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:finishOnTaskLaunch="false"
-            android:launchMode="singleInstance"
-            android:theme="@style/OnePixelActivityStyle"/>
 
         <activity
             android:name=".activity.SplashActivity"

@@ -15,9 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.WebDeviceAdapter;
-import com.cmtech.android.bledeviceapp.model.DeviceManager;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -78,7 +78,7 @@ public class WebDevicesFragment extends Fragment {
     }
 
     private void updateWebDeviceList() {
-        DeviceManager.updateWebDevices(getContext());
+        MyApplication.getDeviceManager().updateWebDevices(getContext());
         //DeviceManager.addCommonListenerForAllDevices(((MainActivity)getActivity()).getNotificationService());
         handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
     }

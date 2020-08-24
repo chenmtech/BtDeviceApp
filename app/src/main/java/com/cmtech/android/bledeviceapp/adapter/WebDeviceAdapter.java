@@ -16,7 +16,6 @@ import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class WebDeviceAdapter extends RecyclerView.Adapter<WebDeviceAdapter.View
     }
 
     public WebDeviceAdapter(MainActivity activity) {
-        this.deviceList = DeviceManager.getWebDeviceList();
+        this.deviceList = MyApplication.getDeviceManager().getWebDeviceList();
         this.activity = activity;
     }
 
@@ -97,7 +96,7 @@ public class WebDeviceAdapter extends RecyclerView.Adapter<WebDeviceAdapter.View
     }
 
     public void update() {
-        this.deviceList = DeviceManager.getWebDeviceList();
+        this.deviceList = MyApplication.getDeviceManager().getWebDeviceList();
         notifyDataSetChanged();
     }
 }
