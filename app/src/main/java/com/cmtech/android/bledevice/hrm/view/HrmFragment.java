@@ -288,7 +288,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         if(device != null)
             device.removeListener();
 
-        ecgView.stop();
+        if(ecgView != null)
+            ecgView.stop();
     }
 
     public void setHrRecord(boolean isRecord) {
