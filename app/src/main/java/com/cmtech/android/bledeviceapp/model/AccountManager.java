@@ -44,17 +44,22 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  */
 
 public class AccountManager {
-    private static Account account; // account
+    private static final AccountManager INSTANCE = new AccountManager();
+    private Account account; // account
 
     private AccountManager() {
     }
 
-    public static Account getAccount() {
+    public static AccountManager getInstance() {
+        return INSTANCE;
+    }
+
+    public Account getAccount() {
         return account;
     }
 
     // login account
-    public static void login(String platName, String platId, String name, String icon) {
+    public void login(String platName, String platId, String name, String icon) {
         Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
         if(account == null) {
             account = new Account(platName, platId, name, "", icon);
@@ -63,10 +68,10 @@ public class AccountManager {
             account.setIcon(icon);
         }
         account.save();
-        AccountManager.account = account;
+        this.account = account;
     }
 
-    public static void webLogin(final Context context) {
+    public void webLogin(final Context context) {
         if(!isLogin()) return;
 
         KMWebService.signUporLogin(account.getPlatName(), account.getPlatId(), new Callback() {
@@ -104,7 +109,7 @@ public class AccountManager {
     }
 
     // logout account
-    public static void logout(boolean isRemoved) {
+    public void logout(boolean isRemoved) {
         if(!isLogin()) return;
 
         if(isRemoved) {
@@ -131,7 +136,7 @@ public class AccountManager {
     }
 
     // is a valid account login
-    public static boolean isLogin() {
+    public boolean isLogin() {
         return account != null;
     }
 }

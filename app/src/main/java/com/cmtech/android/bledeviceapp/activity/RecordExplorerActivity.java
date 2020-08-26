@@ -27,9 +27,9 @@ import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
 import org.json.JSONArray;
@@ -218,7 +218,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecords(final long from) {
-        IRecord record = RecordFactory.create(recordType, from, null, AccountManager.getAccount(), "");
+        IRecord record = RecordFactory.create(recordType, from, null, MyApplication.getAccount(), "");
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
@@ -244,7 +244,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
 
-                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(recordType, AccountManager.getAccount(), from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM);
+                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(recordType, MyApplication.getAccount(), from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {

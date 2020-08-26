@@ -15,7 +15,6 @@ import android.widget.Toast;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.PhoneAccount;
 import com.mob.MobSDK;
 
@@ -173,12 +172,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String platName, String platId, String name, String icon) {
-        AccountManager.login(platName, platId, name, icon);
+        MyApplication.getAccountManager().login(platName, platId, name, icon);
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
 
-        AccountManager.webLogin(this);
+        MyApplication.getAccountManager().webLogin(this);
     }
 
 }

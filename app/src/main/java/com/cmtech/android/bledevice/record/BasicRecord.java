@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -74,8 +74,8 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.type = RecordType.getType(json.getInt("recordTypeCode"));
         this.createTime = json.getLong("createTime");
         this.devAddress = json.getString("devAddress");
-        this.creatorPlat = AccountManager.getAccount().getPlatName();
-        this.creatorId = AccountManager.getAccount().getPlatId();
+        this.creatorPlat = MyApplication.getAccount().getPlatName();
+        this.creatorId = MyApplication.getAccount().getPlatId();
         this.note = json.getString("note");
         this.needUpload = needUpload;
     }

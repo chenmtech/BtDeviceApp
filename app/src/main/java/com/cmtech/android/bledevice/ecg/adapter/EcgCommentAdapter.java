@@ -13,9 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
@@ -65,7 +65,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             public void onClick(View view) {
                 final EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
                 final Account creator = comment.getCreator();
-                Account account = AccountManager.getAccount();
+                Account account = MyApplication.getAccount();
                 if(listener != null && creator.equals(account)) {
                     comment.setContent(holder.etContent.getText().toString());
                     long modifyTime = new Date().getTime();
@@ -85,7 +85,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     public void onBindViewHolder(@NonNull final EcgCommentAdapter.ViewHolder holder, final int position) {
         EcgNormalComment comment = commentList.get(position);
         Account creator = comment.getCreator();
-        Account account = AccountManager.getAccount();
+        Account account = MyApplication.getAccount();
         if(creator.equals(account)) {
             holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
             holder.etContent.setHint("请输入。");

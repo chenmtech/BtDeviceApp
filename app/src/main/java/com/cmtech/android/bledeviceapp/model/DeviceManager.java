@@ -9,6 +9,7 @@ import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.log.ViseLog;
 
@@ -171,7 +172,7 @@ public class DeviceManager {
 
         final boolean[] finish = new boolean[1];
 
-        EcgHttpReceiver.retrieveDeviceInfo(context, AccountManager.getAccount().getPlatId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo(context, MyApplication.getAccount().getPlatId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgDevice> deviceList) {
                 if(deviceList == null || deviceList.isEmpty()) {

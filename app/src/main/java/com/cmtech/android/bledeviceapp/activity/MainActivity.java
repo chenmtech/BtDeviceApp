@@ -47,7 +47,6 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
@@ -101,12 +100,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!AccountManager.isLogin()) {
+        if(!MyApplication.getAccountManager().isLogin()) {
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();
         }
 
-        ViseLog.e(AccountManager.getAccount());
+        ViseLog.e(MyApplication.getAccount());
 
         // 启动通知服务
         Intent serviceIntent = new Intent(this, NotificationService.class);
@@ -627,7 +626,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             return;
         }
 
-        AccountManager.logout(true);
+        MyApplication.getAccountManager().logout(true);
 
         final Intent intent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -635,7 +634,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     private void updateNavigationHeader() {
-        Account account = AccountManager.getAccount();
+        Account account = MyApplication.getAccount();
         if(account == null) {
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();

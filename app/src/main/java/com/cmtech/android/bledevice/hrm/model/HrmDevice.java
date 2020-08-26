@@ -18,7 +18,6 @@ import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
@@ -150,7 +149,7 @@ public class HrmDevice extends AbstractDevice {
 
         this.recordingHr = recordingHr;
         if(recordingHr) {
-            hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
+            hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
                 Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
@@ -196,7 +195,7 @@ public class HrmDevice extends AbstractDevice {
 
         this.recordingEcg = recordingEcg;
         if(recordingEcg) {
-            ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
+            ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
             if(ecgRecord != null) {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);

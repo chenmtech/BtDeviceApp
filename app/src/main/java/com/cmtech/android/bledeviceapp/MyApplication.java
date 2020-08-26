@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
+import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.SystemTTS;
 import com.mob.MobSDK;
@@ -27,6 +29,7 @@ public class MyApplication extends Application {
     private static MyApplication instance;
     private static SystemTTS tts; // text to speech
     private DeviceManager deviceManager;
+    private AccountManager accountManager;
 
     private static int startedActivityCount = 0;
 
@@ -95,6 +98,8 @@ public class MyApplication extends Application {
 
         deviceManager = DeviceManager.getInstance();
         initDeviceManager();
+
+        accountManager = AccountManager.getInstance();
     }
 
     public static MyApplication getInstance() {
@@ -107,6 +112,14 @@ public class MyApplication extends Application {
     }
 
     public static DeviceManager getDeviceManager() {return instance.deviceManager;}
+
+    public static AccountManager getAccountManager() {
+        return instance.accountManager;
+    }
+
+    public static Account getAccount() {
+        return instance.accountManager.getAccount();
+    }
 
     public static void killProcess() {
         ViseLog.e("killProcess");

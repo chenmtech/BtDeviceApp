@@ -1,8 +1,8 @@
 package com.cmtech.android.bledevice.ecg.record.ecgcomment;
 
 import com.cmtech.android.bledevice.ecg.enumeration.EcgCommentType;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -42,7 +42,7 @@ public class EcgNormalComment extends EcgComment {
      * @return 默认留言对象
      */
     public static EcgNormalComment create() {
-        Account creator = AccountManager.getAccount();
+        Account creator = MyApplication.getAccount();
         long modifyTime = new Date().getTime();
         return new EcgNormalComment(creator, modifyTime);
     }

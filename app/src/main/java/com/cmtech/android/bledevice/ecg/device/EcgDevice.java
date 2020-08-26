@@ -18,7 +18,7 @@ import com.cmtech.android.bledevice.ecg.process.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecg.util.EcgMonitorUtil;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
@@ -503,7 +503,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
         // 创建心电记录
         if (ecgRecord == null) {
-            ecgRecord = EcgRecord.create(AccountManager.getAccount(), getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), getLeadType());
+            ecgRecord = EcgRecord.create(MyApplication.getAccount(), getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), getLeadType());
             if (ecgRecord != null) {
                 ViseLog.e("ecgRecord: " + ecgRecord);
                 try {
@@ -517,7 +517,7 @@ public class EcgDevice extends AbstractEcgDevice {
         }
 
         if (broadcast == null) {
-            broadcast = new EcgHttpBroadcast(AccountManager.getAccount().getPlatId(),
+            broadcast = new EcgHttpBroadcast(MyApplication.getAccount().getPlatId(),
                     EcgMonitorUtil.deleteColon(getAddress()),
                     getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getLeadType().getCode());
             broadcast.setListener(listener);

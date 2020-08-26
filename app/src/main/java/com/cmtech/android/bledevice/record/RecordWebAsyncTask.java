@@ -4,8 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.vise.log.ViseLog;
 
@@ -123,7 +123,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
             // UPLOAD
             case RECORD_CMD_UPLOAD:
-                KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                KMWebService.uploadRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -150,7 +150,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
             // UPDATE NOTE
             case RECORD_CMD_UPDATE_NOTE:
-                KMWebService.updateRecordNote(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                KMWebService.updateRecordNote(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -177,7 +177,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
             // DELETE
             case RECORD_CMD_DELETE:
-                KMWebService.deleteRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                KMWebService.deleteRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -214,7 +214,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     downloadNum = (Integer) params[0];
                     noteFilterStr = (String) params[1];
                 }
-                KMWebService.downloadRecordBasicInfo(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, downloadNum, noteFilterStr, new Callback() {
+                KMWebService.downloadRecordBasicInfo(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, downloadNum, noteFilterStr, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -243,7 +243,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
             // DOWNLOAD
             case RECORD_CMD_DOWNLOAD:
-                KMWebService.downloadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                KMWebService.downloadRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;

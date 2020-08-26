@@ -5,14 +5,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.ble.core.DeviceConnectState;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
+import com.cmtech.android.ble.core.DeviceConnectState;
 import com.cmtech.android.bledevice.ecg.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
 import com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_READ_DATA_PACKET) {
-                EcgHttpReceiver.readDataPackets(AccountManager.getAccount().getPlatId(), getAddress(), lastDataPackId, new EcgHttpReceiver.IEcgDataPacketCallback() {
+                EcgHttpReceiver.readDataPackets(MyApplication.getAccount().getPlatId(), getAddress(), lastDataPackId, new EcgHttpReceiver.IEcgDataPacketCallback() {
                     @Override
                     public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
                         if (dataPacketList != null && !dataPacketList.isEmpty()) {
@@ -114,7 +114,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
 
         // 创建心电记录
         if (ecgRecord == null) {
-            ecgRecord = EcgRecord.create(AccountManager.getAccount(), getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), getLeadType());
+            ecgRecord = EcgRecord.create(MyApplication.getAccount(), getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), getLeadType());
             if (ecgRecord != null) {
                 ViseLog.e("ecgRecord: " + ecgRecord);
                 try {

@@ -23,9 +23,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.AccountInfoWebAsyncTask;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
@@ -51,14 +51,14 @@ public class AccountActivity extends AppCompatActivity {
     private EditText etNote;
     private String cacheImagePath = ""; // 账户头像文件路径缓存
 
-    private final Account account = AccountManager.getAccount();
+    private final Account account = MyApplication.getAccount();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
 
-        if(!AccountManager.isLogin())  {
+        if(!MyApplication.getAccountManager().isLogin())  {
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -84,7 +84,7 @@ public class AccountActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Account account = AccountManager.getAccount();
+                Account account = MyApplication.getAccount();
                 account.setName(etName.getText().toString());
 
                 String iconPath = account.getIcon();

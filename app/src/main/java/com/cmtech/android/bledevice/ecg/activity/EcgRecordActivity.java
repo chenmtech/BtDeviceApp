@@ -26,7 +26,6 @@ import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
@@ -144,7 +143,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime));
 
         Account fileCreator = record.getCreator();
-        Account account = AccountManager.getAccount();
+        Account account = MyApplication.getAccount();
         if(fileCreator.equals(account)) {
             tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
@@ -203,7 +202,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         if(ecgRecord == null)
             return new ArrayList<>();
         else {
-            Account account = AccountManager.getAccount();
+            Account account = MyApplication.getAccount();
             boolean found = false;
             for(EcgNormalComment comment : ecgRecord.getCommentList()) {
                 if(comment.getCreator().equals(account)) {

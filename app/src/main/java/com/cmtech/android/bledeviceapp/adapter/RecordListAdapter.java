@@ -17,10 +17,10 @@ import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.FastClickUtil;
 
@@ -139,7 +139,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         if(record == null) return;
 
         holder.tvCreatorName.setText(record.getCreatorName());
-        Account account = AccountManager.getAccount();
+        Account account = MyApplication.getAccount();
         if(TextUtils.isEmpty(account.getIcon())) {
             // load icon by platform name
             holder.ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
