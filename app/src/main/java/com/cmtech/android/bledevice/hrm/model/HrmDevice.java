@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
@@ -132,6 +134,7 @@ public class HrmDevice extends AbstractDevice {
 
     private Timer ttsTimer = new Timer();
     private volatile boolean waitSpeak = false; // is waiting for warn-speaking
+    private final Lock speakLock = new ReentrantLock();
 
     public HrmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
@@ -440,20 +443,32 @@ public class HrmDevice extends AbstractDevice {
     }
 
     private void startSpeak(int speakPeriod) {
-        ttsTimer.cancel();
-        waitSpeak = false;
-        ttsTimer = new Timer();
-        ttsTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                waitSpeak = true;
-            }
-        }, speakPeriod * 60 * 1000L, speakPeriod * 60 * 1000L);
+        speakLock.lock();
+        try {
+            ttsTimer.cancel();
+            waitSpeak = false;
+            ttsTimer = new Timer();
+            ttsTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    speakLock.lock();
+                    waitSpeak = true;
+                    speakLock.unlock();
+                }
+            }, speakPeriod * 60000L, speakPeriod * 60000L);
+        } finally {
+            speakLock.unlock();
+        }
     }
 
     private void stopSpeak() {
-        ttsTimer.cancel();
-        waitSpeak = false;
+        speakLock.lock();
+        try {
+            ttsTimer.cancel();
+            waitSpeak = false;
+        } finally {
+            speakLock.unlock();
+        }
     }
 
     private void readSensorLocation() {
@@ -492,10 +507,15 @@ public class HrmDevice extends AbstractDevice {
                             }
                         }
 
-                        if(waitSpeak) {
-                            waitSpeak = false;
-                            MyApplication.getTTS().speak(currentHr);
-                            ViseLog.e(currentHr);
+                        speakLock.lock();
+                        try {
+                            if (waitSpeak) {
+                                waitSpeak = false;
+                                MyApplication.getTTS().speak(currentHr);
+                                ViseLog.e(currentHr);
+                            }
+                        } finally {
+                            speakLock.unlock();
                         }
 
                         setNotificationInfo(currentHr);
