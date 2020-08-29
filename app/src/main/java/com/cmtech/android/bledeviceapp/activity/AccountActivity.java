@@ -205,7 +205,7 @@ public class AccountActivity extends AppCompatActivity {
                     JSONObject json = (JSONObject) result;
 
                     try {
-                        if(account.setDataFromJson(json)) {
+                        if(account.fromJson(json)) {
                             updateUI();
                             return;
                         }

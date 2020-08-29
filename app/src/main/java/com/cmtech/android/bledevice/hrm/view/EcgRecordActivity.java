@@ -66,7 +66,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                         JSONObject json = (JSONObject) result;
 
                         try {
-                            if(record.setDataFromJson(json)) {
+                            if(record.fromJson(json)) {
                                 initUI();
                                 return;
                             }

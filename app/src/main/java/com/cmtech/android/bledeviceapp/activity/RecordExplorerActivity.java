@@ -10,6 +10,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -71,8 +72,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private RecordType recordType = null; // record type in record list
     private String noteFilterStr = ""; // record note filter string
     private long updateTime; // update time in record list
-
-    private LinearLayout llSearchRecord;
+    private EditText etNoteFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,16 +140,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
         tvNoRecord = findViewById(R.id.tv_no_record);
         tvNoRecord.setText(R.string.no_record);
 
-        llSearchRecord = findViewById(R.id.ll_search_record);
-        llSearchRecord.setVisibility(View.GONE);
-
-        final EditText etNoteFilter = findViewById(R.id.et_note_filter_string);
-        ImageButton ibSearch = findViewById(R.id.ib_search);
-        ibSearch.setOnClickListener(new View.OnClickListener() {
+        etNoteFilter = findViewById(R.id.et_note_filter_string);
+        etNoteFilter.setVisibility(View.GONE);
+        etNoteFilter.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View v) {
-                String noteFilterStr = etNoteFilter.getText().toString();
-                setNoteFilterStr(noteFilterStr.trim());
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                setNoteFilterStr(etNoteFilter.getText().toString().trim());
+                return false;
             }
         });
     }
@@ -169,10 +166,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 break;
 
             case R.id.search_record:
-                if(llSearchRecord.getVisibility() == View.VISIBLE)
-                    llSearchRecord.setVisibility(View.GONE);
+                if(etNoteFilter.getVisibility() == View.VISIBLE)
+                    etNoteFilter.setVisibility(View.GONE);
                 else
-                    llSearchRecord.setVisibility(View.VISIBLE);
+                    etNoteFilter.setVisibility(View.VISIBLE);
                 break;
         }
         return true;

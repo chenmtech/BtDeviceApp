@@ -174,7 +174,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) throws JSONException {
+    public boolean fromJson(JSONObject json) throws JSONException {
         return false;
     }
 

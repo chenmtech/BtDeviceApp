@@ -71,7 +71,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
                         JSONObject json = (JSONObject) result;
 
                         try {
-                            if(record.setDataFromJson(json)) {
+                            if(record.fromJson(json)) {
                                 initUI();
                                 return;
                             }

@@ -24,31 +24,16 @@
         android:layout_height="1dp"
         android:background="@color/divider"/>
 
-    <LinearLayout
-        android:id="@+id/ll_search_record"
+    <EditText
+        android:id="@+id/et_note_filter_string"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:visibility="gone">
-        <EditText
-            android:id="@+id/et_note_filter_string"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="14sp"
-            android:hint="请输入要搜索的备注内容"/>
-
-        <ImageButton
-            android:id="@+id/ib_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:src="@mipmap/ic_search_24px"
-            android:background="@color/primary"/>
-
-    </LinearLayout>
+        android:textSize="14sp"
+        android:imeOptions="actionSearch"
+        android:singleLine="true"
+        android:hint="输入要搜索的备注内容"
+        android:visibility="gone"/>
 
     <View
         android:layout_width="match_parent"

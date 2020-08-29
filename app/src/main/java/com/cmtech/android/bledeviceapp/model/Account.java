@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.cmtech.android.bledeviceapp.interfac.IMyJson;
+import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -32,7 +32,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
   * Version:        1.0
  */
 
-public class Account extends LitePalSupport implements Serializable, IMyJson {
+public class Account extends LitePalSupport implements Serializable, IJsonable {
     private int id; // id
     private String platName = ""; // platform name
     private String platId = ""; // platform ID
@@ -113,8 +113,12 @@ public class Account extends LitePalSupport implements Serializable, IMyJson {
     */
 
     @Override
-    public boolean setDataFromJson(JSONObject json) throws JSONException {
+    public boolean fromJson(JSONObject json) throws JSONException {
         if(json == null) {
+            return false;
+        }
+        String ver = json.getString("ver");
+        if(!"1.0".equals(ver)) {
             return false;
         }
 
@@ -124,11 +128,11 @@ public class Account extends LitePalSupport implements Serializable, IMyJson {
         if(!TextUtils.isEmpty(iconStr)) {
             Bitmap bitmap = BitmapUtil.byteToBitmap(Base64.decode(iconStr, Base64.DEFAULT));
             if(bitmap != null) {
-                assert DIR_IMAGE != null;
-                File toFile = FileUtil.getFile(DIR_IMAGE, platName+platId + ".jpg");
-                BitmapUtil.saveBitmap(bitmap, toFile);
                 try {
-                    icon = toFile.getCanonicalPath();
+                    assert DIR_IMAGE != null;
+                    File iconFile = FileUtil.getFile(DIR_IMAGE, platName+platId + ".jpg");
+                    BitmapUtil.saveBitmap(bitmap, iconFile);
+                    icon = iconFile.getCanonicalPath();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

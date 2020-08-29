@@ -47,7 +47,7 @@ public class BleTempHumidRecord10 extends BasicRecord {
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) {
+    public boolean fromJson(JSONObject json) {
         return false;
     }
 

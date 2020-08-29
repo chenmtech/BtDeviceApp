@@ -6,8 +6,8 @@ import org.json.JSONObject;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.interfac
- * ClassName:      IMyJson
- * Description:    java类作用描述
+ * ClassName:      IJsonable
+ * Description:    可以与JSON格式交换数据的接口
  * Author:         作者名
  * CreateDate:     2020/5/4 上午5:21
  * UpdateUser:     更新者
@@ -15,7 +15,7 @@ import org.json.JSONObject;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface IMyJson {
-    boolean setDataFromJson(JSONObject json) throws JSONException;
+public interface IJsonable {
+    boolean fromJson(JSONObject json) throws JSONException;
     JSONObject toJson() throws JSONException;
 }

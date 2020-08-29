@@ -75,7 +75,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) throws JSONException{
+    public boolean fromJson(JSONObject json) throws JSONException{
         if(json == null) {
             return false;
         }
