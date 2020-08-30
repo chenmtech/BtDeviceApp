@@ -23,7 +23,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 /**
   *
   * ClassName:      Account
-  * Description:    Account class
+  * Description:    账户信息类
   * Author:         chenm
   * CreateDate:     2018/10/27 上午3:57
   * UpdateUser:     chenm
@@ -84,41 +84,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable {
     public void setIcon(String icon) {
         this.icon = icon;
     }
-    /* download user's web icon to local file system
-    public void downloadIcon(final IDownloadUserIconCallback callback) {
-        HttpUtils.requestGet(icon, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    byte[] bytes = Objects.requireNonNull(response.body()).bytes();
-                    final Bitmap bitmap = BitmapUtil.byteToBitmap(bytes);
-                    String fileName = id+".jpg";
-                    assert DIR_IMAGE != null;
-                    File toFile = FileUtil.getFile(DIR_IMAGE, fileName);
-                    BitmapUtil.saveBitmap(bitmap, toFile);
-                    localIcon = toFile.getCanonicalPath();
-                    save();
-                    if(callback != null) {
-                        callback.onSuccess(localIcon);
-                    }
-                }
-            }
-        });
-    }
-    */
 
     @Override
     public boolean fromJson(JSONObject json) throws JSONException {
         if(json == null) {
-            return false;
-        }
-        String ver = json.getString("ver");
-        if(!"1.0".equals(ver)) {
             return false;
         }
 
@@ -178,8 +147,4 @@ public class Account extends LitePalSupport implements Serializable, IJsonable {
         Account other = (Account) otherObject;
         return (platName + platId).equals(other.platName+other.platId);
     }
-
-    /*public interface IDownloadUserIconCallback {
-        void onSuccess(String iconFilePath);
-    }*/
 }

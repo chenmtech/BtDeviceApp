@@ -27,6 +27,9 @@ import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
  * Version:        1.0
  */
 public class KMWebService {
+    public static final int WEB_CODE_SUCCESS = 0; // web code success
+    public static final int WEB_CODE_FAILURE = 1; // web code failure
+
     public static void signUp(String platName, String platId, Callback callback) {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "signUp");

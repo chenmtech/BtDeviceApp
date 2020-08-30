@@ -20,8 +20,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -67,7 +67,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
             new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if (code == CODE_SUCCESS) {
+                    if (code == WEB_CODE_SUCCESS) {
                         JSONObject json = (JSONObject) result;
 
                         try {

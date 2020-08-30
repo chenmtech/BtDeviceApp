@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
+import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
 
 /**
   *
@@ -224,7 +224,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{DOWNLOAD_RECORD_BASIC_INFO_NUM, noteFilterStr}, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if(code == CODE_SUCCESS) { // download success, save into local records
+                if(code == WEB_CODE_SUCCESS) { // download success, save into local records
                     try {
                         JSONArray jsonArr = (JSONArray) result;
                         for(int i = 0; i < jsonArr.length(); i++) {
@@ -294,7 +294,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(int code, final Object rlt) {
-                final boolean result = (code == CODE_SUCCESS);
+                final boolean result = (code == WEB_CODE_SUCCESS);
                 if (result) {
                     int id = (Integer) rlt;
                     if (id == INVALID_ID) {
@@ -302,9 +302,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new RecordWebAsyncTask.RecordWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
-                                int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
+                                int strId = (code == WEB_CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
                                 Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
-                                if (code == CODE_SUCCESS) {
+                                if (code == WEB_CODE_SUCCESS) {
                                     record.setNeedUpload(false);
                                     record.save();
                                     updateRecordView();
@@ -316,9 +316,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new RecordWebAsyncTask.RecordWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
-                                int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
+                                int strId = (code == WEB_CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
                                 Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
-                                if (code == CODE_SUCCESS) {
+                                if (code == WEB_CODE_SUCCESS) {
                                     record.setNeedUpload(false);
                                     record.save();
                                     updateRecordView();

@@ -36,9 +36,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.model.AccountInfoWebAsyncTask.DOWNLOAD_CMD;
+import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
 
 /**
  *  AccountActivity: 账户设置Activity
@@ -121,7 +121,7 @@ public class AccountActivity extends AppCompatActivity {
                 new AccountInfoWebAsyncTask(AccountActivity.this, AccountInfoWebAsyncTask.UPLOAD_CMD, new AccountInfoWebAsyncTask.AccountInfoWebCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
-                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                        int strId = (code == WEB_CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
                         Toast.makeText(AccountActivity.this, strId, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
                         setResult(RESULT_OK, intent);
@@ -201,7 +201,7 @@ public class AccountActivity extends AppCompatActivity {
         new AccountInfoWebAsyncTask(AccountActivity.this, DOWNLOAD_CMD, new AccountInfoWebAsyncTask.AccountInfoWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if (code == CODE_SUCCESS) {
+                if (code == WEB_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) result;
 
                     try {

@@ -39,7 +39,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     public static final int RECORD_CMD_DOWNLOAD_BASIC_INFO = 5; // download basic record information command
     public static final int RECORD_CMD_DOWNLOAD = 6; // download record command
 
-    public static final int CODE_SUCCESS = 0; // success
     private static final int DEFAULT_DOWNLOAD_BASIC_INFO_NUM_PER_TIME = 10;
 
     public interface RecordWebCallback {

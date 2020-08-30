@@ -16,6 +16,7 @@ import org.litepal.LitePal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.ShareSDK;
@@ -25,10 +26,10 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
@@ -87,23 +88,18 @@ public class AccountManager {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if(response.body() == null) return;
-                String respBody = response.body().string();
+                String respBody = Objects.requireNonNull(response.body()).string();
                 try {
                     JSONObject json = new JSONObject(respBody);
                     int code = json.getInt("code");
-                    if(code != CODE_SUCCESS) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
                     ViseLog.e("login/sign up:"+code);
+                    if(code == WEB_CODE_SUCCESS) {
+                        return;
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                runOnUiThread(() -> Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show());
             }
         });
     }

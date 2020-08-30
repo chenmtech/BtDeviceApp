@@ -17,6 +17,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_FAILURE;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.model
@@ -33,9 +35,6 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
     public static final int UPLOAD_CMD = 1; // upload user info command
     public static final int DOWNLOAD_CMD = 2; // download user info command
 
-    public static final int CODE_SUCCESS = 0; // success
-    public static final int CODE_FAILURE = 1; // failure
-
     public static final int WAIT_TASK_SECOND = 10;
 
     public interface AccountInfoWebCallback {
@@ -46,7 +45,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
     private final int cmd;
     private final AccountInfoWebCallback callback;
 
-    private int code = CODE_FAILURE;
+    private int code = WEB_CODE_FAILURE;
     private Object rlt = null;
     private boolean taskFinish = false;
 
@@ -91,7 +90,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                 KMWebService.uploadAccountInfo(account, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        code = CODE_FAILURE;
+                        code = WEB_CODE_FAILURE;
                         rlt = null;
                         taskFinish = true;
                     }
@@ -104,7 +103,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                             code = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            code = CODE_FAILURE;
+                            code = WEB_CODE_FAILURE;
                             rlt = null;
                         } finally {
                             taskFinish = true;
@@ -118,7 +117,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                 KMWebService.downloadAccountInfo(account, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        code = CODE_FAILURE;
+                        code = WEB_CODE_FAILURE;
                         rlt = null;
                         taskFinish = true;
                     }
@@ -133,7 +132,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                             rlt = json.get("user");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            code = CODE_FAILURE;
+                            code = WEB_CODE_FAILURE;
                             rlt = null;
                         } finally {
                             taskFinish = true;
@@ -143,7 +142,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                 break;
 
             default:
-                code = CODE_FAILURE;
+                code = WEB_CODE_FAILURE;
                 rlt = null;
                 taskFinish = true;
                 break;
