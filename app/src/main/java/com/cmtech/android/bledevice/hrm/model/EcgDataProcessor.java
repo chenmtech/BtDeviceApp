@@ -46,8 +46,8 @@ public class EcgDataProcessor {
     }
 
     public synchronized void start() {
-        nextPackNum = 0;
         if(ExecutorUtil.isDead(procService)) {
+            nextPackNum = 0;
             procService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
@@ -65,17 +65,17 @@ public class EcgDataProcessor {
         ExecutorUtil.shutdownNowAndAwaitTerminate(procService);
     }
 
-    public synchronized void processData(final byte[] data) {
+    public synchronized void takeData(final byte[] data) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override
                 public void run() {
                     int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
-                    if(packageNum == nextPackNum) { // good packet
+                    if (packageNum == nextPackNum) { // good packet
                         int[] pack = resolveData(data, 1);
                         ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
-                        nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum+1;
-                    } else if(nextPackNum != INVALID_PACKET_NUM){ // bad packet, force disconnect
+                        nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum + 1;
+                    } else if (nextPackNum != INVALID_PACKET_NUM) { // bad packet, force disconnect
                         ViseLog.e("The ecg data packet is lost.");
                         nextPackNum = INVALID_PACKET_NUM;
                         device.disconnect(false);

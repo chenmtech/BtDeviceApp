@@ -131,7 +131,7 @@ public class HrmDevice extends AbstractDevice {
     private boolean ecgOn = false; // is ecg function on
 
     private Timer ttsTimer = new Timer();
-    private volatile boolean needSpeak = false; // need speaking HR
+    private final HRSpeaker speaker = new HRSpeaker(); // HR Speaker
 
     public HrmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
@@ -258,7 +258,7 @@ public class HrmDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     //ViseLog.i("ecg data: " + Arrays.toString(data));
-                    ecgProcessor.processData(data);
+                    ecgProcessor.takeData(data);
                 }
 
                 @Override
@@ -440,20 +440,40 @@ public class HrmDevice extends AbstractDevice {
     }
 
     private void startSpeak(int speakPeriod) {
+        speaker.turnOff();
         ttsTimer.cancel();
-        needSpeak = false;
         ttsTimer = new Timer();
         ttsTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                needSpeak = true;
+                speaker.turnOn();
             }
         }, speakPeriod * 60000L, speakPeriod * 60000L);
     }
 
     private void stopSpeak() {
+        speaker.turnOff();
         ttsTimer.cancel();
-        needSpeak = false;
+    }
+
+    private static class HRSpeaker {
+        private boolean speak = false;
+
+        public synchronized void turnOn() {
+            this.speak = true;
+        }
+
+        public synchronized void turnOff() {
+            this.speak = false;
+        }
+
+        public synchronized void speak(String hr) {
+            if (speak) {
+                MyApplication.getTTS().speak(hr);
+                speak = false;
+                ViseLog.e(hr);
+            }
+        }
     }
 
     private void readSensorLocation() {
@@ -492,11 +512,7 @@ public class HrmDevice extends AbstractDevice {
                             }
                         }
 
-                        if (needSpeak) {
-                            MyApplication.getTTS().speak(currentHr);
-                            needSpeak = false;
-                            ViseLog.e(currentHr);
-                        }
+                        speaker.speak(currentHr);
 
                         setNotificationInfo(currentHr);
                         if (!MyApplication.isRunInBackground()) {

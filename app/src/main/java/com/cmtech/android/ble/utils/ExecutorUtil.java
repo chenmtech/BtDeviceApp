@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class ExecutorUtil {
     // 关闭线程池并等待它终止
     public static void shutdownNowAndAwaitTerminate(ExecutorService pool) {
-        if (pool != null && !pool.isTerminated()) {
+        if (!isDead(pool)) {
             pool.shutdownNow();
 
             try {
