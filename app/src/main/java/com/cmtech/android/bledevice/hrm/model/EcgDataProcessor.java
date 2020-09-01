@@ -56,6 +56,8 @@ public class EcgDataProcessor {
             });
 
             ViseLog.e("The ecg data processor is started.");
+        } else {
+            throw new IllegalStateException("The ecg data processor's executor is not stopped and can't be started.");
         }
     }
 
@@ -70,20 +72,24 @@ public class EcgDataProcessor {
             procService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
-                    if (packageNum == nextPackNum) { // good packet
-                        int[] pack = resolveData(data, 1);
-                        ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
-                        nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum + 1;
-                    } else if (nextPackNum != INVALID_PACKET_NUM) { // bad packet, force disconnect
-                        ViseLog.e("The ecg data packet is lost.");
-                        nextPackNum = INVALID_PACKET_NUM;
-                        device.disconnect(false);
-                    }
-                    // invalid packet
+                    processData(data);
                 }
             });
         }
+    }
+
+    private void processData(byte[] data) {
+        int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
+        if (packageNum == nextPackNum) { // good packet
+            int[] pack = resolveData(data, 1);
+            ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
+            nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum + 1;
+        } else if (nextPackNum != INVALID_PACKET_NUM) { // bad packet, force disconnect
+            ViseLog.e("The ecg data packet is lost.");
+            nextPackNum = INVALID_PACKET_NUM;
+            device.disconnect(false);
+        }
+        // invalid packet
     }
 
     private int[] resolveData(byte[] data, int begin) {

@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
+import android.app.Activity;
+
 import com.cmtech.android.bledevice.eeg.view.EegRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
@@ -30,9 +32,9 @@ public enum RecordType {
     private String name;
     private int code;
     private int imgId;
-    private Class actClass;
+    private Class<? extends Activity> actClass;
 
-    RecordType(int code, int nameId, int imgId, Class actClass) {
+    RecordType(int code, int nameId, int imgId, Class<? extends Activity> actClass) {
         this.name = MyApplication.getStr(nameId);
         this.code = code;
         this.imgId = imgId;
@@ -69,7 +71,7 @@ public enum RecordType {
         return imgId;
     }
 
-    public Class getActivityClass() {
+    public Class<? extends Activity> getActivityClass() {
         return actClass;
     }
 }

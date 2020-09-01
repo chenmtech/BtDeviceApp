@@ -38,7 +38,7 @@ import java.io.IOException;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.model.AccountInfoWebAsyncTask.DOWNLOAD_CMD;
-import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
  *  AccountActivity: 账户设置Activity

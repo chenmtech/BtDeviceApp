@@ -2,8 +2,6 @@ package com.cmtech.android.bledevice.hrm.model;
 
 import com.cmtech.android.bledevice.record.BleHrRecord10;
 
-import java.util.List;
-
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.model
@@ -18,13 +16,13 @@ import java.util.List;
  */
 public interface OnHrmListener {
     void onHRUpdated(BleHeartRateData hrData); // heart rate updated
-    void onHRStatisticInfoUpdated(List<Short> hrList, short hrMax, short hrAve, List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram);
+    void onHRStatisticInfoUpdated(BleHrRecord10 record);
     void onHRSensLocUpdated(int loc); // sensor location updated
     void onHRCtrlPtUpdated(int ctrl); // control point updated
     void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean inHrMode); // fragment updated
-    void onHrRecordStatusUpdated(boolean isRecord);
+    void onHrRecordStatusUpdated(boolean record);
     void onEcgSignalShowed(int ecgSignal); // ecg signal showed
-    void onEcgSignalRecordStatusUpdated(boolean isRecord); // ecg signal recorded
-    void onEcgOnStatusUpdated(boolean isOpen);
+    void onEcgSignalRecordStatusUpdated(boolean record); // ecg signal recorded
+    void onEcgOnStatusUpdated(boolean ecgOn);
     void onEcgRecordTimeUpdated(int second);
 }

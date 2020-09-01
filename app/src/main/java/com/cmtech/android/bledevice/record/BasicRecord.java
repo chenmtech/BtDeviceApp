@@ -54,7 +54,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
 
     BasicRecord(RecordType type, String ver, long createTime, String devAddress, Account creator, String note, boolean needUpload) {
         if(creator == null) {
-            throw new NullPointerException("The creator is null.");
+            throw new IllegalArgumentException("The creator of the record is null.");
         }
         this.type = type;
         this.ver = ver;
@@ -68,7 +68,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
 
     BasicRecord(JSONObject json, boolean needUpload) throws JSONException{
         if(json == null) {
-            throw new NullPointerException("The json is null.");
+            throw new IllegalArgumentException("The json object is null.");
         }
         this.ver = json.getString("ver");
         this.type = RecordType.getType(json.getInt("recordTypeCode"));
@@ -96,6 +96,11 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
+    public String getName() {
+        return createTime + devAddress;
+    }
+
+    @Override
     public long getCreateTime() {
         return createTime;
     }
@@ -108,11 +113,6 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     @Override
     public String getDevAddress() {
         return devAddress;
-    }
-
-    @Override
-    public String getName() {
-        return createTime + devAddress;
     }
 
     @Override

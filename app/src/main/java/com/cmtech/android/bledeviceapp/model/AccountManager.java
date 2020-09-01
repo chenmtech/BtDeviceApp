@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -29,7 +30,7 @@ import okhttp3.Response;
 import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
@@ -75,7 +76,7 @@ public class AccountManager {
     public void webLogin(final Context context) {
         if(!isLogin()) return;
 
-        KMWebService.signUporLogin(account.getPlatName(), account.getPlatId(), new Callback() {
+        KMWebServiceUtil.signUporLogin(account.getPlatName(), account.getPlatId(), new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 runOnUiThread(new Runnable() {

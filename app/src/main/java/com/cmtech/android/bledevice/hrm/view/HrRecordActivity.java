@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleHrRecord10;
+import com.cmtech.android.bledevice.record.IRecordWebCallback;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.HrHistogramChart;
 import com.cmtech.android.bledevice.view.MyLineChart;
@@ -21,10 +22,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
+import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_TIME_SPAN;
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
-import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 public class HrRecordActivity extends AppCompatActivity {
     private BleHrRecord10 record;
@@ -53,7 +54,7 @@ public class HrRecordActivity extends AppCompatActivity {
         }
 
         if(record.noData()) {
-            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new RecordWebAsyncTask.RecordWebCallback() {
+            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IRecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == WEB_CODE_SUCCESS) {
@@ -85,14 +86,14 @@ public class HrRecordActivity extends AppCompatActivity {
 
     private void initUI() {
         ViseLog.e(record);
-        record.createHistogram();
+        record.createHistogramFromHrHist();
 
         introLayout = findViewById(R.id.layout_record_intro);
         introLayout.redraw(record);
 
         hrLineChart = findViewById(R.id.line_chart);
-        hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
-        hrLineChart.showShortLineChart(record.getFilterHrList(), getResources().getString(R.string.hr_linechart), Color.BLUE);
+        hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_TIME_SPAN);
+        hrLineChart.showShortLineChart(record.getHrList(), getResources().getString(R.string.hr_linechart), Color.BLUE);
 
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.BPM);

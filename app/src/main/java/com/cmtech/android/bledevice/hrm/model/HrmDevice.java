@@ -151,18 +151,18 @@ public class HrmDevice extends AbstractDevice {
         if(recordingHr) {
             hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
             if(listener != null && hrRecord != null) {
-                listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
+                listener.onHRStatisticInfoUpdated(hrRecord);
                 Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
             }
         } else {
             if(hrRecord != null) {
-                if (hrRecord.getFilterHrList().size() < RECORD_MIN_SECOND) {
+                if (hrRecord.getHrList().size() < RECORD_MIN_SECOND) {
                     Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
                     hrRecord.getHrHist().clear();
                     for(int i = 0; i < hrRecord.getHrHistogram().size(); i++) {
-                        hrRecord.getHrHist().add(hrRecord.getHrHistogram().get(i).getHistValue());
+                        hrRecord.getHrHist().add(hrRecord.getHrHistogram().get(i).getValue());
                     }
                     int sum = 0;
                     for(int num : hrRecord.getHrHist()) {
@@ -502,7 +502,7 @@ public class HrmDevice extends AbstractDevice {
                         BleHeartRateData heartRateData = new BleHeartRateData(data);
                         int bpm = heartRateData.getBpm();
                         String currentHr = MyApplication.getStr(R.string.current_hr) + bpm;
-                        boolean hrStatisticUpdated = (recordingHr && hrRecord.process((short) bpm, heartRateData.getTime()));
+                        boolean hrStatisticUpdated = (recordingHr && hrRecord.record((short) bpm, heartRateData.getTime()));
 
                         if(config.needWarn()) {
                             if(bpm > config.getHrHigh())
@@ -520,7 +520,7 @@ public class HrmDevice extends AbstractDevice {
                                 listener.onHRUpdated(heartRateData);
 
                                 if (hrStatisticUpdated) {
-                                    listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
+                                    listener.onHRStatisticInfoUpdated(hrRecord);
                                 }
                             }
                         }

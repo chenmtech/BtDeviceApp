@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
+import com.cmtech.android.bledevice.record.IRecordWebCallback;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
@@ -21,7 +22,7 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
-import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -64,7 +65,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
         }
 
         if(record.noData()) {
-            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new RecordWebAsyncTask.RecordWebCallback() {
+            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IRecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == WEB_CODE_SUCCESS) {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -87,7 +88,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
         switch (cmd) {
             // UPLOAD
             case UPLOAD_CMD:
-                KMWebService.uploadAccountInfo(account, new Callback() {
+                KMWebServiceUtil.uploadAccountInfo(account, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = WEB_CODE_FAILURE;
@@ -114,7 +115,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
 
             // DOWNLOAD
             case DOWNLOAD_CMD:
-                KMWebService.downloadAccountInfo(account, new Callback() {
+                KMWebServiceUtil.downloadAccountInfo(account, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = WEB_CODE_FAILURE;

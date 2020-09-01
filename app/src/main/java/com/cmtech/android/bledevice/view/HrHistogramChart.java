@@ -5,8 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 
-import com.cmtech.android.bledevice.record.BleHrRecord10;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledevice.record.HrHistogramBar;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.github.mikephil.charting.animation.Easing;
@@ -82,7 +81,7 @@ public class HrHistogramChart extends BarChart {
     }
 
     // 更新
-    public void update(List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram) {
+    public void update(List<HrHistogramBar<Integer>> hrHistogram) {
         updateHrBarData(hrHistogram);
         hrBarDataSet.setValues(hrBarEntries);
         invalidate();
@@ -179,14 +178,14 @@ public class HrHistogramChart extends BarChart {
         });
     }
 
-    private void updateHrBarData(List<BleHrRecord10.HrHistogramElement<Integer>> normHistogram) {
+    private void updateHrBarData(List<HrHistogramBar<Integer>> normHistogram) {
         hrBarXStrings.clear();
         hrBarEntries.clear();
         if(normHistogram != null && !normHistogram.isEmpty()) {
             int i = 0;
-            for(BleHrRecord10.HrHistogramElement<Integer> ele : normHistogram) {
-                hrBarXStrings.add(ele.getBarTitle());
-                hrBarEntries.add(new BarEntry(i++, ele.getHistValue()));
+            for(HrHistogramBar<Integer> ele : normHistogram) {
+                hrBarXStrings.add(ele.getTitle());
+                hrBarEntries.add(new BarEntry(i++, ele.getValue()));
             }
         }
     }

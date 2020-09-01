@@ -1,7 +1,7 @@
-package com.cmtech.android.bledeviceapp.model;
+package com.cmtech.android.bledeviceapp.util;
 
 import com.cmtech.android.bledevice.record.IRecord;
-import com.cmtech.android.bledeviceapp.util.HttpUtils;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
@@ -17,7 +17,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.model
- * ClassName:      KMWebService
+ * ClassName:      KMWebServiceUtil
  * Description:    康明网络服务
  * Author:         作者名
  * CreateDate:     2020/4/14 上午10:51
@@ -26,7 +26,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class KMWebService {
+public class KMWebServiceUtil {
     public static final int WEB_CODE_SUCCESS = 0; // web code success
     public static final int WEB_CODE_FAILURE = 1; // web code failure
 

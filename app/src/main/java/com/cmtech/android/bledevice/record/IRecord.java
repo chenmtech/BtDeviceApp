@@ -20,10 +20,10 @@ public interface IRecord extends IJsonable {
     int getId();
     String getVer();
     int getTypeCode();
+    String getName();
     long getCreateTime();
     void setCreateTime(long createTime);
     String getDevAddress();
-    String getName();
     String getCreatorPlat();
     String getCreatorId();
     String getCreatorName();

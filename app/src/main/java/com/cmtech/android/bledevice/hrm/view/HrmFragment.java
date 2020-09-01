@@ -173,27 +173,23 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHRStatisticInfoUpdated(final List<Short> hrList, final short hrMax, final short hrAve, List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram) {
-        if(getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    hrRecFrag.updateHrInfo(hrList, hrMax, hrAve);
-                }
-            });
-        }
+    public void onHRStatisticInfoUpdated(BleHrRecord10 record) {
+        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hrRecFrag.updateHrInfo(record.getHrList(), record.getHrMax(), record.getHrAve());
+            }
+        });
     }
 
     @Override
     public void onHRSensLocUpdated(final int loc) {
-        if(getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //debugFrag.updateHrSensLoc(String.valueOf(loc));
-                }
-            });
-        }
+        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //debugFrag.updateHrSensLoc(String.valueOf(loc));
+            }
+        });
     }
 
     @Override
@@ -232,8 +228,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHrRecordStatusUpdated(boolean isRecord) {
-        hrRecFrag.updateHrRecordStatus(isRecord);
+    public void onHrRecordStatusUpdated(boolean record) {
+        hrRecFrag.updateHrRecordStatus(record);
     }
 
     @Override
@@ -242,8 +238,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onEcgSignalRecordStatusUpdated(boolean isRecord) {
-        ecgRecFrag.updateRecordStatus(isRecord);
+    public void onEcgSignalRecordStatusUpdated(boolean record) {
+        ecgRecFrag.updateRecordStatus(record);
     }
 
     @Override

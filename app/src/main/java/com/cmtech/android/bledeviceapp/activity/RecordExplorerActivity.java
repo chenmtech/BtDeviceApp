@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,8 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -25,6 +24,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.IRecord;
+import com.cmtech.android.bledevice.record.IRecordWebCallback;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
@@ -46,7 +46,7 @@ import java.util.Map;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.model.KMWebService.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
   *
@@ -221,7 +221,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{DOWNLOAD_RECORD_BASIC_INFO_NUM, noteFilterStr}, true, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{DOWNLOAD_RECORD_BASIC_INFO_NUM, noteFilterStr}, true, new IRecordWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == WEB_CODE_SUCCESS) { // download success, save into local records
@@ -257,7 +257,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     public void openRecord(IRecord record) {
         if(record != null) {
             Intent intent = null;
-            Class actClass = RecordType.getType(record.getTypeCode()).getActivityClass();
+            Class<? extends Activity> actClass = RecordType.getType(record.getTypeCode()).getActivityClass();
             if (actClass != null) {
                 intent = new Intent(RecordExplorerActivity.this, actClass);
             }
@@ -275,7 +275,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_DELETE, new RecordWebAsyncTask.RecordWebCallback() {
+                    new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_DELETE, new IRecordWebCallback() {
                         @Override
                         public void onFinish(int code, Object result) {
                             LitePal.delete(record.getClass(), record.getId());
@@ -291,7 +291,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     public void uploadRecord(final BasicRecord record) {
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new IRecordWebCallback() {
             @Override
             public void onFinish(int code, final Object rlt) {
                 final boolean result = (code == WEB_CODE_SUCCESS);
@@ -299,11 +299,11 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     int id = (Integer) rlt;
                     if (id == INVALID_ID) {
                         ViseLog.e("uploading");
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IRecordWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
-                                int strId = (code == WEB_CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
-                                Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
+                                int webResult = (code == WEB_CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
+                                Toast.makeText(RecordExplorerActivity.this, webResult, Toast.LENGTH_SHORT).show();
                                 if (code == WEB_CODE_SUCCESS) {
                                     record.setNeedUpload(false);
                                     record.save();
@@ -312,12 +312,12 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             }
                         }).execute(record);
                     } else {
-                        ViseLog.e("updating");
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new RecordWebAsyncTask.RecordWebCallback() {
+                        ViseLog.e("updating note");
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IRecordWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
-                                int strId = (code == WEB_CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
-                                Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
+                                int webResult = (code == WEB_CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
+                                Toast.makeText(RecordExplorerActivity.this, webResult, Toast.LENGTH_SHORT).show();
                                 if (code == WEB_CODE_SUCCESS) {
                                     record.setNeedUpload(false);
                                     record.save();
