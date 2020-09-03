@@ -29,13 +29,15 @@ import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
 public class KMWebServiceUtil {
     public static final int WEB_CODE_SUCCESS = 0; // web code success
     public static final int WEB_CODE_FAILURE = 1; // web code failure
+    private static final String ACCOUNT_OP_URL = "Account?";
+    private static final String RECORD_OP_URL = "Record?";
 
     public static void signUp(String platName, String platId, Callback callback) {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "signUp");
         data.put("platName", platName);
         data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + "Account?", data, callback);
+        HttpUtils.requestGet(KMURL + ACCOUNT_OP_URL, data, callback);
     }
 
     public static void login(String platName, String platId, Callback callback) {
@@ -43,7 +45,7 @@ public class KMWebServiceUtil {
         data.put("cmd", "login");
         data.put("platName", platName);
         data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + "Account?", data, callback);
+        HttpUtils.requestGet(KMURL + ACCOUNT_OP_URL, data, callback);
     }
 
     public static void signUporLogin(String platName, String platId, Callback callback) {
@@ -51,7 +53,7 @@ public class KMWebServiceUtil {
         data.put("cmd", "signUporLogin");
         data.put("platName", platName);
         data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + "Account?", data, callback);
+        HttpUtils.requestGet(KMURL + ACCOUNT_OP_URL, data, callback);
     }
 
     public static void uploadAccountInfo(Account account, Callback callback) {
@@ -59,7 +61,7 @@ public class KMWebServiceUtil {
             JSONObject json = account.toJson();
             json.put("cmd", "upload");
             ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + "Account?", json, callback);
+            HttpUtils.requestPost(KMURL + ACCOUNT_OP_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -71,7 +73,7 @@ public class KMWebServiceUtil {
             json.put("cmd", "download");
             json.put("platName", account.getPlatName());
             json.put("platId", account.getPlatId());
-            HttpUtils.requestPost(KMURL + "Account?", json, callback);
+            HttpUtils.requestPost(KMURL + ACCOUNT_OP_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -82,7 +84,7 @@ public class KMWebServiceUtil {
         data.put("recordTypeCode", String.valueOf(recordTypeCode));
         data.put("createTime", String.valueOf(createTime));
         data.put("devAddress", devAddress);
-        HttpUtils.requestGet(KMURL + "Record?", data, callback);
+        HttpUtils.requestGet(KMURL + RECORD_OP_URL, data, callback);
     }
 
     public static void uploadRecord(String platName, String platId, IRecord record, Callback callback) {
@@ -92,7 +94,7 @@ public class KMWebServiceUtil {
             json.put("platName", platName);
             json.put("platId", platId);
             ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + "Record?", json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -108,31 +110,16 @@ public class KMWebServiceUtil {
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             json.put("note", record.getNote());
-            HttpUtils.requestPost(KMURL + "Record?", json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public static void deleteRecord(String platName, String platId, IRecord record, Callback callback) {
+    public static void downloadRecordBasicInfo(String platName, String platId, IRecord record, int num, String noteSearchStr, Callback callback) {
         JSONObject json = new JSONObject();
         try {
-            json.put("cmd", "delete");
-            json.put("platName", platName);
-            json.put("platId", platId);
-            json.put("recordTypeCode", record.getTypeCode());
-            json.put("createTime", record.getCreateTime());
-            json.put("devAddress", record.getDevAddress());
-            HttpUtils.requestPost(KMURL + "Record?", json, callback);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void downloadRecordBasicInfo(String platName, String platId, IRecord record, int num, String noteFilterStr, Callback callback) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("cmd", "downloadInfo");
+            json.put("cmd", "downloadBasicInfo");
             json.put("platName", platName);
             json.put("platId", platId);
             json.put("recordTypeCode", record.getTypeCode());
@@ -140,8 +127,8 @@ public class KMWebServiceUtil {
             json.put("creatorPlat", record.getCreatorPlat());
             json.put("creatorId", record.getCreatorId());
             json.put("num", num);
-            json.put("noteFilterStr", noteFilterStr);
-            HttpUtils.requestPost(KMURL + "Record?", json, callback);
+            json.put("noteSearchStr", noteSearchStr);
+            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -156,7 +143,22 @@ public class KMWebServiceUtil {
             json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
-            HttpUtils.requestPost(KMURL + "Record?", json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteRecord(String platName, String platId, IRecord record, Callback callback) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "delete");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("recordTypeCode", record.getTypeCode());
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }

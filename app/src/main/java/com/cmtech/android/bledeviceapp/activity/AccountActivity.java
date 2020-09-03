@@ -27,6 +27,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountInfoWebAsyncTask;
+import com.cmtech.android.bledeviceapp.model.AccountInfoWebCallback;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -118,7 +119,7 @@ public class AccountActivity extends AppCompatActivity {
                 account.setNote(etNote.getText().toString());
                 account.save();
 
-                new AccountInfoWebAsyncTask(AccountActivity.this, AccountInfoWebAsyncTask.UPLOAD_CMD, new AccountInfoWebAsyncTask.AccountInfoWebCallback() {
+                new AccountInfoWebAsyncTask(AccountActivity.this, AccountInfoWebAsyncTask.UPLOAD_CMD, new AccountInfoWebCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
                         int strId = (code == WEB_CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
@@ -198,7 +199,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void download() {
-        new AccountInfoWebAsyncTask(AccountActivity.this, DOWNLOAD_CMD, new AccountInfoWebAsyncTask.AccountInfoWebCallback() {
+        new AccountInfoWebAsyncTask(AccountActivity.this, DOWNLOAD_CMD, new AccountInfoWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if (code == WEB_CODE_SUCCESS) {

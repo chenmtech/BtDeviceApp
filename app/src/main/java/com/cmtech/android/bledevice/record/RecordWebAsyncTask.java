@@ -44,6 +44,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
     public static final int RECORD_CMD_DOWNLOAD_BASIC_INFO = 5; // download basic record information command
     public static final int RECORD_CMD_DOWNLOAD = 6; // download record command
 
+    private static final int WAIT_TASK_SECOND = 10;
     private static final int DEFAULT_DOWNLOAD_BASIC_INFO_NUM_PER_TIME = 10;
 
     private ProgressDialog progressDialog;
@@ -95,8 +96,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                 KMWebServiceUtil.queryRecord(record.getTypeCode(), record.getCreateTime(), record.getDevAddress(), new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        result[0] = WEB_CODE_FAILURE;
-                        result[1] = null;
                         done.countDown();
                     }
 
@@ -125,8 +124,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                 KMWebServiceUtil.uploadRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        result[0] = WEB_CODE_FAILURE;
-                        result[1] = null;
                         done.countDown();
                     }
 
@@ -152,8 +149,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                 KMWebServiceUtil.updateRecordNote(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        result[0] = WEB_CODE_FAILURE;
-                        result[1] = null;
                         done.countDown();
                     }
 
@@ -179,8 +174,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                 KMWebServiceUtil.deleteRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        result[0] = WEB_CODE_FAILURE;
-                        result[1] = null;
                         done.countDown();
                     }
 
@@ -216,8 +209,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                 KMWebServiceUtil.downloadRecordBasicInfo(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, downloadNum, noteSearchStr, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        result[0] = WEB_CODE_FAILURE;
-                        result[1] = null;
                         done.countDown();
                     }
 
@@ -244,8 +235,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                 KMWebServiceUtil.downloadRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        result[0] = WEB_CODE_FAILURE;
-                        result[1] = null;
                         done.countDown();
                     }
 
@@ -274,7 +263,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
         }
 
         try {
-            done.await(10, TimeUnit.SECONDS);
+            done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

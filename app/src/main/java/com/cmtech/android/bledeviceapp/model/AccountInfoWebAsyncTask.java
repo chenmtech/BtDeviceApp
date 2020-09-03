@@ -13,6 +13,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -32,23 +34,15 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAI
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
+public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
     public static final int UPLOAD_CMD = 1; // upload user info command
     public static final int DOWNLOAD_CMD = 2; // download user info command
 
-    public static final int WAIT_TASK_SECOND = 10;
-
-    public interface AccountInfoWebCallback {
-        void onFinish(int code, Object result);
-    }
+    private static final int WAIT_TASK_SECOND = 10;
 
     private final ProgressDialog progressDialog;
     private final int cmd;
     private final AccountInfoWebCallback callback;
-
-    private int code = WEB_CODE_FAILURE;
-    private Object rlt = null;
-    private boolean taskFinish = false;
 
     public AccountInfoWebAsyncTask(Context context, int cmd, AccountInfoWebCallback callback) {
         this(context, cmd, true, callback);
@@ -80,10 +74,12 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(Account... accounts) {
-        if(accounts == null) return null;
+    protected Object[] doInBackground(Account... accounts) {
+        if(accounts == null || accounts.length == 0) return null;
 
         Account account = accounts[0];
+        CountDownLatch done = new CountDownLatch(1);
+        final Object[] result = {WEB_CODE_FAILURE, null};
 
         switch (cmd) {
             // UPLOAD
@@ -91,9 +87,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                 KMWebServiceUtil.uploadAccountInfo(account, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        code = WEB_CODE_FAILURE;
-                        rlt = null;
-                        taskFinish = true;
+                        done.countDown();
                     }
 
                     @Override
@@ -101,13 +95,13 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                         String respBody = response.body().string();
                         try {
                             JSONObject json = new JSONObject(respBody);
-                            code = json.getInt("code");
+                            result[0] = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            code = WEB_CODE_FAILURE;
-                            rlt = null;
+                            result[0] = WEB_CODE_FAILURE;
+                            result[1] = null;
                         } finally {
-                            taskFinish = true;
+                            done.countDown();
                         }
                     }
                 });
@@ -118,9 +112,7 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                 KMWebServiceUtil.downloadAccountInfo(account, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        code = WEB_CODE_FAILURE;
-                        rlt = null;
-                        taskFinish = true;
+                        done.countDown();
                     }
 
                     @Override
@@ -129,43 +121,36 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             ViseLog.e(json.toString());
-                            code = json.getInt("code");
-                            rlt = json.get("user");
+                            result[0] = json.getInt("code");
+                            result[1] = json.get("account");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            code = WEB_CODE_FAILURE;
-                            rlt = null;
+                            result[0] = WEB_CODE_FAILURE;
+                            result[1] = null;
                         } finally {
-                            taskFinish = true;
+                            done.countDown();
                         }
                     }
                 });
                 break;
 
             default:
-                code = WEB_CODE_FAILURE;
-                rlt = null;
-                taskFinish = true;
+                done.countDown();
                 break;
         }
 
-        int i = 0;
-        while (!taskFinish && i++ < WAIT_TASK_SECOND) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                break;
-            }
+        try {
+            done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
-        return null;
+        return result;
     }
 
     @Override
-    protected void onPostExecute(Void result) {
-        callback.onFinish(code, rlt);
-
+    protected void onPostExecute(Object[] result) {
+        callback.onFinish((Integer) result[0], result[1]);
         if(progressDialog != null)
             progressDialog.dismiss();
     }
