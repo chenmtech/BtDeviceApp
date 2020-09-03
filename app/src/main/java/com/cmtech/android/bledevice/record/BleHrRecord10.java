@@ -35,7 +35,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     private int recordSecond; // unit: s
 
     @Column(ignore = true)
-    private transient final HrMAFilter hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_TIME_SPAN);; // moving average filter
+    private transient final HrMAFilter hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_TIME_SPAN); // moving average filter
     @Column(ignore = true)
     private final List<HrHistogramBar<Integer>> hrHistogram = new ArrayList<>();
     @Column(ignore = true)
