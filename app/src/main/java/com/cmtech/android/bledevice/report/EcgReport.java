@@ -47,6 +47,30 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         this.record = record;
     }
 
+    public String getVer() {
+        return ver;
+    }
+
+    public void setVer(String ver) {
+        this.ver = ver;
+    }
+
+    public long getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     @Override
     public boolean fromJson(JSONObject json) {
         if(json == null) {
@@ -67,8 +91,8 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     @Override
     public JSONObject toJson() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("recordDevAddress", record.getDevAddress());
         json.put("recordCreateTime", record.getCreateTime());
+        json.put("recordDevAddress", record.getDevAddress());
         json.put("ver", ver);
         json.put("createTime", createTime);
         json.put("content", content);
@@ -146,11 +170,11 @@ public class EcgReport extends LitePalSupport implements IJsonable {
 
         @Override
         protected Object[] doInBackground(EcgReport... ecgReports) {
-            if(ecgReports == null || ecgReports.length == 0) return null;
+            final Object[] result = {WEB_CODE_FAILURE, null};
+            if(ecgReports == null || ecgReports.length == 0 || ecgReports[0] == null) return result;
 
             EcgReport report = ecgReports[0];
             CountDownLatch done = new CountDownLatch(1);
-            final Object[] result = {WEB_CODE_FAILURE, null};
 
             KMWebServiceUtil.requestReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), report, new Callback() {
                 @Override
@@ -164,8 +188,8 @@ public class EcgReport extends LitePalSupport implements IJsonable {
                     try {
                         JSONObject json = new JSONObject(respBody);
                         result[0] = json.getInt("code");
-                        if(json.has("report"))
-                            result[1] = json.getJSONObject("report");
+                        if(json.has("reportResult"))
+                            result[1] = json.getJSONObject("reportResult");
                     } catch (JSONException e) {
                         e.printStackTrace();
                     } finally {

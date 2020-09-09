@@ -136,6 +136,14 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         return report;
     }
 
+    public void setReport(EcgReport report) {
+        this.report.setVer(report.getVer());
+        this.report.setCreateTime(report.getCreateTime());
+        this.report.setContent(report.getContent());
+        this.report.save();
+        save();
+    }
+
     @Override
     public boolean isEOD() {
         return (pos >= ecgData.size());

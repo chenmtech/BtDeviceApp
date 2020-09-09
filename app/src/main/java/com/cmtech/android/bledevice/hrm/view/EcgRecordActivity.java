@@ -29,6 +29,10 @@ import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_ADD_NEW;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_PROCESSING;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
@@ -172,18 +176,38 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                 report.request(context, new IReportWebCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
-                        final boolean rst = (code == WEB_CODE_SUCCESS);
-                        if (rst) {
-                            if (result == null) {
-                                Toast.makeText(context, "暂无报告", Toast.LENGTH_SHORT).show();
-                            } else {
-                                report.fromJson((JSONObject) result);
-                                record.save();
-                                Toast.makeText(context, "获取新报告："+report.toString(), Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
+                        if(code != WEB_CODE_SUCCESS) {
                             Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                            return;
                         }
+
+                        JSONObject reportresult = (JSONObject)result;
+                        try {
+                            int reportCode = reportresult.getInt("reportCode");
+                            switch (reportCode) {
+                                case CODE_REPORT_SUCCESS:
+                                    report.fromJson(reportresult.getJSONObject("report"));
+                                    record.save();
+                                    Toast.makeText(context, "已获取新报告："+report.toString(), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CODE_REPORT_FAILURE:
+                                    Toast.makeText(context, "获取报告错误", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CODE_REPORT_ADD_NEW:
+                                    Toast.makeText(context, "已申请新的报告", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CODE_REPORT_PROCESSING:
+                                    Toast.makeText(context, "报告处理中，请等待", Toast.LENGTH_SHORT).show();
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
                     }
                 });
             }
