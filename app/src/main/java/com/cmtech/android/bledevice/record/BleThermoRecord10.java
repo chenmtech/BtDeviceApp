@@ -75,7 +75,7 @@ public class BleThermoRecord10 extends BasicRecord {
     }
 
     @Override
-    public boolean noData() {
+    public boolean noSignal() {
         return temp.isEmpty();
     }
 

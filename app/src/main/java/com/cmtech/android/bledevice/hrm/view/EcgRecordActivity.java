@@ -1,8 +1,10 @@
 package com.cmtech.android.bledevice.hrm.view;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -12,6 +14,8 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.IRecordWebCallback;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
+import com.cmtech.android.bledevice.report.EcgReport;
+import com.cmtech.android.bledevice.report.IReportWebCallback;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
@@ -40,6 +44,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private EditText etNote;
     private ImageButton ibEdit;
+    private Button btnGetReport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +64,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             record.save();
         }
 
-        if(record.noData()) {
+        if(record.noSignal()) {
             new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IRecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
@@ -156,6 +161,31 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     etNote.setEnabled(true);
                     ibEdit.setImageResource(R.mipmap.ic_save_24px);
                 }
+            }
+        });
+
+        btnGetReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = EcgRecordActivity.this;
+                EcgReport report = new EcgReport(record);
+                report.request(context, new IReportWebCallback() {
+                    @Override
+                    public void onFinish(int code, Object result) {
+                        final boolean rst = (code == WEB_CODE_SUCCESS);
+                        if (rst) {
+                            if (result == null) {
+                                Toast.makeText(context, "暂无报告", Toast.LENGTH_SHORT).show();
+                            } else {
+                                report.fromJson((JSONObject) result);
+                                record.save();
+                                Toast.makeText(context, "获取新报告："+report.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
 

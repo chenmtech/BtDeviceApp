@@ -53,7 +53,7 @@ public class HrRecordActivity extends AppCompatActivity {
             finish();
         }
 
-        if(record.noData()) {
+        if(record.noSignal()) {
             new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IRecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {

@@ -95,7 +95,7 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     @Override
-    public boolean noData() {
+    public boolean noSignal() {
         return eegData.isEmpty();
     }
 

@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
+import com.cmtech.android.bledevice.report.EcgReport;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
@@ -31,6 +32,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
     private int leadTypeCode; // lead type code
     private int recordSecond; // unit: s
     private List<Short> ecgData; // ecg data
+    private EcgReport report;
     @Column(ignore = true)
     private int pos = 0; // current position to the ecgData
 
@@ -57,6 +59,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         caliValue = 0;
         leadTypeCode = 0;
         ecgData = new ArrayList<>();
+        report = new EcgReport(this);
     }
 
     @Override
@@ -95,7 +98,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     @Override
-    public boolean noData() {
+    public boolean noSignal() {
         return ecgData.isEmpty();
     }
 
@@ -127,6 +130,10 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
 
     public void setLeadTypeCode(int leadTypeCode) {
         this.leadTypeCode = leadTypeCode;
+    }
+
+    public EcgReport getReport() {
+        return report;
     }
 
     @Override

@@ -179,7 +179,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public boolean noData() {
+    public boolean noSignal() {
         return true;
     }
 

@@ -31,5 +31,5 @@ public interface IRecord extends IJsonable {
     void setNote(String note);
     boolean needUpload();
     void setNeedUpload(boolean needUpload);
-    boolean noData();
+    boolean noSignal();
 }

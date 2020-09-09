@@ -122,7 +122,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                 if(FastClickUtil.isFastClick()) return;
                 BasicRecord record = (BasicRecord) records.get(holder.getAdapterPosition());
                 record = (BasicRecord) RecordFactory.createFromLocalDb(RecordType.getType(record.getTypeCode()), record.getCreateTime(), record.getDevAddress());
-                if(record == null || record.noData()) {
+                if(record == null || record.noSignal()) {
                     Toast.makeText(activity, R.string.record_damage, Toast.LENGTH_SHORT).show();
                     return;
                 }

@@ -116,7 +116,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     }
 
     @Override
-    public boolean noData() {
+    public boolean noSignal() {
         return hrList.isEmpty();
     }
 

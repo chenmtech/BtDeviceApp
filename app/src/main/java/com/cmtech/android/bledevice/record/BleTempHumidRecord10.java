@@ -52,7 +52,7 @@ public class BleTempHumidRecord10 extends BasicRecord {
     }
 
     @Override
-    public boolean noData() {
+    public boolean noSignal() {
         return true;
     }
 
