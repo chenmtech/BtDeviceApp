@@ -114,24 +114,20 @@ public class HrmDevice extends AbstractDevice {
     private int caliValue = DEFAULT_CALI_1MV; // 1mV calibration value
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
 
-    private boolean includeBattService = false; // include battery service
-    private boolean workInHrMode = true; // work in HR Mode
-    private EcgDataProcessor ecgProcessor; // ecg processor
-
-    private OnHrmListener listener; // hrm device listener
-
-    private final HrmCfg config; // hr device configuration
-
-    private BleHrRecord10 hrRecord;
-    private boolean recordingHr = false; // is recording hr
-
-    private BleEcgRecord10 ecgRecord;
-    private boolean recordingEcg = false; // is recording ecg
-
+    private boolean battService = false; // does it include battery service?
+    private boolean hrMode = true; // does it work in HR Mode?
+    private boolean hrRecording = false; // is HR being recorded
+    private boolean ecgRecording = false; // is ECG being recorded
     private boolean ecgOn = false; // is ecg function on
 
-    private Timer ttsTimer = new Timer();
+    private final HrmCfg config; // HRM device configuration
     private final HRSpeaker speaker = new HRSpeaker(); // HR Speaker
+
+    private EcgDataProcessor ecgProcessor; // ecg signal processor
+    private BleHrRecord10 hrRecord; // HR record
+    private BleEcgRecord10 ecgRecord; // ECG record
+
+    private OnHrmListener listener; // HRM device listener
 
     public HrmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
@@ -144,11 +140,11 @@ public class HrmDevice extends AbstractDevice {
         this.config = config;
     }
 
-    public void setRecordingHr(boolean recordingHr) {
-        if(this.recordingHr == recordingHr) return;
+    public void setHrRecording(boolean hrRecording) {
+        if(this.hrRecording == hrRecording) return;
 
-        this.recordingHr = recordingHr;
-        if(recordingHr) {
+        this.hrRecording = hrRecording;
+        if(hrRecording) {
             hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord);
@@ -178,14 +174,14 @@ public class HrmDevice extends AbstractDevice {
             ViseLog.e(hrRecord);
         }
         if(listener != null) {
-            listener.onHrRecordStatusUpdated(this.recordingHr);
+            listener.onHrRecordStatusUpdated(this.hrRecording);
         }
     }
 
-    public void setRecordingEcg(boolean recordingEcg) {
-        if(this.recordingEcg == recordingEcg) return;
+    public void setEcgRecording(boolean ecgRecording) {
+        if(this.ecgRecording == ecgRecording) return;
 
-        if(recordingEcg && !ecgOn) {
+        if(ecgRecording && !ecgOn) {
             Toast.makeText(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
             if(listener != null) {
                 listener.onEcgSignalRecordStatusUpdated(false);
@@ -193,8 +189,8 @@ public class HrmDevice extends AbstractDevice {
             return;
         }
 
-        this.recordingEcg = recordingEcg;
-        if(recordingEcg) {
+        this.ecgRecording = ecgRecording;
+        if(ecgRecording) {
             ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
             if(ecgRecord != null) {
                 ecgRecord.setSampleRate(sampleRate);
@@ -216,19 +212,19 @@ public class HrmDevice extends AbstractDevice {
             }
         }
         if(listener != null) {
-            listener.onEcgSignalRecordStatusUpdated(this.recordingEcg);
+            listener.onEcgSignalRecordStatusUpdated(this.ecgRecording);
         }
     }
 
     public void setMode(final boolean workInHrMode) {
-        if(this.workInHrMode == workInHrMode) return;
+        if(this.hrMode == workInHrMode) return;
 
         byte data = (workInHrMode) ? HR_MODE : ECG_MODE;
 
         ((BleConnector) connector).write(MODESTATUS, data, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                HrmDevice.this.workInHrMode = workInHrMode;
+                HrmDevice.this.hrMode = workInHrMode;
             }
 
             @Override
@@ -238,13 +234,13 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void setEcgOn(boolean ecgOn) {
-        if(workInHrMode) {
+        if(hrMode) {
             if(listener != null)
                 listener.onEcgOnStatusUpdated(false);
             return;
         }
 
-        if(recordingEcg && !ecgOn) {
+        if(ecgRecording && !ecgOn) {
             Toast.makeText(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT).show();
             if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
@@ -287,15 +283,16 @@ public class HrmDevice extends AbstractDevice {
     public void close() {
         super.close();
 
-        if(recordingHr) {
-            setRecordingHr(false);
+        if(hrRecording) {
+            setHrRecording(false);
         }
 
-        if(recordingEcg) {
-            setRecordingEcg(false);
+        if(ecgRecording) {
+            setEcgRecording(false);
         }
 
-        stopSpeak();
+        if(speaker != null)
+            speaker.stop();
     }
 
     @Override
@@ -312,7 +309,7 @@ public class HrmDevice extends AbstractDevice {
 
         elements = new BleGattElement[]{BATTLEVEL, BATTLEVELCCC};
         if(connector.containGattElements(elements)) {
-            includeBattService = true;
+            battService = true;
             readBatteryLevel();
             setBatteryMeasure(true);
         }
@@ -323,7 +320,7 @@ public class HrmDevice extends AbstractDevice {
             connector.runInstantly(new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    if(workInHrMode) {
+                    if(hrMode) {
                         if (listener != null)
                             listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, true);
 
@@ -343,7 +340,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(config.isSpeak())
-            startSpeak(config.getSpeakPeriod());
+            speaker.start(config.getSpeakPeriod());
 
         return true;
     }
@@ -354,8 +351,9 @@ public class HrmDevice extends AbstractDevice {
             ecgProcessor.stop();
         }
 
-        stopSpeak();
-        setRecordingEcg(false);
+        speaker.stop();
+
+        setEcgRecording(false);
         //setEcgOn(false);
     }
 
@@ -365,8 +363,10 @@ public class HrmDevice extends AbstractDevice {
             ecgProcessor.stop();
         }
 
-        stopSpeak();
-        setRecordingEcg(false);
+        speaker.stop();
+
+        setEcgRecording(false);
+
         //setEcgOn(false);
     }
 
@@ -374,7 +374,7 @@ public class HrmDevice extends AbstractDevice {
     public void disconnect(final boolean forever) {
         setHRMeasure(false);
         setBatteryMeasure(false);
-        setRecordingEcg(false);
+        setEcgRecording(false);
         //setEcgOn(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
@@ -399,19 +399,19 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public final boolean inHrMode() {
-        return workInHrMode;
+        return hrMode;
     }
 
     public boolean isEcgOn() {
         return ecgOn;
     }
 
-    public boolean isRecordingEcg() {
-        return recordingEcg;
+    public boolean isEcgRecording() {
+        return ecgRecording;
     }
 
-    public final boolean isRecordingHr() {
-        return recordingHr;
+    public final boolean isHrRecording() {
+        return hrRecording;
     }
 
     public final HrmCfg getConfig() {
@@ -424,9 +424,9 @@ public class HrmDevice extends AbstractDevice {
         this.config.save();
         if(isSpeakChanged && getConnectState() == DeviceConnectState.CONNECT) {
             if(this.config.isSpeak())
-                startSpeak(this.config.getSpeakPeriod());
+                speaker.start(this.config.getSpeakPeriod());
             else {
-                stopSpeak();
+                speaker.stop();
             }
         }
     }
@@ -439,39 +439,41 @@ public class HrmDevice extends AbstractDevice {
         this.listener = null;
     }
 
-    private void startSpeak(int speakPeriod) {
-        speaker.turnOff();
-        ttsTimer.cancel();
-        ttsTimer = new Timer();
-        ttsTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                speaker.turnOn();
-            }
-        }, speakPeriod * 60000L, speakPeriod * 60000L);
-    }
-
-    private void stopSpeak() {
-        speaker.turnOff();
-        ttsTimer.cancel();
-    }
 
     private static class HRSpeaker {
-        private boolean speak = false;
+        private volatile boolean speak = false;
+        private Timer ttsTimer = new Timer();
 
-        public synchronized void turnOn() {
+        public void start(int speakPeriod) {
+            turnOff();
+            ttsTimer.cancel();
+            ttsTimer = new Timer();
+            ttsTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    turnOn();
+                }
+            }, speakPeriod * 60000L, speakPeriod * 60000L);
+        }
+
+        public void stop() {
+            ttsTimer.cancel();
+            turnOff();
+        }
+
+        public void turnOn() {
             this.speak = true;
         }
 
-        public synchronized void turnOff() {
+        public void turnOff() {
             this.speak = false;
         }
 
-        public synchronized void speak(String hr) {
+        public void speak(String hr) {
             if (speak) {
-                MyApplication.getTTS().speak(hr);
+                MyApplication.getInstance().getTTS().speak(hr);
                 speak = false;
-                ViseLog.e(hr);
+                ViseLog.e("speak: " + hr);
             }
         }
     }
@@ -502,13 +504,13 @@ public class HrmDevice extends AbstractDevice {
                         BleHeartRateData heartRateData = new BleHeartRateData(data);
                         int bpm = heartRateData.getBpm();
                         String currentHr = MyApplication.getStr(R.string.current_hr) + bpm;
-                        boolean hrStatisticUpdated = (recordingHr && hrRecord.record((short) bpm, heartRateData.getTime()));
+                        boolean hrStatisticUpdated = (hrRecording && hrRecord.record((short) bpm, heartRateData.getTime()));
 
                         if(config.needWarn()) {
                             if(bpm > config.getHrHigh())
-                                MyApplication.getTTS().speak(R.string.hr_too_high);
+                                MyApplication.getInstance().getTTS().speak(R.string.hr_too_high);
                             else if(bpm < config.getHrLow()) {
-                                MyApplication.getTTS().speak(R.string.hr_too_low);
+                                MyApplication.getInstance().getTTS().speak(R.string.hr_too_low);
                             }
                         }
 
@@ -542,7 +544,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     private void setBatteryMeasure(boolean start) {
-        if(!includeBattService) return;
+        if(!battService) return;
 
         //((BleConnector)connector).notify(BATTLEVELCCC, false, null);
         if(start) {
@@ -580,7 +582,7 @@ public class HrmDevice extends AbstractDevice {
         ((BleConnector)connector).read(MODESTATUS, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                workInHrMode = (data[0] == HR_MODE);
+                hrMode = (data[0] == HR_MODE);
             }
 
             @Override
@@ -600,7 +602,7 @@ public class HrmDevice extends AbstractDevice {
                 ecgProcessor.start();
 
                 if (listener != null)
-                    listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, workInHrMode);
+                    listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, hrMode);
             }
 
             @Override
@@ -658,7 +660,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void recordEcgSignal(int ecgSignal) {
-        if(recordingEcg && ecgRecord != null) {
+        if(ecgRecording && ecgRecord != null) {
             ecgRecord.process((short)ecgSignal);
             if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
                 int second = ecgRecord.getDataNum()/sampleRate;
@@ -667,7 +669,7 @@ public class HrmDevice extends AbstractDevice {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            setRecordingEcg(false);
+                            setEcgRecording(false);
                         }
                     });
                 }

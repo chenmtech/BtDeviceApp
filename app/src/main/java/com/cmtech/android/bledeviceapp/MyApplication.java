@@ -27,7 +27,7 @@ import java.util.List;
 
 public class MyApplication extends Application {
     private static MyApplication instance;
-    private static SystemTTS tts; // text to speech
+    private SystemTTS tts; // text to speech
     private DeviceManager deviceManager;
     private AccountManager accountManager;
 
@@ -126,7 +126,7 @@ public class MyApplication extends Application {
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    public static SystemTTS getTTS() {
+    public SystemTTS getTTS() {
         return tts;
     }
 

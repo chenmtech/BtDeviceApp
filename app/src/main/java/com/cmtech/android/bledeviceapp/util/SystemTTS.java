@@ -3,7 +3,6 @@ package com.cmtech.android.bledeviceapp.util;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.widget.Toast;
 
 import java.util.Locale;
 
