@@ -14,7 +14,6 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.IRecordWebCallback;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
-import com.cmtech.android.bledevice.report.EcgReport;
 import com.cmtech.android.bledevice.report.IReportWebCallback;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
@@ -31,7 +30,9 @@ import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_ADD_NEW;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_NO_NEW;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_PROCESSING;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_REQUEST_AGAIN;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
@@ -48,7 +49,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private EditText etNote;
     private ImageButton ibEdit;
+    private Button btnRequestReport;
     private Button btnGetReport;
+    private EditText etReport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +60,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
 
-        record = LitePal.where("id = ?", ""+recordId).findFirst(BleEcgRecord10.class);
+        record = LitePal.where("id = ?", ""+recordId).findFirst(BleEcgRecord10.class, true);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
@@ -168,48 +171,72 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             }
         });
 
+        etReport = findViewById(R.id.et_ecg_report);
+        if(record.getReport().getCreateTime() > 0)
+            etReport.setText(record.getReport().toString());
+        else
+            etReport.setText("暂无报告。");
+
+        IReportWebCallback reportWebCallback = new IReportWebCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                if(code != WEB_CODE_SUCCESS) {
+                    Toast.makeText(EcgRecordActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                JSONObject reportresult = (JSONObject)result;
+                try {
+                    int reportCode = reportresult.getInt("reportCode");
+                    switch (reportCode) {
+                        case CODE_REPORT_SUCCESS:
+                            record.getReport().fromJson(reportresult.getJSONObject("report"));
+                            record.save();
+                            ViseLog.e(record.getReport());
+                            if(record.getReport().getCreateTime() > 0)
+                                etReport.setText(record.getReport().toString());
+                            Toast.makeText(EcgRecordActivity.this, "报告已更新", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CODE_REPORT_FAILURE:
+                            Toast.makeText(EcgRecordActivity.this, "获取报告错误", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CODE_REPORT_ADD_NEW:
+                            Toast.makeText(EcgRecordActivity.this, "已申请新的报告", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CODE_REPORT_PROCESSING:
+                            Toast.makeText(EcgRecordActivity.this, "报告处理中，请等待", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CODE_REPORT_REQUEST_AGAIN:
+                            Toast.makeText(EcgRecordActivity.this, "已重新申请报告", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CODE_REPORT_NO_NEW:
+                            Toast.makeText(EcgRecordActivity.this, "无新报告", Toast.LENGTH_SHORT).show();
+                            break;
+
+                        default:
+                            break;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        btnGetReport = findViewById(R.id.btn_get_report);
         btnGetReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Context context = EcgRecordActivity.this;
-                EcgReport report = new EcgReport(record);
-                report.request(context, new IReportWebCallback() {
-                    @Override
-                    public void onFinish(int code, Object result) {
-                        if(code != WEB_CODE_SUCCESS) {
-                            Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                record.requestReport(context, BleEcgRecord10.REPORT_CMD_GET_NEW, reportWebCallback);
+            }
+        });
 
-                        JSONObject reportresult = (JSONObject)result;
-                        try {
-                            int reportCode = reportresult.getInt("reportCode");
-                            switch (reportCode) {
-                                case CODE_REPORT_SUCCESS:
-                                    report.fromJson(reportresult.getJSONObject("report"));
-                                    record.save();
-                                    Toast.makeText(context, "已获取新报告："+report.toString(), Toast.LENGTH_SHORT).show();
-                                    break;
-                                case CODE_REPORT_FAILURE:
-                                    Toast.makeText(context, "获取报告错误", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case CODE_REPORT_ADD_NEW:
-                                    Toast.makeText(context, "已申请新的报告", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case CODE_REPORT_PROCESSING:
-                                    Toast.makeText(context, "报告处理中，请等待", Toast.LENGTH_SHORT).show();
-                                    break;
-
-                                default:
-                                    break;
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-
-                    }
-                });
+        btnRequestReport = findViewById(R.id.btn_request_report);
+        btnRequestReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = EcgRecordActivity.this;
+                record.requestReport(context, BleEcgRecord10.REPORT_CMD_REQUEST, reportWebCallback);
             }
         });
 

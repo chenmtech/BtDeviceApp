@@ -1,8 +1,19 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledevice.report.EcgReport;
-import com.cmtech.android.bledeviceapp.model.Account;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.widget.Toast;
 
+import com.cmtech.android.bledevice.report.EcgReport;
+import com.cmtech.android.bledevice.report.IReportWebCallback;
+import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
+import com.vise.log.ViseLog;
+
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.annotation.Column;
@@ -11,8 +22,17 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -27,6 +47,9 @@ import static com.cmtech.android.bledevice.record.RecordType.ECG;
  * Version:        1.0
  */
 public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serializable {
+    public static final int REPORT_CMD_REQUEST = 0; // upload record command
+    public static final int REPORT_CMD_GET_NEW = 1; // update record note command
+
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
@@ -59,7 +82,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         caliValue = 0;
         leadTypeCode = 0;
         ecgData = new ArrayList<>();
-        report = new EcgReport(this);
+        report = new EcgReport();
     }
 
     @Override
@@ -137,11 +160,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     public void setReport(EcgReport report) {
-        this.report.setVer(report.getVer());
-        this.report.setCreateTime(report.getCreateTime());
-        this.report.setContent(report.getContent());
-        this.report.save();
-        save();
+        this.report = report;
     }
 
     @Override
@@ -181,6 +200,127 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
 
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + ecgData;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + ecgData + "-" + report;
+    }
+
+    public void requestReport(Context context, int cmd, IReportWebCallback callback) {
+        if(needUpload()) {
+            new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY, (code, rlt) -> {
+                final boolean result = (code == WEB_CODE_SUCCESS);
+                if (result) {
+                    int id = (Integer) rlt;
+                    if (id == INVALID_ID) {
+                        ViseLog.e("uploading");
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IRecordWebCallback() {
+                            @Override
+                            public void onFinish(int code, Object result) {
+                                if (code == WEB_CODE_SUCCESS) {
+                                    setNeedUpload(false);
+                                    save();
+                                    doRequestRequest(context, cmd, callback);
+                                } else {
+                                    Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }).execute(this);
+                    } else {
+                        ViseLog.e("updating note");
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IRecordWebCallback() {
+                            @Override
+                            public void onFinish(int code, Object result) {
+                                if (code == WEB_CODE_SUCCESS) {
+                                    setNeedUpload(false);
+                                    save();
+                                    doRequestRequest(context, cmd, callback);
+                                } else {
+                                    Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        }).execute(this);
+                    }
+                } else {
+                    Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                }
+            }).execute(this);
+        } else {
+            doRequestRequest(context, cmd, callback);
+        }
+    }
+
+    private void doRequestRequest(Context context, int cmd, IReportWebCallback callback) {
+        new ReportWebAsyncTask(context, cmd, callback).execute(this);
+    }
+
+    private static class ReportWebAsyncTask extends AsyncTask<BleEcgRecord10, Void, Object[]> {
+        private static final int WAIT_TASK_SECOND = 10;
+
+        private IReportWebCallback callback;
+        private ProgressDialog progressDialog;
+        private int cmd;
+
+        public ReportWebAsyncTask(Context context, int cmd, IReportWebCallback callback) {
+            this.callback = callback;
+            this.cmd = cmd;
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressDialog.show();
+        }
+
+        @Override
+        protected Object[] doInBackground(BleEcgRecord10... ecgRecords) {
+            final Object[] result = {WEB_CODE_FAILURE, null};
+            if(ecgRecords == null || ecgRecords.length == 0 || ecgRecords[0] == null) return result;
+
+            BleEcgRecord10 record = ecgRecords[0];
+            CountDownLatch done = new CountDownLatch(1);
+
+            Callback callback = new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    done.countDown();
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    String respBody = Objects.requireNonNull(response.body()).string();
+                    try {
+                        JSONObject json = new JSONObject(respBody);
+                        result[0] = json.getInt("code");
+                        if(json.has("reportResult"))
+                            result[1] = json.getJSONObject("reportResult");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } finally {
+                        done.countDown();
+                    }
+                }
+            };
+
+            if(cmd == REPORT_CMD_REQUEST)
+                KMWebServiceUtil.requestReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
+            else
+                KMWebServiceUtil.getNewReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
+
+            try {
+                done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Object[] result) {
+            callback.onFinish((Integer) result[0], result[1]);
+            progressDialog.dismiss();
+        }
     }
 }

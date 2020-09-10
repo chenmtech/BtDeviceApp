@@ -100,11 +100,11 @@ public class RecordFactory {
                     if(TextUtils.isEmpty(noteFilterStr)) {
                         return LitePal.select(BasicRecord.QUERY_STR)
                                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
-                                .order("createTime desc").limit(num).find(recordClass);
+                                .order("createTime desc").limit(num).find(recordClass, true);
                     } else {
                         return LitePal.select(BasicRecord.QUERY_STR)
                                 .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
-                                .order("createTime desc").limit(num).find(recordClass);
+                                .order("createTime desc").limit(num).find(recordClass, true);
                     }
                 } catch (Exception e) {
                     ViseLog.e(e);
@@ -120,11 +120,11 @@ public class RecordFactory {
                         if(TextUtils.isEmpty(noteFilterStr)) {
                             records.addAll(LitePal.select(BasicRecord.QUERY_STR)
                                     .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
-                                    .order("createTime desc").limit(num).find(recordClass));
+                                    .order("createTime desc").limit(num).find(recordClass, true));
                         } else {
                             records.addAll(LitePal.select(BasicRecord.QUERY_STR)
                                     .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
-                                    .order("createTime desc").limit(num).find(recordClass));
+                                    .order("createTime desc").limit(num).find(recordClass, true));
                         }
                     } catch (Exception e) {
                         ViseLog.e(e);

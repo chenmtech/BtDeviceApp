@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.util;
 
+import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.IRecord;
-import com.cmtech.android.bledevice.report.EcgReport;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
@@ -35,6 +35,8 @@ public class KMWebServiceUtil {
     public static final int CODE_REPORT_FAILURE = 1;
     public static final int CODE_REPORT_ADD_NEW = 2;
     public static final int CODE_REPORT_PROCESSING = 3;
+    public static final int CODE_REPORT_REQUEST_AGAIN = 4;
+    public static final int CODE_REPORT_NO_NEW = 5;
 
     private static final String ACCOUNT_OP_URL = "Account?";
     private static final String RECORD_OP_URL = "Record?";
@@ -172,10 +174,20 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void requestReport(String platName, String platId, EcgReport report, Callback callback) {
+    public static void requestReport(String platName, String platId, BleEcgRecord10 record, Callback callback) {
+        executeReport("request", platName, platId, record, callback);
+    }
+
+    public static void getNewReport(String platName, String platId, BleEcgRecord10 record, Callback callback) {
+        executeReport("getNew", platName, platId, record, callback);
+    }
+
+    public static void executeReport(String cmd, String platName, String platId, BleEcgRecord10 record, Callback callback) {
         try {
-            JSONObject json = report.toJson();
-            json.put("cmd", "request");
+            JSONObject json = record.getReport().toJson();
+            json.put("recordCreateTime", record.getCreateTime());
+            json.put("recordDevAddress", record.getDevAddress());
+            json.put("cmd", cmd);
             json.put("platName", platName);
             json.put("platId", platId);
             ViseLog.e(json.toString());

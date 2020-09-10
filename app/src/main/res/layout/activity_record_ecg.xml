@@ -74,10 +74,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/btn_get_report"
+
+    <include layout="@layout/layout_ecg_report"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="获取报告"/>
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>
