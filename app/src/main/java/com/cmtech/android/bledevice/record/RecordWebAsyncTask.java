@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
 
@@ -51,17 +52,17 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
     private final int cmd;
     private final boolean isShowProgress;
     private final Object[] params;
-    private final IRecordWebCallback callback;
+    private final IWebOperateCallback callback;
 
-    public RecordWebAsyncTask(Context context, int cmd, IRecordWebCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, IWebOperateCallback callback) {
         this(context, cmd, true, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, boolean isShowProgress, IRecordWebCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebOperateCallback callback) {
         this(context, cmd, null, isShowProgress, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean isShowProgress, IRecordWebCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean isShowProgress, IWebOperateCallback callback) {
         this.cmd = cmd;
         this.params = params;
         this.isShowProgress = isShowProgress;

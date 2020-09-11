@@ -10,12 +10,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleHrRecord10;
-import com.cmtech.android.bledevice.record.IRecordWebCallback;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.HrHistogramChart;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
@@ -54,7 +54,7 @@ public class HrRecordActivity extends AppCompatActivity {
         }
 
         if(record.noSignal()) {
-            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IRecordWebCallback() {
+            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IWebOperateCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == WEB_CODE_SUCCESS) {

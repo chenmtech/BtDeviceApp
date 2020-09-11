@@ -10,12 +10,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEegRecord10;
-import com.cmtech.android.bledevice.record.IRecordWebCallback;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollEegRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
@@ -60,7 +60,7 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
         }
 
         if(record.noSignal()) {
-            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IRecordWebCallback() {
+            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IWebOperateCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == WEB_CODE_SUCCESS) {

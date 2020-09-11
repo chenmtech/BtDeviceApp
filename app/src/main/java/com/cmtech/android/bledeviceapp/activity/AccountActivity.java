@@ -25,9 +25,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountInfoWebAsyncTask;
-import com.cmtech.android.bledeviceapp.model.AccountInfoWebCallback;
+import com.cmtech.android.bledeviceapp.model.AccountWebAsyncTask;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -38,7 +38,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.model.AccountInfoWebAsyncTask.DOWNLOAD_CMD;
+import static com.cmtech.android.bledeviceapp.model.AccountWebAsyncTask.DOWNLOAD_CMD;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
@@ -119,7 +119,7 @@ public class AccountActivity extends AppCompatActivity {
                 account.setNote(etNote.getText().toString());
                 account.save();
 
-                new AccountInfoWebAsyncTask(AccountActivity.this, AccountInfoWebAsyncTask.UPLOAD_CMD, new AccountInfoWebCallback() {
+                account.upload(AccountActivity.this, new IWebOperateCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
                         int strId = (code == WEB_CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
@@ -128,7 +128,7 @@ public class AccountActivity extends AppCompatActivity {
                         setResult(RESULT_OK, intent);
                         finish();
                     }
-                }).execute(account);
+                });
             }
         });
 
@@ -199,7 +199,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void download() {
-        new AccountInfoWebAsyncTask(AccountActivity.this, DOWNLOAD_CMD, new AccountInfoWebCallback() {
+        account.download(this, new IWebOperateCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if (code == WEB_CODE_SUCCESS) {
@@ -216,7 +216,7 @@ public class AccountActivity extends AppCompatActivity {
                 }
                 Toast.makeText(AccountActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
             }
-        }).execute(account);
+        });
     }
 
     @Override

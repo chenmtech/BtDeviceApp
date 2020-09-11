@@ -6,9 +6,9 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.report.EcgReport;
-import com.cmtech.android.bledevice.report.IReportWebCallback;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
@@ -203,7 +203,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + ecgData + "-" + report;
     }
 
-    public void requestReport(Context context, int cmd, IReportWebCallback callback) {
+    public void requestReport(Context context, int cmd, IWebOperateCallback callback) {
         if(needUpload()) {
             new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY, (code, rlt) -> {
                 final boolean result = (code == WEB_CODE_SUCCESS);
@@ -211,7 +211,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
                     int id = (Integer) rlt;
                     if (id == INVALID_ID) {
                         ViseLog.e("uploading");
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IRecordWebCallback() {
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IWebOperateCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
                                 if (code == WEB_CODE_SUCCESS) {
@@ -225,7 +225,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
                         }).execute(this);
                     } else {
                         ViseLog.e("updating note");
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IRecordWebCallback() {
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IWebOperateCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
                                 if (code == WEB_CODE_SUCCESS) {
@@ -247,18 +247,18 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         }
     }
 
-    private void doRequestRequest(Context context, int cmd, IReportWebCallback callback) {
+    private void doRequestRequest(Context context, int cmd, IWebOperateCallback callback) {
         new ReportWebAsyncTask(context, cmd, callback).execute(this);
     }
 
     private static class ReportWebAsyncTask extends AsyncTask<BleEcgRecord10, Void, Object[]> {
         private static final int WAIT_TASK_SECOND = 10;
 
-        private IReportWebCallback callback;
+        private IWebOperateCallback callback;
         private ProgressDialog progressDialog;
         private int cmd;
 
-        public ReportWebAsyncTask(Context context, int cmd, IReportWebCallback callback) {
+        public ReportWebAsyncTask(Context context, int cmd, IWebOperateCallback callback) {
             this.callback = callback;
             this.cmd = cmd;
             progressDialog = new ProgressDialog(context);

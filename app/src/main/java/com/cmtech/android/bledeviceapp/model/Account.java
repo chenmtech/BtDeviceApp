@@ -1,12 +1,19 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.AccountActivity;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperatable;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -19,6 +26,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
   *
@@ -32,7 +40,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
   * Version:        1.0
  */
 
-public class Account extends LitePalSupport implements Serializable, IJsonable {
+public class Account extends LitePalSupport implements Serializable, IJsonable, IWebOperatable {
     private int id; // id
     private String platName = ""; // platform name
     private String platId = ""; // platform ID
@@ -125,6 +133,16 @@ public class Account extends LitePalSupport implements Serializable, IJsonable {
         }
         json.put("iconStr", iconStr);
         return json;
+    }
+
+    @Override
+    public void upload(Context context, IWebOperateCallback callback) {
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, callback).execute(this);
+    }
+
+    @Override
+    public void download(Context context, IWebOperateCallback callback) {
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.DOWNLOAD_CMD, callback).execute(this);
     }
 
     @NonNull

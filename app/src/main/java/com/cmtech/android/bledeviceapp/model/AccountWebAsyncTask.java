@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
 
@@ -13,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -34,26 +36,23 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAI
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
+public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
     public static final int UPLOAD_CMD = 1; // upload user info command
     public static final int DOWNLOAD_CMD = 2; // download user info command
 
-    private static final int WAIT_TASK_SECOND = 10;
+    private static final int WAIT_TASK_SECOND = 10; // time to wait for task finish
 
     private final ProgressDialog progressDialog;
     private final int cmd;
-    private final AccountInfoWebCallback callback;
+    private final IWebOperateCallback callback;
 
-    public AccountInfoWebAsyncTask(Context context, int cmd, AccountInfoWebCallback callback) {
+    public AccountWebAsyncTask(Context context, int cmd, IWebOperateCallback callback) {
         this(context, cmd, true, callback);
     }
 
-    public AccountInfoWebAsyncTask(int cmd, AccountInfoWebCallback callback) {
-        this(null, cmd, false, callback);
-    }
-
-    private AccountInfoWebAsyncTask(Context context, int cmd, boolean isShowProgress, AccountInfoWebCallback callback) {
+    private AccountWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebOperateCallback callback) {
         this.cmd = cmd;
+        this.callback = callback;
 
         if(isShowProgress) {
             progressDialog = new ProgressDialog(context);
@@ -64,7 +63,6 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Object[]> 
         } else {
             progressDialog = null;
         }
-        this.callback = callback;
     }
 
     @Override
@@ -75,11 +73,12 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Object[]> 
 
     @Override
     protected Object[] doInBackground(Account... accounts) {
-        if(accounts == null || accounts.length == 0) return null;
+        final Object[] result = {WEB_CODE_FAILURE, null};
+
+        if(accounts == null || accounts.length == 0 || accounts[0] == null) return result;
 
         Account account = accounts[0];
         CountDownLatch done = new CountDownLatch(1);
-        final Object[] result = {WEB_CODE_FAILURE, null};
 
         switch (cmd) {
             // UPLOAD
@@ -92,14 +91,12 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Object[]> 
 
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = response.body().string();
+                        String respBody = Objects.requireNonNull(response.body()).string();
                         try {
                             JSONObject json = new JSONObject(respBody);
                             result[0] = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = WEB_CODE_FAILURE;
-                            result[1] = null;
                         } finally {
                             done.countDown();
                         }
@@ -117,16 +114,13 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Object[]> 
 
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = response.body().string();
+                        String respBody = Objects.requireNonNull(response.body()).string();
                         try {
                             JSONObject json = new JSONObject(respBody);
-                            ViseLog.e(json.toString());
                             result[0] = json.getInt("code");
                             result[1] = json.get("account");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = WEB_CODE_FAILURE;
-                            result[1] = null;
                         } finally {
                             done.countDown();
                         }
@@ -150,8 +144,9 @@ public class AccountInfoWebAsyncTask extends AsyncTask<Account, Void, Object[]> 
 
     @Override
     protected void onPostExecute(Object[] result) {
-        callback.onFinish((Integer) result[0], result[1]);
         if(progressDialog != null)
             progressDialog.dismiss();
+        int code = (int)result[0];
+        callback.onFinish(code, result[1]);
     }
 }

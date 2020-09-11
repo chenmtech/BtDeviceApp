@@ -24,13 +24,13 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.IRecord;
-import com.cmtech.android.bledevice.record.IRecordWebCallback;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
 import com.vise.log.ViseLog;
 
 import org.json.JSONArray;
@@ -221,7 +221,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{DOWNLOAD_RECORD_BASIC_INFO_NUM, noteFilterStr}, true, new IRecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{DOWNLOAD_RECORD_BASIC_INFO_NUM, noteFilterStr}, true, new IWebOperateCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == WEB_CODE_SUCCESS) { // download success, save into local records
@@ -275,7 +275,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_DELETE, new IRecordWebCallback() {
+                    new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebOperateCallback() {
                         @Override
                         public void onFinish(int code, Object result) {
                             LitePal.delete(record.getClass(), record.getId());
@@ -291,7 +291,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     public void uploadRecord(final BasicRecord record) {
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new IRecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new IWebOperateCallback() {
             @Override
             public void onFinish(int code, final Object rlt) {
                 final boolean result = (code == WEB_CODE_SUCCESS);
@@ -299,7 +299,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     int id = (Integer) rlt;
                     if (id == INVALID_ID) {
                         ViseLog.e("uploading");
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IRecordWebCallback() {
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IWebOperateCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
                                 int webResult = (code == WEB_CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
@@ -313,7 +313,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         }).execute(record);
                     } else {
                         ViseLog.e("updating note");
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IRecordWebCallback() {
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IWebOperateCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
                                 int webResult = (code == WEB_CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
