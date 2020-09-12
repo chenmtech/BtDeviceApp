@@ -9,13 +9,14 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.record.BleEegRecord10;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollEegRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
@@ -25,6 +26,7 @@ import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 public class EegRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
@@ -60,26 +62,18 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
         }
 
         if(record.noSignal()) {
-            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IWebOperateCallback() {
+            record.download(this, new IWebOperationCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if (code == WEB_CODE_SUCCESS) {
-                        JSONObject json = (JSONObject) result;
-
-                        try {
-                            if(record.fromJson(json)) {
-                                initUI();
-                                return;
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    if (code == SUCCESS) {
+                        initUI();
+                    } else {
+                        Toast.makeText(EegRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_CANCELED);
+                        finish();
                     }
-                    Toast.makeText(EegRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_CANCELED);
-                    finish();
                 }
-            }).execute(record);
+            });
         } else {
             initUI();
         }

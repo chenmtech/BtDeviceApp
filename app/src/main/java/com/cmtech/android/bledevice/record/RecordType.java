@@ -41,7 +41,7 @@ public enum RecordType {
         this.actClass = actClass;
     }
 
-    public static RecordType getType(int code) {
+    public static RecordType fromCode(int code) {
         for (RecordType type : RecordType.values()) {
             if (type.getCode() == code) {
                 return type;

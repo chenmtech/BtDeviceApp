@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
+import android.support.annotation.NonNull;
+
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
@@ -178,6 +180,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
         return fHrUpdated;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return super.toString() + "-" + hrList + "-" + hrMax + "-" + hrAve + "-" + hrHist;

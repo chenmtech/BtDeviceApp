@@ -75,7 +75,7 @@ public class RecordFactory {
         }
 
         try {
-            RecordType type = RecordType.getType(json.getInt("recordTypeCode"));
+            RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
             Class<? extends IRecord> recordClass = getRecordClass(type);
             if(recordClass != null) {
                 Constructor constructor = recordClass.getDeclaredConstructor(JSONObject.class);

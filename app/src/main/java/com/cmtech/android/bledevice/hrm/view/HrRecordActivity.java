@@ -15,7 +15,7 @@ import com.cmtech.android.bledevice.view.HrHistogramChart;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
@@ -25,6 +25,7 @@ import org.litepal.LitePal;
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_TIME_SPAN;
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 public class HrRecordActivity extends AppCompatActivity {
@@ -54,26 +55,18 @@ public class HrRecordActivity extends AppCompatActivity {
         }
 
         if(record.noSignal()) {
-            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IWebOperateCallback() {
+            record.download(this, new IWebOperationCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if (code == WEB_CODE_SUCCESS) {
-                        JSONObject json = (JSONObject) result;
-
-                        try {
-                            if(record.fromJson(json)) {
-                                initUI();
-                                return;
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    if (code == SUCCESS) {
+                        initUI();
+                    } else {
+                        Toast.makeText(HrRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_CANCELED);
+                        finish();
                     }
-                    Toast.makeText(HrRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_CANCELED);
-                    finish();
                 }
-            }).execute(record);
+            });
         } else {
             initUI();
         }

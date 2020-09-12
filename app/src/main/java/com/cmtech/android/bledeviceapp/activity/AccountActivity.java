@@ -25,21 +25,16 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountWebAsyncTask;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.model.AccountWebAsyncTask.DOWNLOAD_CMD;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 
 /**
  *  AccountActivity: 账户设置Activity
@@ -119,10 +114,10 @@ public class AccountActivity extends AppCompatActivity {
                 account.setNote(etNote.getText().toString());
                 account.save();
 
-                account.upload(AccountActivity.this, new IWebOperateCallback() {
+                account.upload(AccountActivity.this, new IWebOperationCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
-                        int strId = (code == WEB_CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                        int strId = (code == SUCCESS) ? R.string.operation_success : R.string.operation_failure;
                         Toast.makeText(AccountActivity.this, strId, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
                         setResult(RESULT_OK, intent);
@@ -199,22 +194,14 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void download() {
-        account.download(this, new IWebOperateCallback() {
+        account.download(this, new IWebOperationCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if (code == WEB_CODE_SUCCESS) {
-                    JSONObject json = (JSONObject) result;
-
-                    try {
-                        if(account.fromJson(json)) {
-                            updateUI();
-                            return;
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                if (code == SUCCESS) {
+                    updateUI();
+                } else {
+                    Toast.makeText(AccountActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(AccountActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
             }
         });
     }

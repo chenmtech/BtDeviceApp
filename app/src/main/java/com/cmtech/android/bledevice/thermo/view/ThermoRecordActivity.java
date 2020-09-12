@@ -9,12 +9,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
@@ -22,6 +23,7 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
@@ -65,26 +67,18 @@ public class ThermoRecordActivity extends AppCompatActivity {
         }
 
         if(record.noSignal()) {
-            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new IWebOperateCallback() {
+            record.download(this, new IWebOperationCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if (code == WEB_CODE_SUCCESS) {
-                        JSONObject json = (JSONObject) result;
-
-                        try {
-                            if(record.fromJson(json)) {
-                                initUI();
-                                return;
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    if (code == SUCCESS) {
+                        initUI();
+                    } else {
+                        Toast.makeText(ThermoRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_CANCELED);
+                        finish();
                     }
-                    Toast.makeText(ThermoRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
-                    setResult(RESULT_CANCELED);
-                    finish();
                 }
-            }).execute(record);
+            });
         } else {
             initUI();
         }

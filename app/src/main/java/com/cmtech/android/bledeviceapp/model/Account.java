@@ -1,19 +1,15 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.AccountActivity;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperatable;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -40,7 +36,7 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUC
   * Version:        1.0
  */
 
-public class Account extends LitePalSupport implements Serializable, IJsonable, IWebOperatable {
+public class Account extends LitePalSupport implements Serializable, IJsonable, IWebOperation {
     private int id; // id
     private String platName = ""; // platform name
     private String platId = ""; // platform ID
@@ -136,13 +132,40 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     @Override
-    public void upload(Context context, IWebOperateCallback callback) {
-        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, callback).execute(this);
+    public void upload(Context context, IWebOperationCallback callback) {
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, new IWebOperationCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                int resultCode = (code == WEB_CODE_SUCCESS) ? SUCCESS : FAILURE;
+                callback.onFinish(resultCode, null);
+            }
+        }).execute(this);
     }
 
     @Override
-    public void download(Context context, IWebOperateCallback callback) {
-        new AccountWebAsyncTask(context, AccountWebAsyncTask.DOWNLOAD_CMD, callback).execute(this);
+    public void download(Context context, IWebOperationCallback callback) {
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.DOWNLOAD_CMD, new IWebOperationCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                int resultCode = FAILURE;
+                String resultStr = "网络错误";
+                if (code == WEB_CODE_SUCCESS) {
+                    JSONObject json = (JSONObject) result;
+
+                    try {
+                        if(fromJson(json)) {
+                            resultCode = SUCCESS;
+                            resultStr = "下载成功";
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        resultStr = "更新错误";
+                    }
+                }
+
+                callback.onFinish(resultCode, resultStr);
+            }
+        }).execute(this);
     }
 
     @NonNull

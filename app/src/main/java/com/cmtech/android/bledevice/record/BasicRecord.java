@@ -1,15 +1,28 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.model.Account;
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.model.Account;
+import com.vise.log.ViseLog;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
+import java.util.List;
+
 import static com.cmtech.android.bledevice.record.RecordType.ALL;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -71,7 +84,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
             throw new IllegalArgumentException("The json object is null.");
         }
         this.ver = json.getString("ver");
-        this.type = RecordType.getType(json.getInt("recordTypeCode"));
+        this.type = RecordType.fromCode(json.getInt("recordTypeCode"));
         this.createTime = json.getLong("createTime");
         this.devAddress = json.getString("devAddress");
         this.creatorPlat = MyApplication.getAccount().getPlatName();
@@ -183,6 +196,128 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         return true;
     }
 
+    @Override
+    public void query(Context context, long fromTime, String queryStr, int num, IWebOperationCallback callback) {
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{num, queryStr, fromTime}, new IWebOperationCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                int resultCode = FAILURE;
+                String resultStr = "网络错误";
+                if(code != WEB_CODE_SUCCESS) {
+                    callback.onFinish(resultCode, resultStr);
+                    return;
+                }
+
+                try {
+                    JSONArray jsonArr = (JSONArray) result;
+                    for(int i = 0; i < jsonArr.length(); i++) {
+                        JSONObject json = (JSONObject) jsonArr.get(i);
+                        BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(json);
+                        if(newRecord != null) {
+                            newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
+
+                resultCode = SUCCESS;
+                if(records == null || records.isEmpty()) {
+                    callback.onFinish(resultCode, null);
+                } else  {
+                    callback.onFinish(resultCode, records);
+                }
+            }
+        }).execute(this);
+    }
+
+    @Override
+    public void upload(Context context, IWebOperationCallback callback) {
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY, new IWebOperationCallback() {
+            @Override
+            public void onFinish(int code, final Object rlt) {
+                final int[] resultCode = {FAILURE};
+                final String[] resultStr = {"网络错误"};
+                final boolean result = (code == WEB_CODE_SUCCESS);
+                if (result) {
+                    int id = (Integer) rlt;
+                    if (id == INVALID_ID) {
+                        ViseLog.e("uploading");
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IWebOperationCallback() {
+                            @Override
+                            public void onFinish(int code, Object result) {
+                                if (code == WEB_CODE_SUCCESS) {
+                                    setNeedUpload(false);
+                                    save();
+                                    resultCode[0] = SUCCESS;
+                                    resultStr[0] = "上传成功";
+                                }
+                                callback.onFinish(resultCode[0], resultStr[0]);
+                            }
+                        }).execute(BasicRecord.this);
+                    } else {
+                        ViseLog.e("updating note");
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IWebOperationCallback() {
+                            @Override
+                            public void onFinish(int code, Object result) {
+                                if (code == WEB_CODE_SUCCESS) {
+                                    setNeedUpload(false);
+                                    save();
+                                    resultCode[0] = SUCCESS;
+                                    resultStr[0] = "更新成功";
+                                }
+                                callback.onFinish(resultCode[0], resultStr[0]);
+                            }
+                        }).execute(BasicRecord.this);
+                    }
+                } else {
+                    callback.onFinish(resultCode[0], resultStr[0]);
+                }
+            }
+        }).execute(this);
+    }
+
+    @Override
+    public void download(Context context, IWebOperationCallback callback) {
+        new RecordWebAsyncTask(context, RECORD_CMD_DOWNLOAD, new IWebOperationCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                int resultCode = FAILURE;
+                String resultStr = "网络错误";
+                if (code == WEB_CODE_SUCCESS) {
+                    JSONObject json = (JSONObject) result;
+
+                    try {
+                        if(fromJson(json)) {
+                            resultCode = SUCCESS;
+                            resultStr = "下载成功";
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        resultStr = "更新错误";
+                    }
+                }
+
+                callback.onFinish(resultCode, resultStr);
+            }
+        }).execute(this);
+    }
+
+    @Override
+    public void delete(Context context, IWebOperationCallback callback) {
+        Class<? extends BasicRecord> recordClass = getClass();
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebOperationCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                LitePal.delete(recordClass, getId());
+                callback.onFinish(SUCCESS, null);
+            }
+        }).execute(this);
+    }
+
+    @NonNull
     @Override
     public String toString() {
         return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + needUpload;

@@ -3,12 +3,14 @@ package com.cmtech.android.bledevice.record;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.report.EcgReport;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
@@ -31,6 +33,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
@@ -46,7 +49,7 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUC
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serializable {
+public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serializable, IWebOperation {
     public static final int REPORT_CMD_REQUEST = 0; // upload record command
     public static final int REPORT_CMD_GET_NEW = 1; // update record note command
 
@@ -198,67 +201,41 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         return true;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + ecgData + "-" + report;
     }
 
-    public void requestReport(Context context, int cmd, IWebOperateCallback callback) {
+    public void requestReport(Context context, int cmd, IWebOperationCallback callback) {
         if(needUpload()) {
-            new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY, (code, rlt) -> {
-                final boolean result = (code == WEB_CODE_SUCCESS);
-                if (result) {
-                    int id = (Integer) rlt;
-                    if (id == INVALID_ID) {
-                        ViseLog.e("uploading");
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IWebOperateCallback() {
-                            @Override
-                            public void onFinish(int code, Object result) {
-                                if (code == WEB_CODE_SUCCESS) {
-                                    setNeedUpload(false);
-                                    save();
-                                    doRequestRequest(context, cmd, callback);
-                                } else {
-                                    Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }).execute(this);
+            upload(context, new IWebOperationCallback() {
+                @Override
+                public void onFinish(int code, Object result) {
+                    if(code == SUCCESS) {
+                        doRequestRequest(context, cmd, callback);
                     } else {
-                        ViseLog.e("updating note");
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IWebOperateCallback() {
-                            @Override
-                            public void onFinish(int code, Object result) {
-                                if (code == WEB_CODE_SUCCESS) {
-                                    setNeedUpload(false);
-                                    save();
-                                    doRequestRequest(context, cmd, callback);
-                                } else {
-                                    Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }).execute(this);
+                        Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
-            }).execute(this);
+            });
         } else {
             doRequestRequest(context, cmd, callback);
         }
     }
 
-    private void doRequestRequest(Context context, int cmd, IWebOperateCallback callback) {
+    private void doRequestRequest(Context context, int cmd, IWebOperationCallback callback) {
         new ReportWebAsyncTask(context, cmd, callback).execute(this);
     }
 
     private static class ReportWebAsyncTask extends AsyncTask<BleEcgRecord10, Void, Object[]> {
         private static final int WAIT_TASK_SECOND = 10;
 
-        private IWebOperateCallback callback;
+        private IWebOperationCallback callback;
         private ProgressDialog progressDialog;
         private int cmd;
 
-        public ReportWebAsyncTask(Context context, int cmd, IWebOperateCallback callback) {
+        public ReportWebAsyncTask(Context context, int cmd, IWebOperationCallback callback) {
             this.callback = callback;
             this.cmd = cmd;
             progressDialog = new ProgressDialog(context);

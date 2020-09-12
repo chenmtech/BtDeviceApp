@@ -30,13 +30,12 @@ import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.vise.log.ViseLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -44,8 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
@@ -123,7 +122,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
-                    updateRecords(updateTime);
+                    updateRecordList(updateTime);
                 }
             }
 
@@ -199,7 +198,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateRecordView();
 
         updateTime = new Date().getTime();
-        updateRecords(updateTime);
+        updateRecordList(updateTime);
     }
 
     private void setNoteFilterStr(String noteFilterStr) {
@@ -211,53 +210,40 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateRecordView();
 
         updateTime = new Date().getTime();
-        updateRecords(updateTime);
+        updateRecordList(updateTime);
     }
 
-    private void updateRecords(final long from) {
+    private void updateRecordList(final long from) {
         IRecord record = RecordFactory.create(recordType, from, null, MyApplication.getAccount(), "");
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
         }
 
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{DOWNLOAD_RECORD_BASIC_INFO_NUM, noteFilterStr}, true, new IWebOperateCallback() {
+        record.query(this, from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM, new IWebOperationCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if(code == WEB_CODE_SUCCESS) { // download success, save into local records
-                    try {
-                        JSONArray jsonArr = (JSONArray) result;
-                        for(int i = 0; i < jsonArr.length(); i++) {
-                            JSONObject json = (JSONObject) jsonArr.get(i);
-                            BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(json);
-                            if(newRecord != null) {
-                                newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                if(code == SUCCESS) {
+                    if(result == null) {
+                        Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
+                    } else {
+                        List<? extends IRecord> records = (List<? extends IRecord>) result;
+                        updateTime = records.get(records.size() - 1).getCreateTime();
+                        allRecords.addAll(records);
+                        ViseLog.e(allRecords.toString());
+                        updateRecordView();
                     }
                 } else {
                     Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
-
-                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(recordType, MyApplication.getAccount(), from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM);
-                if(records == null || records.isEmpty()) {
-                    Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
-                } else  {
-                    updateTime = records.get(records.size() - 1).getCreateTime();
-                    allRecords.addAll(records);
-                    ViseLog.e(allRecords.toString());
-                    updateRecordView();
-                }
             }
-        }).execute(record);
+        });
     }
 
     public void openRecord(IRecord record) {
         if(record != null) {
             Intent intent = null;
-            Class<? extends Activity> actClass = RecordType.getType(record.getTypeCode()).getActivityClass();
+            Class<? extends Activity> actClass = RecordType.fromCode(record.getTypeCode()).getActivityClass();
             if (actClass != null) {
                 intent = new Intent(RecordExplorerActivity.this, actClass);
             }
@@ -275,62 +261,30 @@ public class RecordExplorerActivity extends AppCompatActivity {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebOperateCallback() {
+                    record.delete(RecordExplorerActivity.this, new IWebOperationCallback() {
                         @Override
                         public void onFinish(int code, Object result) {
-                            LitePal.delete(record.getClass(), record.getId());
                             if(allRecords.remove(record)) {
                                 recordAdapter.unselected();
                                 updateRecordView();
                             }
                         }
-                    }).execute(record);
+                    });
                 }
             }).setNegativeButton(R.string.cancel, null).show();
         }
     }
 
     public void uploadRecord(final BasicRecord record) {
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new IWebOperateCallback() {
+        record.upload(this, new IWebOperationCallback() {
             @Override
             public void onFinish(int code, final Object rlt) {
-                final boolean result = (code == WEB_CODE_SUCCESS);
-                if (result) {
-                    int id = (Integer) rlt;
-                    if (id == INVALID_ID) {
-                        ViseLog.e("uploading");
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IWebOperateCallback() {
-                            @Override
-                            public void onFinish(int code, Object result) {
-                                int webResult = (code == WEB_CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
-                                Toast.makeText(RecordExplorerActivity.this, webResult, Toast.LENGTH_SHORT).show();
-                                if (code == WEB_CODE_SUCCESS) {
-                                    record.setNeedUpload(false);
-                                    record.save();
-                                    updateRecordView();
-                                }
-                            }
-                        }).execute(record);
-                    } else {
-                        ViseLog.e("updating note");
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IWebOperateCallback() {
-                            @Override
-                            public void onFinish(int code, Object result) {
-                                int webResult = (code == WEB_CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
-                                Toast.makeText(RecordExplorerActivity.this, webResult, Toast.LENGTH_SHORT).show();
-                                if (code == WEB_CODE_SUCCESS) {
-                                    record.setNeedUpload(false);
-                                    record.save();
-                                    updateRecordView();
-                                }
-                            }
-                        }).execute(record);
-                    }
-                } else {
-                    Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                Toast.makeText(RecordExplorerActivity.this, (String) rlt, Toast.LENGTH_SHORT).show();
+                if (code == SUCCESS) {
+                    updateRecordView();
                 }
             }
-        }).execute(record);
+        });
     }
 
     private void updateRecordView() {

@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
+import android.support.annotation.NonNull;
+
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
@@ -160,6 +162,7 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
         return true;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + eegData;

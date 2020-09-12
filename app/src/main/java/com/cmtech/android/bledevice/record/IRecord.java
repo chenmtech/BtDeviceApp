@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -14,7 +15,7 @@ import com.cmtech.android.bledeviceapp.interfac.IJsonable;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface IRecord extends IJsonable {
+public interface IRecord extends IJsonable, IRecordWebOperation {
     int INVALID_ID = -1;
 
     int getId();

@@ -14,8 +14,10 @@ import android.content.Context;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface IWebOperatable {
-    void upload(Context context, IWebOperateCallback callback);
-    void download(Context context, IWebOperateCallback callback);
+public interface IWebOperation {
+    int SUCCESS = 0;
+    int FAILURE = 1;
+    void upload(Context context, IWebOperationCallback callback);
+    void download(Context context, IWebOperationCallback callback);
 
 }

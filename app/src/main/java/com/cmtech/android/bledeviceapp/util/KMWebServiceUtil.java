@@ -126,14 +126,14 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void downloadRecordBasicInfo(String platName, String platId, IRecord record, int num, String noteSearchStr, Callback callback) {
+    public static void downloadRecordBasicInfo(String platName, String platId, IRecord record, long fromTime, int num, String noteSearchStr, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "downloadBasicInfo");
             json.put("platName", platName);
             json.put("platId", platId);
             json.put("recordTypeCode", record.getTypeCode());
-            json.put("fromTime", record.getCreateTime());
+            json.put("fromTime", fromTime);
             json.put("creatorPlat", record.getCreatorPlat());
             json.put("creatorId", record.getCreatorId());
             json.put("num", num);

@@ -5,9 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
-import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -44,13 +43,13 @@ public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
 
     private final ProgressDialog progressDialog;
     private final int cmd;
-    private final IWebOperateCallback callback;
+    private final IWebOperationCallback callback;
 
-    public AccountWebAsyncTask(Context context, int cmd, IWebOperateCallback callback) {
+    public AccountWebAsyncTask(Context context, int cmd, IWebOperationCallback callback) {
         this(context, cmd, true, callback);
     }
 
-    private AccountWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebOperateCallback callback) {
+    private AccountWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebOperationCallback callback) {
         this.cmd = cmd;
         this.callback = callback;
 

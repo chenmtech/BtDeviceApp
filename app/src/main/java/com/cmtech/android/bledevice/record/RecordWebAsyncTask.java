@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperateCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
 
@@ -15,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -52,17 +53,21 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
     private final int cmd;
     private final boolean isShowProgress;
     private final Object[] params;
-    private final IWebOperateCallback callback;
+    private final IWebOperationCallback callback;
 
-    public RecordWebAsyncTask(Context context, int cmd, IWebOperateCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, IWebOperationCallback callback) {
         this(context, cmd, true, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebOperateCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebOperationCallback callback) {
         this(context, cmd, null, isShowProgress, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean isShowProgress, IWebOperateCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, Object[] params, IWebOperationCallback callback) {
+        this(context, cmd, null, true, callback);
+    }
+
+    public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean isShowProgress, IWebOperationCallback callback) {
         this.cmd = cmd;
         this.params = params;
         this.isShowProgress = isShowProgress;
@@ -199,6 +204,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
             case RECORD_CMD_DOWNLOAD_BASIC_INFO:
                 int downloadNum = 0;
                 String noteSearchStr = "";
+                long fromTime = new Date().getTime();
                 if(params == null || params.length == 0) {
                     downloadNum = DEFAULT_DOWNLOAD_BASIC_INFO_NUM_PER_TIME;
                 } else if(params.length == 1) {
@@ -206,8 +212,12 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                 } else if(params.length == 2) {
                     downloadNum = (Integer) params[0];
                     noteSearchStr = (String) params[1];
+                } else if(params.length == 3) {
+                    downloadNum = (Integer) params[0];
+                    noteSearchStr = (String) params[1];
+                    fromTime = (Long) params[2];
                 }
-                KMWebServiceUtil.downloadRecordBasicInfo(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, downloadNum, noteSearchStr, new Callback() {
+                KMWebServiceUtil.downloadRecordBasicInfo(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, fromTime, downloadNum, noteSearchStr, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         done.countDown();

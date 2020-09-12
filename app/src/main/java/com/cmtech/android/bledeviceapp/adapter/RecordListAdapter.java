@@ -121,7 +121,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             public void onClick(View v) {
                 if(FastClickUtil.isFastClick()) return;
                 BasicRecord record = (BasicRecord) records.get(holder.getAdapterPosition());
-                record = (BasicRecord) RecordFactory.createFromLocalDb(RecordType.getType(record.getTypeCode()), record.getCreateTime(), record.getDevAddress());
+                record = (BasicRecord) RecordFactory.createFromLocalDb(RecordType.fromCode(record.getTypeCode()), record.getCreateTime(), record.getDevAddress());
                 if(record == null || record.noSignal()) {
                     Toast.makeText(activity, R.string.record_damage, Toast.LENGTH_SHORT).show();
                     return;
@@ -147,7 +147,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             Glide.with(activity).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
         }
 
-        holder.ivRecordType.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
+        holder.ivRecordType.setImageResource(RecordType.fromCode(record.getTypeCode()).getImgId());
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
 

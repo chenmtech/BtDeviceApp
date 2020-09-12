@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
+import android.support.annotation.NonNull;
+
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
@@ -95,6 +97,7 @@ public class BleThermoRecord10 extends BasicRecord {
         this.temp.add(temp);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return super.toString() + "-" + highestTemp + "-" + temp;
