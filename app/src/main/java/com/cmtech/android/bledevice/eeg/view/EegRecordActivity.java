@@ -9,10 +9,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.record.BleEegRecord10;
-import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
+import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RollEegRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
@@ -21,13 +20,10 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 public class EegRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
     private BleEegRecord10 record;
@@ -40,8 +36,7 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
     private SeekBar sbReplay; // 播放条
     private ImageButton btnReplayCtrl; // 转换播放状态
 
-    private EditText etNote;
-    private ImageButton ibEdit;
+    private RecordNoteLayout noteLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,30 +123,8 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
         tvTotalTime.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setMax(second);
 
-        etNote = findViewById(R.id.et_note);
-        etNote.setText(record.getNote());
-        etNote.setEnabled(false);
-
-        ibEdit = findViewById(R.id.ib_edit);
-        ibEdit.setImageResource(R.mipmap.ic_edit_24px);
-        ibEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(etNote.isEnabled()) {
-                    String note = etNote.getText().toString();
-                    if(!record.getNote().equals(note)) {
-                        record.setNote(etNote.getText().toString());
-                        record.setNeedUpload(true);
-                        record.save();
-                    }
-                    etNote.setEnabled(false);
-                    ibEdit.setImageResource(R.mipmap.ic_edit_24px);
-                } else {
-                    etNote.setEnabled(true);
-                    ibEdit.setImageResource(R.mipmap.ic_save_24px);
-                }
-            }
-        });
+        noteLayout = findViewById(R.id.layout_record_note);
+        noteLayout.setRecord(record);
 
         eegView.startShow();
     }

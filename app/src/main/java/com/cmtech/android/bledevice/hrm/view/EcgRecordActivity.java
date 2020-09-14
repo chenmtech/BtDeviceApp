@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
+import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
@@ -45,8 +46,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private SeekBar sbReplay; // 播放条
     private ImageButton btnReplayCtrl; // 转换播放状态
 
-    private EditText etNote;
-    private ImageButton ibEdit;
+    private RecordNoteLayout noteLayout;
+
     private Button btnRequestReport;
     private Button btnGetReport;
     private EditText etReport;
@@ -136,30 +137,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvTotalTime.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setMax(second);
 
-        etNote = findViewById(R.id.et_note);
-        etNote.setText(record.getNote());
-        etNote.setEnabled(false);
-
-        ibEdit = findViewById(R.id.ib_edit);
-        ibEdit.setImageResource(R.mipmap.ic_edit_24px);
-        ibEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(etNote.isEnabled()) {
-                    String note = etNote.getText().toString();
-                    if(!record.getNote().equals(note)) {
-                        record.setNote(etNote.getText().toString());
-                        record.setNeedUpload(true);
-                        record.save();
-                    }
-                    etNote.setEnabled(false);
-                    ibEdit.setImageResource(R.mipmap.ic_edit_24px);
-                } else {
-                    etNote.setEnabled(true);
-                    ibEdit.setImageResource(R.mipmap.ic_save_24px);
-                }
-            }
-        });
+        noteLayout = findViewById(R.id.layout_record_note);
+        noteLayout.setRecord(record);
 
         etReport = findViewById(R.id.et_ecg_report);
         if(record.getReport().getCreateTime() > 0)
@@ -216,8 +195,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnGetReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Context context = EcgRecordActivity.this;
-                record.requestReport(context, BleEcgRecord10.REPORT_CMD_GET_NEW, reportWebCallback);
+                record.requestReport(EcgRecordActivity.this, BleEcgRecord10.REPORT_CMD_GET_NEW, reportWebCallback);
             }
         });
 
@@ -225,8 +203,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnRequestReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Context context = EcgRecordActivity.this;
-                record.requestReport(context, BleEcgRecord10.REPORT_CMD_REQUEST, reportWebCallback);
+                record.requestReport(EcgRecordActivity.this, BleEcgRecord10.REPORT_CMD_REQUEST, reportWebCallback);
             }
         });
 

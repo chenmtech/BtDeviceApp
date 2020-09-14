@@ -9,22 +9,17 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
-import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
+import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.vise.log.ViseLog;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -45,9 +40,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
 
     private MyLineChart lineChart; //
 
-
-    private EditText etNote;
-    private ImageButton ibEdit;
+    private RecordNoteLayout noteLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,30 +90,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.temperature);
 
-        etNote = findViewById(R.id.et_note);
-        etNote.setText(record.getNote());
-        etNote.setEnabled(false);
-
-        ibEdit = findViewById(R.id.ib_edit);
-        ibEdit.setImageResource(R.mipmap.ic_edit_24px);
-        ibEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(etNote.isEnabled()) {
-                    String note = etNote.getText().toString();
-                    if(!record.getNote().equals(note)) {
-                        record.setNote(etNote.getText().toString());
-                        record.setNeedUpload(true);
-                        record.save();
-                    }
-                    etNote.setEnabled(false);
-                    ibEdit.setImageResource(R.mipmap.ic_edit_24px);
-                } else {
-                    etNote.setEnabled(true);
-                    ibEdit.setImageResource(R.mipmap.ic_save_24px);
-                }
-            }
-        });
-
+        noteLayout = findViewById(R.id.layout_record_note);
+        noteLayout.setRecord(record);
     }
 }

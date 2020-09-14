@@ -72,8 +72,10 @@
             android:textSize="12sp"/>
     </LinearLayout>
 
-    <include layout="@layout/layout_note"
+    <com.cmtech.android.bledevice.view.RecordNoteLayout
+        android:id="@+id/layout_record_note"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content">
+    </com.cmtech.android.bledevice.view.RecordNoteLayout>
 
 </LinearLayout>
