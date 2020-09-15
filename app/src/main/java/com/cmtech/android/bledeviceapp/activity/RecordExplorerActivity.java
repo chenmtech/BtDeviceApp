@@ -26,16 +26,11 @@ import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
-import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.vise.log.ViseLog;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,7 +40,6 @@ import java.util.Map;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
   *
@@ -230,7 +224,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         List<? extends IRecord> records = (List<? extends IRecord>) result;
                         updateTime = records.get(records.size() - 1).getCreateTime();
                         allRecords.addAll(records);
-                        ViseLog.e(allRecords.toString());
+                        //ViseLog.e(allRecords.toString());
                         updateRecordView();
                     }
                 } else {

@@ -64,7 +64,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
     }
 
     public RecordWebAsyncTask(Context context, int cmd, Object[] params, IWebOperationCallback callback) {
-        this(context, cmd, null, true, callback);
+        this(context, cmd, params, true, callback);
     }
 
     public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean isShowProgress, IWebOperationCallback callback) {
