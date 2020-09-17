@@ -25,8 +25,6 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
@@ -441,39 +439,28 @@ public class HrmDevice extends AbstractDevice {
 
 
     private static class HRSpeaker {
-        private volatile boolean speak = false;
-        private Timer ttsTimer = new Timer();
+        private volatile boolean on = false;
+        private long periodMs = 0;
+        private long lastSpeakTime = 0;
 
-        public void start(int speakPeriod) {
-            turnOff();
-            ttsTimer.cancel();
-            ttsTimer = new Timer();
-            ttsTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    turnOn();
-                }
-            }, speakPeriod * 60000L, speakPeriod * 60000L);
+        public void start(int periodS) {
+            periodMs = periodS*60000L;
+            lastSpeakTime = new Date().getTime();
+            on = true;
         }
 
         public void stop() {
-            ttsTimer.cancel();
-            turnOff();
-        }
-
-        public void turnOn() {
-            this.speak = true;
-        }
-
-        public void turnOff() {
-            this.speak = false;
+            on = false;
         }
 
         public void speak(String hr) {
-            if (speak) {
-                MyApplication.getInstance().getTTS().speak(hr);
-                speak = false;
-                ViseLog.e("speak: " + hr);
+            if(on) {
+                long currentTime = new Date().getTime();
+                if ((currentTime - lastSpeakTime) > periodMs) {
+                    MyApplication.getInstance().getTTS().speak(hr);
+                    lastSpeakTime = currentTime;
+                    ViseLog.e("speak: " + hr);
+                }
             }
         }
     }
