@@ -2,7 +2,10 @@ package com.cmtech.android.bledevice.common;
 
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
+import com.cmtech.dsp.filter.design.FIRDesigner;
+import com.cmtech.dsp.filter.design.FilterType;
 import com.cmtech.dsp.filter.design.NotchDesigner;
+import com.cmtech.dsp.filter.design.WinType;
 import com.cmtech.dsp.filter.structure.StructType;
 
 
@@ -27,6 +30,7 @@ public class SignalPreFilter implements ISignalFilter {
     private final int notchFreq; // notch central frequency
     private IDigitalFilter dcBlocker; // a DC blocker filtering the baseline drift
     private IDigitalFilter notch; // a notch filter filtering the 50Hz noise
+    private IDigitalFilter lpFilter; // a lowpass filter filtering the noise which frequency is larger than 60Hz
 
     private boolean notchOn;
 
@@ -52,16 +56,18 @@ public class SignalPreFilter implements ISignalFilter {
         // 准备50Hz陷波器
         notch = NotchDesigner.design(notchFreq, DEFAULT_NOTCH_3DB_BANDWIDTH, sampleRate);  // 设计陷波器
         notch.createStructure(StructType.IIR_NOTCH); // 创建陷波器专用结构
+
+        // 准备60Hz低通滤波器
+        int fp = 65;
+        int fs = 85;
+        lpFilter = FIRDesigner.design(new double[]{2 * Math.PI * fp / sampleRate}, new double[]{2 * Math.PI * fs / sampleRate},
+                1, 50, FilterType.LOWPASS, WinType.HAMMING);
     }
 
     @Override
     public double filter(double signal) {
-        double result = dcBlocker.filter(signal);
-        if(notchOn) {
-            return notch.filter(result);
-        } else {
-            return result;
-        }
+        double result = lpFilter.filter(dcBlocker.filter(signal));
+        return (notchOn) ? notch.filter(result) : result;
     }
 
     public void turnOnNotch(boolean notchOn) {
