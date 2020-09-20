@@ -499,13 +499,11 @@ public class HrmDevice extends AbstractDevice {
                             }
                         }
 
-                        boolean hrChanged = hrRecord.record((short) bpm, heartRateData.getTime());
-
                         String currentHr = MyApplication.getStr(R.string.current_hr) + bpm;
                         setNotificationInfo(currentHr);
                         speaker.speak(currentHr);
 
-                        boolean hrStatisticUpdated = (hrRecording && hrChanged);
+                        boolean hrStatisticUpdated = (hrRecording && hrRecord.record((short) bpm, heartRateData.getTime()));
                         if (!MyApplication.getInstance().isRunInBackground()) {
                             if (listener != null) {
                                 listener.onHRUpdated(heartRateData);
