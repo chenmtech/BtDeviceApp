@@ -441,7 +441,7 @@ public class HrmDevice extends AbstractDevice {
     private static class HRSpeaker {
         private volatile boolean on = false;
         private long periodMs = 0;
-        private long lastSpeakTime = 0;
+        private volatile long lastSpeakTime = 0;
 
         public void start(int periodS) {
             periodMs = periodS*60000L;
@@ -489,10 +489,8 @@ public class HrmDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     try {
                         BleHeartRateData heartRateData = new BleHeartRateData(data);
-                        int bpm = heartRateData.getBpm();
-                        String currentHr = MyApplication.getStr(R.string.current_hr) + bpm;
-                        boolean hrStatisticUpdated = (hrRecording && hrRecord.record((short) bpm, heartRateData.getTime()));
 
+                        int bpm = heartRateData.getBpm();
                         if(config.needWarn()) {
                             if(bpm > config.getHrHigh())
                                 MyApplication.getInstance().getTTS().speak(R.string.hr_too_high);
@@ -501,10 +499,14 @@ public class HrmDevice extends AbstractDevice {
                             }
                         }
 
+                        boolean hrChanged = hrRecord.record((short) bpm, heartRateData.getTime());
+
+                        String currentHr = MyApplication.getStr(R.string.current_hr) + bpm;
+                        setNotificationInfo(currentHr);
                         speaker.speak(currentHr);
 
-                        setNotificationInfo(currentHr);
-                        if (!MyApplication.isRunInBackground()) {
+                        boolean hrStatisticUpdated = (hrRecording && hrChanged);
+                        if (!MyApplication.getInstance().isRunInBackground()) {
                             if (listener != null) {
                                 listener.onHRUpdated(heartRateData);
 
@@ -639,7 +641,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void showEcgSignal(int ecgSignal) {
-        if(!MyApplication.isRunInBackground()) {
+        if(!MyApplication.getInstance().isRunInBackground()) {
             if (listener != null) {
                 listener.onEcgSignalShowed(ecgSignal);
             }

@@ -67,7 +67,7 @@ public class SystemTTS extends UtteranceProgressListener implements TTS, TextToS
             return;
         }
         if (textToSpeech != null) {
-            textToSpeech.speak(playText, TextToSpeech.QUEUE_ADD, null, null);
+            textToSpeech.speak(playText, TextToSpeech.QUEUE_ADD, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
         }
     }
 

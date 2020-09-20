@@ -453,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 if(fragTabManager.isFragmentSelected(device)) {
                     updateConnectFAButton(device.getConnectState().getIcon());
                     updateCloseMenuItem(true);
-                    if(!MyApplication.isRunInBackground())
+                    if(!MyApplication.getInstance().isRunInBackground())
                         Toast.makeText(MainActivity.this, device.getConnectState().getDescription(), Toast.LENGTH_SHORT).show();
                 }
                 // 更新设备列表Adapter

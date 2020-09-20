@@ -30,8 +30,7 @@ public class MyApplication extends Application {
     private SystemTTS tts; // text to speech
     private DeviceManager deviceManager;
     private AccountManager accountManager;
-
-    private static int startedActivityCount = 0;
+    private int startedActivityCount = 0;
 
     @Override
     public void onCreate() {
@@ -134,7 +133,7 @@ public class MyApplication extends Application {
         return instance.getString(strId);
     }
 
-    public static boolean isRunInBackground() {
+    public boolean isRunInBackground() {
         return (startedActivityCount == 0);
     }
 
