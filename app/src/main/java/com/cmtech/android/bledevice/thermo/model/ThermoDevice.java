@@ -13,7 +13,7 @@ import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.vise.log.ViseLog;
@@ -22,8 +22,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 
 /**
  * ThermoDevice: Thermometer device

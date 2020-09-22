@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.ecg;
 
 import android.os.Environment;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 
 import java.io.File;
 

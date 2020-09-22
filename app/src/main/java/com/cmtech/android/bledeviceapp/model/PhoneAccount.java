@@ -2,7 +2,7 @@ package com.cmtech.android.bledeviceapp.model;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
 
 /**
  * ProjectName:    BtDeviceApp

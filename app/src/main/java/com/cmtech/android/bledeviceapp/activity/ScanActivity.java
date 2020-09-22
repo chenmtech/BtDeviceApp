@@ -31,7 +31,7 @@ import com.vise.log.ViseLog;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.SCAN_DURATION;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SCAN_DURATION;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 
 /**

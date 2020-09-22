@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp;
+package com.cmtech.android.bledeviceapp.global;
 
 import android.app.Activity;
 import android.app.Application;
@@ -9,9 +9,6 @@ import android.util.Log;
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.DeviceManager;
-import com.cmtech.android.bledeviceapp.util.SystemTTS;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
@@ -27,9 +24,9 @@ import java.util.List;
 
 public class MyApplication extends Application {
     private static MyApplication instance;
-    private SystemTTS tts; // text to speech
     private DeviceManager deviceManager;
     private AccountManager accountManager;
+    private SystemTTS tts;
     private int startedActivityCount = 0;
 
     @Override
@@ -53,10 +50,7 @@ public class MyApplication extends Application {
                 .configLevel(Log.VERBOSE);      //设置日志最小输出级别，默认Log.VERBOSE
         ViseLog.plant(new LogcatTree());        //添加打印日志信息到Logcat的树
 
-        // init text-to-speech instance
-        tts = SystemTTS.getInstance(getApplicationContext());
-
-        CrashHandler.getInstance().init(this);
+        new CrashHandler(this);
 
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
@@ -95,17 +89,18 @@ public class MyApplication extends Application {
             }
         });
 
-        deviceManager = DeviceManager.getInstance();
+        deviceManager = new DeviceManager();
         initDeviceManager();
 
-        accountManager = AccountManager.getInstance();
+        accountManager = new AccountManager();
+
+        tts = new SystemTTS(this);
     }
 
     public static MyApplication getInstance() {
         return instance;
     }
 
-    // 获取Application Context
     public static Context getContext() {
         return instance.getApplicationContext();
     }
@@ -114,6 +109,10 @@ public class MyApplication extends Application {
 
     public static AccountManager getAccountManager() {
         return instance.accountManager;
+    }
+
+    public static SystemTTS getTts() {
+        return instance.tts;
     }
 
     public static Account getAccount() {
@@ -125,16 +124,12 @@ public class MyApplication extends Application {
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    public SystemTTS getTTS() {
-        return tts;
-    }
-
     public static String getStr(int strId) {
         return instance.getString(strId);
     }
 
-    public boolean isRunInBackground() {
-        return (startedActivityCount == 0);
+    public static boolean isRunInBackground() {
+        return (instance.startedActivityCount == 0);
     }
 
     // 初始化DeviceManager
@@ -144,4 +139,5 @@ public class MyApplication extends Application {
             deviceManager.createNewDevice(this, info);
         }
     }
+
 }

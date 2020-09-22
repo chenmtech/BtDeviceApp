@@ -15,7 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordType.ALL;
-import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_RECORD_TYPES;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 
 /**
  * ProjectName:    BtDeviceApp

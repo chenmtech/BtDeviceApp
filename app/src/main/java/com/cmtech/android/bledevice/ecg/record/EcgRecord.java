@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 
 public class EcgRecord extends LitePalSupport implements ISignalRecord {
     private static final byte[] ECG = {'E', 'C', 'G'}; // 心电标识

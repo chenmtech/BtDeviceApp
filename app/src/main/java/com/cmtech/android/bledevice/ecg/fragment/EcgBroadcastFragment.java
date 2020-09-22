@@ -16,7 +16,7 @@ import android.widget.ImageButton;
 import com.cmtech.android.bledevice.ecg.adapter.EcgReceiverAdapter;
 import com.cmtech.android.bledevice.ecg.device.EcgDevice;
 import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 

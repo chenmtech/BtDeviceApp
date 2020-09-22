@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecg.record.ecgcomment;
 
 import com.cmtech.android.bledevice.ecg.enumeration.EcgCommentType;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;

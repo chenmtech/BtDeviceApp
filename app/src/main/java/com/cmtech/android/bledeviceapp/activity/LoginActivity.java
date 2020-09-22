@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.PhoneAccount;
@@ -29,7 +29,7 @@ import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
 
 public class LoginActivity extends AppCompatActivity {
     private ImageButton qqLogin;

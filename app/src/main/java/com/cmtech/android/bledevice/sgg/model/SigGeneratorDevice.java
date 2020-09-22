@@ -11,7 +11,7 @@ import com.vise.log.ViseLog;
 
 import java.util.UUID;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 
 public class SigGeneratorDevice extends AbstractDevice {
     // 信号发生器Service UUID常量

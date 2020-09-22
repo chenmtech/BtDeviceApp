@@ -1,8 +1,10 @@
-package com.cmtech.android.bledeviceapp.util;
+package com.cmtech.android.bledeviceapp.global;
 
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+
+import com.cmtech.android.bledeviceapp.util.TTS;
 
 import java.util.Locale;
 
@@ -20,22 +22,10 @@ import java.util.Locale;
  */
 public class SystemTTS extends UtteranceProgressListener implements TTS, TextToSpeech.OnUtteranceCompletedListener {
     private Context mContext;
-    private static SystemTTS singleton;
     private TextToSpeech textToSpeech; // 系统语音播报类
     private boolean isSuccess = true;
 
-    public static SystemTTS getInstance(Context context) {
-        if (singleton == null) {
-            synchronized (SystemTTS.class) {
-                if (singleton == null) {
-                    singleton = new SystemTTS(context);
-                }
-            }
-        }
-        return singleton;
-    }
-
-    private SystemTTS(Context context) {
+    SystemTTS(Context context) {
         this.mContext = context.getApplicationContext();
         textToSpeech = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
             @Override
@@ -53,7 +43,6 @@ public class SystemTTS extends UtteranceProgressListener implements TTS, TextToS
                         isSuccess = false;
                     }
                 }
-
             }
         });
     }

@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity;
 import com.cmtech.android.bledevice.ecg.record.EcgRecord;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;

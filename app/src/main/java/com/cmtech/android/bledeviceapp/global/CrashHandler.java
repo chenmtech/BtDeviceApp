@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp;
+package com.cmtech.android.bledeviceapp.global;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -26,27 +26,11 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     private static final String TAG = CrashHandler.class.getSimpleName();
     private static final String SINGLE_RETURN = "\n";
     private static final String SINGLE_LINE = "--------------------------------";
-    private static CrashHandler mCrashHandler;
     private Context mContext;
     private Thread.UncaughtExceptionHandler mDefaultHandler;
     private StringBuffer mErrorLogBuffer = new StringBuffer();
-    /**
-     * 获取CrashHandler实例，单例模式。
-     *
-     * @return 返回CrashHandler实例
-     */
-    public static CrashHandler getInstance() {
-        if (mCrashHandler == null) {
-            synchronized (CrashHandler.class) {
-                if (mCrashHandler == null) {
-                    mCrashHandler = new CrashHandler();
-                }
-            }
-        }
-        return mCrashHandler;
-    }
 
-    public void init(Context context) {
+    CrashHandler(Context context) {
         mContext = context;
         // 获取系统默认的uncaughtException处理类实例
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();

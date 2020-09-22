@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.model;
+package com.cmtech.android.bledeviceapp.global;
 
 
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.PhoneAccount;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -27,9 +29,9 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.PHONE_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.QQ_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.WX_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
@@ -46,14 +48,9 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  */
 
 public class AccountManager {
-    private static final AccountManager INSTANCE = new AccountManager();
     private Account account; // account
 
-    private AccountManager() {
-    }
-
-    public static AccountManager getInstance() {
-        return INSTANCE;
+    AccountManager() {
     }
 
     public Account getAccount() {

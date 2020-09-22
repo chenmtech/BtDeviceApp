@@ -16,8 +16,8 @@ import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
@@ -30,9 +30,9 @@ import java.util.UUID;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
-import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -457,7 +457,7 @@ public class HrmDevice extends AbstractDevice {
             if(on) {
                 long currentTime = new Date().getTime();
                 if ((currentTime - lastSpeakTime) > periodMs) {
-                    MyApplication.getInstance().getTTS().speak(hr);
+                    MyApplication.getTts().speak(hr);
                     lastSpeakTime = currentTime;
                     ViseLog.e("speak: " + hr);
                 }
@@ -493,9 +493,9 @@ public class HrmDevice extends AbstractDevice {
                         int bpm = heartRateData.getBpm();
                         if(config.needWarn()) {
                             if(bpm > config.getHrHigh())
-                                MyApplication.getInstance().getTTS().speak(R.string.hr_too_high);
+                                MyApplication.getTts().speak(R.string.hr_too_high);
                             else if(bpm < config.getHrLow()) {
-                                MyApplication.getInstance().getTTS().speak(R.string.hr_too_low);
+                                MyApplication.getTts().speak(R.string.hr_too_low);
                             }
                         }
 
@@ -504,7 +504,7 @@ public class HrmDevice extends AbstractDevice {
                         speaker.speak(currentHr);
 
                         boolean hrStatisticUpdated = (hrRecording && hrRecord.record((short) bpm, heartRateData.getTime()));
-                        if (!MyApplication.getInstance().isRunInBackground()) {
+                        if (!MyApplication.isRunInBackground()) {
                             if (listener != null) {
                                 listener.onHRUpdated(heartRateData);
 
@@ -639,7 +639,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void showEcgSignal(int ecgSignal) {
-        if(!MyApplication.getInstance().isRunInBackground()) {
+        if(!MyApplication.isRunInBackground()) {
             if (listener != null) {
                 listener.onEcgSignalShowed(ecgSignal);
             }

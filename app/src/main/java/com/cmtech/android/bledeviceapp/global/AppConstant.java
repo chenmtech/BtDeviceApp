@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp;
+package com.cmtech.android.bledeviceapp.global;
 
 import android.os.Environment;
 
@@ -10,6 +10,7 @@ import com.cmtech.android.bledevice.hrm.model.HrmFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledevice.thm.model.ThmFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.io.File;
@@ -26,7 +27,6 @@ import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.EEG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
-import static com.cmtech.android.bledevice.record.RecordType.TH;
 import static com.cmtech.android.bledevice.record.RecordType.THERMO;
 
 /**

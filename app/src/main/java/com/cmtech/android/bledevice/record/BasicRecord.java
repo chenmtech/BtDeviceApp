@@ -2,11 +2,8 @@ package com.cmtech.android.bledevice.record;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;

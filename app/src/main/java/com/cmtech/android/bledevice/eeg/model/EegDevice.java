@@ -12,7 +12,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleEegRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
@@ -22,9 +22,9 @@ import java.util.UUID;
 
 import static com.cmtech.android.bledevice.record.RecordType.EEG;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
-import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.eeg.model

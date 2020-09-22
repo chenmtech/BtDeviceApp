@@ -23,7 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.vise.utils.file.FileUtil;
@@ -34,7 +34,7 @@ import java.io.IOException;
 
 import static com.cmtech.android.ble.core.DeviceCommonInfo.DEFAULT_AUTO_CONNECT;
 import static com.cmtech.android.ble.core.DeviceCommonInfo.DEFAULT_ICON;
-import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 
 /**
  *  DeviceInfoActivity: device info activity, used to set up the BleDeviceInfo class

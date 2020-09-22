@@ -11,7 +11,7 @@ import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
 import static com.cmtech.android.ble.core.DeviceConnectState.CONNECTING;
 import static com.cmtech.android.ble.core.DeviceConnectState.DISCONNECT;
 import static com.cmtech.android.ble.core.DeviceConnectState.DISCONNECTING;
-import static com.cmtech.android.bledeviceapp.AppConstant.RECONNECT_INTERVAL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.RECONNECT_INTERVAL;
 
 /**
  * ProjectName:    BtDeviceApp

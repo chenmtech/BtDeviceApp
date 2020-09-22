@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.model;
+package com.cmtech.android.bledeviceapp.global;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,7 +9,7 @@ import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.log.ViseLog;
 
@@ -33,14 +33,9 @@ import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
  */
 
 public class DeviceManager {
-    private static final DeviceManager INSTANCE = new DeviceManager();
-
     private final List<IDevice> DEVICE_LIST = new ArrayList<>(); // 所有已注册设备列表
 
-    private DeviceManager() {}
-
-    public static DeviceManager getInstance() {
-        return INSTANCE;
+    DeviceManager() {
     }
 
     // create a new device

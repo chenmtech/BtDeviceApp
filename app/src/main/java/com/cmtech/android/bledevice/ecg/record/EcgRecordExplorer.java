@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
@@ -27,7 +27,7 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecg.EcgConstant.DIR_WECHAT_DOWNLOAD;
-import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 
 /**
   *

@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**

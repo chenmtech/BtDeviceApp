@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_DEVICE_TYPES;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_DEVICE_TYPES;
 
 
 /**

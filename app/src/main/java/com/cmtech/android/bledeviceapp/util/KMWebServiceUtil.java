@@ -13,7 +13,7 @@ import java.util.Map;
 
 import okhttp3.Callback;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.KMURL;
 
 /**
  * ProjectName:    BtDeviceApp

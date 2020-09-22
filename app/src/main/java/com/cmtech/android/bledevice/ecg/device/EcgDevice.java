@@ -18,7 +18,7 @@ import com.cmtech.android.bledevice.ecg.process.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecg.util.EcgMonitorUtil;
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
@@ -34,8 +34,8 @@ import static com.cmtech.android.bledevice.ecg.EcgConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.view.ScanEcgView.PIXEL_PER_GRID;
 import static com.cmtech.android.bledevice.view.ScanEcgView.SECOND_PER_GRID;
-import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 
 
 /**

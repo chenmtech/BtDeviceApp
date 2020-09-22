@@ -14,16 +14,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static com.cmtech.android.bledeviceapp.AppConstant.SPLASH_ACTIVITY_COUNT_DOWN_SECOND;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SPLASH_ACTIVITY_COUNT_DOWN_SECOND;
 
 /**
   *
