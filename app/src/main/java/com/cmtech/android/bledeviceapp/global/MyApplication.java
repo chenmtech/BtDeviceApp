@@ -97,10 +97,6 @@ public class MyApplication extends Application {
         tts = new SystemTTS(this);
     }
 
-    public static MyApplication getInstance() {
-        return instance;
-    }
-
     public static Context getContext() {
         return instance.getApplicationContext();
     }
