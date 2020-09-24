@@ -174,14 +174,6 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void requestReport(String platName, String platId, BleEcgRecord10 record, Callback callback) {
-        executeReport("request", platName, platId, record, callback);
-    }
-
-    public static void getNewReport(String platName, String platId, BleEcgRecord10 record, Callback callback) {
-        executeReport("getNew", platName, platId, record, callback);
-    }
-
     public static void executeReport(String cmd, String platName, String platId, BleEcgRecord10 record, Callback callback) {
         try {
             JSONObject json = record.getReport().toJson();

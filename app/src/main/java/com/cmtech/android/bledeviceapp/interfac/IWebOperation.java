@@ -19,5 +19,6 @@ public interface IWebOperation {
     int FAILURE = 1;
     void upload(Context context, IWebOperationCallback callback);
     void download(Context context, IWebOperationCallback callback);
-
+    void delete(Context context, IWebOperationCallback callback);
+    void query(Context context, long fromTime, String queryStr, int num, IWebOperationCallback callback);
 }

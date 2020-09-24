@@ -15,7 +15,7 @@ import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface IRecord extends IJsonable, IRecordWebOperation {
+public interface IRecord extends IJsonable, IWebOperation {
     int INVALID_ID = -1;
 
     int getId();

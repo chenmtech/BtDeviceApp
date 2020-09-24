@@ -168,6 +168,16 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         }).execute(this);
     }
 
+    @Override
+    public void delete(Context context, IWebOperationCallback callback) {
+
+    }
+
+    @Override
+    public void query(Context context, long fromTime, String queryStr, int num, IWebOperationCallback callback) {
+
+    }
+
     @NonNull
     @Override
     public String toString() {

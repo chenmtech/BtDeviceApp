@@ -14,13 +14,16 @@ import java.util.Date;
 import java.util.Locale;
 
 public class EcgReport extends LitePalSupport implements IJsonable {
+    private static final int DONE = 0;
+    private static final int REQUEST = 1;
+    private static final int PROCESS = 2;
     private int id;
     private String ver = "1.0";
-    private long createTime = -1;
+    private long reportTime = -1;
     private String content = "";
+    private int status = DONE;
 
     public EcgReport() {
-
     }
 
     public int getId() {
@@ -35,12 +38,12 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         this.ver = ver;
     }
 
-    public long getCreateTime() {
-        return createTime;
+    public long getReportTime() {
+        return reportTime;
     }
 
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
+    public void setReportTime(long reportTime) {
+        this.reportTime = reportTime;
     }
 
     public String getContent() {
@@ -51,6 +54,14 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         this.content = content;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     @Override
     public boolean fromJson(JSONObject json) {
         if(json == null) {
@@ -58,9 +69,10 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         }
 
         try {
-            ver = json.getString("ver");
-            createTime = json.getLong("createTime");
+            ver = json.getString("reportVer");
+            reportTime = json.getLong("reportTime");
             content = json.getString("content");
+            status = json.getInt("status");
             return save();
         } catch (JSONException e) {
             e.printStackTrace();
@@ -71,8 +83,8 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     @Override
     public JSONObject toJson() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("ver", ver);
-        json.put("createTime", createTime);
+        json.put("reportVer", ver);
+        json.put("reportTime", reportTime);
         json.put("content", content);
         return json;
     }
@@ -80,7 +92,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     @NonNull
     @Override
     public String toString() {
-        DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd hh:mm", Locale.getDefault());
-        return "时间：" + dateFmt.format(new Date(createTime)) + "\n内容：" + content;
+        DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        return "报告时间：" + dateFmt.format(new Date(reportTime)) + "\n内容：" + content;
     }
 }

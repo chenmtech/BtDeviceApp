@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.hrm.view;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -141,7 +140,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         noteLayout.setRecord(record);
 
         etReport = findViewById(R.id.et_ecg_report);
-        if(record.getReport().getCreateTime() > 0)
+        if(record.getReport().getReportTime() > 0)
             etReport.setText(record.getReport().toString());
         else
             etReport.setText("暂无报告。");
@@ -162,7 +161,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                             record.getReport().fromJson(reportresult.getJSONObject("report"));
                             record.save();
                             ViseLog.e(record.getReport());
-                            if(record.getReport().getCreateTime() > 0)
+                            if(record.getReport().getReportTime() > 0)
                                 etReport.setText(record.getReport().toString());
                             Toast.makeText(EcgRecordActivity.this, "报告已更新", Toast.LENGTH_SHORT).show();
                             break;
@@ -195,7 +194,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnGetReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                record.requestReport(EcgRecordActivity.this, BleEcgRecord10.REPORT_CMD_GET_NEW, reportWebCallback);
+                record.processReport(EcgRecordActivity.this, BleEcgRecord10.REPORT_CMD_GET_NEW, reportWebCallback);
             }
         });
 
@@ -203,7 +202,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnRequestReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                record.requestReport(EcgRecordActivity.this, BleEcgRecord10.REPORT_CMD_REQUEST, reportWebCallback);
+                record.processReport(EcgRecordActivity.this, BleEcgRecord10.REPORT_CMD_REQUEST, reportWebCallback);
             }
         });
 
