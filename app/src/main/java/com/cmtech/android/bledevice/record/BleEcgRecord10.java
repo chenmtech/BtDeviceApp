@@ -47,10 +47,6 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAI
  * Version:        1.0
  */
 public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IReportOperation, Serializable {
-    public static final int REPORT_CMD_REQUEST = 0; // request report
-    public static final int REPORT_CMD_GET_NEW = 1; // get a new report
-    public static final int REPORt_CMD_UPLOAD = 2; // upload a new report
-
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
@@ -206,8 +202,8 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
     }
 
     @Override
-    public void refreshReport(Context context, IWebOperationCallback callback) {
-        processReport(context, REPORT_CMD_GET_NEW, callback);
+    public void downloadReport(Context context, IWebOperationCallback callback) {
+        processReport(context, REPORT_CMD_DOWNLOAD, callback);
     }
 
     @Override
@@ -215,7 +211,12 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
         processReport(context, REPORT_CMD_REQUEST, callback);
     }
 
-    public void processReport(Context context, int cmd, IWebOperationCallback callback) {
+    @Override
+    public void uploadReport(Context context, IWebOperationCallback callback) {
+        processReport(context, REPORt_CMD_UPLOAD, callback);
+    }
+
+    private void processReport(Context context, int cmd, IWebOperationCallback callback) {
         if(needUpload()) {
             upload(context, new IWebOperationCallback() {
                 @Override
@@ -288,32 +289,25 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
                 }
             };
 
-            String reportCmd = "";
             switch (cmd) {
                 case REPORT_CMD_REQUEST:
-                    reportCmd = "request";
+                    KMWebServiceUtil.requestReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
                     break;
-                case REPORT_CMD_GET_NEW:
-                    reportCmd = "getNew";
+                case REPORT_CMD_DOWNLOAD:
+                    KMWebServiceUtil.downloadReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
                     break;
                 case REPORt_CMD_UPLOAD:
-                    reportCmd = "upload";
+                    KMWebServiceUtil.uploadReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
                     break;
                 default:
+                    done.countDown();
                     break;
             }
-            if(reportCmd.equals("")) {
-                done.countDown();
-            } else {
-                KMWebServiceUtil.executeReport(reportCmd, MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
-
-                try {
-                    done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            try {
+                done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-
             return result;
         }
 

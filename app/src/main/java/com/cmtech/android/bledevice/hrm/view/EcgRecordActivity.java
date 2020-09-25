@@ -158,11 +158,13 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     int reportCode = reportresult.getInt("reportCode");
                     switch (reportCode) {
                         case CODE_REPORT_SUCCESS:
-                            record.getReport().fromJson(reportresult.getJSONObject("report"));
-                            record.save();
-                            ViseLog.e(record.getReport());
-                            if(record.getReport().getReportTime() > 0)
-                                etReport.setText(record.getReport().toString());
+                            if(reportresult.has("report")) {
+                                record.getReport().fromJson(reportresult.getJSONObject("report"));
+                                record.save();
+                                ViseLog.e(record.getReport());
+                                if (record.getReport().getReportTime() > 0)
+                                    etReport.setText(record.getReport().toString());
+                            }
                             Toast.makeText(EcgRecordActivity.this, "报告已更新", Toast.LENGTH_SHORT).show();
                             break;
                         case CODE_REPORT_FAILURE:
@@ -194,7 +196,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnGetReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                record.processReport(EcgRecordActivity.this, BleEcgRecord10.REPORT_CMD_GET_NEW, reportWebCallback);
+                record.downloadReport(EcgRecordActivity.this, reportWebCallback);
             }
         });
 
@@ -202,7 +204,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnRequestReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                record.processReport(EcgRecordActivity.this, BleEcgRecord10.REPORT_CMD_REQUEST, reportWebCallback);
+                record.requestReport(EcgRecordActivity.this, reportWebCallback);
             }
         });
 

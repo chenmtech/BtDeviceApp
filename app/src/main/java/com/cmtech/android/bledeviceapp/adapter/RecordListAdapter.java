@@ -187,6 +187,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     }
 
     public void notifySelectedItemChanged() {
+        if(position == INVALID_POS) return;
         IRecord record = records.get(position);
         records.set(position, LitePal.find(record.getClass(), record.getId()));
         notifyItemChanged(position);

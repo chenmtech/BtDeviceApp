@@ -40,7 +40,6 @@ public class KMWebServiceUtil {
 
     private static final String ACCOUNT_OP_URL = "Account?";
     private static final String RECORD_OP_URL = "Record?";
-    private static final String REPORT_OP_URL = "Report?";
 
     public static void signUp(String platName, String platId, Callback callback) {
         Map<String, String> data = new HashMap<>();
@@ -174,16 +173,46 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void executeReport(String cmd, String platName, String platId, BleEcgRecord10 record, Callback callback) {
+    public static void downloadReport(String platName, String platId, BleEcgRecord10 record, Callback callback) {
         try {
-            JSONObject json = record.getReport().toJson();
-            json.put("recordCreateTime", record.getCreateTime());
-            json.put("recordDevAddress", record.getDevAddress());
-            json.put("cmd", cmd);
+            JSONObject json = new JSONObject();
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("cmd", "downloadReport");
             json.put("platName", platName);
             json.put("platId", platId);
             ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + REPORT_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void requestReport(String platName, String platId, BleEcgRecord10 record, Callback callback) {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("cmd", "requestReport");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            ViseLog.e(json.toString());
+            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void uploadReport(String platName, String platId, BleEcgRecord10 record, Callback callback) {
+        try {
+            JSONObject json = record.getReport().toJson();
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("cmd", "uploadReport");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            ViseLog.e(json.toString());
+            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }

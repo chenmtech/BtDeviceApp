@@ -17,6 +17,11 @@ import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
  * Version:        1.0
  */
 public interface IReportOperation {
-    void refreshReport(Context context, IWebOperationCallback callback);
+    int REPORT_CMD_REQUEST = 0; // request report
+    int REPORT_CMD_DOWNLOAD = 1; // get a new report
+    int REPORt_CMD_UPLOAD = 2; // upload a new report
+
+    void downloadReport(Context context, IWebOperationCallback callback);
     void requestReport(Context context, IWebOperationCallback callback);
+    void uploadReport(Context context, IWebOperationCallback callback);
 }

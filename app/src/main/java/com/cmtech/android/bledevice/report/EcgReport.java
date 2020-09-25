@@ -93,6 +93,22 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     @Override
     public String toString() {
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        return "报告时间：" + dateFmt.format(new Date(reportTime)) + "\n内容：" + content;
+        String statusStr = "未知";
+        switch (status) {
+            case DONE:
+                statusStr = "已处理";
+                break;
+            case REQUEST:
+                statusStr = "等待处理";
+                break;
+            case PROCESS:
+                statusStr = "正在处理";
+                break;
+            default:
+                break;
+        }
+        return "报告时间：" + dateFmt.format(new Date(reportTime))
+                + "\n内容：" + content
+                + "\n状态：" + statusStr;
     }
 }
