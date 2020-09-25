@@ -145,7 +145,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         else
             etReport.setText("暂无报告。");
 
-        IWebOperationCallback reportWebCallback = new IWebOperationCallback() {
+        IWebOperationCallback requestReportWebCallback = new IWebOperationCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code != WEB_CODE_SUCCESS) {
@@ -153,20 +153,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     return;
                 }
 
-                JSONObject reportresult = (JSONObject)result;
+                JSONObject reportResult = (JSONObject)result;
                 try {
-                    int reportCode = reportresult.getInt("reportCode");
+                    int reportCode = reportResult.getInt("reportCode");
                     switch (reportCode) {
-                        case CODE_REPORT_SUCCESS:
-                            if(reportresult.has("report")) {
-                                record.getReport().fromJson(reportresult.getJSONObject("report"));
-                                record.save();
-                                ViseLog.e(record.getReport());
-                                if (record.getReport().getReportTime() > 0)
-                                    etReport.setText(record.getReport().toString());
-                            }
-                            Toast.makeText(EcgRecordActivity.this, "报告已更新", Toast.LENGTH_SHORT).show();
-                            break;
                         case CODE_REPORT_FAILURE:
                             Toast.makeText(EcgRecordActivity.this, "获取报告错误", Toast.LENGTH_SHORT).show();
                             break;
@@ -179,8 +169,43 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                         case CODE_REPORT_REQUEST_AGAIN:
                             Toast.makeText(EcgRecordActivity.this, "已重新申请报告", Toast.LENGTH_SHORT).show();
                             break;
+                        default:
+                            break;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        IWebOperationCallback getReportWebCallback = new IWebOperationCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                if(code != WEB_CODE_SUCCESS) {
+                    Toast.makeText(EcgRecordActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                JSONObject reportResult = (JSONObject)result;
+                try {
+                    int reportCode = reportResult.getInt("reportCode");
+                    switch (reportCode) {
+                        case CODE_REPORT_SUCCESS:
+                            if(reportResult.has("report")) {
+                                long time = reportResult.getJSONObject("report").getLong("reportTime");
+                                if(record.getReport().getReportTime() < time) {
+                                    record.getReport().fromJson(reportResult.getJSONObject("report"));
+                                    record.save();
+                                    ViseLog.e(record.getReport());
+                                    etReport.setText(record.getReport().toString());
+                                }
+                            }
+                            break;
+                        case CODE_REPORT_FAILURE:
+                            Toast.makeText(EcgRecordActivity.this, "请求报告错误", Toast.LENGTH_SHORT).show();
+                            break;
                         case CODE_REPORT_NO_NEW:
-                            Toast.makeText(EcgRecordActivity.this, "无新报告", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EcgRecordActivity.this, "暂无新报告", Toast.LENGTH_SHORT).show();
                             break;
 
                         default:
@@ -196,7 +221,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnGetReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                record.downloadReport(EcgRecordActivity.this, reportWebCallback);
+                record.downloadReport(EcgRecordActivity.this, getReportWebCallback);
             }
         });
 
@@ -204,7 +229,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnRequestReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                record.requestReport(EcgRecordActivity.this, reportWebCallback);
+                record.requestReport(EcgRecordActivity.this, requestReportWebCallback);
             }
         });
 
