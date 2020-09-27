@@ -415,12 +415,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         MyApplication.getDeviceManager().clear();
 
+        MyApplication.getTts().stopSpeak();
+
         MyApplication.killProcess();
     }
 
     @Override
     public void onBackPressed() {
-        //switchDrawer(!drawerLayout.isDrawerOpen(GravityCompat.START));
         if(MyApplication.getDeviceManager().hasDeviceOpen()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle(R.string.exit_app);
