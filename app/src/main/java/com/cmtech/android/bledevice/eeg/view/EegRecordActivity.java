@@ -3,14 +3,13 @@ package com.cmtech.android.bledevice.eeg.view;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEegRecord10;
-import com.cmtech.android.bledevice.view.RecordIntroLayout;
+import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RollEegRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
@@ -28,7 +27,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 public class EegRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
     private BleEegRecord10 record;
 
-    private RecordIntroLayout introLayout;
+    private RecordIntroductionLayout introLayout;
 
     private RollEegRecordWaveView eegView; // eegView
     private TextView tvTotalTime; // 总时长

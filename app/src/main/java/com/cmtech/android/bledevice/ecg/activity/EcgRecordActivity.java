@@ -88,7 +88,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCreator = findViewById(R.id.tv_creator);
         tvCreateTime = findViewById(R.id.tv_create_time);
         tvLength = findViewById(R.id.tv_signal_length);
-        tvHrNum = findViewById(R.id.tv_note);
+        tvHrNum = findViewById(R.id.tv_time_length);
 
         signalLayout = findViewById(R.id.layout_signal_part);
         signalView = findViewById(R.id.roll_ecg_view);

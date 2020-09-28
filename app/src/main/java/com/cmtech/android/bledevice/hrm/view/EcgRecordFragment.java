@@ -55,7 +55,7 @@ public class EcgRecordFragment extends Fragment {
             }
         });
 
-        tvTimeLength = view.findViewById(R.id.tv_note);
+        tvTimeLength = view.findViewById(R.id.tv_time_length);
 
         tvRecordStatus = view.findViewById(R.id.tv_record_status);
     }

@@ -52,6 +52,8 @@
     <string name="low_limit">下限\n次/分钟</string>
     <string name="high_limit">上限\n次/分钟</string>
     <string name="and">和</string>
+    <string name="report_title">诊断报告</string>
+    <string name="record_note_title">备注</string>
 
 
     <string name="current_hr">当前心率</string>

@@ -74,7 +74,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             tvCreateTime = view.findViewById(R.id.tv_create_time);
             ivRecordType = view.findViewById(R.id.iv_record_type);
             tvAddress = view.findViewById(R.id.tv_device_address);
-            tvNote = view.findViewById(R.id.tv_note);
+            tvNote = view.findViewById(R.id.tv_time_length);
             ivUpload = view.findViewById(R.id.iv_need_upload);
             ivDelete = view.findViewById(R.id.iv_delete);
             llRecordInfo = view.findViewById(R.id.ll_basic_info);

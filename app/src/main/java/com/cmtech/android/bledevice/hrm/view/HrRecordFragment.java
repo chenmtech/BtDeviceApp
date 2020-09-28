@@ -98,7 +98,4 @@ public class HrRecordFragment extends Fragment {
             ibStop.setVisibility(View.INVISIBLE);
         }
     }
-
-
-
 }

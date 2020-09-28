@@ -58,7 +58,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
             tvCreator = fileView.findViewById(R.id.tv_creator);
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);
             tvLength = fileView.findViewById(R.id.tv_signal_length);
-            tvHrNum = fileView.findViewById(R.id.tv_note);
+            tvHrNum = fileView.findViewById(R.id.tv_time_length);
         }
     }
 

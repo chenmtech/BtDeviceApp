@@ -4,18 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.cmtech.android.bledevice.view.RecordIntroLayout
+    <com.cmtech.android.bledevice.view.RecordIntroductionLayout
         android:id="@+id/layout_record_intro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <include layout="@layout/layout_line_chart"
         android:layout_width="match_parent"
-        android:layout_height="200dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
     <com.cmtech.android.bledevice.view.RecordNoteLayout
         android:id="@+id/layout_record_note"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </com.cmtech.android.bledevice.view.RecordNoteLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 </LinearLayout>

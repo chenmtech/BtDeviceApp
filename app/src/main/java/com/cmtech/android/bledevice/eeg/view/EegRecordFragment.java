@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrm.view.HrmFragment;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.Objects;
@@ -56,7 +55,7 @@ public class EegRecordFragment extends Fragment {
             }
         });
 
-        tvTimeLength = view.findViewById(R.id.tv_note);
+        tvTimeLength = view.findViewById(R.id.tv_time_length);
 
         tvRecordStatus = view.findViewById(R.id.tv_record_status);
     }

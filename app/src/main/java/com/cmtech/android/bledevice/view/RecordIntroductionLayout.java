@@ -24,23 +24,23 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_LOGIN_P
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.view
- * ClassName:      RecordIntroLayout
- * Description:    java类作用描述
- * Author:         作者名
+ * ClassName:      RecordIntroductionLayout
+ * Description:    记录介绍信息layout
+ * Author:         chenm
  * CreateDate:     2020/5/12 上午5:22
- * UpdateUser:     更新者
+ * UpdateUser:     chenm
  * UpdateDate:     2020/5/12 上午5:22
- * UpdateRemark:   更新说明
+ * UpdateRemark:   null
  * Version:        1.0
  */
-public class RecordIntroLayout extends RelativeLayout {
+public class RecordIntroductionLayout extends RelativeLayout {
     private ImageView ivExit;
     private TextView tvCreatorName; // 创建人名
     private ImageView ivCreatorImage;
     private TextView tvCreateTime; // 创建时间
     private TextView tvAddress; // device address
 
-    public RecordIntroLayout(Context context, @Nullable AttributeSet attrs) {
+    public RecordIntroductionLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.layout_record_intro, this);
 
@@ -52,6 +52,8 @@ public class RecordIntroLayout extends RelativeLayout {
     }
 
     public void redraw(IRecord record) {
+        if(record == null) return;
+
         ivExit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,11 +63,13 @@ public class RecordIntroLayout extends RelativeLayout {
 
         tvCreatorName.setText(record.getCreatorName());
         Account account = MyApplication.getAccount();
-        if(TextUtils.isEmpty(account.getIcon())) {
-            // load icon by platform name
-            ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
-        } else {
-            Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
+        if(account != null) {
+            if (TextUtils.isEmpty(account.getIcon())) {
+                // load icon by platform name
+                ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
+            } else {
+                Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
+            }
         }
 
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());

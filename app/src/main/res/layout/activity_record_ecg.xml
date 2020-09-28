@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:cmtech="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.cmtech.android.bledevice.view.RecordIntroLayout
+    <com.cmtech.android.bledevice.view.RecordIntroductionLayout
         android:id="@+id/layout_record_intro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -13,7 +14,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:layout_marginStart="6dp"
         android:layout_marginEnd="6dp">
 
@@ -73,11 +74,13 @@
     <com.cmtech.android.bledevice.view.RecordNoteLayout
         android:id="@+id/layout_record_note"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </com.cmtech.android.bledevice.view.RecordNoteLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
-    <include layout="@layout/layout_ecg_report"
+    <com.cmtech.android.bledevice.view.RecordReportLayout
+        android:id="@+id/layout_record_report"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
 </LinearLayout>

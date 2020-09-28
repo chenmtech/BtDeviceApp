@@ -3,15 +3,12 @@ package com.cmtech.android.bledevice.thermo.view;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledevice.view.MyLineChart;
-import com.cmtech.android.bledevice.view.RecordIntroLayout;
+import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
@@ -36,7 +33,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 public class ThermoRecordActivity extends AppCompatActivity {
     private BleThermoRecord10 record;
 
-    private RecordIntroLayout introLayout;
+    private RecordIntroductionLayout introLayout;
 
     private MyLineChart lineChart; //
 
