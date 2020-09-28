@@ -50,9 +50,6 @@ public class RecordNoteLayout extends LinearLayout {
 
     public void setRecord(BasicRecord record) {
         this.record = record;
-    }
-
-    public void update() {
         if(record != null) {
             etNote.setText(record.getNote());
         }

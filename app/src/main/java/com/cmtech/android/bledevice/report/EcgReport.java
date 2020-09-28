@@ -14,9 +14,9 @@ import java.util.Date;
 import java.util.Locale;
 
 public class EcgReport extends LitePalSupport implements IJsonable {
-    private static final int DONE = 0;
-    private static final int REQUEST = 1;
-    private static final int PROCESS = 2;
+    public static final int DONE = 0;
+    public static final int REQUEST = 1;
+    public static final int PROCESS = 2;
     private int id;
     private String ver = "1.0";
     private long reportTime = -1;
@@ -107,7 +107,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
             default:
                 break;
         }
-        return "报告时间：" + dateFmt.format(new Date(reportTime))
+        return "时间：" + dateFmt.format(new Date(reportTime))
                 + "\n内容：" + content
                 + "\n状态：" + statusStr;
     }

@@ -118,11 +118,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
         noteLayout = findViewById(R.id.layout_record_note);
         noteLayout.setRecord(record);
-        noteLayout.update();
 
         reportLayout = findViewById(R.id.layout_record_report);
         reportLayout.setRecord(record);
-        reportLayout.update();
+        reportLayout.updateFromWeb();
 
         ecgView.startShow();
     }

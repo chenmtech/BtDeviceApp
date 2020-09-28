@@ -4,17 +4,49 @@
     android:layout_height="match_parent"
     android:layout_margin="4dp"
     android:orientation="vertical">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_margin="6dp"
+        android:background="@color/primary_dark"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="报告："/>
+        android:text="诊断结果："
+        android:textColor="@color/secondary"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:text="时间："/>
+
+        <TextView
+            android:id="@+id/tv_report_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/time"
+            android:text="  "/>
+
+        <TextView
+            android:id="@+id/tv_report_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  "
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
 
     <EditText
-        android:id="@+id/et_ecg_report"
+        android:id="@+id/et_report_content"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:layout_margin="6dp"
+        android:minHeight="100dp"
         android:background="@drawable/edit_background"
         android:ems="10"
         android:gravity="start|top"
@@ -34,7 +66,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/primary"
-            android:text="申请报告"/>
+            android:text="申请诊断"/>
 
         <Button
             android:id="@+id/btn_get_report"
@@ -42,7 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/primary"
-            android:text="获取报告"/>
+            android:text="刷新"/>
     </LinearLayout>
 
 </LinearLayout>
