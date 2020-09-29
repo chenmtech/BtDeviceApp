@@ -19,6 +19,7 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 /**
@@ -198,29 +199,24 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{num, queryStr, fromTime}, new IWebOperationCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                int resultCode = FAILURE;
-                String resultStr = "网络错误";
-                if(code != WEB_CODE_SUCCESS) {
-                    callback.onFinish(resultCode, resultStr);
-                    return;
-                }
-
-                try {
-                    JSONArray jsonArr = (JSONArray) result;
-                    for(int i = 0; i < jsonArr.length(); i++) {
-                        JSONObject json = (JSONObject) jsonArr.get(i);
-                        BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(json);
-                        if(newRecord != null) {
-                            newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
+                if(code != WEB_CODE_FAILURE && result != null) {
+                    try {
+                        JSONArray jsonArr = (JSONArray) result;
+                        for (int i = 0; i < jsonArr.length(); i++) {
+                            JSONObject json = (JSONObject) jsonArr.get(i);
+                            BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(json);
+                            if (newRecord != null) {
+                                newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
+                            }
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
 
                 List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
 
-                resultCode = SUCCESS;
+                int resultCode = SUCCESS;
                 if(records == null || records.isEmpty()) {
                     callback.onFinish(resultCode, null);
                 } else  {
