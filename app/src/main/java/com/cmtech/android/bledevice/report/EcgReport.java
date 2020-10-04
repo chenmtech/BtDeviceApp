@@ -69,7 +69,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         }
 
         try {
-            ver = json.getString("reportVer");
+            ver = json.getString("ver");
             reportTime = json.getLong("reportTime");
             content = json.getString("content");
             status = json.getInt("status");
@@ -83,7 +83,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     @Override
     public JSONObject toJson() throws JSONException {
         JSONObject json = new JSONObject();
-        json.put("reportVer", ver);
+        json.put("ver", ver);
         json.put("reportTime", reportTime);
         json.put("content", content);
         return json;
