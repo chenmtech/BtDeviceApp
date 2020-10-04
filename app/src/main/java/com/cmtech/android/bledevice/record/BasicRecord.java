@@ -19,6 +19,8 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
+import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
+import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
@@ -35,45 +37,48 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUC
  * Version:        1.0
  */
 public class BasicRecord extends LitePalSupport implements IRecord {
-    public static final String QUERY_STR = "ver, createTime, devAddress, creatorPlat, creatorId, note, needUpload"; // used to create from local DB
+    public static final String QUERY_STR = "createTime, devAddress, ver, creatorPlat, creatorId, note, needUpload"; // used to create from local DB
 
     private int id;
-    private String ver; // record version
+    @Column(ignore = true)
+    private RecordType type; // record type
     private long createTime; // create time
     private String devAddress; // device address
+    private String ver; // record version
     private String creatorPlat; // creator plat name
     private String creatorId; // creator plat ID
     private String note; // note
+    private int recordSecond; // unit: s
     private boolean needUpload; // need uploaded
-    @Column(ignore = true)
-    private RecordType type; // record type
 
     BasicRecord(RecordType type) {
-        ver = "";
-        createTime = 0;
+        this.type = type;
+        createTime = INVALID_TIME;
         devAddress = "";
+        ver = DEFAULT_VER;
         creatorPlat = "";
         creatorId = "";
         note = "";
+        recordSecond = 0;
         needUpload = true;
-        this.type = type;
     }
 
     BasicRecord(long createTime, String devAddress, Account creator, String note) {
-        this(ALL, "1.0", createTime, devAddress, creator, note, true);
+        this(ALL, createTime, devAddress, DEFAULT_VER, creator, note, true);
     }
 
-    BasicRecord(RecordType type, String ver, long createTime, String devAddress, Account creator, String note, boolean needUpload) {
+    BasicRecord(RecordType type, long createTime, String devAddress, String ver, Account creator, String note, boolean needUpload) {
         if(creator == null) {
             throw new IllegalArgumentException("The creator of the record is null.");
         }
         this.type = type;
-        this.ver = ver;
         this.createTime = createTime;
         this.devAddress = devAddress;
+        this.ver = ver;
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
         this.note = note;
+        this.recordSecond = 0;
         this.needUpload = needUpload;
     }
 
@@ -81,13 +86,14 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         if(json == null) {
             throw new IllegalArgumentException("The json object is null.");
         }
-        this.ver = json.getString("ver");
         this.type = RecordType.fromCode(json.getInt("recordTypeCode"));
         this.createTime = json.getLong("createTime");
         this.devAddress = json.getString("devAddress");
+        this.ver = json.getString("ver");
         this.creatorPlat = MyApplication.getAccount().getPlatName();
         this.creatorId = MyApplication.getAccount().getPlatId();
         this.note = json.getString("note");
+        this.recordSecond = json.getInt("recordSecond");
         this.needUpload = needUpload;
     }
 
@@ -162,6 +168,15 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
+    public int getRecordSecond() {
+        return recordSecond;
+    }
+
+    public void setRecordSecond(int recordSecond) {
+        this.recordSecond = recordSecond;
+    }
+
+    @Override
     public boolean needUpload() {
         return needUpload;
     }
@@ -175,13 +190,14 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     public JSONObject toJson() {
         try {
             JSONObject json = new JSONObject();
-            json.put("ver", ver);
             json.put("recordTypeCode", type.getCode());
             json.put("createTime", createTime);
             json.put("devAddress", devAddress);
+            json.put("ver", ver);
             json.put("creatorPlat", creatorPlat);
             json.put("creatorId", creatorId);
             json.put("note", note);
+            json.put("recordSecond", recordSecond);
             return json;
         } catch (JSONException ex) {
             ex.printStackTrace();
@@ -191,7 +207,19 @@ public class BasicRecord extends LitePalSupport implements IRecord {
 
     @Override
     public void fromJson(JSONObject json) {
-        return;
+        try {
+            if(json.has("ver")) {
+                ver = json.getString("ver");
+            } else {
+                ver = DEFAULT_VER;
+            }
+            creatorPlat = json.getString("creatorPlat");
+            creatorId = json.getString("creatorId");
+            note = json.getString("note");
+            recordSecond = json.getInt("recordSecond");
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -312,7 +340,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     @NonNull
     @Override
     public String toString() {
-        return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + needUpload;
+        return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + recordSecond + "-" + needUpload;
     }
 
     @Override

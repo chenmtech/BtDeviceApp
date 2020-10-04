@@ -30,6 +30,7 @@ public interface IRecord extends IJsonable, IWebOperation {
     String getCreatorName();
     String getNote();
     void setNote(String note);
+    int getRecordSecond();
     boolean needUpload();
     void setNeedUpload(boolean needUpload);
     boolean noSignal();

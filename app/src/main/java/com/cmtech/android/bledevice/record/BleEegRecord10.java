@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordType.EEG;
+import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -31,7 +32,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
-    private int recordSecond; // unit: s
     private List<Integer> eegData; // eeg data
     @Column(ignore = true)
     private int pos = 0;
@@ -39,19 +39,16 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     private BleEegRecord10() {
         super(EEG);
         initData();
-        recordSecond = 0;
     }
 
     private BleEegRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(EEG, "1.0", createTime, devAddress, creator, note, true);
+        super(EEG, createTime, DEFAULT_VER, devAddress, creator, note, true);
         initData();
-        recordSecond = 0;
     }
 
     private BleEegRecord10(JSONObject json) throws JSONException{
         super(json, false);
         initData();
-        recordSecond = json.getInt("recordSecond");
     }
 
     private void initData() {
@@ -68,7 +65,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
             json.put("sampleRate", sampleRate);
             json.put("caliValue", caliValue);
             json.put("leadTypeCode", leadTypeCode);
-            json.put("recordSecond", recordSecond);
             StringBuilder builder = new StringBuilder();
             for(Integer ele : eegData) {
                 builder.append(ele).append(',');
@@ -87,7 +83,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
             sampleRate = json.getInt("sampleRate");
             caliValue = json.getInt("caliValue");
             leadTypeCode = json.getInt("leadTypeCode");
-            recordSecond = json.getInt("recordSecond");
             String eegDataStr = json.getString("eegData");
             List<Integer> eegData = new ArrayList<>();
             String[] strings = eegDataStr.split(",");
@@ -152,15 +147,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
         return eegData.size();
     }
 
-    @Override
-    public int getRecordSecond() {
-        return recordSecond;
-    }
-
-    public void setRecordSecond(int recordSecond) {
-        this.recordSecond = recordSecond;
-    }
-
     public boolean process(int eeg) {
         eegData.add(eeg);
         return true;
@@ -169,6 +155,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + eegData;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + eegData;
     }
 }

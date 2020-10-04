@@ -21,5 +21,4 @@ public interface ISignalRecord {
     void seekData(int pos);
     int readData() throws IOException;
     int getDataNum();
-    int getRecordSecond();
 }

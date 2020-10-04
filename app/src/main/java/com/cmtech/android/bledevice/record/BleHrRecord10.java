@@ -14,6 +14,7 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
+import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -34,7 +35,6 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     private List<Integer> hrHist; // HR histogram value
     private short hrMax; // HR max
     private short hrAve; // HR average
-    private int recordSecond; // unit: s
 
     @Column(ignore = true)
     private transient final HrMAFilter hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_TIME_SPAN); // moving average filter
@@ -53,15 +53,13 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     }
 
     private BleHrRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(HR, "1.0", createTime, devAddress, creator, note, true);
+        super(HR, createTime, DEFAULT_VER, devAddress, creator, note, true);
         initialize();
     }
 
     private BleHrRecord10(JSONObject json) throws JSONException{
         super(json, false);
         initialize();
-        if(json.has("recordSecond"))
-            this.recordSecond = json.getInt("recordSecond");
     }
 
     private void initialize() {
@@ -85,7 +83,6 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
             json.put("hrMax", hrMax);
             json.put("hrAve", hrAve);
             json.put("hrHist", RecordUtil.listToString(hrHist));
-            json.put("recordSecond", recordSecond);
             return json;
         } catch (JSONException ex) {
             ex.printStackTrace();
@@ -112,8 +109,6 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
             for(String str : strings) {
                 hrHist.add(Integer.parseInt(str));
             }
-
-            recordSecond = json.getInt("recordSecond");
             createHistogramFromHrHist();
         } catch (JSONException ex) {
             ex.printStackTrace();
@@ -139,9 +134,6 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     }
     public List<HrHistogramBar<Integer>> getHrHistogram() {
         return hrHistogram;
-    }
-    public void setRecordSecond(int recordSecond) {
-        this.recordSecond = recordSecond;
     }
     public boolean createHistogramFromHrHist() {
         if(hrHist != null && hrHist.size() == hrHistogram.size()) {

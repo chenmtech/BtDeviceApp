@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordType.THERMO;
+import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -35,7 +36,7 @@ public class BleThermoRecord10 extends BasicRecord {
     }
 
     private BleThermoRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(THERMO, "1.0", createTime, devAddress, creator, note, true);
+        super(THERMO, createTime, DEFAULT_VER, devAddress, creator, note, true);
         initData();
     }
 

@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.cmtech.android.bledevice.record.RecordType.TH;
+import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -30,7 +31,7 @@ public class BleTempHumidRecord10 extends BasicRecord {
     }
 
     private BleTempHumidRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(TH, "1.0", createTime, devAddress, creator, note, true);
+        super(TH, createTime, DEFAULT_VER, devAddress, creator, note, true);
         temperature = 0.0f;
         humid = 0.0f;
         heatIndex = 0.0f;

@@ -32,6 +32,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
 
 /**
@@ -59,19 +60,16 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
     private BleEcgRecord10() {
         super(ECG);
         initData();
-        recordSecond = 0;
     }
 
     private BleEcgRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(ECG, "1.0", createTime, devAddress, creator, note, true);
+        super(ECG, createTime, DEFAULT_VER, devAddress, creator, note, true);
         initData();
-        recordSecond = 0;
     }
 
     private BleEcgRecord10(JSONObject json) throws JSONException{
         super(json, false);
         initData();
-        recordSecond = json.getInt("recordSecond");
     }
 
     private void initData() {
@@ -89,7 +87,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
             json.put("sampleRate", sampleRate);
             json.put("caliValue", caliValue);
             json.put("leadTypeCode", leadTypeCode);
-            json.put("recordSecond", recordSecond);
             StringBuilder builder = new StringBuilder();
             for(Short ele : ecgData) {
                 builder.append(ele).append(',');
@@ -108,7 +105,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
             sampleRate = json.getInt("sampleRate");
             caliValue = json.getInt("caliValue");
             leadTypeCode = json.getInt("leadTypeCode");
-            recordSecond = json.getInt("recordSecond");
             String ecgDataStr = json.getString("ecgData");
             List<Short> ecgData = new ArrayList<>();
             String[] strings = ecgDataStr.split(",");
@@ -183,15 +179,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
     @Override
     public int getDataNum() {
         return ecgData.size();
-    }
-
-    @Override
-    public int getRecordSecond() {
-        return recordSecond;
-    }
-
-    public void setRecordSecond(int recordSecond) {
-        this.recordSecond = recordSecond;
     }
 
     public boolean process(short ecg) {
