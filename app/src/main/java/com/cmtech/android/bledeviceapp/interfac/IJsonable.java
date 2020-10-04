@@ -16,6 +16,6 @@ import org.json.JSONObject;
  * Version:        1.0
  */
 public interface IJsonable {
-    boolean fromJson(JSONObject json) throws JSONException;
-    JSONObject toJson() throws JSONException;
+    void fromJson(JSONObject json);
+    JSONObject toJson();
 }

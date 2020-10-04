@@ -90,45 +90,49 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     @Override
-    public boolean fromJson(JSONObject json) throws JSONException {
-        if(json == null) {
-            return false;
-        }
-
-        name = json.getString("name");
-        note = json.getString("note");
-        String iconStr = json.getString("iconStr");
-        if(!TextUtils.isEmpty(iconStr)) {
-            Bitmap bitmap = BitmapUtil.byteToBitmap(Base64.decode(iconStr, Base64.DEFAULT));
-            if(bitmap != null) {
-                try {
-                    assert DIR_IMAGE != null;
-                    File iconFile = FileUtil.getFile(DIR_IMAGE, platName+platId + ".jpg");
-                    BitmapUtil.saveBitmap(bitmap, iconFile);
-                    icon = iconFile.getCanonicalPath();
-                } catch (IOException e) {
-                    e.printStackTrace();
+    public void fromJson(JSONObject json) {
+        try {
+            name = json.getString("name");
+            note = json.getString("note");
+            String iconStr = json.getString("iconStr");
+            if (!TextUtils.isEmpty(iconStr)) {
+                Bitmap bitmap = BitmapUtil.byteToBitmap(Base64.decode(iconStr, Base64.DEFAULT));
+                if (bitmap != null) {
+                    try {
+                        assert DIR_IMAGE != null;
+                        File iconFile = FileUtil.getFile(DIR_IMAGE, platName + platId + ".jpg");
+                        BitmapUtil.saveBitmap(bitmap, iconFile);
+                        icon = iconFile.getCanonicalPath();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+        } catch (JSONException ex) {
+            ex.printStackTrace();
         }
-        return save();
     }
 
     @Override
-    public JSONObject toJson() throws JSONException {
-        JSONObject json = new JSONObject();
-        json.put("platName", platName);
-        json.put("platId", platId);
-        json.put("name", name);
-        json.put("note", note);
+    public JSONObject toJson() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("name", name);
+            json.put("note", note);
 
-        String iconStr = "";
-        if(!TextUtils.isEmpty(icon)) {
-            Bitmap bitmap = BitmapFactory.decodeFile(icon);
-            iconStr = BitmapUtil.bitmapToString(bitmap);
+            String iconStr = "";
+            if(!TextUtils.isEmpty(icon)) {
+                Bitmap bitmap = BitmapFactory.decodeFile(icon);
+                iconStr = BitmapUtil.bitmapToString(bitmap);
+            }
+            json.put("iconStr", iconStr);
+            return json;
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        json.put("iconStr", iconStr);
-        return json;
     }
 
     @Override
@@ -152,15 +156,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
                 if (code == WEB_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) result;
 
-                    try {
-                        if(fromJson(json)) {
-                            resultCode = SUCCESS;
-                            resultStr = "下载成功";
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        resultStr = "更新错误";
-                    }
+                    fromJson(json);
+                    save();
+                    resultCode = SUCCESS;
+                    resultStr = "下载成功";
                 }
 
                 callback.onFinish(resultCode, resultStr);

@@ -49,31 +49,35 @@ public class BleThermoRecord10 extends BasicRecord {
     }
 
     @Override
-    public JSONObject toJson() throws JSONException{
-        JSONObject json = super.toJson();
-        StringBuilder builder = new StringBuilder();
-        for(Float ele : temp) {
-            builder.append(ele).append(',');
+    public JSONObject toJson() {
+        try {
+            JSONObject json = super.toJson();
+            StringBuilder builder = new StringBuilder();
+            for(Float ele : temp) {
+                builder.append(ele).append(',');
+            }
+            json.put("temp", builder.toString());
+            return json;
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        json.put("temp", builder.toString());
-        return json;
     }
 
     @Override
-    public boolean fromJson(JSONObject json) throws JSONException{
-        if(json == null) {
-            return false;
+    public void fromJson(JSONObject json) {
+        try {
+            String tempStr = json.getString("temp");
+            List<Float> temp = new ArrayList<>();
+            String[] strings = tempStr.split(",");
+            for(String str : strings) {
+                temp.add(Float.parseFloat(str));
+            }
+            this.temp = temp;
+            this.highestTemp = Collections.max(temp);
+        } catch (JSONException ex) {
+            ex.printStackTrace();
         }
-
-        String tempStr = json.getString("temp");
-        List<Float> temp = new ArrayList<>();
-        String[] strings = tempStr.split(",");
-        for(String str : strings) {
-            temp.add(Float.parseFloat(str));
-        }
-        this.temp = temp;
-        this.highestTemp = Collections.max(temp);
-        return save();
     }
 
     @Override

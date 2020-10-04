@@ -14,12 +14,15 @@ import java.util.Date;
 import java.util.Locale;
 
 public class EcgReport extends LitePalSupport implements IJsonable {
+    private static final String DEFAULT_VER = "1.0";
+    private static final long INVALID_TIME = -1;
     public static final int DONE = 0;
     public static final int REQUEST = 1;
     public static final int PROCESS = 2;
+
     private int id;
-    private String ver = "1.0";
-    private long reportTime = -1;
+    private String ver = DEFAULT_VER;
+    private long reportTime = INVALID_TIME;
     private String content = "";
     private int status = DONE;
 
@@ -63,30 +66,29 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     }
 
     @Override
-    public boolean fromJson(JSONObject json) {
-        if(json == null) {
-            return false;
-        }
-
+    public void fromJson(JSONObject json) {
         try {
             ver = json.getString("ver");
             reportTime = json.getLong("reportTime");
             content = json.getString("content");
             status = json.getInt("status");
-            return save();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     @Override
-    public JSONObject toJson() throws JSONException {
+    public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        json.put("ver", ver);
-        json.put("reportTime", reportTime);
-        json.put("content", content);
-        return json;
+        try {
+            json.put("ver", ver);
+            json.put("reportTime", reportTime);
+            json.put("content", content);
+            return json;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @NonNull

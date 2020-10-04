@@ -128,6 +128,7 @@ public class RecordReportLayout extends LinearLayout {
                                     long time = reportResult.getJSONObject("report").getLong("reportTime");
                                     boolean updated = (record.getReport().getReportTime() < time);
                                     record.getReport().fromJson(reportResult.getJSONObject("report"));
+                                    record.getReport().save();
                                     record.save();
                                     updateView();
                                     if(updated) {

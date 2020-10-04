@@ -83,38 +83,42 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
     }
 
     @Override
-    public JSONObject toJson() throws JSONException{
-        JSONObject json = super.toJson();
-        json.put("sampleRate", sampleRate);
-        json.put("caliValue", caliValue);
-        json.put("leadTypeCode", leadTypeCode);
-        json.put("recordSecond", recordSecond);
-        StringBuilder builder = new StringBuilder();
-        for(Short ele : ecgData) {
-            builder.append(ele).append(',');
+    public JSONObject toJson() {
+        try {
+            JSONObject json = super.toJson();
+            json.put("sampleRate", sampleRate);
+            json.put("caliValue", caliValue);
+            json.put("leadTypeCode", leadTypeCode);
+            json.put("recordSecond", recordSecond);
+            StringBuilder builder = new StringBuilder();
+            for(Short ele : ecgData) {
+                builder.append(ele).append(',');
+            }
+            json.put("ecgData", builder.toString());
+            return json;
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        json.put("ecgData", builder.toString());
-        return json;
     }
 
     @Override
-    public boolean fromJson(JSONObject json) throws JSONException{
-        if(json == null) {
-            return false;
+    public void fromJson(JSONObject json) {
+        try{
+            sampleRate = json.getInt("sampleRate");
+            caliValue = json.getInt("caliValue");
+            leadTypeCode = json.getInt("leadTypeCode");
+            recordSecond = json.getInt("recordSecond");
+            String ecgDataStr = json.getString("ecgData");
+            List<Short> ecgData = new ArrayList<>();
+            String[] strings = ecgDataStr.split(",");
+            for(String str : strings) {
+                ecgData.add(Short.parseShort(str));
+            }
+            this.ecgData = ecgData;
+        } catch (JSONException ex) {
+            ex.printStackTrace();
         }
-
-        sampleRate = json.getInt("sampleRate");
-        caliValue = json.getInt("caliValue");
-        leadTypeCode = json.getInt("leadTypeCode");
-        recordSecond = json.getInt("recordSecond");
-        String ecgDataStr = json.getString("ecgData");
-        List<Short> ecgData = new ArrayList<>();
-        String[] strings = ecgDataStr.split(",");
-        for(String str : strings) {
-            ecgData.add(Short.parseShort(str));
-        }
-        this.ecgData = ecgData;
-        return save();
     }
 
     @Override

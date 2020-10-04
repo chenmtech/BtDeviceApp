@@ -62,38 +62,42 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     @Override
-    public JSONObject toJson() throws JSONException{
-        JSONObject json = super.toJson();
-        json.put("sampleRate", sampleRate);
-        json.put("caliValue", caliValue);
-        json.put("leadTypeCode", leadTypeCode);
-        json.put("recordSecond", recordSecond);
-        StringBuilder builder = new StringBuilder();
-        for(Integer ele : eegData) {
-            builder.append(ele).append(',');
+    public JSONObject toJson() {
+        try {
+            JSONObject json = super.toJson();
+            json.put("sampleRate", sampleRate);
+            json.put("caliValue", caliValue);
+            json.put("leadTypeCode", leadTypeCode);
+            json.put("recordSecond", recordSecond);
+            StringBuilder builder = new StringBuilder();
+            for(Integer ele : eegData) {
+                builder.append(ele).append(',');
+            }
+            json.put("eegData", builder.toString());
+            return json;
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        json.put("eegData", builder.toString());
-        return json;
     }
 
     @Override
-    public boolean fromJson(JSONObject json) throws JSONException{
-        if(json == null) {
-            return false;
+    public void fromJson(JSONObject json) {
+        try{
+            sampleRate = json.getInt("sampleRate");
+            caliValue = json.getInt("caliValue");
+            leadTypeCode = json.getInt("leadTypeCode");
+            recordSecond = json.getInt("recordSecond");
+            String eegDataStr = json.getString("eegData");
+            List<Integer> eegData = new ArrayList<>();
+            String[] strings = eegDataStr.split(",");
+            for(String str : strings) {
+                eegData.add(Integer.parseInt(str));
+            }
+            this.eegData = eegData;
+        } catch (JSONException ex) {
+            ex.printStackTrace();
         }
-
-        sampleRate = json.getInt("sampleRate");
-        caliValue = json.getInt("caliValue");
-        leadTypeCode = json.getInt("leadTypeCode");
-        recordSecond = json.getInt("recordSecond");
-        String eegDataStr = json.getString("eegData");
-        List<Integer> eegData = new ArrayList<>();
-        String[] strings = eegDataStr.split(",");
-        for(String str : strings) {
-            eegData.add(Integer.parseInt(str));
-        }
-        this.eegData = eegData;
-        return save();
     }
 
     @Override

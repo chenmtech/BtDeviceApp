@@ -74,11 +74,7 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void initUI() {
-        try {
-            ViseLog.e(record.toJson().toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        ViseLog.e(record.toJson().toString());
 
         introLayout = findViewById(R.id.layout_record_intro);
         introLayout.redraw(record);

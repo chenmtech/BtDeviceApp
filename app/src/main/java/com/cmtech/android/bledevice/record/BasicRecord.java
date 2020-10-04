@@ -172,21 +172,26 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public JSONObject toJson() throws JSONException{
-        JSONObject json = new JSONObject();
-        json.put("ver", ver);
-        json.put("recordTypeCode", type.getCode());
-        json.put("createTime", createTime);
-        json.put("devAddress", devAddress);
-        json.put("creatorPlat", creatorPlat);
-        json.put("creatorId", creatorId);
-        json.put("note", note);
-        return json;
+    public JSONObject toJson() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("ver", ver);
+            json.put("recordTypeCode", type.getCode());
+            json.put("createTime", createTime);
+            json.put("devAddress", devAddress);
+            json.put("creatorPlat", creatorPlat);
+            json.put("creatorId", creatorId);
+            json.put("note", note);
+            return json;
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public boolean fromJson(JSONObject json) throws JSONException {
-        return false;
+    public void fromJson(JSONObject json) {
+        return;
     }
 
     @Override
@@ -281,16 +286,10 @@ public class BasicRecord extends LitePalSupport implements IRecord {
                 String resultStr = "网络错误";
                 if (code == WEB_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) result;
-
-                    try {
-                        if(fromJson(json)) {
-                            resultCode = SUCCESS;
-                            resultStr = "下载成功";
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        resultStr = "更新错误";
-                    }
+                    fromJson(json);
+                    save();
+                    resultCode = SUCCESS;
+                    resultStr = "下载成功";
                 }
 
                 callback.onFinish(resultCode, resultStr);

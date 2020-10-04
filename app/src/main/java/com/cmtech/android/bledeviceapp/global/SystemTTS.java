@@ -38,9 +38,9 @@ public class SystemTTS extends UtteranceProgressListener implements TTS {
             @Override
             public void onInit(int i) {
                 if (i == TextToSpeech.SUCCESS) {
-                    int result = textToSpeech.setLanguage(Locale.CHINA);
+                    int result = textToSpeech.setLanguage(Locale.getDefault());
                     if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                        ViseLog.e("don't support the language in the tts.");
+                        ViseLog.e("don't support the language in the TTS.");
                     } else {
                         textToSpeech.setPitch(1.0f);
                         textToSpeech.setSpeechRate(1.0f);
@@ -53,7 +53,7 @@ public class SystemTTS extends UtteranceProgressListener implements TTS {
     }
 
     public void stopSpeak() {
-        if (textToSpeech != null) {
+        if (textToSpeech != null && textToSpeech.isSpeaking()) {
             textToSpeech.stop();
             textToSpeech.shutdown();
         }
@@ -66,12 +66,15 @@ public class SystemTTS extends UtteranceProgressListener implements TTS {
 
     @Override
     public void onDone(String utteranceId) {
-        if(textToSpeech != null)
+        if(textToSpeech != null) {
             textToSpeech.shutdown();
+        }
     }
 
     @Override
     public void onError(String utteranceId) {
-
+        if(textToSpeech != null) {
+            textToSpeech.shutdown();
+        }
     }
 }

@@ -78,43 +78,46 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     }
 
     @Override
-    public JSONObject toJson() throws JSONException{
-        JSONObject json = super.toJson();
-        json.put("hrList", RecordUtil.listToString(hrList));
-        json.put("hrMax", hrMax);
-        json.put("hrAve", hrAve);
-        json.put("hrHist", RecordUtil.listToString(hrHist));
-        json.put("recordSecond", recordSecond);
-        return json;
+    public JSONObject toJson() {
+        try {
+            JSONObject json = super.toJson();
+            json.put("hrList", RecordUtil.listToString(hrList));
+            json.put("hrMax", hrMax);
+            json.put("hrAve", hrAve);
+            json.put("hrHist", RecordUtil.listToString(hrHist));
+            json.put("recordSecond", recordSecond);
+            return json;
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+            return null;
+        }
     }
 
     @Override
-    public boolean fromJson(JSONObject json) throws JSONException{
-        if(json == null) {
-            return false;
+    public void fromJson(JSONObject json) {
+        try {
+            String hrListStr = json.getString("hrList");
+            hrList.clear();
+            String[] strings = hrListStr.split(",");
+            for(String str : strings) {
+                hrList.add(Short.parseShort(str));
+            }
+
+            hrMax = (short)json.getInt("hrMax");
+            hrAve = (short)json.getInt("hrAve");
+
+            String hrHistStr = json.getString("hrHist");
+            hrHist.clear();
+            strings = hrHistStr.split(",");
+            for(String str : strings) {
+                hrHist.add(Integer.parseInt(str));
+            }
+
+            recordSecond = json.getInt("recordSecond");
+            createHistogramFromHrHist();
+        } catch (JSONException ex) {
+            ex.printStackTrace();
         }
-
-        String hrListStr = json.getString("hrList");
-        hrList.clear();
-        String[] strings = hrListStr.split(",");
-        for(String str : strings) {
-            hrList.add(Short.parseShort(str));
-        }
-
-        hrMax = (short)json.getInt("hrMax");
-        hrAve = (short)json.getInt("hrAve");
-
-        String hrHistStr = json.getString("hrHist");
-        hrHist.clear();
-        strings = hrHistStr.split(",");
-        for(String str : strings) {
-            hrHist.add(Integer.parseInt(str));
-        }
-
-        recordSecond = json.getInt("recordSecond");
-        createHistogramFromHrHist();
-
-        return save();
     }
 
     @Override
