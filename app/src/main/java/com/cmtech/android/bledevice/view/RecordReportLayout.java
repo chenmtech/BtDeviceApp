@@ -22,15 +22,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import static com.cmtech.android.bledevice.record.IDiagnosable.*;
 import static com.cmtech.android.bledevice.report.EcgReport.DONE;
 import static com.cmtech.android.bledevice.report.EcgReport.PROCESS;
 import static com.cmtech.android.bledevice.report.EcgReport.REQUEST;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_ADD_NEW;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_FAILURE;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_NO_NEW;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_PROCESSING;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_REQUEST_AGAIN;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.CODE_REPORT_SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
 
 public class RecordReportLayout extends LinearLayout {
@@ -98,7 +93,7 @@ public class RecordReportLayout extends LinearLayout {
             @Override
             public void onClick(View v) {
                 if(record != null)
-                    record.requestReport(getContext(), requestReportWebCallback);
+                    record.requestDiagnose(getContext(), requestReportWebCallback);
             }
         });
     }
@@ -152,7 +147,7 @@ public class RecordReportLayout extends LinearLayout {
                 }
             };
 
-            record.downloadReport(getContext(), getReportWebCallback);
+            record.retrieveDiagnoseResult(getContext(), getReportWebCallback);
         }
     }
 

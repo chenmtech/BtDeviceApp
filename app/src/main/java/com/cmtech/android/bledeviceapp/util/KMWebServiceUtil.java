@@ -31,13 +31,6 @@ public class KMWebServiceUtil {
     public static final int WEB_CODE_SUCCESS = 0; // web code success
     public static final int WEB_CODE_FAILURE = 1; // web code failure
 
-    public static final int CODE_REPORT_SUCCESS = 0;
-    public static final int CODE_REPORT_FAILURE = 1;
-    public static final int CODE_REPORT_ADD_NEW = 2;
-    public static final int CODE_REPORT_PROCESSING = 3;
-    public static final int CODE_REPORT_REQUEST_AGAIN = 4;
-    public static final int CODE_REPORT_NO_NEW = 5;
-
     private static final String ACCOUNT_OP_URL = "Account?";
     private static final String RECORD_OP_URL = "Record?";
 

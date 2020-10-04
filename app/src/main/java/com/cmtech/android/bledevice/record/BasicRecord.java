@@ -187,6 +187,23 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
+    public void fromJson(JSONObject json) {
+        try {
+            if(json.has("ver")) {
+                ver = json.getString("ver");
+            } else {
+                ver = DEFAULT_VER;
+            }
+            creatorPlat = json.getString("creatorPlat");
+            creatorId = json.getString("creatorId");
+            note = json.getString("note");
+            recordSecond = json.getInt("recordSecond");
+        } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
     public JSONObject toJson() {
         try {
             JSONObject json = new JSONObject();
@@ -202,23 +219,6 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         } catch (JSONException ex) {
             ex.printStackTrace();
             return null;
-        }
-    }
-
-    @Override
-    public void fromJson(JSONObject json) {
-        try {
-            if(json.has("ver")) {
-                ver = json.getString("ver");
-            } else {
-                ver = DEFAULT_VER;
-            }
-            creatorPlat = json.getString("creatorPlat");
-            creatorId = json.getString("creatorId");
-            note = json.getString("note");
-            recordSecond = json.getInt("recordSecond");
-        } catch (JSONException ex) {
-            ex.printStackTrace();
         }
     }
 
@@ -348,7 +348,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         if(this == otherObject) return true;
         if(otherObject == null) return false;
         if(getClass() != otherObject.getClass()) return false;
-        IRecord other = (IRecord) otherObject;
+        BasicRecord other = (BasicRecord) otherObject;
         return getName().equals(other.getName());
     }
 

@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.report.EcgReport;
-import com.cmtech.android.bledevice.report.IReportOperation;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
@@ -47,11 +46,10 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAI
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IReportOperation, Serializable {
+public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
-    private int recordSecond; // unit: s
     private List<Short> ecgData; // ecg data
     private EcgReport report;
     @Column(ignore = true)
@@ -189,22 +187,17 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + ecgData + "-" + report;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgData + "-" + report;
     }
 
     @Override
-    public void downloadReport(Context context, IWebOperationCallback callback) {
+    public void retrieveDiagnoseResult(Context context, IWebOperationCallback callback) {
         processReport(context, REPORT_CMD_DOWNLOAD, callback);
     }
 
     @Override
-    public void requestReport(Context context, IWebOperationCallback callback) {
+    public void requestDiagnose(Context context, IWebOperationCallback callback) {
         processReport(context, REPORT_CMD_REQUEST, callback);
-    }
-
-    @Override
-    public void uploadReport(Context context, IWebOperationCallback callback) {
-        processReport(context, REPORt_CMD_UPLOAD, callback);
     }
 
     private void processReport(Context context, int cmd, IWebOperationCallback callback) {
@@ -286,9 +279,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IRepor
                     break;
                 case REPORT_CMD_DOWNLOAD:
                     KMWebServiceUtil.downloadReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
-                    break;
-                case REPORt_CMD_UPLOAD:
-                    KMWebServiceUtil.uploadReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
                     break;
                 default:
                     done.countDown();
