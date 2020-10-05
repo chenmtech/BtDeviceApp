@@ -36,7 +36,7 @@ public class BleThermoRecord10 extends BasicRecord {
     }
 
     private BleThermoRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(THERMO, createTime, DEFAULT_VER, devAddress, creator, note, true);
+        super(THERMO, createTime, devAddress, DEFAULT_VER, creator, note, true);
         initData();
     }
 

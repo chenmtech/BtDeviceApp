@@ -61,7 +61,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     }
 
     private BleEcgRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(ECG, createTime, DEFAULT_VER, devAddress, creator, note, true);
+        super(ECG, createTime, devAddress, DEFAULT_VER, creator, note, true);
         initData();
     }
 

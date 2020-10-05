@@ -42,7 +42,7 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     private BleEegRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(EEG, createTime, DEFAULT_VER, devAddress, creator, note, true);
+        super(EEG, createTime, devAddress, DEFAULT_VER, creator, note, true);
         initData();
     }
 

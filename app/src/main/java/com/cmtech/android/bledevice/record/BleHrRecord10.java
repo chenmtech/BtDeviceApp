@@ -53,7 +53,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     }
 
     private BleHrRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(HR, createTime, DEFAULT_VER, devAddress, creator, note, true);
+        super(HR, createTime, devAddress, DEFAULT_VER, creator, note, true);
         initialize();
     }
 
