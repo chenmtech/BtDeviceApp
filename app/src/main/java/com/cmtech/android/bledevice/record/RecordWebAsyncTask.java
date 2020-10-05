@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.vise.log.ViseLog;
 
@@ -24,7 +24,9 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_WEB_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_OTHER_ERR;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -46,34 +48,34 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
     public static final int RECORD_CMD_DOWNLOAD_BASIC_INFO = 5; // download basic record information command
     public static final int RECORD_CMD_DOWNLOAD = 6; // download record command
 
-    private static final int WAIT_TASK_SECOND = 10;
-    private static final int DEFAULT_DOWNLOAD_BASIC_INFO_NUM_PER_TIME = 10;
+    private static final int WAIT_TASK_FINISH_TIME = 10; // unit: second
+    private static final int DOWNLOAD_RECORD_BASIC_INFO_NUM = 10;
 
     private ProgressDialog progressDialog;
     private final int cmd;
-    private final boolean isShowProgress;
+    private final boolean showProgress;
     private final Object[] params;
-    private final IWebOperationCallback callback;
+    private final IWebCallback callback;
 
-    public RecordWebAsyncTask(Context context, int cmd, IWebOperationCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, IWebCallback callback) {
         this(context, cmd, true, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebOperationCallback callback) {
-        this(context, cmd, null, isShowProgress, callback);
+    public RecordWebAsyncTask(Context context, int cmd, boolean showProgress, IWebCallback callback) {
+        this(context, cmd, null, showProgress, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, Object[] params, IWebOperationCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, Object[] params, IWebCallback callback) {
         this(context, cmd, params, true, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean isShowProgress, IWebOperationCallback callback) {
+    public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean showProgress, IWebCallback callback) {
         this.cmd = cmd;
         this.params = params;
-        this.isShowProgress = isShowProgress;
+        this.showProgress = showProgress;
         this.callback = callback;
 
-        if(isShowProgress) {
+        if(showProgress) {
             progressDialog = new ProgressDialog(context);
             progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
             progressDialog.setIndeterminate(false);
@@ -84,7 +86,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
 
     @Override
     protected void onPreExecute() {
-        if(isShowProgress)
+        if(showProgress)
             progressDialog.show();
     }
 
@@ -94,12 +96,12 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
 
         IRecord record = records[0];
         CountDownLatch done = new CountDownLatch(1);
-        final Object[] result = {WEB_CODE_FAILURE, null};
+        final Object[] result = {RETURN_CODE_WEB_FAILURE, null};
 
         switch (cmd) {
             // QUERY
             case RECORD_CMD_QUERY:
-                KMWebServiceUtil.queryRecord(record.getTypeCode(), record.getCreateTime(), record.getDevAddress(), new Callback() {
+                KMWebServiceUtil.queryRecordId(record.getTypeCode(), record.getCreateTime(), record.getDevAddress(), record.getVer(), new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         done.countDown();
@@ -111,13 +113,14 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             result[0] = json.getInt("code");
-                            int id = json.getInt("id");
-                            ViseLog.e("code=" + result[0] + ", find record id = " + id);
-                            result[1] = id;
+                            if((Integer) result[0] == RETURN_CODE_SUCCESS) {
+                                int id = json.getInt("id");
+                                result[1] = id;
+                                ViseLog.e("Find Record id = " + id);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = WEB_CODE_FAILURE;
-                            result[1] = null;
+                            result[0] = RETURN_CODE_OTHER_ERR;
                         } finally {
                             done.countDown();
                         }
@@ -141,8 +144,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                             result[0] = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = WEB_CODE_FAILURE;
-                            result[1] = null;
+                            result[0] = RETURN_CODE_OTHER_ERR;
                         } finally {
                             done.countDown();
                         }
@@ -166,8 +168,34 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                             result[0] = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = WEB_CODE_FAILURE;
-                            result[1] = null;
+                            result[0] = RETURN_CODE_OTHER_ERR;
+                        } finally {
+                            done.countDown();
+                        }
+                    }
+                });
+                break;
+
+            // DOWNLOAD
+            case RECORD_CMD_DOWNLOAD:
+                KMWebServiceUtil.downloadRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        done.countDown();
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String respBody = Objects.requireNonNull(response.body()).string();
+                        try {
+                            JSONObject json = new JSONObject(respBody);
+                            result[0] = json.getInt("code");
+                            if((Integer) result[0] == RETURN_CODE_SUCCESS) {
+                                result[1] = json.get("record");
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            result[0] = RETURN_CODE_OTHER_ERR;
                         } finally {
                             done.countDown();
                         }
@@ -191,8 +219,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                             result[0] = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = WEB_CODE_FAILURE;
-                            result[1] = null;
+                            result[0] = RETURN_CODE_OTHER_ERR;
                         } finally {
                             done.countDown();
                         }
@@ -206,7 +233,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                 String noteSearchStr = "";
                 long fromTime = new Date().getTime();
                 if(params == null || params.length == 0) {
-                    downloadNum = DEFAULT_DOWNLOAD_BASIC_INFO_NUM_PER_TIME;
+                    downloadNum = DOWNLOAD_RECORD_BASIC_INFO_NUM;
                 } else if(params.length == 1) {
                     downloadNum = (Integer) params[0];
                 } else if(params.length == 2) {
@@ -232,34 +259,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
                             result[1] = json.get("records");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = WEB_CODE_FAILURE;
-                            result[1] = null;
-                        } finally {
-                            done.countDown();
-                        }
-                    }
-                });
-                break;
-
-            // DOWNLOAD
-            case RECORD_CMD_DOWNLOAD:
-                KMWebServiceUtil.downloadRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        done.countDown();
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = Objects.requireNonNull(response.body()).string();
-                        try {
-                            JSONObject json = new JSONObject(respBody);
-                            ViseLog.e(json.toString());
-                            result[0] = json.getInt("code");
-                            result[1] = json.get("record");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            result[0] = WEB_CODE_FAILURE;
+                            result[0] = RETURN_CODE_WEB_FAILURE;
                             result[1] = null;
                         } finally {
                             done.countDown();
@@ -274,7 +274,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
         }
 
         try {
-            done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
+            done.await(WAIT_TASK_FINISH_TIME, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -285,7 +285,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
     @Override
     protected void onPostExecute(Object[] result) {
         callback.onFinish((Integer) result[0], result[1]);
-        if(isShowProgress)
+        if(showProgress)
             progressDialog.dismiss();
     }
 }

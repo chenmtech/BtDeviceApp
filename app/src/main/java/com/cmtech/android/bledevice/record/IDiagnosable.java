@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.record;
 
 import android.content.Context;
 
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -27,6 +27,6 @@ public interface IDiagnosable {
     int CODE_REPORT_REQUEST_AGAIN = 4;
     int CODE_REPORT_NO_NEW = 5;
 
-    void retrieveDiagnoseResult(Context context, IWebOperationCallback callback);
-    void requestDiagnose(Context context, IWebOperationCallback callback);
+    void retrieveDiagnoseResult(Context context, IWebCallback callback);
+    void requestDiagnose(Context context, IWebCallback callback);
 }

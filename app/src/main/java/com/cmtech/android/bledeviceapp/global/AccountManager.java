@@ -32,7 +32,7 @@ import okhttp3.Response;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.WX_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
@@ -91,7 +91,7 @@ public class AccountManager {
                     JSONObject json = new JSONObject(respBody);
                     int code = json.getInt("code");
                     ViseLog.e("login/sign up:"+code);
-                    if(code == WEB_CODE_SUCCESS) {
+                    if(code == RETURN_CODE_SUCCESS) {
                         return;
                     }
                 } catch (JSONException e) {

@@ -15,7 +15,7 @@ import com.cmtech.android.bledevice.view.RecordReportLayout;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
@@ -56,7 +56,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         }
 
         if(record.noSignal()) {
-            record.download(this, new IWebOperationCallback() {
+            record.download(this, new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == SUCCESS) {

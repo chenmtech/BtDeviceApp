@@ -17,8 +17,8 @@ import android.content.Context;
 public interface IWebOperation {
     int SUCCESS = 0;
     int FAILURE = 1;
-    void upload(Context context, IWebOperationCallback callback);
-    void download(Context context, IWebOperationCallback callback);
-    void delete(Context context, IWebOperationCallback callback);
-    void query(Context context, long fromTime, String queryStr, int num, IWebOperationCallback callback);
+    void upload(Context context, IWebCallback callback);
+    void download(Context context, IWebCallback callback);
+    void delete(Context context, IWebCallback callback);
+    void query(Context context, long fromTime, String queryStr, int num, IWebCallback callback);
 }

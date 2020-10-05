@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
@@ -21,8 +21,8 @@ import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_WEB_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -172,6 +172,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         return recordSecond;
     }
 
+    @Override
     public void setRecordSecond(int recordSecond) {
         this.recordSecond = recordSecond;
     }
@@ -228,11 +229,11 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public void query(Context context, long fromTime, String queryStr, int num, IWebOperationCallback callback) {
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{num, queryStr, fromTime}, new IWebOperationCallback() {
+    public void query(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if(code != WEB_CODE_FAILURE && result != null) {
+                if(code != RETURN_CODE_WEB_FAILURE && result != null) {
                     try {
                         JSONArray jsonArr = (JSONArray) result;
                         for (int i = 0; i < jsonArr.length(); i++) {
@@ -260,79 +261,73 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public void upload(Context context, IWebOperationCallback callback) {
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY, new IWebOperationCallback() {
+    public void upload(Context context, IWebCallback callback) {
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY, new IWebCallback() {
             @Override
-            public void onFinish(int code, final Object rlt) {
-                final int[] resultCode = {FAILURE};
-                final String[] resultStr = {"网络错误"};
-                final boolean result = (code == WEB_CODE_SUCCESS);
-                if (result) {
-                    int id = (Integer) rlt;
+            public void onFinish(int code, final Object result) {
+                if (code == RETURN_CODE_SUCCESS) {
+                    int id = (Integer) result;
                     if (id == INVALID_ID) {
                         ViseLog.e("uploading");
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IWebOperationCallback() {
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
-                                if (code == WEB_CODE_SUCCESS) {
+                                if (code == RETURN_CODE_SUCCESS) {
                                     setNeedUpload(false);
                                     save();
-                                    resultCode[0] = SUCCESS;
-                                    resultStr[0] = "上传成功";
+                                    result = "上传成功";
                                 }
-                                callback.onFinish(resultCode[0], resultStr[0]);
+                                callback.onFinish(code, result);
                             }
                         }).execute(BasicRecord.this);
                     } else {
                         ViseLog.e("updating note");
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IWebOperationCallback() {
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
-                                if (code == WEB_CODE_SUCCESS) {
+                                if (code == RETURN_CODE_SUCCESS) {
                                     setNeedUpload(false);
                                     save();
-                                    resultCode[0] = SUCCESS;
-                                    resultStr[0] = "更新成功";
+                                    result = "更新成功";
                                 }
-                                callback.onFinish(resultCode[0], resultStr[0]);
+                                callback.onFinish(code, result);
                             }
                         }).execute(BasicRecord.this);
                     }
                 } else {
-                    callback.onFinish(resultCode[0], resultStr[0]);
+                    callback.onFinish(code, result);
                 }
             }
         }).execute(this);
     }
 
     @Override
-    public void download(Context context, IWebOperationCallback callback) {
-        new RecordWebAsyncTask(context, RECORD_CMD_DOWNLOAD, new IWebOperationCallback() {
+    public void download(Context context, IWebCallback callback) {
+        new RecordWebAsyncTask(context, RECORD_CMD_DOWNLOAD, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                int resultCode = FAILURE;
-                String resultStr = "网络错误";
-                if (code == WEB_CODE_SUCCESS) {
+                if (code == RETURN_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) result;
                     fromJson(json);
                     save();
-                    resultCode = SUCCESS;
-                    resultStr = "下载成功";
+                    result = "下载成功";
                 }
-
-                callback.onFinish(resultCode, resultStr);
+                callback.onFinish(code, result);
             }
         }).execute(this);
     }
 
     @Override
-    public void delete(Context context, IWebOperationCallback callback) {
+    public void delete(Context context, IWebCallback callback) {
         Class<? extends BasicRecord> recordClass = getClass();
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebOperationCallback() {
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                LitePal.delete(recordClass, getId());
-                callback.onFinish(SUCCESS, null);
+                if(code == RETURN_CODE_SUCCESS) {
+                    LitePal.delete(recordClass, getId());
+                    result = "删除成功";
+                }
+                callback.onFinish(code, result);
             }
         }).execute(this);
     }

@@ -9,7 +9,7 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.report.EcgReport;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 
@@ -32,7 +32,7 @@ import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_WEB_FAILURE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -191,18 +191,18 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     }
 
     @Override
-    public void retrieveDiagnoseResult(Context context, IWebOperationCallback callback) {
+    public void retrieveDiagnoseResult(Context context, IWebCallback callback) {
         processReport(context, REPORT_CMD_DOWNLOAD, callback);
     }
 
     @Override
-    public void requestDiagnose(Context context, IWebOperationCallback callback) {
+    public void requestDiagnose(Context context, IWebCallback callback) {
         processReport(context, REPORT_CMD_REQUEST, callback);
     }
 
-    private void processReport(Context context, int cmd, IWebOperationCallback callback) {
+    private void processReport(Context context, int cmd, IWebCallback callback) {
         if(needUpload()) {
-            upload(context, new IWebOperationCallback() {
+            upload(context, new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if(code == SUCCESS) {
@@ -217,18 +217,18 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         }
     }
 
-    private void doProcessRequest(Context context, int cmd, IWebOperationCallback callback) {
+    private void doProcessRequest(Context context, int cmd, IWebCallback callback) {
         new ReportWebAsyncTask(context, cmd, callback).execute(this);
     }
 
     private static class ReportWebAsyncTask extends AsyncTask<BleEcgRecord10, Void, Object[]> {
         private static final int WAIT_TASK_SECOND = 10;
 
-        private IWebOperationCallback callback;
+        private IWebCallback callback;
         private ProgressDialog progressDialog;
         private int cmd;
 
-        public ReportWebAsyncTask(Context context, int cmd, IWebOperationCallback callback) {
+        public ReportWebAsyncTask(Context context, int cmd, IWebCallback callback) {
             this.callback = callback;
             this.cmd = cmd;
             progressDialog = new ProgressDialog(context);
@@ -245,7 +245,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
 
         @Override
         protected Object[] doInBackground(BleEcgRecord10... ecgRecords) {
-            final Object[] result = {WEB_CODE_FAILURE, null};
+            final Object[] result = {RETURN_CODE_WEB_FAILURE, null};
             if(ecgRecords == null || ecgRecords.length == 0 || ecgRecords[0] == null) return result;
 
             BleEcgRecord10 record = ecgRecords[0];

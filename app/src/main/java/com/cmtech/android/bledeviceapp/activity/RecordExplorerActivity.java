@@ -29,8 +29,10 @@ import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.vise.log.ViseLog;
+
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +42,7 @@ import java.util.Map;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
 
 /**
   *
@@ -214,7 +217,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        record.query(this, from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM, new IWebOperationCallback() {
+        record.query(this, from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == SUCCESS) {
@@ -255,12 +258,14 @@ public class RecordExplorerActivity extends AppCompatActivity {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    record.delete(RecordExplorerActivity.this, new IWebOperationCallback() {
+                    record.delete(RecordExplorerActivity.this, new IWebCallback() {
                         @Override
                         public void onFinish(int code, Object result) {
-                            if(allRecords.remove(record)) {
-                                recordAdapter.unselected();
-                                updateRecordView();
+                            if(code == RETURN_CODE_SUCCESS) {
+                                if (allRecords.remove(record)) {
+                                    recordAdapter.unselected();
+                                    updateRecordView();
+                                }
                             }
                         }
                     });
@@ -270,7 +275,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     public void uploadRecord(final BasicRecord record) {
-        record.upload(this, new IWebOperationCallback() {
+        record.upload(this, new IWebCallback() {
             @Override
             public void onFinish(int code, final Object rlt) {
                 Toast.makeText(RecordExplorerActivity.this, (String) rlt, Toast.LENGTH_SHORT).show();

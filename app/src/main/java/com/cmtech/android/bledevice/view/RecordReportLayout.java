@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +26,7 @@ import static com.cmtech.android.bledevice.record.IDiagnosable.*;
 import static com.cmtech.android.bledevice.report.EcgReport.DONE;
 import static com.cmtech.android.bledevice.report.EcgReport.PROCESS;
 import static com.cmtech.android.bledevice.report.EcgReport.REQUEST;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
 
 public class RecordReportLayout extends LinearLayout {
     public static final int TITLE_ID = R.string.report_title;
@@ -46,11 +46,11 @@ public class RecordReportLayout extends LinearLayout {
         tvTime = view.findViewById(R.id.tv_report_time);
         tvStatus = view.findViewById(R.id.tv_report_status);
 
-        IWebOperationCallback requestReportWebCallback = new IWebOperationCallback() {
+        IWebCallback requestReportWebCallback = new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 Context context = RecordReportLayout.this.getContext();
-                if(code != WEB_CODE_SUCCESS) {
+                if(code != RETURN_CODE_SUCCESS) {
                     Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -105,11 +105,11 @@ public class RecordReportLayout extends LinearLayout {
 
     public void updateFromWeb() {
         if(record != null) {
-            IWebOperationCallback getReportWebCallback = new IWebOperationCallback() {
+            IWebCallback getReportWebCallback = new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     Context context = RecordReportLayout.this.getContext();
-                    if(code != WEB_CODE_SUCCESS) {
+                    if(code != RETURN_CODE_SUCCESS) {
                         Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
                         return;
                     }

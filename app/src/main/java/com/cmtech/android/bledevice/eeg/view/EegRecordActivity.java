@@ -14,11 +14,10 @@ import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RollEegRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
-import org.json.JSONException;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
@@ -56,7 +55,7 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
         }
 
         if(record.noSignal()) {
-            record.download(this, new IWebOperationCallback() {
+            record.download(this, new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == SUCCESS) {

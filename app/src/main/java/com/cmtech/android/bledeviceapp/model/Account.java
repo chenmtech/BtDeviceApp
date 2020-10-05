@@ -9,7 +9,7 @@ import android.util.Base64;
 
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
 
 /**
   *
@@ -136,24 +136,24 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     @Override
-    public void upload(Context context, IWebOperationCallback callback) {
-        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, new IWebOperationCallback() {
+    public void upload(Context context, IWebCallback callback) {
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                int resultCode = (code == WEB_CODE_SUCCESS) ? SUCCESS : FAILURE;
+                int resultCode = (code == RETURN_CODE_SUCCESS) ? SUCCESS : FAILURE;
                 callback.onFinish(resultCode, null);
             }
         }).execute(this);
     }
 
     @Override
-    public void download(Context context, IWebOperationCallback callback) {
-        new AccountWebAsyncTask(context, AccountWebAsyncTask.DOWNLOAD_CMD, new IWebOperationCallback() {
+    public void download(Context context, IWebCallback callback) {
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.DOWNLOAD_CMD, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 int resultCode = FAILURE;
                 String resultStr = "网络错误";
-                if (code == WEB_CODE_SUCCESS) {
+                if (code == RETURN_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) result;
 
                     fromJson(json);
@@ -168,12 +168,12 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     @Override
-    public void delete(Context context, IWebOperationCallback callback) {
+    public void delete(Context context, IWebCallback callback) {
 
     }
 
     @Override
-    public void query(Context context, long fromTime, String queryStr, int num, IWebOperationCallback callback) {
+    public void query(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
 
     }
 

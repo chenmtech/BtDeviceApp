@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.WEB_CODE_FAILURE;
+import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_WEB_FAILURE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -43,13 +43,13 @@ public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
 
     private final ProgressDialog progressDialog;
     private final int cmd;
-    private final IWebOperationCallback callback;
+    private final IWebCallback callback;
 
-    public AccountWebAsyncTask(Context context, int cmd, IWebOperationCallback callback) {
+    public AccountWebAsyncTask(Context context, int cmd, IWebCallback callback) {
         this(context, cmd, true, callback);
     }
 
-    private AccountWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebOperationCallback callback) {
+    private AccountWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebCallback callback) {
         this.cmd = cmd;
         this.callback = callback;
 
@@ -72,7 +72,7 @@ public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
 
     @Override
     protected Object[] doInBackground(Account... accounts) {
-        final Object[] result = {WEB_CODE_FAILURE, null};
+        final Object[] result = {RETURN_CODE_WEB_FAILURE, null};
 
         if(accounts == null || accounts.length == 0 || accounts[0] == null) return result;
 

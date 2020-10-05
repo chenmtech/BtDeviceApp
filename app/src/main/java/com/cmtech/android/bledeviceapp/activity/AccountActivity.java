@@ -25,7 +25,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperationCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
@@ -114,7 +114,7 @@ public class AccountActivity extends AppCompatActivity {
                 account.setNote(etNote.getText().toString());
                 account.save();
 
-                account.upload(AccountActivity.this, new IWebOperationCallback() {
+                account.upload(AccountActivity.this, new IWebCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
                         int strId = (code == SUCCESS) ? R.string.operation_success : R.string.operation_failure;
@@ -194,7 +194,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void download() {
-        account.download(this, new IWebOperationCallback() {
+        account.download(this, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if (code == SUCCESS) {

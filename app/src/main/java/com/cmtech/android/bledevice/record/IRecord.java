@@ -31,6 +31,7 @@ public interface IRecord extends IJsonable, IWebOperation {
     String getNote();
     void setNote(String note);
     int getRecordSecond();
+    void setRecordSecond(int recordSecond);
     boolean needUpload();
     void setNeedUpload(boolean needUpload);
     boolean noSignal();
