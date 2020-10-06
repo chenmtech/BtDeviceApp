@@ -138,11 +138,11 @@ public class HrmDevice extends AbstractDevice {
         this.config = config;
     }
 
-    public void setHrRecording(boolean hrRecording) {
-        if(this.hrRecording == hrRecording) return;
+    public void setHrRecord(boolean record) {
+        if(this.hrRecording == record) return;
 
-        this.hrRecording = hrRecording;
-        if(hrRecording) {
+        this.hrRecording = record;
+        if(record) {
             hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord);
@@ -176,10 +176,10 @@ public class HrmDevice extends AbstractDevice {
         }
     }
 
-    public void setEcgRecording(boolean ecgRecording) {
-        if(this.ecgRecording == ecgRecording) return;
+    public void setEcgRecord(boolean record) {
+        if(this.ecgRecording == record) return;
 
-        if(ecgRecording && !ecgOn) {
+        if(record && !ecgOn) {
             Toast.makeText(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
             if(listener != null) {
                 listener.onEcgSignalRecordStatusUpdated(false);
@@ -187,8 +187,8 @@ public class HrmDevice extends AbstractDevice {
             return;
         }
 
-        this.ecgRecording = ecgRecording;
-        if(ecgRecording) {
+        this.ecgRecording = record;
+        if(record) {
             ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
             if(ecgRecord != null) {
                 ecgRecord.setSampleRate(sampleRate);
@@ -282,11 +282,11 @@ public class HrmDevice extends AbstractDevice {
         super.close();
 
         if(hrRecording) {
-            setHrRecording(false);
+            setHrRecord(false);
         }
 
         if(ecgRecording) {
-            setEcgRecording(false);
+            setEcgRecord(false);
         }
 
         if(speaker != null)
@@ -351,7 +351,7 @@ public class HrmDevice extends AbstractDevice {
 
         speaker.stop();
 
-        setEcgRecording(false);
+        setEcgRecord(false);
         //setEcgOn(false);
     }
 
@@ -363,7 +363,7 @@ public class HrmDevice extends AbstractDevice {
 
         speaker.stop();
 
-        setEcgRecording(false);
+        setEcgRecord(false);
 
         //setEcgOn(false);
     }
@@ -372,7 +372,7 @@ public class HrmDevice extends AbstractDevice {
     public void disconnect(final boolean forever) {
         setHRMeasure(false);
         setBatteryMeasure(false);
-        setEcgRecording(false);
+        setEcgRecord(false);
         //setEcgOn(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
@@ -656,7 +656,7 @@ public class HrmDevice extends AbstractDevice {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            setEcgRecording(false);
+                            setEcgRecord(false);
                         }
                     });
                 }

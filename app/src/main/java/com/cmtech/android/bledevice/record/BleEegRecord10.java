@@ -29,33 +29,24 @@ import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
  * Version:        1.0
  */
 public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serializable {
-    private int sampleRate; // sample rate
-    private int caliValue; // calibration value of 1mV
-    private int leadTypeCode; // lead type code
-    private List<Integer> eegData; // eeg data
+    private int sampleRate = 0; // sample rate
+    private int caliValue = 0; // calibration value of 1mV
+    private int leadTypeCode = 0; // lead type code
+    private List<Integer> eegData = new ArrayList<>(); // eeg data
+
     @Column(ignore = true)
     private int pos = 0;
 
     private BleEegRecord10() {
         super(EEG);
-        initData();
     }
 
-    private BleEegRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(EEG, createTime, devAddress, DEFAULT_VER, creator, note, true);
-        initData();
+    private BleEegRecord10(long createTime, String devAddress, Account creator) {
+        super(EEG, createTime, devAddress, creator);
     }
 
     private BleEegRecord10(JSONObject json) throws JSONException{
         super(json, false);
-        initData();
-    }
-
-    private void initData() {
-        sampleRate = 0;
-        caliValue = 0;
-        leadTypeCode = 0;
-        eegData = new ArrayList<>();
     }
 
     @Override

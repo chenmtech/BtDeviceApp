@@ -290,13 +290,13 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
     public void setHrRecord(boolean isRecord) {
         if(device != null) {
-            device.setHrRecording(isRecord);
+            device.setHrRecord(isRecord);
         }
     }
 
     public void setEcgRecord(boolean isRecord) {
         if(device != null) {
-            device.setEcgRecording(isRecord);
+            device.setEcgRecord(isRecord);
         }
     }
 

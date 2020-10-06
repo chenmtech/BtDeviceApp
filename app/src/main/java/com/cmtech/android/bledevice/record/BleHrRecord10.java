@@ -29,15 +29,15 @@ import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
  * Version:        1.0
  */
 public class BleHrRecord10 extends BasicRecord implements Serializable {
-    public static final int HR_MOVE_AVERAGE_FILTER_TIME_SPAN = 10; // unit: s
+    public static final int HR_MA_FILTER_SPAN = 10; // unit: second
 
-    private List<Short> hrList; // filtered HR list
-    private List<Integer> hrHist; // HR histogram value
-    private short hrMax; // HR max
-    private short hrAve; // HR average
+    private List<Short> hrList = new ArrayList<>();; // filtered HR list
+    private List<Integer> hrHist = new ArrayList<>();; // HR histogram value
+    private short hrMax = INVALID_HEART_RATE; // HR max
+    private short hrAve = INVALID_HEART_RATE; // HR average
 
     @Column(ignore = true)
-    private transient final HrMAFilter hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_TIME_SPAN); // moving average filter
+    private transient final HrMAFilter hrMAFilter = new HrMAFilter(HR_MA_FILTER_SPAN); // moving average filter
     @Column(ignore = true)
     private final List<HrHistogramBar<Integer>> hrHistogram = new ArrayList<>();
     @Column(ignore = true)
@@ -49,24 +49,20 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
 
     private BleHrRecord10() {
         super(HR);
-        initialize();
+        initHrHistogram();
     }
 
-    private BleHrRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(HR, createTime, devAddress, DEFAULT_VER, creator, note, true);
-        initialize();
+    private BleHrRecord10(long createTime, String devAddress, Account creator) {
+        super(HR, createTime, devAddress, creator);
+        initHrHistogram();
     }
 
     private BleHrRecord10(JSONObject json) throws JSONException{
         super(json, false);
-        initialize();
+        initHrHistogram();
     }
 
-    private void initialize() {
-        hrList = new ArrayList<>();
-        hrMax = INVALID_HEART_RATE;
-        hrAve = INVALID_HEART_RATE;
-        hrHist = new ArrayList<>();
+    private void initHrHistogram() {
         hrHistogram.add(new HrHistogramBar<>((short)0, (short)121, "平静心率", 0));
         hrHistogram.add(new HrHistogramBar<>((short)122, (short)131, "热身放松", 0));
         hrHistogram.add(new HrHistogramBar<>((short)132, (short)141, "有氧燃脂", 0));
@@ -157,7 +153,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
             interval = 2; // default HR sent period in HRM
         } else {
             long tmp = Math.round((time-preTime)/1000.0); // ms to second
-            interval = (tmp > HR_MOVE_AVERAGE_FILTER_TIME_SPAN) ? HR_MOVE_AVERAGE_FILTER_TIME_SPAN : (int)tmp;
+            interval = (tmp > HR_MA_FILTER_SPAN) ? HR_MA_FILTER_SPAN : (int)tmp;
         }
         preTime = time;
         for(HrHistogramBar<Integer> bar : hrHistogram) {

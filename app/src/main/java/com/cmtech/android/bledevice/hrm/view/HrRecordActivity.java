@@ -17,7 +17,7 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_TIME_SPAN;
+import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MA_FILTER_SPAN;
 import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 
@@ -77,7 +77,7 @@ public class HrRecordActivity extends AppCompatActivity {
         introLayout.redraw(record);
 
         hrLineChart = findViewById(R.id.line_chart);
-        hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_TIME_SPAN);
+        hrLineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
         hrLineChart.showShortLineChart(record.getHrList(), getResources().getString(R.string.hr_linechart), Color.BLUE);
 
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);

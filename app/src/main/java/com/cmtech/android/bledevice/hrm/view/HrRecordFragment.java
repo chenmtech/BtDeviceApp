@@ -17,7 +17,7 @@ import com.cmtech.android.bledeviceapp.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_TIME_SPAN;
+import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MA_FILTER_SPAN;
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 
 /**
@@ -53,7 +53,7 @@ public class HrRecordFragment extends Fragment {
         tvHrMax = view.findViewById(R.id.tv_hr_max_value);
         tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
         lineChart = view.findViewById(R.id.line_chart);
-        lineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_TIME_SPAN);
+        lineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
         updateHrInfo(new ArrayList<Short>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
 
         TextView tvYUnit = view.findViewById(R.id.line_chart_y_unit);

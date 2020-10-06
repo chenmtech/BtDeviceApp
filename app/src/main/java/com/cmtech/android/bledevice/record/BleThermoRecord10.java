@@ -27,26 +27,19 @@ import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
  * Version:        1.0
  */
 public class BleThermoRecord10 extends BasicRecord {
-    private float highestTemp;
-    private List<Float> temp;
+    private float highestTemp = 0.0f;
+    private List<Float> temp = new ArrayList<>();
 
     private BleThermoRecord10() {
         super(THERMO);
-        initData();
     }
 
-    private BleThermoRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(THERMO, createTime, devAddress, DEFAULT_VER, creator, note, true);
-        initData();
+    private BleThermoRecord10(long createTime, String devAddress, Account creator) {
+        super(THERMO, createTime, devAddress, creator);
     }
 
     private BleThermoRecord10(JSONObject json)  throws JSONException {
         super(json, false);
-    }
-
-    private void initData() {
-        highestTemp = 0.0f;
-        temp = new ArrayList<>();
     }
 
     @Override

@@ -42,44 +42,39 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     private int id;
     @Column(ignore = true)
     private RecordType type; // record type
-    private long createTime; // create time
-    private String devAddress; // device address
-    private String ver; // record version
-    private String creatorPlat; // creator plat name
-    private String creatorId; // creator plat ID
-    private String note; // note
-    private int recordSecond; // unit: s
-    private boolean needUpload; // need uploaded
+    private long createTime = INVALID_TIME; // create time
+    private String devAddress = ""; // device address
+    private String ver = DEFAULT_VER; // record version
+    private String creatorPlat = ""; // creator plat name
+    private String creatorId = ""; // creator plat ID
+    private String note = ""; // note
+    private int recordSecond = 0; // unit: s
+    private boolean needUpload = true; // need uploaded
 
     BasicRecord(RecordType type) {
         this.type = type;
-        createTime = INVALID_TIME;
-        devAddress = "";
-        ver = DEFAULT_VER;
-        creatorPlat = "";
-        creatorId = "";
-        note = "";
-        recordSecond = 0;
-        needUpload = true;
     }
 
-    BasicRecord(long createTime, String devAddress, Account creator, String note) {
-        this(ALL, createTime, devAddress, DEFAULT_VER, creator, note, true);
+    BasicRecord(long createTime, String devAddress, Account creator) {
+        if(creator == null) {
+            throw new IllegalArgumentException("The creator of the record is null.");
+        }
+        this.type = ALL;
+        this.createTime = createTime;
+        this.devAddress = devAddress;
+        this.creatorPlat = creator.getPlatName();
+        this.creatorId = creator.getPlatId();
     }
 
-    BasicRecord(RecordType type, long createTime, String devAddress, String ver, Account creator, String note, boolean needUpload) {
+    BasicRecord(RecordType type, long createTime, String devAddress, Account creator) {
         if(creator == null) {
             throw new IllegalArgumentException("The creator of the record is null.");
         }
         this.type = type;
         this.createTime = createTime;
         this.devAddress = devAddress;
-        this.ver = ver;
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
-        this.note = note;
-        this.recordSecond = 0;
-        this.needUpload = needUpload;
     }
 
     BasicRecord(JSONObject json, boolean needUpload) throws JSONException{

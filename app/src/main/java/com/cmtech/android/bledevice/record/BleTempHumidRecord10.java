@@ -21,21 +21,17 @@ import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
  * Version:        1.0
  */
 public class BleTempHumidRecord10 extends BasicRecord {
-    private float temperature;
-    private float humid;
-    private float heatIndex;
-    private String location;
+    private float temperature = 0.0f;
+    private float humid = 0.0f;
+    private float heatIndex = 0.0f;
+    private String location = "室内";
 
     private BleTempHumidRecord10() {
         super(TH);
     }
 
-    private BleTempHumidRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(TH, createTime, devAddress, DEFAULT_VER, creator, note, true);
-        temperature = 0.0f;
-        humid = 0.0f;
-        heatIndex = 0.0f;
-        location = "室内";
+    private BleTempHumidRecord10(long createTime, String devAddress, Account creator) {
+        super(TH, createTime, devAddress, creator);
     }
 
     private BleTempHumidRecord10(JSONObject json)  throws JSONException{

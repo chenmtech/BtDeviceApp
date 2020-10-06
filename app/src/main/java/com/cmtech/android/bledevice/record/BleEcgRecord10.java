@@ -47,35 +47,24 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_
  * Version:        1.0
  */
 public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
-    private int sampleRate; // sample rate
-    private int caliValue; // calibration value of 1mV
-    private int leadTypeCode; // lead type code
-    private List<Short> ecgData; // ecg data
-    private EcgReport report;
+    private int sampleRate = 0; // sample rate
+    private int caliValue = 0; // calibration value of 1mV
+    private int leadTypeCode = 0; // lead type code
+    private List<Short> ecgData = new ArrayList<>(); // ecg data
+    private EcgReport report = new EcgReport();
     @Column(ignore = true)
     private int pos = 0; // current position to the ecgData
 
     private BleEcgRecord10() {
         super(ECG);
-        initData();
     }
 
-    private BleEcgRecord10(long createTime, String devAddress, Account creator, String note) {
-        super(ECG, createTime, devAddress, DEFAULT_VER, creator, note, true);
-        initData();
+    private BleEcgRecord10(long createTime, String devAddress, Account creator) {
+        super(ECG, createTime, devAddress, creator);
     }
 
-    private BleEcgRecord10(JSONObject json) throws JSONException{
+    private BleEcgRecord10(JSONObject json) throws JSONException {
         super(json, false);
-        initData();
-    }
-
-    private void initData() {
-        sampleRate = 0;
-        caliValue = 0;
-        leadTypeCode = 0;
-        ecgData = new ArrayList<>();
-        report = new EcgReport();
     }
 
     @Override

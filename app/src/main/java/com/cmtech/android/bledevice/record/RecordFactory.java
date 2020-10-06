@@ -55,13 +55,13 @@ public class RecordFactory {
         }
     }
 
-    public static IRecord create(RecordType type, long createTime, String devAddress, Account creator, String note) {
+    public static IRecord create(RecordType type, long createTime, String devAddress, Account creator) {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, Account.class, String.class);
+                Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, Account.class);
                 constructor.setAccessible(true);
-                return constructor.newInstance(createTime, devAddress, creator, note);
+                return constructor.newInstance(createTime, devAddress, creator);
             } catch (Exception e) {
                 e.printStackTrace();
             }
