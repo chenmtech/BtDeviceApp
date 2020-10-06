@@ -70,61 +70,47 @@ public class RecordFactory {
     }
 
     public static List<? extends BasicRecord> createBasicRecordsFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
-        if(creator == null) {
-            return null;
+        List<RecordType> types = new ArrayList<>();
+        if(type == RecordType.ALL) {
+            for(RecordType t : RecordType.values()) {
+                if(t != RecordType.ALL) {
+                    types.add(t);
+                }
+            }
         }
+        else
+            types.add(type);
 
-        if(type != ALL) {
-            Class<? extends BasicRecord> recordClass = getRecordClass(type);
+        List<BasicRecord> records = new ArrayList<>();
+        for(RecordType t : types) {
+            Class<? extends BasicRecord> recordClass = getRecordClass(t);
             if (recordClass != null) {
                 try {
                     if(TextUtils.isEmpty(noteFilterStr)) {
-                        return LitePal.select(BasicRecord.QUERY_STR)
+                        records.addAll(LitePal.select(BasicRecord.QUERY_STR)
                                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
-                                .order("createTime desc").limit(num).find(recordClass, true);
+                                .order("createTime desc").limit(num).find(recordClass, true));
                     } else {
-                        return LitePal.select(BasicRecord.QUERY_STR)
+                        records.addAll(LitePal.select(BasicRecord.QUERY_STR)
                                 .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
-                                .order("createTime desc").limit(num).find(recordClass, true);
+                                .order("createTime desc").limit(num).find(recordClass, true));
                     }
                 } catch (Exception e) {
                     ViseLog.e(e);
                 }
             }
-        } else {
-            List<BasicRecord> records = new ArrayList<>();
-            for(RecordType type1 : SUPPORT_RECORD_TYPES) {
-                if(type1 == ALL) continue;
-                Class<? extends BasicRecord> recordClass = getRecordClass(type1);
-                if (recordClass != null) {
-                    try {
-                        if(TextUtils.isEmpty(noteFilterStr)) {
-                            records.addAll(LitePal.select(BasicRecord.QUERY_STR)
-                                    .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
-                                    .order("createTime desc").limit(num).find(recordClass, true));
-                        } else {
-                            records.addAll(LitePal.select(BasicRecord.QUERY_STR)
-                                    .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
-                                    .order("createTime desc").limit(num).find(recordClass, true));
-                        }
-                    } catch (Exception e) {
-                        ViseLog.e(e);
-                    }
-                }
-            }
-            if(records.isEmpty()) return null;
-            Collections.sort(records, new Comparator<BasicRecord>() {
-                @Override
-                public int compare(BasicRecord o1, BasicRecord o2) {
-                    int rlt = 0;
-                    if(o2.getCreateTime() > o1.getCreateTime()) rlt = 1;
-                    else if(o2.getCreateTime() < o1.getCreateTime()) rlt = -1;
-                    return rlt;
-                }
-            });
-            return records.subList(0, Math.min(records.size(), num));
         }
-        return null;
+        if(records.isEmpty()) return null;
+        Collections.sort(records, new Comparator<BasicRecord>() {
+            @Override
+            public int compare(BasicRecord o1, BasicRecord o2) {
+                int rlt = 0;
+                if(o2.getCreateTime() > o1.getCreateTime()) rlt = 1;
+                else if(o2.getCreateTime() < o1.getCreateTime()) rlt = -1;
+                return rlt;
+            }
+        });
+        return records.subList(0, Math.min(records.size(), num));
     }
 
     public static BasicRecord createFromLocalDb(RecordType type, long createTime, String devAddress) {

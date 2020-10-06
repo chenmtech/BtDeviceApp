@@ -140,10 +140,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         return report;
     }
 
-    public void setReport(EcgReport report) {
-        this.report = report;
-    }
-
     @Override
     public boolean isEOD() {
         return (pos >= ecgData.size());

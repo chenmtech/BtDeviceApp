@@ -109,40 +109,36 @@ public class RecordReportLayout extends LinearLayout {
                 @Override
                 public void onFinish(int code, Object result) {
                     Context context = RecordReportLayout.this.getContext();
-                    if(code != RETURN_CODE_SUCCESS) {
-                        Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    JSONObject reportResult = (JSONObject)result;
-                    try {
-                        int reportCode = reportResult.getInt("reportCode");
-                        switch (reportCode) {
-                            case CODE_REPORT_SUCCESS:
-                                if(reportResult.has("report")) {
-                                    long time = reportResult.getJSONObject("report").getLong("reportTime");
-                                    boolean updated = (record.getReport().getReportTime() < time);
-                                    record.getReport().fromJson(reportResult.getJSONObject("report"));
-                                    record.getReport().save();
-                                    record.save();
-                                    updateView();
-                                    if(updated) {
-                                        Toast.makeText(context, "报告已更新", Toast.LENGTH_SHORT).show();
+                    if(code == RETURN_CODE_SUCCESS) {
+                        JSONObject reportResult = (JSONObject) result;
+                        try {
+                            int reportCode = reportResult.getInt("reportCode");
+                            switch (reportCode) {
+                                case CODE_REPORT_SUCCESS:
+                                    if (reportResult.has("report")) {
+                                        long time = reportResult.getJSONObject("report").getLong("reportTime");
+                                        boolean updated = (record.getReport().getReportTime() < time);
+                                        record.getReport().fromJson(reportResult.getJSONObject("report"));
+                                        record.save();
+                                        updateView();
+                                        if (updated) {
+                                            Toast.makeText(context, "报告已更新", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
-                                }
-                                break;
-                            case CODE_REPORT_FAILURE:
-                                Toast.makeText(context, "获取报告错误", Toast.LENGTH_SHORT).show();
-                                break;
-                            case CODE_REPORT_NO_NEW:
-                                Toast.makeText(context, "暂无新报告", Toast.LENGTH_SHORT).show();
-                                break;
+                                    break;
+                                case CODE_REPORT_FAILURE:
+                                    Toast.makeText(context, "获取报告错误", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CODE_REPORT_NO_NEW:
+                                    Toast.makeText(context, "暂无新报告", Toast.LENGTH_SHORT).show();
+                                    break;
 
-                            default:
-                                break;
+                                default:
+                                    break;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
                 }
             };

@@ -46,9 +46,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
         record = LitePal.where("id = ?", ""+recordId).findFirst(BleEcgRecord10.class, true);
         if(record == null) {
+            Toast.makeText(EcgRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
             setResult(RESULT_CANCELED);
             finish();
         }
+
         ViseLog.e(record);
         if(record.getNote() == null) {
             record.setNote("");
