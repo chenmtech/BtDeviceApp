@@ -211,7 +211,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordList(final long from) {
-        IRecord record = RecordFactory.create(recordType, from, null, MyApplication.getAccount(), "");
+        IRecord record = RecordFactory.create(recordType, from, null, MyApplication.getAccount());
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
@@ -220,7 +220,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         record.query(this, from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if(code == SUCCESS) {
+                if(code == RETURN_CODE_SUCCESS) {
                     if(result == null) {
                         Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                     } else {
@@ -230,8 +230,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         //ViseLog.e(allRecords.toString());
                         updateRecordView();
                     }
-                } else {
-                    Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
             }
         });

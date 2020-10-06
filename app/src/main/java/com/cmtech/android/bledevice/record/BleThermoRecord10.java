@@ -38,10 +38,6 @@ public class BleThermoRecord10 extends BasicRecord {
         super(THERMO, createTime, devAddress, creator);
     }
 
-    private BleThermoRecord10(JSONObject json)  throws JSONException {
-        super(json, false);
-    }
-
     @Override
     public JSONObject toJson() {
         try {

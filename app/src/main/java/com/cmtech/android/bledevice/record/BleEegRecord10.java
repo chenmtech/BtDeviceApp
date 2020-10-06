@@ -45,10 +45,6 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
         super(EEG, createTime, devAddress, creator);
     }
 
-    private BleEegRecord10(JSONObject json) throws JSONException{
-        super(json, false);
-    }
-
     @Override
     public JSONObject toJson() {
         try {

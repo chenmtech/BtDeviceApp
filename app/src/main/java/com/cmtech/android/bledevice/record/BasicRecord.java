@@ -77,21 +77,6 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.creatorId = creator.getPlatId();
     }
 
-    BasicRecord(JSONObject json, boolean needUpload) throws JSONException{
-        if(json == null) {
-            throw new IllegalArgumentException("The json object is null.");
-        }
-        this.type = RecordType.fromCode(json.getInt("recordTypeCode"));
-        this.createTime = json.getLong("createTime");
-        this.devAddress = json.getString("devAddress");
-        this.ver = json.getString("ver");
-        this.creatorPlat = MyApplication.getAccount().getPlatName();
-        this.creatorId = MyApplication.getAccount().getPlatId();
-        this.note = json.getString("note");
-        this.recordSecond = json.getInt("recordSecond");
-        this.needUpload = needUpload;
-    }
-
     @Override
     public int getId() {
         return id;
@@ -100,6 +85,10 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     @Override
     public String getVer() {
         return ver;
+    }
+
+    public void setVer(String ver) {
+        this.ver= ver;
     }
 
     @Override
@@ -184,14 +173,12 @@ public class BasicRecord extends LitePalSupport implements IRecord {
 
     @Override
     public void fromJson(JSONObject json) {
+        basicFromJson(json);
+    }
+
+    public void basicFromJson(JSONObject json) {
         try {
-            if(json.has("ver")) {
-                ver = json.getString("ver");
-            } else {
-                ver = DEFAULT_VER;
-            }
-            creatorPlat = json.getString("creatorPlat");
-            creatorId = json.getString("creatorId");
+            ver = json.getString("ver");
             note = json.getString("note");
             recordSecond = json.getInt("recordSecond");
         } catch (JSONException ex) {
@@ -206,9 +193,9 @@ public class BasicRecord extends LitePalSupport implements IRecord {
             json.put("recordTypeCode", type.getCode());
             json.put("createTime", createTime);
             json.put("devAddress", devAddress);
-            json.put("ver", ver);
             json.put("creatorPlat", creatorPlat);
             json.put("creatorId", creatorId);
+            json.put("ver", ver);
             json.put("note", note);
             json.put("recordSecond", recordSecond);
             return json;
@@ -228,12 +215,12 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if(code != RETURN_CODE_WEB_FAILURE && result != null) {
+                if(code == RETURN_CODE_SUCCESS) {
                     try {
                         JSONArray jsonArr = (JSONArray) result;
                         for (int i = 0; i < jsonArr.length(); i++) {
                             JSONObject json = (JSONObject) jsonArr.get(i);
-                            BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(json);
+                            BasicRecord newRecord = RecordFactory.createFromJson(json);
                             if (newRecord != null) {
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
                             }
@@ -243,13 +230,12 @@ public class BasicRecord extends LitePalSupport implements IRecord {
                     }
                 }
 
-                List<? extends IRecord> records = RecordFactory.createBasicRecordsFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
+                List<? extends BasicRecord> records = RecordFactory.createBasicRecordsFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
 
-                int resultCode = SUCCESS;
                 if(records == null || records.isEmpty()) {
-                    callback.onFinish(resultCode, null);
+                    callback.onFinish(RETURN_CODE_SUCCESS, null);
                 } else  {
-                    callback.onFinish(resultCode, records);
+                    callback.onFinish(RETURN_CODE_SUCCESS, records);
                 }
             }
         }).execute(this);

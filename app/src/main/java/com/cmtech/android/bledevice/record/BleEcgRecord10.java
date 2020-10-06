@@ -63,10 +63,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         super(ECG, createTime, devAddress, creator);
     }
 
-    private BleEcgRecord10(JSONObject json) throws JSONException {
-        super(json, false);
-    }
-
     @Override
     public JSONObject toJson() {
         try {

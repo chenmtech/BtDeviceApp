@@ -30,7 +30,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_
  * Version:        1.0
  */
 public class RecordFactory {
-    public static Class<? extends IRecord> getRecordClass(RecordType type) {
+    public static Class<? extends BasicRecord> getRecordClass(RecordType type) {
         switch (type) {
             case ALL:
                 return BasicRecord.class;
@@ -55,11 +55,11 @@ public class RecordFactory {
         }
     }
 
-    public static IRecord create(RecordType type, long createTime, String devAddress, Account creator) {
-        Class<? extends IRecord> recordClass = getRecordClass(type);
+    public static BasicRecord create(RecordType type, long createTime, String devAddress, Account creator) {
+        Class<? extends BasicRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, Account.class);
+                Constructor<? extends BasicRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, Account.class);
                 constructor.setAccessible(true);
                 return constructor.newInstance(createTime, devAddress, creator);
             } catch (Exception e) {
@@ -69,18 +69,22 @@ public class RecordFactory {
         return null;
     }
 
-    public static IRecord createFromJson(JSONObject json) {
+    public static BasicRecord createFromJson(JSONObject json) {
         if(json == null) {
             return null;
         }
 
         try {
             RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
-            Class<? extends IRecord> recordClass = getRecordClass(type);
-            if(recordClass != null) {
-                Constructor constructor = recordClass.getDeclaredConstructor(JSONObject.class);
-                constructor.setAccessible(true);
-                return recordClass.cast(constructor.newInstance(json));
+            long createTime = json.getLong("createTime");
+            String devAddress = json.getString("devAddress");
+            String creatorPlat = json.getString("creatorPlat");
+            String creatorId = json.getString("creatorId");
+            BasicRecord record = create(type, createTime, devAddress, new Account(creatorPlat, creatorId, "", "", ""));
+            if(record != null) {
+                record.basicFromJson(json);
+                record.setNeedUpload(false);
+                return record;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,13 +92,13 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<? extends IRecord> createBasicRecordsFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
+    public static List<? extends BasicRecord> createBasicRecordsFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
         if(creator == null) {
             return null;
         }
 
         if(type != ALL) {
-            Class<? extends IRecord> recordClass = getRecordClass(type);
+            Class<? extends BasicRecord> recordClass = getRecordClass(type);
             if (recordClass != null) {
                 try {
                     if(TextUtils.isEmpty(noteFilterStr)) {
@@ -111,10 +115,10 @@ public class RecordFactory {
                 }
             }
         } else {
-            List<IRecord> records = new ArrayList<>();
+            List<BasicRecord> records = new ArrayList<>();
             for(RecordType type1 : SUPPORT_RECORD_TYPES) {
                 if(type1 == ALL) continue;
-                Class<? extends IRecord> recordClass = getRecordClass(type1);
+                Class<? extends BasicRecord> recordClass = getRecordClass(type1);
                 if (recordClass != null) {
                     try {
                         if(TextUtils.isEmpty(noteFilterStr)) {
@@ -146,8 +150,8 @@ public class RecordFactory {
         return null;
     }
 
-    public static IRecord createFromLocalDb(RecordType type, long createTime, String devAddress) {
-        Class<? extends IRecord> recordClass = getRecordClass(type);
+    public static BasicRecord createFromLocalDb(RecordType type, long createTime, String devAddress) {
+        Class<? extends BasicRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
                 return LitePal.where("createTime = ? and devAddress = ?", ""+createTime, devAddress).findFirst(recordClass);

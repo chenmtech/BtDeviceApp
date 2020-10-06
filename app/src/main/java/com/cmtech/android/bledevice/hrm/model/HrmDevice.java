@@ -143,7 +143,7 @@ public class HrmDevice extends AbstractDevice {
 
         this.hrRecording = record;
         if(record) {
-            hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
+            hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), MyApplication.getAccount());
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord);
                 Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
@@ -189,7 +189,7 @@ public class HrmDevice extends AbstractDevice {
 
         this.ecgRecording = record;
         if(record) {
-            ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), MyApplication.getAccount(), "");
+            ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), MyApplication.getAccount());
             if(ecgRecord != null) {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);

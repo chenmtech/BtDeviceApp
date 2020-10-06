@@ -57,11 +57,6 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
         initHrHistogram();
     }
 
-    private BleHrRecord10(JSONObject json) throws JSONException{
-        super(json, false);
-        initHrHistogram();
-    }
-
     private void initHrHistogram() {
         hrHistogram.add(new HrHistogramBar<>((short)0, (short)121, "平静心率", 0));
         hrHistogram.add(new HrHistogramBar<>((short)122, (short)131, "热身放松", 0));
