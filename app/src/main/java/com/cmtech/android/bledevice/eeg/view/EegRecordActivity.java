@@ -20,7 +20,7 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
+import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 
 public class EegRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{

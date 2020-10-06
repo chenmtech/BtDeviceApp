@@ -84,6 +84,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     @Override
     public void fromJson(JSONObject json) {
         try {
+            super.fromJson(json);
             String hrListStr = json.getString("hrList");
             hrList.clear();
             String[] strings = hrListStr.split(",");

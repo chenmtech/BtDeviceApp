@@ -17,8 +17,8 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
+import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MA_FILTER_SPAN;
-import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 
 public class HrRecordActivity extends AppCompatActivity {

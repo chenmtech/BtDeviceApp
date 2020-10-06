@@ -57,6 +57,7 @@ public class BleThermoRecord10 extends BasicRecord {
     @Override
     public void fromJson(JSONObject json) {
         try {
+            super.fromJson(json);
             String tempStr = json.getString("temp");
             List<Float> temp = new ArrayList<>();
             String[] strings = tempStr.split(",");

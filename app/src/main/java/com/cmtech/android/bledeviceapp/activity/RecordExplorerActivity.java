@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BasicRecord;
-import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -31,8 +30,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.vise.log.ViseLog;
-
-import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -60,7 +57,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
     private static final int DOWNLOAD_RECORD_BASIC_INFO_NUM = 20;
 
-    private List<IRecord> allRecords = new ArrayList<>(); // all records
+    private List<BasicRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter recordAdapter; // Adapter
     private RecyclerView recordView; // RecycleView
     private TextView tvNoRecord; // no record
@@ -211,7 +208,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordList(final long from) {
-        IRecord record = RecordFactory.create(recordType, from, null, MyApplication.getAccount());
+        BasicRecord record = RecordFactory.create(recordType, from, null, MyApplication.getAccount());
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
@@ -224,7 +221,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     if(result == null) {
                         Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                     } else {
-                        List<? extends IRecord> records = (List<? extends IRecord>) result;
+                        List<? extends BasicRecord> records = (List<? extends BasicRecord>) result;
                         updateTime = records.get(records.size() - 1).getCreateTime();
                         allRecords.addAll(records);
                         //ViseLog.e(allRecords.toString());
@@ -235,7 +232,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         });
     }
 
-    public void openRecord(IRecord record) {
+    public void openRecord(BasicRecord record) {
         if(record != null) {
             Intent intent = null;
             Class<? extends Activity> actClass = RecordType.fromCode(record.getTypeCode()).getActivityClass();
@@ -249,7 +246,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
-    public void deleteRecord(final IRecord record) {
+    public void deleteRecord(final BasicRecord record) {
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.delete_record).setMessage(R.string.really_wanna_delete_record);

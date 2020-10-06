@@ -40,7 +40,7 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
+public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
     public static final int RECORD_CMD_UPLOAD = 1; // upload record command
     public static final int RECORD_CMD_UPDATE_NOTE = 2; // update record note command
     public static final int RECORD_CMD_QUERY = 3; // query record command
@@ -91,10 +91,10 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Object[]> {
     }
 
     @Override
-    protected Object[] doInBackground(IRecord... records) {
+    protected Object[] doInBackground(BasicRecord... records) {
         if(records == null || records.length == 0) return null;
 
-        IRecord record = records[0];
+        BasicRecord record = records[0];
         CountDownLatch done = new CountDownLatch(1);
         final Object[] result = {RETURN_CODE_WEB_FAILURE, null};
 

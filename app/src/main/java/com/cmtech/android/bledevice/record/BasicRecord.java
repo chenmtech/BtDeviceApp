@@ -4,7 +4,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
@@ -36,8 +38,9 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BasicRecord extends LitePalSupport implements IRecord {
+public class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
     public static final String QUERY_STR = "createTime, devAddress, ver, creatorPlat, creatorId, note, needUpload"; // used to create from local DB
+    public static final int INVALID_ID = -1;
 
     private int id;
     @Column(ignore = true)
@@ -77,12 +80,10 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.creatorId = creator.getPlatId();
     }
 
-    @Override
     public int getId() {
         return id;
     }
 
-    @Override
     public String getVer() {
         return ver;
     }
@@ -91,37 +92,30 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.ver= ver;
     }
 
-    @Override
     public int getTypeCode() {
         return type.getCode();
     }
 
-    @Override
     public String getName() {
         return createTime + devAddress;
     }
 
-    @Override
     public long getCreateTime() {
         return createTime;
     }
 
-    @Override
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
 
-    @Override
     public String getDevAddress() {
         return devAddress;
     }
 
-    @Override
     public String getCreatorPlat() {
         return creatorPlat;
     }
 
-    @Override
     public String getCreatorId() {
         return creatorId;
     }
@@ -131,7 +125,6 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.creatorId = creator.getPlatId();
     }
 
-    @Override
     public String getCreatorName() {
         Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
         if(account == null)
@@ -141,32 +134,26 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         }
     }
 
-    @Override
     public String getNote() {
         return note;
     }
 
-    @Override
     public void setNote(String note) {
         this.note = note;
     }
 
-    @Override
     public int getRecordSecond() {
         return recordSecond;
     }
 
-    @Override
     public void setRecordSecond(int recordSecond) {
         this.recordSecond = recordSecond;
     }
 
-    @Override
     public boolean needUpload() {
         return needUpload;
     }
 
-    @Override
     public void setNeedUpload(boolean needUpload) {
         this.needUpload = needUpload;
     }
@@ -205,7 +192,6 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         }
     }
 
-    @Override
     public boolean noSignal() {
         return true;
     }
@@ -220,9 +206,16 @@ public class BasicRecord extends LitePalSupport implements IRecord {
                         JSONArray jsonArr = (JSONArray) result;
                         for (int i = 0; i < jsonArr.length(); i++) {
                             JSONObject json = (JSONObject) jsonArr.get(i);
-                            BasicRecord newRecord = RecordFactory.createFromJson(json);
-                            if (newRecord != null) {
-                                newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
+                            RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
+                            long createTime = json.getLong("createTime");
+                            String devAddress = json.getString("devAddress");
+                            String creatorPlat = json.getString("creatorPlat");
+                            String creatorId = json.getString("creatorId");
+                            BasicRecord record = RecordFactory.create(type, createTime, devAddress, new Account(creatorPlat, creatorId, "", "", ""));
+                            if(record != null) {
+                                record.basicFromJson(json);
+                                record.setNeedUpload(false);
+                                record.saveIfNotExist("createTime = ? and devAddress = ?", "" + record.getCreateTime(), record.getDevAddress());
                             }
                         }
                     } catch (JSONException e) {

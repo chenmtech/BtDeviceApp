@@ -14,7 +14,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.record.BasicRecord;
-import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -49,7 +48,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     private static final int INVALID_POS = -1;
 
     private final RecordExplorerActivity activity;
-    private final List<IRecord> records;
+    private final List<BasicRecord> records;
     private int position = INVALID_POS;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -82,7 +81,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         }
     }
 
-    public RecordListAdapter(RecordExplorerActivity activity, List<IRecord> records) {
+    public RecordListAdapter(RecordExplorerActivity activity, List<BasicRecord> records) {
         this.activity = activity;
         this.records = records;
     }
@@ -135,7 +134,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        IRecord record = records.get(position);
+        BasicRecord record = records.get(position);
         if(record == null) return;
 
         holder.tvCreatorName.setText(record.getCreatorName());
@@ -177,7 +176,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         return records.size();
     }
 
-    public IRecord getSelectedRecord() {
+    public BasicRecord getSelectedRecord() {
         if(position == INVALID_POS) return null;
         return records.get(position);
     }
@@ -188,7 +187,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
     public void notifySelectedItemChanged() {
         if(position == INVALID_POS) return;
-        IRecord record = records.get(position);
+        BasicRecord record = records.get(position);
         records.set(position, LitePal.find(record.getClass(), record.getId()));
         notifyItemChanged(position);
     }

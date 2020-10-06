@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledevice.record.IRecord;
+import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -51,7 +51,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
         tvAddress = findViewById(R.id.tv_device_address);
     }
 
-    public void redraw(IRecord record) {
+    public void redraw(BasicRecord record) {
         if(record == null) return;
 
         ivExit.setOnClickListener(new OnClickListener() {

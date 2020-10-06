@@ -41,6 +41,7 @@ public class BleTempHumidRecord10 extends BasicRecord {
 
     @Override
     public void fromJson(JSONObject json) {
+        super.fromJson(json);
         return;
     }
 

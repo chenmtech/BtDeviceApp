@@ -85,6 +85,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     @Override
     public void fromJson(JSONObject json) {
         try{
+            super.fromJson(json);
             sampleRate = json.getInt("sampleRate");
             caliValue = json.getInt("caliValue");
             leadTypeCode = json.getInt("leadTypeCode");

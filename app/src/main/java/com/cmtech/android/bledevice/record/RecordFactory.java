@@ -69,29 +69,6 @@ public class RecordFactory {
         return null;
     }
 
-    public static BasicRecord createFromJson(JSONObject json) {
-        if(json == null) {
-            return null;
-        }
-
-        try {
-            RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
-            long createTime = json.getLong("createTime");
-            String devAddress = json.getString("devAddress");
-            String creatorPlat = json.getString("creatorPlat");
-            String creatorId = json.getString("creatorId");
-            BasicRecord record = create(type, createTime, devAddress, new Account(creatorPlat, creatorId, "", "", ""));
-            if(record != null) {
-                record.basicFromJson(json);
-                record.setNeedUpload(false);
-                return record;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static List<? extends BasicRecord> createBasicRecordsFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
         if(creator == null) {
             return null;
@@ -136,9 +113,9 @@ public class RecordFactory {
                 }
             }
             if(records.isEmpty()) return null;
-            Collections.sort(records, new Comparator<IRecord>() {
+            Collections.sort(records, new Comparator<BasicRecord>() {
                 @Override
-                public int compare(IRecord o1, IRecord o2) {
+                public int compare(BasicRecord o1, BasicRecord o2) {
                     int rlt = 0;
                     if(o2.getCreateTime() > o1.getCreateTime()) rlt = 1;
                     else if(o2.getCreateTime() < o1.getCreateTime()) rlt = -1;

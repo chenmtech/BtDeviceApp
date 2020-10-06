@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.util;
 
+import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
-import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
@@ -99,7 +99,7 @@ public class KMWebServiceUtil {
         HttpUtils.requestGet(KMURL + RECORD_OP_URL, data, callback);
     }
 
-    public static void uploadRecord(String platName, String platId, IRecord record, Callback callback) {
+    public static void uploadRecord(String platName, String platId, BasicRecord record, Callback callback) {
         try {
             JSONObject json = record.toJson();
             json.put("cmd", "upload");
@@ -112,7 +112,7 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void updateRecordNote(String platName, String platId, IRecord record, Callback callback) {
+    public static void updateRecordNote(String platName, String platId, BasicRecord record, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "updateNote");
@@ -129,7 +129,7 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void downloadRecord(String platName, String platId, IRecord record, Callback callback) {
+    public static void downloadRecord(String platName, String platId, BasicRecord record, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "download");
@@ -145,7 +145,7 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void deleteRecord(String platName, String platId, IRecord record, Callback callback) {
+    public static void deleteRecord(String platName, String platId, BasicRecord record, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "delete");
@@ -161,7 +161,7 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void downloadRecordBasicInfo(String platName, String platId, IRecord record, long fromTime, int num, String noteSearchStr, Callback callback) {
+    public static void downloadRecordBasicInfo(String platName, String platId, BasicRecord record, long fromTime, int num, String noteSearchStr, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "downloadBasicInfo");
