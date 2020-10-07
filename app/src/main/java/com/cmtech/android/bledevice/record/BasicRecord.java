@@ -23,7 +23,6 @@ import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_WEB_FAILURE;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
 
 /**
@@ -38,8 +37,8 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
-    public static final String QUERY_STR = "createTime, devAddress, ver, creatorPlat, creatorId, note, needUpload"; // used to create from local DB
+public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
+    public static final String QUERY_STR = "createTime, devAddress, ver, creatorPlat, creatorId, note, recordSecond, needUpload"; // used to create from local DB
     public static final int INVALID_ID = -1;
 
     private int id;
@@ -56,17 +55,6 @@ public class BasicRecord extends LitePalSupport implements IJsonable, IWebOperat
 
     BasicRecord(RecordType type) {
         this.type = type;
-    }
-
-    BasicRecord(long createTime, String devAddress, Account creator) {
-        if(creator == null) {
-            throw new IllegalArgumentException("The creator of the record is null.");
-        }
-        this.type = ALL;
-        this.createTime = createTime;
-        this.devAddress = devAddress;
-        this.creatorPlat = creator.getPlatName();
-        this.creatorId = creator.getPlatId();
     }
 
     BasicRecord(RecordType type, long createTime, String devAddress, Account creator) {
@@ -197,8 +185,8 @@ public class BasicRecord extends LitePalSupport implements IJsonable, IWebOperat
     }
 
     @Override
-    public void query(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
+    public void queryRecordListOfThisType(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_LIST, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == RETURN_CODE_SUCCESS) {
@@ -223,7 +211,7 @@ public class BasicRecord extends LitePalSupport implements IJsonable, IWebOperat
                     }
                 }
 
-                List<? extends BasicRecord> records = RecordFactory.createBasicRecordsFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
+                List<? extends BasicRecord> records = RecordFactory.createRecordListFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
 
                 if(records == null || records.isEmpty()) {
                     callback.onFinish(RETURN_CODE_SUCCESS, null);
@@ -236,7 +224,7 @@ public class BasicRecord extends LitePalSupport implements IJsonable, IWebOperat
 
     @Override
     public void upload(Context context, IWebCallback callback) {
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY, new IWebCallback() {
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY_ID, new IWebCallback() {
             @Override
             public void onFinish(int code, final Object result) {
                 if (code == RETURN_CODE_SUCCESS) {

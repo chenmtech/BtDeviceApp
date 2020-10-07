@@ -33,7 +33,7 @@ public class RecordFactory {
     public static Class<? extends BasicRecord> getRecordClass(RecordType type) {
         switch (type) {
             case ALL:
-                return BasicRecord.class;
+                return AllTypeRecord.class;
 
             case ECG:
                 return BleEcgRecord10.class;
@@ -69,7 +69,7 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<? extends BasicRecord> createBasicRecordsFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
+    public static List<? extends BasicRecord> createRecordListFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
             for(RecordType t : RecordType.values()) {

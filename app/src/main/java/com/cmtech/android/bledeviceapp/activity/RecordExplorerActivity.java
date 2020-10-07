@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
@@ -55,7 +56,7 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
-    private static final int DOWNLOAD_RECORD_BASIC_INFO_NUM = 20;
+    private static final int DOWNLOAD_RECORD_NUM = 20;
 
     private List<BasicRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter recordAdapter; // Adapter
@@ -208,13 +209,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordList(final long from) {
-        BasicRecord record = RecordFactory.create(recordType, from, null, MyApplication.getAccount());
+        BasicRecord record = RecordFactory.create(recordType, INVALID_TIME, null, MyApplication.getAccount());
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
         }
 
-        record.query(this, from, noteFilterStr, DOWNLOAD_RECORD_BASIC_INFO_NUM, new IWebCallback() {
+        record.queryRecordListOfThisType(this, from, noteFilterStr, DOWNLOAD_RECORD_NUM, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == RETURN_CODE_SUCCESS) {
@@ -224,7 +225,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         List<? extends BasicRecord> records = (List<? extends BasicRecord>) result;
                         updateTime = records.get(records.size() - 1).getCreateTime();
                         allRecords.addAll(records);
-                        //ViseLog.e(allRecords.toString());
                         updateRecordView();
                     }
                 }

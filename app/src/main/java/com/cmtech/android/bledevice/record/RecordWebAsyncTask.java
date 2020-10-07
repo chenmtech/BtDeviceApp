@@ -43,13 +43,13 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_
 public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
     public static final int RECORD_CMD_UPLOAD = 1; // upload record command
     public static final int RECORD_CMD_UPDATE_NOTE = 2; // update record note command
-    public static final int RECORD_CMD_QUERY = 3; // query record command
+    public static final int RECORD_CMD_QUERY_ID = 3; // query record command ID
     public static final int RECORD_CMD_DELETE = 4; // delete record command
-    public static final int RECORD_CMD_DOWNLOAD_BASIC_INFO = 5; // download basic record information command
+    public static final int RECORD_CMD_DOWNLOAD_LIST = 5; // download basic record information command
     public static final int RECORD_CMD_DOWNLOAD = 6; // download record command
 
     private static final int WAIT_TASK_FINISH_TIME = 10; // unit: second
-    private static final int DOWNLOAD_RECORD_BASIC_INFO_NUM = 10;
+    private static final int DEFAULT_DOWNLOAD_NUM = 10;
 
     private ProgressDialog progressDialog;
     private final int cmd;
@@ -100,7 +100,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
 
         switch (cmd) {
             // QUERY
-            case RECORD_CMD_QUERY:
+            case RECORD_CMD_QUERY_ID:
                 KMWebServiceUtil.queryRecordId(record.getTypeCode(), record.getCreateTime(), record.getDevAddress(), record.getVer(), new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -228,12 +228,12 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                 break;
 
             // DOWNLOAD BASIC INFO
-            case RECORD_CMD_DOWNLOAD_BASIC_INFO:
+            case RECORD_CMD_DOWNLOAD_LIST:
                 int downloadNum = 0;
                 String noteSearchStr = "";
                 long fromTime = new Date().getTime();
                 if(params == null || params.length == 0) {
-                    downloadNum = DOWNLOAD_RECORD_BASIC_INFO_NUM;
+                    downloadNum = DEFAULT_DOWNLOAD_NUM;
                 } else if(params.length == 1) {
                     downloadNum = (Integer) params[0];
                 } else if(params.length == 2) {
@@ -244,7 +244,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                     noteSearchStr = (String) params[1];
                     fromTime = (Long) params[2];
                 }
-                KMWebServiceUtil.downloadRecordBasicInfo(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, fromTime, downloadNum, noteSearchStr, new Callback() {
+                KMWebServiceUtil.downloadRecordList(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, fromTime, downloadNum, noteSearchStr, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         done.countDown();
@@ -259,8 +259,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                             result[1] = json.get("records");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = RETURN_CODE_WEB_FAILURE;
-                            result[1] = null;
+                            result[0] = RETURN_CODE_OTHER_ERR;
                         } finally {
                             done.countDown();
                         }

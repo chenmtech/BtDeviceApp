@@ -161,16 +161,16 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void downloadRecordBasicInfo(String platName, String platId, BasicRecord record, long fromTime, int num, String noteSearchStr, Callback callback) {
+    public static void downloadRecordList(String platName, String platId, BasicRecord record, long fromTime, int num, String noteSearchStr, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "downloadBasicInfo");
             json.put("platName", platName);
             json.put("platId", platId);
             json.put("recordTypeCode", record.getTypeCode());
-            json.put("fromTime", fromTime);
             json.put("creatorPlat", record.getCreatorPlat());
             json.put("creatorId", record.getCreatorId());
+            json.put("fromTime", fromTime);
             json.put("num", num);
             json.put("noteSearchStr", noteSearchStr);
             HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
