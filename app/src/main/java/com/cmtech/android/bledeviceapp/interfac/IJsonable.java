@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.interfac;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 /**

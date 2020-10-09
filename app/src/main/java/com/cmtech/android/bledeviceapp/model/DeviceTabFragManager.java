@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentManager;
 
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.vise.log.ViseLog;
 
 import java.util.List;
 

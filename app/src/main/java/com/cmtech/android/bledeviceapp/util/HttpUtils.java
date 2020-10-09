@@ -2,7 +2,6 @@ package com.cmtech.android.bledeviceapp.util;
 
 import com.vise.log.ViseLog;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;

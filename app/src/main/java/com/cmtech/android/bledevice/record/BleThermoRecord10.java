@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordType.THERMO;
-import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 
 /**
  * ProjectName:    BtDeviceApp

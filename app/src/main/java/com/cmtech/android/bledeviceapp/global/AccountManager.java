@@ -32,7 +32,7 @@ import okhttp3.Response;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.WX_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**

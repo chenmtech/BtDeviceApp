@@ -16,8 +16,8 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.ecg.adapter.EcgMarkerAdapter;
 import com.cmtech.android.bledevice.ecg.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgAbnormal;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.ArrayList;

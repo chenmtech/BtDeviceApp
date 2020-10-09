@@ -28,17 +28,6 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.KMURL;
  * Version:        1.0
  */
 public class KMWebServiceUtil {
-    public static final int RETURN_CODE_SUCCESS = 0; // web code success
-    public static final int RETURN_CODE_WEB_FAILURE = 1; // web code failure
-    public static final int RETURN_CODE_INVALID_PARA_ERR = 2;
-    public static final int RETURN_CODE_SIGNUP_ERR = 3;
-    public static final int RETURN_CODE_LOGIN_ERR = 4;
-    public static final int RETURN_CODE_ACCOUNT_ERR = 5;
-    public static final int RETURN_CODE_UPDATE_ERR = 6;
-    public static final int RETURN_CODE_UPLOAD_ERR = 7;
-    public static final int RETURN_CODE_DOWNLOAD_ERR = 8;
-    public static final int RETURN_CODE_DELETE_ERR = 9;
-    public static final int RETURN_CODE_OTHER_ERR = 10;
 
     private static final String ACCOUNT_OP_URL = "Account?";
     private static final String RECORD_OP_URL = "Record?";

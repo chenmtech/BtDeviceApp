@@ -17,8 +17,8 @@ import com.cmtech.android.bledeviceapp.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MA_FILTER_SPAN;
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
+import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MA_FILTER_SPAN;
 
 /**
  * ProjectName:    BtDeviceApp

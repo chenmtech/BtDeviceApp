@@ -23,8 +23,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.utils.file.FileUtil;
@@ -34,7 +34,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
  *  AccountActivity: 账户设置Activity
@@ -117,7 +117,7 @@ public class AccountActivity extends AppCompatActivity {
                 account.upload(AccountActivity.this, new IWebCallback() {
                     @Override
                     public void onFinish(int code, Object result) {
-                        int strId = (code == SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                        int strId = (code == RETURN_CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
                         Toast.makeText(AccountActivity.this, strId, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
                         setResult(RESULT_OK, intent);
@@ -197,7 +197,7 @@ public class AccountActivity extends AppCompatActivity {
         account.download(this, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if (code == SUCCESS) {
+                if (code == RETURN_CODE_SUCCESS) {
                     updateUI();
                 } else {
                     Toast.makeText(AccountActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();

@@ -8,8 +8,8 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -22,8 +22,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
-
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 /**
   *
   * ClassName:      Account
@@ -140,8 +139,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                int resultCode = (code == RETURN_CODE_SUCCESS) ? SUCCESS : FAILURE;
-                callback.onFinish(resultCode, null);
+                callback.onFinish(code, null);
             }
         }).execute(this);
     }
@@ -151,18 +149,16 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         new AccountWebAsyncTask(context, AccountWebAsyncTask.DOWNLOAD_CMD, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                int resultCode = FAILURE;
-                String resultStr = "网络错误";
+                String resultStr = "下载错误";
                 if (code == RETURN_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) result;
 
                     fromJson(json);
                     save();
-                    resultCode = SUCCESS;
                     resultStr = "下载成功";
                 }
 
-                callback.onFinish(resultCode, resultStr);
+                callback.onFinish(code, resultStr);
             }
         }).execute(this);
     }

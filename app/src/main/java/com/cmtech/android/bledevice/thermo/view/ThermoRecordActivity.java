@@ -16,7 +16,7 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -60,7 +60,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
             record.download(this, new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if (code == SUCCESS) {
+                    if (code == RETURN_CODE_SUCCESS) {
                         initUI();
                     } else {
                         Toast.makeText(ThermoRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();

@@ -25,9 +25,9 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.vise.log.ViseLog;
 
@@ -39,8 +39,7 @@ import java.util.Map;
 
 import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
   *
@@ -274,7 +273,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onFinish(int code, final Object rlt) {
                 Toast.makeText(RecordExplorerActivity.this, (String) rlt, Toast.LENGTH_SHORT).show();
-                if (code == SUCCESS) {
+                if (code == RETURN_CODE_SUCCESS) {
                     updateRecordView();
                 }
             }

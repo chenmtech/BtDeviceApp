@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.interfac.IDbOperation;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
@@ -19,11 +20,9 @@ import org.litepal.crud.LitePalSupport;
 
 import java.util.List;
 
-import static com.cmtech.android.bledevice.record.RecordType.ALL;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_SUCCESS;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -37,7 +36,7 @@ import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
+public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation, IDbOperation {
     public static final String QUERY_STR = "createTime, devAddress, ver, creatorPlat, creatorId, note, recordSecond, needUpload"; // used to create from local DB
     public static final int INVALID_ID = -1;
 
@@ -185,6 +184,26 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     @Override
+    public boolean retrieve() {
+        return false;
+    }
+
+    @Override
+    public boolean insert() {
+        return false;
+    }
+
+    @Override
+    public boolean deleteInDb() {
+        return false;
+    }
+
+    @Override
+    public boolean update() {
+        return false;
+    }
+
+    @Override
     public void queryRecordListOfThisType(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
         new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_LIST, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
             @Override
@@ -270,6 +289,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             public void onFinish(int code, Object result) {
                 if (code == RETURN_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) result;
+                    ViseLog.e(json);
                     fromJson(json);
                     save();
                     result = "下载成功";

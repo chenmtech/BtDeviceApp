@@ -15,9 +15,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.WebDeviceAdapter;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 
 /**
  * ProjectName:    BtDeviceApp

@@ -5,8 +5,6 @@ import android.graphics.Color;
 import android.graphics.Path;
 import android.util.AttributeSet;
 
-import com.vise.log.ViseLog;
-
 import java.util.ArrayList;
 import java.util.List;
 

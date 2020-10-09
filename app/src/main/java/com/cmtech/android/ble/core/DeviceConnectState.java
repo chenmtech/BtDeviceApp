@@ -1,7 +1,7 @@
 package com.cmtech.android.ble.core;
 
-import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 
 /**
   *

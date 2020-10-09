@@ -1,11 +1,11 @@
 package com.cmtech.android.bledevice.ecg.record;
 
-import com.cmtech.android.bledevice.record.ISignalRecord;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgComment;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgCommentFactory;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecg.util.EcgMonitorUtil;
+import com.cmtech.android.bledevice.record.ISignalRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.DataIOUtil;

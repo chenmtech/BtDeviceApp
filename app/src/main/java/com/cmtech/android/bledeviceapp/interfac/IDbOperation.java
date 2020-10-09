@@ -13,5 +13,8 @@ package com.cmtech.android.bledeviceapp.interfac;
  * Version:        1.0
  */
 public interface IDbOperation {
-    void retrieveFromDb();
+    boolean retrieve(); // 从数据库获取记录的信息
+    boolean insert(); // 插入一条记录到数据库
+    boolean deleteInDb(); // 删除一条记录
+    boolean update(); // 更新数据库中的记录信息
 }

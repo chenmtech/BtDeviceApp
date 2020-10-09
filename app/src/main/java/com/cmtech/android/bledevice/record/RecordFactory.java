@@ -5,7 +5,6 @@ import android.text.TextUtils;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
-import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.lang.reflect.Constructor;
@@ -13,9 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static com.cmtech.android.bledevice.record.RecordType.ALL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 
 /**
  * ProjectName:    BtDeviceApp

@@ -18,8 +18,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
-import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
+import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
@@ -31,8 +31,8 @@ import com.vise.log.ViseLog;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SCAN_DURATION;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SCAN_DURATION;
 
 /**
   *

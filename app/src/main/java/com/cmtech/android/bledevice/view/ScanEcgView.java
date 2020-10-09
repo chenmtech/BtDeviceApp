@@ -3,8 +3,6 @@ package com.cmtech.android.bledevice.view;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.cmtech.android.bledevice.view.ScanWaveView;
-
 public class ScanEcgView extends ScanWaveView {
     public static final int PIXEL_PER_GRID = 10; // 每个栅格包含的像素个数
     public static final float SECOND_PER_GRID = 0.04f; // 横向每个栅格代表的秒数，对应于走纸速度

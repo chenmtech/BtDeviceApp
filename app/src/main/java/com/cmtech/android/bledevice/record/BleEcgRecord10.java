@@ -7,8 +7,8 @@ import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.report.EcgReport;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
@@ -31,8 +31,6 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
-import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
-import static com.cmtech.android.bledeviceapp.util.KMWebServiceUtil.RETURN_CODE_WEB_FAILURE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -187,7 +185,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
             upload(context, new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if(code == SUCCESS) {
+                    if(code == RETURN_CODE_SUCCESS) {
                         doProcessRequest(context, cmd, callback);
                     } else {
                         Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();

@@ -19,7 +19,7 @@ import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MA_FILTER_SPAN;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class HrRecordActivity extends AppCompatActivity {
     private BleHrRecord10 record;
@@ -50,7 +50,7 @@ public class HrRecordActivity extends AppCompatActivity {
             record.download(this, new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if (code == SUCCESS) {
+                    if (code == RETURN_CODE_SUCCESS) {
                         initUI();
                     } else {
                         Toast.makeText(HrRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();

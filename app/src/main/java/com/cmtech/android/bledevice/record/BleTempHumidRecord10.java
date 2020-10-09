@@ -2,11 +2,9 @@ package com.cmtech.android.bledevice.record;
 
 import com.cmtech.android.bledeviceapp.model.Account;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.cmtech.android.bledevice.record.RecordType.TH;
-import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
 
 /**
  * ProjectName:    BtDeviceApp

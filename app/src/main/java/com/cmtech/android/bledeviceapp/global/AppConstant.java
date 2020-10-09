@@ -8,8 +8,8 @@ import com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory;
 import com.cmtech.android.bledevice.eeg.model.EegFactory;
 import com.cmtech.android.bledevice.hrm.model.HrmFactory;
 import com.cmtech.android.bledevice.record.RecordType;
-import com.cmtech.android.bledevice.thm.model.ThmFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
+import com.cmtech.android.bledevice.thm.model.ThmFactory;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 

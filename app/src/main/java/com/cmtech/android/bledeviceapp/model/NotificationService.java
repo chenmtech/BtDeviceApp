@@ -16,8 +16,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.SplashActivity;
 import com.vise.log.ViseLog;
 
-import java.util.Timer;
-
 
 /**
  * ClassName:      NotificationService

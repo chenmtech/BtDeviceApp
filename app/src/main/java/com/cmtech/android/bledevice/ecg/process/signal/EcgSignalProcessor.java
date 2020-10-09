@@ -1,13 +1,13 @@
 package com.cmtech.android.bledevice.ecg.process.signal;
 
 import com.cmtech.android.bledevice.ecg.interfac.IEcgDevice;
+import com.cmtech.android.bledevice.ecg.process.hr.HrAbnormalProcessor;
+import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticProcessor;
+import com.cmtech.android.bledevice.ecg.process.hr.IHrProcessor;
 import com.cmtech.android.bledevice.ecg.process.signal.calibrator.EcgCalibrator65536;
 import com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecg.process.signal.filter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecg.process.signal.filter.IEcgFilter;
-import com.cmtech.android.bledevice.ecg.process.hr.HrAbnormalProcessor;
-import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticProcessor;
-import com.cmtech.android.bledevice.ecg.process.hr.IHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
 import java.util.Map;

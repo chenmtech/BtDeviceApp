@@ -21,7 +21,7 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class EegRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
     private BleEegRecord10 record;
@@ -58,7 +58,7 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
             record.download(this, new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if (code == SUCCESS) {
+                    if (code == RETURN_CODE_SUCCESS) {
                         initUI();
                     } else {
                         Toast.makeText(EegRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
