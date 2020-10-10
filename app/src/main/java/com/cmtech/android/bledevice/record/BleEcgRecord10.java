@@ -53,10 +53,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     @Column(ignore = true)
     private int pos = 0; // current position to the ecgData
 
-    private BleEcgRecord10() {
-        super(ECG);
-    }
-
     private BleEcgRecord10(long createTime, String devAddress, Account creator) {
         super(ECG, createTime, devAddress, creator);
     }

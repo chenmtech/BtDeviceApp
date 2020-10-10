@@ -120,12 +120,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             public void onClick(View v) {
                 if(FastClickUtil.isFastClick()) return;
                 BasicRecord record = records.get(holder.getAdapterPosition());
-                record = RecordFactory.createFromLocalDb(RecordType.fromCode(record.getTypeCode()), record.getCreateTime(), record.getDevAddress());
                 if(record == null || record.noSignal()) {
                     Toast.makeText(activity, R.string.record_damage, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                records.set(holder.getAdapterPosition(), record);
                 activity.uploadRecord(record);
             }
         });

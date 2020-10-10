@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.record;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IDbOperation;
@@ -18,6 +19,9 @@ import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
@@ -36,25 +40,20 @@ import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation, IDbOperation {
-    public static final String QUERY_STR = "createTime, devAddress, ver, creatorPlat, creatorId, note, recordSecond, needUpload"; // used to create from local DB
+public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
     public static final int INVALID_ID = -1;
 
     private int id;
     @Column(ignore = true)
-    private RecordType type; // record type
-    private long createTime = INVALID_TIME; // create time
-    private String devAddress = ""; // device address
+    private final RecordType type; // record type
+    private long createTime; // create time
+    private final String devAddress; // device address
     private String ver = DEFAULT_VER; // record version
-    private String creatorPlat = ""; // creator plat name
-    private String creatorId = ""; // creator plat ID
+    private final String creatorPlat; // creator plat name
+    private final String creatorId; // creator plat ID
     private String note = ""; // note
     private int recordSecond = 0; // unit: s
     private boolean needUpload = true; // need uploaded
-
-    BasicRecord(RecordType type) {
-        this.type = type;
-    }
 
     BasicRecord(RecordType type, long createTime, String devAddress, Account creator) {
         if(creator == null) {
@@ -105,11 +104,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     public String getCreatorId() {
         return creatorId;
-    }
-
-    public void setCreator(Account creator) {
-        this.creatorPlat = creator.getPlatName();
-        this.creatorId = creator.getPlatId();
     }
 
     public String getCreatorName() {
@@ -184,27 +178,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     @Override
-    public boolean retrieve() {
-        return false;
-    }
-
-    @Override
-    public boolean insert() {
-        return false;
-    }
-
-    @Override
-    public boolean deleteInDb() {
-        return false;
-    }
-
-    @Override
-    public boolean update() {
-        return false;
-    }
-
-    @Override
-    public void queryRecordListOfThisType(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
+    public void retrieveRecordList(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
         new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_LIST, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
@@ -230,7 +204,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                     }
                 }
 
-                List<? extends BasicRecord> records = RecordFactory.createRecordListFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
+                List<? extends BasicRecord> records = BasicRecord.retrieveRecordsFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
 
                 if(records == null || records.isEmpty()) {
                     callback.onFinish(RETURN_CODE_SUCCESS, null);
@@ -332,5 +306,48 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @Override
     public int hashCode() {
         return getName().hashCode();
+    }
+
+
+    public static List<? extends BasicRecord> retrieveRecordsFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
+        List<RecordType> types = new ArrayList<>();
+        if(type == RecordType.ALL) {
+            for(RecordType t : RecordType.values()) {
+                if(t != RecordType.ALL) {
+                    types.add(t);
+                }
+            }
+        }
+        else
+            types.add(type);
+
+        List<BasicRecord> records = new ArrayList<>();
+        for(RecordType t : types) {
+            Class<? extends BasicRecord> recordClass = t.getRecordClass();
+            if (recordClass != null) {
+                try {
+                    if(TextUtils.isEmpty(noteFilterStr)) {
+                        records.addAll(LitePal.where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
+                                .order("createTime desc").limit(num).find(recordClass, true));
+                    } else {
+                        records.addAll(LitePal.where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
+                                .order("createTime desc").limit(num).find(recordClass, true));
+                    }
+                } catch (Exception e) {
+                    ViseLog.e(e);
+                }
+            }
+        }
+        if(records.isEmpty()) return null;
+        Collections.sort(records, new Comparator<BasicRecord>() {
+            @Override
+            public int compare(BasicRecord o1, BasicRecord o2) {
+                int rlt = 0;
+                if(o2.getCreateTime() > o1.getCreateTime()) rlt = 1;
+                else if(o2.getCreateTime() < o1.getCreateTime()) rlt = -1;
+                return rlt;
+            }
+        });
+        return records.subList(0, Math.min(records.size(), num));
     }
 }

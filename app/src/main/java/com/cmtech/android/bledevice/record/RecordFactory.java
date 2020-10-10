@@ -17,7 +17,7 @@ import java.util.List;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.common
  * ClassName:      RecordFactory
- * Description:    java类作用描述
+ * Description:    各种记录类的工厂
  * Author:         作者名
  * CreateDate:     2020/5/5 上午6:54
  * UpdateUser:     更新者
@@ -26,33 +26,8 @@ import java.util.List;
  * Version:        1.0
  */
 public class RecordFactory {
-    public static Class<? extends BasicRecord> getRecordClass(RecordType type) {
-        switch (type) {
-            case ALL:
-                return AllTypeRecord.class;
-
-            case ECG:
-                return BleEcgRecord10.class;
-
-            case HR:
-                return BleHrRecord10.class;
-
-            case THERMO:
-                return BleThermoRecord10.class;
-
-            case EEG:
-                return BleEegRecord10.class;
-
-            case TH:
-                return BleTempHumidRecord10.class;
-
-            default:
-                return null;
-        }
-    }
-
     public static BasicRecord create(RecordType type, long createTime, String devAddress, Account creator) {
-        Class<? extends BasicRecord> recordClass = getRecordClass(type);
+        Class<? extends BasicRecord> recordClass = type.getRecordClass();
         if(recordClass != null) {
             try {
                 Constructor<? extends BasicRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, Account.class);
@@ -65,59 +40,4 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<? extends BasicRecord> createRecordListFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
-        List<RecordType> types = new ArrayList<>();
-        if(type == RecordType.ALL) {
-            for(RecordType t : RecordType.values()) {
-                if(t != RecordType.ALL) {
-                    types.add(t);
-                }
-            }
-        }
-        else
-            types.add(type);
-
-        List<BasicRecord> records = new ArrayList<>();
-        for(RecordType t : types) {
-            Class<? extends BasicRecord> recordClass = getRecordClass(t);
-            if (recordClass != null) {
-                try {
-                    if(TextUtils.isEmpty(noteFilterStr)) {
-                        records.addAll(LitePal.select(BasicRecord.QUERY_STR)
-                                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
-                                .order("createTime desc").limit(num).find(recordClass, true));
-                    } else {
-                        records.addAll(LitePal.select(BasicRecord.QUERY_STR)
-                                .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
-                                .order("createTime desc").limit(num).find(recordClass, true));
-                    }
-                } catch (Exception e) {
-                    ViseLog.e(e);
-                }
-            }
-        }
-        if(records.isEmpty()) return null;
-        Collections.sort(records, new Comparator<BasicRecord>() {
-            @Override
-            public int compare(BasicRecord o1, BasicRecord o2) {
-                int rlt = 0;
-                if(o2.getCreateTime() > o1.getCreateTime()) rlt = 1;
-                else if(o2.getCreateTime() < o1.getCreateTime()) rlt = -1;
-                return rlt;
-            }
-        });
-        return records.subList(0, Math.min(records.size(), num));
-    }
-
-    public static BasicRecord createFromLocalDb(RecordType type, long createTime, String devAddress) {
-        Class<? extends BasicRecord> recordClass = getRecordClass(type);
-        if(recordClass != null) {
-            try {
-                return LitePal.where("createTime = ? and devAddress = ?", ""+createTime, devAddress).findFirst(recordClass);
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        return null;
-    }
 }

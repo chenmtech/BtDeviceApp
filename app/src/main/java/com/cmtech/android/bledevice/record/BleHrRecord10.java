@@ -40,16 +40,11 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     @Column(ignore = true)
     private final List<HrHistogramBar<Integer>> hrHistogram = new ArrayList<>();
     @Column(ignore = true)
-    private transient long hrSum;
+    private transient long hrSum = 0;
     @Column(ignore = true)
-    private transient long hrNum;
+    private transient long hrNum = 0;
     @Column(ignore = true)
     private transient long preTime = 0;
-
-    private BleHrRecord10() {
-        super(HR);
-        initHrHistogram();
-    }
 
     private BleHrRecord10(long createTime, String devAddress, Account creator) {
         super(HR, createTime, devAddress, creator);

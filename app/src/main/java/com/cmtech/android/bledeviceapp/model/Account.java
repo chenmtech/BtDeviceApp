@@ -169,7 +169,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     @Override
-    public void queryRecordListOfThisType(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
+    public void retrieveRecordList(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
 
     }
 

@@ -214,7 +214,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        record.queryRecordListOfThisType(this, from, noteFilterStr, DOWNLOAD_RECORD_NUM, new IWebCallback() {
+        record.retrieveRecordList(this, from, noteFilterStr, DOWNLOAD_RECORD_NUM, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == RETURN_CODE_SUCCESS) {

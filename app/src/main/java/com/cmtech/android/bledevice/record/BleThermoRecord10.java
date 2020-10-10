@@ -29,10 +29,6 @@ public class BleThermoRecord10 extends BasicRecord {
     private float highestTemp = 0.0f;
     private List<Float> temp = new ArrayList<>();
 
-    private BleThermoRecord10() {
-        super(THERMO);
-    }
-
     private BleThermoRecord10(long createTime, String devAddress, Account creator) {
         super(THERMO, createTime, devAddress, creator);
     }

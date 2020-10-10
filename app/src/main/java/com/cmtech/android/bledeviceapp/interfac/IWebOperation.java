@@ -29,5 +29,5 @@ public interface IWebOperation {
     void upload(Context context, IWebCallback callback);
     void download(Context context, IWebCallback callback);
     void delete(Context context, IWebCallback callback);
-    void queryRecordListOfThisType(Context context, long fromTime, String queryStr, int num, IWebCallback callback);
+    void retrieveRecordList(Context context, long fromTime, String queryStr, int num, IWebCallback callback);
 }
