@@ -21,6 +21,7 @@ import org.litepal.annotation.Column;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -164,8 +165,11 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     }
 
     @Override
-    public void requestDiagnose(Context context, IWebCallback callback) {
-        processReport(context, REPORT_CMD_REQUEST, callback);
+    public void requestDiagnose() {
+        report.setReportTime(new Date().getTime());
+        report.setContent("已经改变");
+        setNeedUpload(true);
+        save();
     }
 
     private void processReport(Context context, int cmd, IWebCallback callback) {

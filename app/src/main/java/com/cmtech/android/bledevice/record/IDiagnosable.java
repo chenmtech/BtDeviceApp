@@ -28,5 +28,5 @@ public interface IDiagnosable {
     int CODE_REPORT_NO_NEW = 5;
 
     void retrieveDiagnoseResult(Context context, IWebCallback callback);
-    void requestDiagnose(Context context, IWebCallback callback);
+    void requestDiagnose();
 }

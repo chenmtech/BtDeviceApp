@@ -66,15 +66,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/primary"
-            android:text="申请诊断"/>
-
-        <Button
-            android:id="@+id/btn_get_report"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@color/primary"
-            android:text="刷新"/>
+            android:text="重新诊断"/>
     </LinearLayout>
 
 </LinearLayout>
