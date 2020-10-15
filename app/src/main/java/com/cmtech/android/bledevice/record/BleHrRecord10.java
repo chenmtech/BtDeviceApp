@@ -30,8 +30,8 @@ import static com.cmtech.android.bledevice.record.RecordType.HR;
 public class BleHrRecord10 extends BasicRecord implements Serializable {
     public static final int HR_MA_FILTER_SPAN = 10; // unit: second
 
-    private List<Short> hrList = new ArrayList<>();; // filtered HR list
-    private List<Integer> hrHist = new ArrayList<>();; // HR histogram value
+    private final List<Short> hrList = new ArrayList<>();; // filtered HR list
+    private final List<Integer> hrHist = new ArrayList<>();; // HR histogram value
     private short hrMax = INVALID_HEART_RATE; // HR max
     private short hrAve = INVALID_HEART_RATE; // HR average
 
@@ -61,44 +61,36 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     }
 
     @Override
-    public JSONObject toJson() {
-        try {
-            JSONObject json = super.toJson();
-            json.put("hrList", RecordUtil.listToString(hrList));
-            json.put("hrMax", hrMax);
-            json.put("hrAve", hrAve);
-            json.put("hrHist", RecordUtil.listToString(hrHist));
-            return json;
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-            return null;
+    public void fromJson(JSONObject json) throws JSONException{
+        super.fromJson(json);
+        hrList.clear();
+        String hrListStr = json.getString("hrList");
+        String[] strings = hrListStr.split(",");
+        for(String str : strings) {
+            hrList.add(Short.parseShort(str));
         }
+
+        hrMax = (short)json.getInt("hrMax");
+        hrAve = (short)json.getInt("hrAve");
+
+        hrHist.clear();
+        String hrHistStr = json.getString("hrHist");
+        strings = hrHistStr.split(",");
+        for(String str : strings) {
+            hrHist.add(Integer.parseInt(str));
+        }
+
+        createHistogramFromHrHist();
     }
 
     @Override
-    public void fromJson(JSONObject json) {
-        try {
-            super.fromJson(json);
-            String hrListStr = json.getString("hrList");
-            hrList.clear();
-            String[] strings = hrListStr.split(",");
-            for(String str : strings) {
-                hrList.add(Short.parseShort(str));
-            }
-
-            hrMax = (short)json.getInt("hrMax");
-            hrAve = (short)json.getInt("hrAve");
-
-            String hrHistStr = json.getString("hrHist");
-            hrHist.clear();
-            strings = hrHistStr.split(",");
-            for(String str : strings) {
-                hrHist.add(Integer.parseInt(str));
-            }
-            createHistogramFromHrHist();
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-        }
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = super.toJson();
+        json.put("hrList", RecordUtil.listToString(hrList));
+        json.put("hrMax", hrMax);
+        json.put("hrAve", hrAve);
+        json.put("hrHist", RecordUtil.listToString(hrHist));
+        return json;
     }
 
     @Override
@@ -121,14 +113,11 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     public List<HrHistogramBar<Integer>> getHrHistogram() {
         return hrHistogram;
     }
-    public boolean createHistogramFromHrHist() {
+    public void createHistogramFromHrHist() {
         if(hrHist != null && hrHist.size() == hrHistogram.size()) {
             for (int i = 0; i < hrHistogram.size(); i++) {
                 hrHistogram.get(i).setValue(hrHist.get(i));
             }
-            return true;
-        } else {
-            return false;
         }
     }
 

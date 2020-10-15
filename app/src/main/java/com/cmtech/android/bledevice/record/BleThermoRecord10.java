@@ -26,44 +26,34 @@ import static com.cmtech.android.bledevice.record.RecordType.THERMO;
  * Version:        1.0
  */
 public class BleThermoRecord10 extends BasicRecord {
+    private final List<Float> temp = new ArrayList<>();
     private float highestTemp = 0.0f;
-    private List<Float> temp = new ArrayList<>();
 
     private BleThermoRecord10(long createTime, String devAddress, Account creator) {
         super(THERMO, createTime, devAddress, creator);
     }
 
     @Override
-    public JSONObject toJson() {
-        try {
-            JSONObject json = super.toJson();
-            StringBuilder builder = new StringBuilder();
-            for(Float ele : temp) {
-                builder.append(ele).append(',');
-            }
-            json.put("temp", builder.toString());
-            return json;
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-            return null;
+    public void fromJson(JSONObject json) throws JSONException{
+        super.fromJson(json);
+
+        temp.clear();
+        String tempStr = json.getString("temp");
+        String[] strings = tempStr.split(",");
+        for(String str : strings) {
+            temp.add(Float.parseFloat(str));
         }
+
+        this.highestTemp = Collections.max(temp);
     }
 
     @Override
-    public void fromJson(JSONObject json) {
-        try {
-            super.fromJson(json);
-            String tempStr = json.getString("temp");
-            List<Float> temp = new ArrayList<>();
-            String[] strings = tempStr.split(",");
-            for(String str : strings) {
-                temp.add(Float.parseFloat(str));
-            }
-            this.temp = temp;
-            this.highestTemp = Collections.max(temp);
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-        }
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = super.toJson();
+
+        json.put("temp", RecordUtil.listToString(temp));
+
+        return json;
     }
 
     @Override

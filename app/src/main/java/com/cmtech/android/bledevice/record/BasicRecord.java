@@ -4,8 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.interfac.IDbOperation;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
@@ -26,7 +24,6 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 import static com.cmtech.android.bledevice.report.EcgReport.DEFAULT_VER;
-import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -51,14 +48,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     private String ver = DEFAULT_VER; // record version
     private final String creatorPlat; // creator plat name
     private final String creatorId; // creator plat ID
+
+
     private String note = ""; // note
     private int recordSecond = 0; // unit: s
     private boolean needUpload = true; // need uploaded
 
     BasicRecord(RecordType type, long createTime, String devAddress, Account creator) {
-        if(creator == null) {
-            throw new IllegalArgumentException("The creator of the record is null.");
-        }
         this.type = type;
         this.createTime = createTime;
         this.devAddress = devAddress;
@@ -140,37 +136,28 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     @Override
-    public void fromJson(JSONObject json) {
-        basicFromJson(json);
+    public void fromJson(JSONObject json) throws JSONException{
+        basicRecordFromJson(json);
     }
 
-    public void basicFromJson(JSONObject json) {
-        try {
-            ver = json.getString("ver");
-            note = json.getString("note");
-            recordSecond = json.getInt("recordSecond");
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-        }
+    public void basicRecordFromJson(JSONObject json) throws JSONException{
+        //ver = json.getString("ver");
+        note = json.getString("note");
+        recordSecond = json.getInt("recordSecond");
     }
 
     @Override
-    public JSONObject toJson() {
-        try {
-            JSONObject json = new JSONObject();
-            json.put("recordTypeCode", type.getCode());
-            json.put("createTime", createTime);
-            json.put("devAddress", devAddress);
-            json.put("creatorPlat", creatorPlat);
-            json.put("creatorId", creatorId);
-            json.put("ver", ver);
-            json.put("note", note);
-            json.put("recordSecond", recordSecond);
-            return json;
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-            return null;
-        }
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = new JSONObject();
+        json.put("recordTypeCode", type.getCode());
+        json.put("createTime", createTime);
+        json.put("devAddress", devAddress);
+        json.put("creatorPlat", creatorPlat);
+        json.put("creatorId", creatorId);
+        json.put("ver", ver);
+        json.put("note", note);
+        json.put("recordSecond", recordSecond);
+        return json;
     }
 
     public boolean noSignal() {
@@ -178,76 +165,57 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     @Override
-    public void retrieveRecordList(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
+    public final void retrieveList(Context context, int num, String queryStr, long fromTime, IWebCallback callback) {
         new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_LIST, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if(code == RETURN_CODE_SUCCESS) {
-                    try {
-                        JSONArray jsonArr = (JSONArray) result;
-                        for (int i = 0; i < jsonArr.length(); i++) {
+                JSONArray jsonArr = (JSONArray) result;
+                if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
+                    for (int i = 0; i < jsonArr.length(); i++) {
+                        try {
                             JSONObject json = (JSONObject) jsonArr.get(i);
+                            if(json == null) continue;
                             RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
                             long createTime = json.getLong("createTime");
                             String devAddress = json.getString("devAddress");
                             String creatorPlat = json.getString("creatorPlat");
                             String creatorId = json.getString("creatorId");
                             BasicRecord record = RecordFactory.create(type, createTime, devAddress, new Account(creatorPlat, creatorId, "", "", ""));
-                            if(record != null) {
-                                record.basicFromJson(json);
+                            if (record != null) {
+                                record.basicRecordFromJson(json);
                                 record.setNeedUpload(false);
                                 record.saveIfNotExist("createTime = ? and devAddress = ?", "" + record.getCreateTime(), record.getDevAddress());
                             }
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
                 }
-
-                List<? extends BasicRecord> records = BasicRecord.retrieveRecordsFromLocalDb(RecordType.fromCode(getTypeCode()), MyApplication.getAccount(), fromTime, queryStr, num);
-
-                if(records == null || records.isEmpty()) {
-                    callback.onFinish(RETURN_CODE_SUCCESS, null);
-                } else  {
-                    callback.onFinish(RETURN_CODE_SUCCESS, records);
-                }
+                callback.onFinish(code, result);
             }
         }).execute(this);
     }
 
     @Override
-    public void upload(Context context, IWebCallback callback) {
+    public final void upload(Context context, IWebCallback callback) {
         new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY_ID, new IWebCallback() {
             @Override
             public void onFinish(int code, final Object result) {
                 if (code == RETURN_CODE_SUCCESS) {
-                    int id = (Integer) result;
-                    if (id == INVALID_ID) {
-                        ViseLog.e("uploading");
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new IWebCallback() {
-                            @Override
-                            public void onFinish(int code, Object result) {
-                                if (code == RETURN_CODE_SUCCESS) {
-                                    setNeedUpload(false);
-                                    save();
-                                    result = "上传成功";
-                                }
-                                callback.onFinish(code, result);
+                    IWebCallback cb = new IWebCallback() {
+                        @Override
+                        public void onFinish(int code, Object result) {
+                            if(code == RETURN_CODE_SUCCESS) {
+                                setNeedUpload(false);
+                                save();
                             }
-                        }).execute(BasicRecord.this);
-                    } else {
-                        ViseLog.e("updating note");
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new IWebCallback() {
-                            @Override
-                            public void onFinish(int code, Object result) {
-                                if (code == RETURN_CODE_SUCCESS) {
-                                    setNeedUpload(false);
-                                    save();
-                                    result = "更新成功";
-                                }
-                                callback.onFinish(code, result);
-                            }
-                        }).execute(BasicRecord.this);
+                            callback.onFinish(code, result);
+                        }
+                    };
+                    if ((Integer) result == INVALID_ID) { // upload
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, cb).execute(BasicRecord.this);
+                    } else { // update
+                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE, false, cb).execute(BasicRecord.this);
                     }
                 } else {
                     callback.onFinish(code, result);
@@ -257,31 +225,36 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     @Override
-    public void download(Context context, IWebCallback callback) {
+    public final void download(Context context, IWebCallback callback) {
         new RecordWebAsyncTask(context, RECORD_CMD_DOWNLOAD, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if (code == RETURN_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) result;
-                    ViseLog.e(json);
-                    fromJson(json);
-                    save();
-                    result = "下载成功";
+                    if(json != null) {
+                        try {
+                            fromJson(json);
+                            save();
+                            callback.onFinish(code, result);
+                            return;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
-                callback.onFinish(code, result);
+                callback.onFinish(RETURN_CODE_OTHER_ERR, result);
             }
         }).execute(this);
     }
 
     @Override
-    public void delete(Context context, IWebCallback callback) {
+    public final void delete(Context context, IWebCallback callback) {
         Class<? extends BasicRecord> recordClass = getClass();
         new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == RETURN_CODE_SUCCESS) {
                     LitePal.delete(recordClass, getId());
-                    result = "删除成功";
                 }
                 callback.onFinish(code, result);
             }
@@ -309,7 +282,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
 
-    public static List<? extends BasicRecord> retrieveRecordsFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
+    public static List<? extends BasicRecord> retrieveFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
             for(RecordType t : RecordType.values()) {
@@ -325,16 +298,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         for(RecordType t : types) {
             Class<? extends BasicRecord> recordClass = t.getRecordClass();
             if (recordClass != null) {
-                try {
-                    if(TextUtils.isEmpty(noteFilterStr)) {
-                        records.addAll(LitePal.where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
-                                .order("createTime desc").limit(num).find(recordClass, true));
-                    } else {
-                        records.addAll(LitePal.where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
-                                .order("createTime desc").limit(num).find(recordClass, true));
-                    }
-                } catch (Exception e) {
-                    ViseLog.e(e);
+                if(TextUtils.isEmpty(noteFilterStr)) {
+                    records.addAll(LitePal.where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
+                            .order("createTime desc").limit(num).find(recordClass, true));
+                } else {
+                    records.addAll(LitePal.where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
+                            .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }
         }

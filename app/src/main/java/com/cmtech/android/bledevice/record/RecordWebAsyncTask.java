@@ -40,7 +40,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.*;
  */
 public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
     public static final int RECORD_CMD_UPLOAD = 1; // upload record command
-    public static final int RECORD_CMD_UPDATE_NOTE = 2; // update record note command
+    public static final int RECORD_CMD_UPDATE = 2; // update record info
     public static final int RECORD_CMD_QUERY_ID = 3; // query record command ID
     public static final int RECORD_CMD_DELETE = 4; // delete record command
     public static final int RECORD_CMD_DOWNLOAD_LIST = 5; // download basic record information command
@@ -151,7 +151,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                 break;
 
             // UPDATE NOTE
-            case RECORD_CMD_UPDATE_NOTE:
+            case RECORD_CMD_UPDATE:
                 KMWebServiceUtil.updateRecordNote(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {

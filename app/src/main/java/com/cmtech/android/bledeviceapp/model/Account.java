@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+
 /**
   *
   * ClassName:      Account
@@ -136,12 +136,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
 
     @Override
     public void upload(Context context, IWebCallback callback) {
-        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, new IWebCallback() {
-            @Override
-            public void onFinish(int code, Object result) {
-                callback.onFinish(code, null);
-            }
-        }).execute(this);
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, callback).execute(this);
     }
 
     @Override
@@ -169,7 +164,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     @Override
-    public void retrieveRecordList(Context context, long fromTime, String queryStr, int num, IWebCallback callback) {
+    public void retrieveList(Context context, int num, String queryStr, long fromTime, IWebCallback callback) {
 
     }
 

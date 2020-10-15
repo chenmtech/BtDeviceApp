@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.interfac;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -15,6 +16,6 @@ import org.json.JSONObject;
  * Version:        1.0
  */
 public interface IJsonable {
-    void fromJson(JSONObject json);
-    JSONObject toJson();
+    void fromJson(JSONObject json) throws JSONException;
+    JSONObject toJson() throws JSONException;
 }

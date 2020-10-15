@@ -26,8 +26,8 @@ public interface IWebOperation {
     int RETURN_CODE_DOWNLOAD_ERR = 8;
     int RETURN_CODE_DELETE_ERR = 9;
     int RETURN_CODE_OTHER_ERR = 10;
-    void upload(Context context, IWebCallback callback);
-    void download(Context context, IWebCallback callback);
-    void delete(Context context, IWebCallback callback);
-    void retrieveRecordList(Context context, long fromTime, String queryStr, int num, IWebCallback callback);
+    void upload(Context context, IWebCallback callback); // upload a new record or update the record info
+    void download(Context context, IWebCallback callback); // download the info
+    void delete(Context context, IWebCallback callback); // delete the record
+    void retrieveList(Context context, int num, String queryStr, long fromTime, IWebCallback callback); // retrieve record list according to the conditions
 }

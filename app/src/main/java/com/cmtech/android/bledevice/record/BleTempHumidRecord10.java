@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.record;
 
 import com.cmtech.android.bledeviceapp.model.Account;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.cmtech.android.bledevice.record.RecordType.TH;
@@ -29,14 +30,13 @@ public class BleTempHumidRecord10 extends BasicRecord {
     }
 
     @Override
-    public JSONObject toJson() {
-        return null;
+    public void fromJson(JSONObject json) throws JSONException{
+        super.fromJson(json);
     }
 
     @Override
-    public void fromJson(JSONObject json) {
-        super.fromJson(json);
-        return;
+    public JSONObject toJson() throws JSONException {
+        return null;
     }
 
     @Override

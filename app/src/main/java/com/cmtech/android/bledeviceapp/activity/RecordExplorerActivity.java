@@ -214,18 +214,17 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        record.retrieveRecordList(this, from, noteFilterStr, DOWNLOAD_RECORD_NUM, new IWebCallback() {
+        record.retrieveList(this, DOWNLOAD_RECORD_NUM, noteFilterStr, from, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
-                if(code == RETURN_CODE_SUCCESS) {
-                    if(result == null) {
-                        Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
-                    } else {
-                        List<? extends BasicRecord> records = (List<? extends BasicRecord>) result;
-                        updateTime = records.get(records.size() - 1).getCreateTime();
-                        allRecords.addAll(records);
-                        updateRecordView();
-                    }
+                List<? extends BasicRecord> records = BasicRecord.retrieveFromLocalDb(recordType, MyApplication.getAccount(), from, noteFilterStr, DOWNLOAD_RECORD_NUM);
+
+                if(records == null) {
+                    Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
+                } else {
+                    updateTime = records.get(records.size() - 1).getCreateTime();
+                    allRecords.addAll(records);
+                    updateRecordView();
                 }
             }
         });
@@ -272,9 +271,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
         record.upload(this, new IWebCallback() {
             @Override
             public void onFinish(int code, final Object rlt) {
-                Toast.makeText(RecordExplorerActivity.this, (String) rlt, Toast.LENGTH_SHORT).show();
                 if (code == RETURN_CODE_SUCCESS) {
                     updateRecordView();
+                } else {
+                    Toast.makeText(RecordExplorerActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
                 }
             }
         });

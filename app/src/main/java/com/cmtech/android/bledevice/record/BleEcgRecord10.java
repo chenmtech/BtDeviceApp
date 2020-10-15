@@ -48,7 +48,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     private int sampleRate = 0; // sample rate
     private int caliValue = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
-    private List<Short> ecgData = new ArrayList<>(); // ecg data
+    private final List<Short> ecgData = new ArrayList<>(); // ecg data
     private EcgReport report = new EcgReport();
     @Column(ignore = true)
     private int pos = 0; // current position to the ecgData
@@ -58,41 +58,28 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     }
 
     @Override
-    public JSONObject toJson() {
-        try {
-            JSONObject json = super.toJson();
-            json.put("sampleRate", sampleRate);
-            json.put("caliValue", caliValue);
-            json.put("leadTypeCode", leadTypeCode);
-            StringBuilder builder = new StringBuilder();
-            for(Short ele : ecgData) {
-                builder.append(ele).append(',');
-            }
-            json.put("ecgData", builder.toString());
-            return json;
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-            return null;
+    public void fromJson(JSONObject json) throws JSONException{
+        super.fromJson(json);
+        sampleRate = json.getInt("sampleRate");
+        caliValue = json.getInt("caliValue");
+        leadTypeCode = json.getInt("leadTypeCode");
+
+        ecgData.clear();
+        String ecgDataStr = json.getString("ecgData");
+        String[] strings = ecgDataStr.split(",");
+        for(String str : strings) {
+            ecgData.add(Short.parseShort(str));
         }
     }
 
     @Override
-    public void fromJson(JSONObject json) {
-        try{
-            super.fromJson(json);
-            sampleRate = json.getInt("sampleRate");
-            caliValue = json.getInt("caliValue");
-            leadTypeCode = json.getInt("leadTypeCode");
-            String ecgDataStr = json.getString("ecgData");
-            List<Short> ecgData = new ArrayList<>();
-            String[] strings = ecgDataStr.split(",");
-            for(String str : strings) {
-                ecgData.add(Short.parseShort(str));
-            }
-            this.ecgData = ecgData;
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-        }
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = super.toJson();
+        json.put("sampleRate", sampleRate);
+        json.put("caliValue", caliValue);
+        json.put("leadTypeCode", leadTypeCode);
+        json.put("ecgData", RecordUtil.listToString(ecgData));
+        return json;
     }
 
     @Override
@@ -181,10 +168,10 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
             upload(context, new IWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
-                    if(code == RETURN_CODE_SUCCESS) {
+                    if (code == RETURN_CODE_SUCCESS) {
                         doProcessRequest(context, cmd, callback);
                     } else {
-                        Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, R.string.operation_failure, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
