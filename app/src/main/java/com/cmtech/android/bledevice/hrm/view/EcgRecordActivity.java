@@ -27,6 +27,8 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
     private BleEcgRecord10 record;
     private RecordIntroductionLayout introductionLayout;
+    private RecordNoteLayout noteLayout;
+    private RecordReportLayout reportLayout;
 
     private RollEcgRecordWaveView ecgView; // ecgView
     private TextView tvTotalTimeLength; // 总时长
@@ -34,8 +36,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private SeekBar sbReplay; // 播放条
     private ImageButton ibReplayCtrl; // 转换播放状态
 
-    private RecordNoteLayout noteLayout;
-    private RecordReportLayout reportLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +52,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         }
 
         ViseLog.e(record);
-        if(record.getNote() == null) {
-            record.setNote("");
-            record.save();
-        }
 
         if(record.noSignal()) {
             record.download(this, new IWebCallback() {
@@ -79,12 +75,20 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         introductionLayout = findViewById(R.id.layout_record_intro);
         introductionLayout.redraw(record);
 
+        noteLayout = findViewById(R.id.layout_record_note);
+        noteLayout.setRecord(record);
+
+        reportLayout = findViewById(R.id.layout_record_report);
+        reportLayout.setRecord(record);
+        //reportLayout.updateFromWeb();
+
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
         ecgView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvTotalTimeLength = findViewById(R.id.tv_total_time);
+
         ibReplayCtrl = findViewById(R.id.ib_replay_control);
         ibReplayCtrl.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,6 +100,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                 }
             }
         });
+
         sbReplay = findViewById(R.id.sb_replay);
         sbReplay.setEnabled(false);
         sbReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -117,13 +122,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
         tvTotalTimeLength.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setMax(second);
-
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
-
-        reportLayout = findViewById(R.id.layout_record_report);
-        reportLayout.setRecord(record);
-        reportLayout.updateFromWeb();
 
         ecgView.startShow();
     }

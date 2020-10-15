@@ -49,7 +49,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     private int caliValue = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
     private final List<Short> ecgData = new ArrayList<>(); // ecg data
-    private EcgReport report = new EcgReport();
+    private final EcgReport report = new EcgReport();
     @Column(ignore = true)
     private int pos = 0; // current position to the ecgData
 
@@ -70,6 +70,10 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         for(String str : strings) {
             ecgData.add(Short.parseShort(str));
         }
+
+        if(json.has("report")) {
+            report.fromJson(json.getJSONObject("report"));
+        }
     }
 
     @Override
@@ -79,6 +83,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
         json.put("ecgData", RecordUtil.listToString(ecgData));
+        json.put("report", report.toJson());
         return json;
     }
 

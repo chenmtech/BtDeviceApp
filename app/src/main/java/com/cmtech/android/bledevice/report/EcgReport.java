@@ -16,6 +16,7 @@ import java.util.Locale;
 public class EcgReport extends LitePalSupport implements IJsonable {
     public static final String DEFAULT_VER = "1.0";
     public static final long INVALID_TIME = -1;
+    public static final String DEFAULT_REPORT_CONTENT = "无";
     public static final int DONE = 0;
     public static final int REQUEST = 1;
     public static final int PROCESS = 2;
@@ -23,7 +24,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     private int id;
     private String ver = DEFAULT_VER;
     private long reportTime = INVALID_TIME;
-    private String content = "";
+    private String content = DEFAULT_REPORT_CONTENT;
     private int status = DONE;
 
     public EcgReport() {
@@ -66,30 +67,21 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     }
 
     @Override
-    public void fromJson(JSONObject json) {
-        try {
-            ver = json.getString("ver");
-            reportTime = json.getLong("reportTime");
-            content = json.getString("content");
-            status = json.getInt("status");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void fromJson(JSONObject json) throws JSONException{
+        //ver = json.getString("ver");
+        reportTime = json.getLong("reportTime");
+        content = json.getString("content");
+        status = json.getInt("status");
     }
 
     @Override
-    public JSONObject toJson() {
-        try {
-            JSONObject json = new JSONObject();
-            json.put("ver", ver);
-            json.put("reportTime", reportTime);
-            json.put("content", content);
-            json.put("status", status);
-            return json;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = new JSONObject();
+        json.put("ver", ver);
+        json.put("reportTime", reportTime);
+        json.put("content", content);
+        json.put("status", status);
+        return json;
     }
 
     @NonNull

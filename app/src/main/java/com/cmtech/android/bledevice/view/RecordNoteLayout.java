@@ -14,8 +14,8 @@ import com.cmtech.android.bledeviceapp.R;
 
 public class RecordNoteLayout extends LinearLayout {
     private BasicRecord record;
-    private EditText etNote;
-    private Button btnEdit;
+    private final EditText etNote;
+    private final Button btnEdit;
 
     public RecordNoteLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -52,6 +52,7 @@ public class RecordNoteLayout extends LinearLayout {
         this.record = record;
         if(record != null) {
             etNote.setText(record.getNote());
+            etNote.setEnabled(false);
         }
     }
 }

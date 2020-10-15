@@ -29,6 +29,7 @@ import static com.cmtech.android.bledevice.record.IDiagnosable.CODE_REPORT_PROCE
 import static com.cmtech.android.bledevice.record.IDiagnosable.CODE_REPORT_REQUEST_AGAIN;
 import static com.cmtech.android.bledevice.record.IDiagnosable.CODE_REPORT_SUCCESS;
 import static com.cmtech.android.bledevice.report.EcgReport.DONE;
+import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledevice.report.EcgReport.PROCESS;
 import static com.cmtech.android.bledevice.report.EcgReport.REQUEST;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
@@ -37,11 +38,11 @@ public class RecordReportLayout extends LinearLayout {
     public static final int TITLE_ID = R.string.report_title;
     private BleEcgRecord10 record;
 
-    private TextView tvTime;
-    private EditText etContent;
-    private TextView tvStatus;
-    private Button btnRequest;
-    private Button btnGet;
+    private final TextView tvTime;
+    private final EditText etContent;
+    private final TextView tvStatus;
+    private final Button btnRequest;
+    private final Button btnGet;
 
     public RecordReportLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -152,13 +153,13 @@ public class RecordReportLayout extends LinearLayout {
         }
     }
 
-    public void updateView() {
+    private void updateView() {
         if(record == null || record.getReport() == null) return;
         long time = record.getReport().getReportTime();
-        if(time <= 0) return;
-
-        DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        tvTime.setText(dateFmt.format(time));
+        if(time >= INVALID_TIME) {
+            DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+            tvTime.setText(dateFmt.format(time));
+        }
 
         String statusStr = "未知";
         switch (record.getReport().getStatus()) {
@@ -177,6 +178,5 @@ public class RecordReportLayout extends LinearLayout {
         tvStatus.setText(statusStr);
 
         etContent.setText(record.getReport().getContent());
-
     }
 }
