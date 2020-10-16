@@ -101,7 +101,7 @@ public class KMWebServiceUtil {
         }
     }
 
-    public static void updateRecordNote(String platName, String platId, BasicRecord record, Callback callback) {
+    public static void updateRecord(String platName, String platId, BasicRecord record, Callback callback) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "updateNote");

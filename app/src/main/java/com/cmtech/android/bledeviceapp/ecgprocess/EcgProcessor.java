@@ -59,6 +59,13 @@ public class EcgProcessor {
         return RR;
 	}
 
+	public int getAverageHr() {
+	    List<Double> RR = getRRIntervalInMs();
+	    if(RR == null) return 0;
+        double aveRR = MathUtil.doubleAve(RR);
+        return (int)(60000/aveRR);
+    }
+
 	@SuppressWarnings("unchecked")
 	public void process(List<Short> ecgData, int sampleRate) {
 		if(ecgData == null || ecgData.isEmpty()) {

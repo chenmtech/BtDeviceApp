@@ -14,7 +14,6 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
-import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -173,10 +172,11 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         ecgProc.process(ecgData, sampleRate);
 
         List<Double> RR = ecgProc.getRRIntervalInMs();
+        int aveHr = ecgProc.getAverageHr();
         MyAFEvidence afEvi = new MyAFEvidence();
         afEvi.process(RR);
         report.setReportTime(new Date().getTime());
-        report.setContent("AFEvidence值为：" + afEvi.getAFEvidence());
+        report.setContent("平均心率为：" + aveHr + "bpm, AFEvidence值为：" + afEvi.getAFEvidence());
         report.setStatus(EcgReport.DONE);
         report.save();
         setNeedUpload(true);

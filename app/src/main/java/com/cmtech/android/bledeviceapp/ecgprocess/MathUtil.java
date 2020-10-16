@@ -8,6 +8,16 @@ public class MathUtil {
 	private MathUtil() {
 		
 	}
+
+    //均值
+    public static double doubleAve(List<Double> x) {
+        int m = x.size();
+        double sum = 0;
+        for(Double d : x) {
+            sum += d;
+        }
+        return sum/m;
+    }
 	
 	 //均值
 	 public static float floatAve(List<Float> x) { 

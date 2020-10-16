@@ -150,9 +150,9 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                 });
                 break;
 
-            // UPDATE NOTE
+            // UPDATE
             case RECORD_CMD_UPDATE:
-                KMWebServiceUtil.updateRecordNote(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
+                KMWebServiceUtil.updateRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         done.countDown();
