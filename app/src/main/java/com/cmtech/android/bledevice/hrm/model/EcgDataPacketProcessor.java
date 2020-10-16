@@ -23,26 +23,26 @@ import java.util.concurrent.ThreadFactory;
   * Version:        1.0
  */
 
-public class EcgDataProcessor {
+public class EcgDataPacketProcessor {
     private static final int MAX_PACKET_NUM = 255; // the max packet number
     private static final int INVALID_PACKET_NUM = -1; // invalid packet number
 
     private final HrmDevice device;
     private int nextPackNum = INVALID_PACKET_NUM; // the next packet number wanted to received
-    private final ISignalFilter ecgFilter; // ecg filter
+    private final ISignalFilter preFilter; // ecg filter
     private ExecutorService procService; // ecg data process Service
 
-    public EcgDataProcessor(HrmDevice device) {
+    public EcgDataPacketProcessor(HrmDevice device) {
         if(device == null) {
             throw new NullPointerException("The device is null.");
         }
 
         this.device = device;
-        ecgFilter = new SignalPreFilter(device.getSampleRate());
+        preFilter = new SignalPreFilter(device.getSampleRate());
     }
 
     public void reset() {
-        ecgFilter.design(device.getSampleRate());
+        preFilter.design(device.getSampleRate());
     }
 
     public synchronized void start() {
@@ -67,21 +67,21 @@ public class EcgDataProcessor {
         ExecutorUtil.shutdownNowAndAwaitTerminate(procService);
     }
 
-    public synchronized void takeData(final byte[] data) {
+    public synchronized void takePacket(final byte[] packet) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    processData(data);
+                    processPacket(packet);
                 }
             });
         }
     }
 
-    private void processData(byte[] data) {
-        int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
+    private void processPacket(byte[] packet) {
+        int packageNum = UnsignedUtil.getUnsignedByte(packet[0]);
         if (packageNum == nextPackNum) { // good packet
-            int[] pack = resolveData(data, 1);
+            int[] pack = resolvePacket(packet, 1);
             ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
             nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum + 1;
         } else if (nextPackNum != INVALID_PACKET_NUM) { // bad packet, force disconnect
@@ -92,12 +92,12 @@ public class EcgDataProcessor {
         // invalid packet
     }
 
-    private int[] resolveData(byte[] data, int begin) {
-        int[] pack = new int[(data.length-begin) / 2];
+    private int[] resolvePacket(byte[] packet, int begin) {
+        int[] pack = new int[(packet.length-begin) / 2];
         int j = 0;
-        for (int i = begin; i < data.length; i=i+2, j++) {
-            pack[j] = (short) ((0xff & data[i]) | (0xff00 & (data[i+1] << 8)));
-            int fData = (int) ecgFilter.filter(pack[j]);
+        for (int i = begin; i < packet.length; i=i+2, j++) {
+            pack[j] = (short) ((0xff & packet[i]) | (0xff00 & (packet[i+1] << 8)));
+            int fData = (int) preFilter.filter(pack[j]);
             device.showEcgSignal(fData);
             device.recordEcgSignal(fData);
         }

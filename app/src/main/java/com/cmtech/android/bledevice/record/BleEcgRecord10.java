@@ -8,10 +8,13 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.report.EcgReport;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.ecgprocess.EcgProcessor;
+import com.cmtech.android.bledeviceapp.ecgprocess.afdetector.AFEvidence.MyAFEvidence;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
+import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -166,10 +169,19 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
 
     @Override
     public void requestDiagnose() {
+        EcgProcessor ecgProc = new EcgProcessor();
+        ecgProc.process(ecgData, sampleRate);
+
+        List<Double> RR = ecgProc.getRRIntervalInMs();
+        MyAFEvidence afEvi = new MyAFEvidence();
+        afEvi.process(RR);
         report.setReportTime(new Date().getTime());
-        report.setContent("已经改变");
+        report.setContent("AFEvidence值为：" + afEvi.getAFEvidence());
+        report.setStatus(EcgReport.DONE);
+        report.save();
         setNeedUpload(true);
         save();
+        afEvi.clear();
     }
 
     private void processReport(Context context, int cmd, IWebCallback callback) {
