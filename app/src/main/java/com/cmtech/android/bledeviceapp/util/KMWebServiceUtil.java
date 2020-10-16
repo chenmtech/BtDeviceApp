@@ -100,23 +100,6 @@ public class KMWebServiceUtil {
             e.printStackTrace();
         }
     }
-/*
-    public static void updateRecord(String platName, String platId, BasicRecord record, Callback callback) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("cmd", "updateNote");
-            json.put("platName", platName);
-            json.put("platId", platId);
-            json.put("recordTypeCode", record.getTypeCode());
-            json.put("createTime", record.getCreateTime());
-            json.put("devAddress", record.getDevAddress());
-            json.put("ver", record.getVer());
-            json.put("note", record.getNote());
-            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }*/
 
     public static void downloadRecord(String platName, String platId, BasicRecord record, Callback callback) {
         JSONObject json = new JSONObject();
@@ -153,7 +136,7 @@ public class KMWebServiceUtil {
     public static void downloadRecordList(String platName, String platId, BasicRecord record, long fromTime, int num, String noteSearchStr, Callback callback) {
         JSONObject json = new JSONObject();
         try {
-            json.put("cmd", "downloadBasicInfo");
+            json.put("cmd", "downloadList");
             json.put("platName", platName);
             json.put("platId", platId);
             json.put("recordTypeCode", record.getTypeCode());

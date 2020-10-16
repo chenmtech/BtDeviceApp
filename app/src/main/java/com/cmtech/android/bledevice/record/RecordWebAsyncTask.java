@@ -39,12 +39,11 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.*;
  * Version:        1.0
  */
 public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
-    public static final int RECORD_CMD_UPLOAD = 1; // upload record command
-    public static final int RECORD_CMD_UPDATE = 2; // update record info
-    public static final int RECORD_CMD_QUERY_ID = 3; // query record command ID
+    public static final int RECORD_CMD_QUERY_ID = 1; // query record command ID
+    public static final int RECORD_CMD_UPLOAD = 2; // upload record command
+    public static final int RECORD_CMD_DOWNLOAD = 3; // download record command
     public static final int RECORD_CMD_DELETE = 4; // delete record command
     public static final int RECORD_CMD_DOWNLOAD_LIST = 5; // download basic record information command
-    public static final int RECORD_CMD_DOWNLOAD = 6; // download record command
 
     private static final int WAIT_TASK_FINISH_TIME = 10; // unit: second
     private static final int DEFAULT_DOWNLOAD_NUM = 10;
@@ -150,30 +149,6 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                 });
                 break;
 
-            // UPDATE
-/*            case RECORD_CMD_UPDATE:
-                KMWebServiceUtil.updateRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        done.countDown();
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = Objects.requireNonNull(response.body()).string();
-                        try {
-                            JSONObject json = new JSONObject(respBody);
-                            result[0] = json.getInt("code");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            result[0] = RETURN_CODE_OTHER_ERR;
-                        } finally {
-                            done.countDown();
-                        }
-                    }
-                });
-                break;*/
-
             // DOWNLOAD
             case RECORD_CMD_DOWNLOAD:
                 KMWebServiceUtil.downloadRecord(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, new Callback() {
@@ -225,7 +200,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                 });
                 break;
 
-            // DOWNLOAD BASIC INFO
+            // DOWNLOAD RECORD LIST
             case RECORD_CMD_DOWNLOAD_LIST:
                 int downloadNum = 0;
                 String noteSearchStr = "";
