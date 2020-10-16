@@ -3,26 +3,68 @@ package com.cmtech.android.bledeviceapp.ecgprocess.afdetector.AFEvidence;
 import java.util.List;
 
 public class MyAFEvidence {
-	private static int MIN_MS = -600;
-	private static int MAX_MS = 600;
-	private static int BIN_SIZE = 40;
-	private static int MAX_BIN = (MAX_MS - MIN_MS)/BIN_SIZE-1;
-	
-	private int OriginCount = 0;
-	
-	private MyHistogram hist = new MyHistogram();
+	private static final int MIN_MS = -600;
+	private static final int MAX_MS = 600;
+	private static final int BIN_SIZE = 40;
+	private static final int MAX_BIN = (MAX_MS - MIN_MS)/BIN_SIZE-1;
 
-	public MyAFEvidence() {
-		
-	}
+	private static final int THRESHOLD = 15;
+
+	public static final int NON_AF = 0;
+    public static final int AF = 1;
+    public static final int UNDETERMIN = 2;
+
+	private int classifyResult = UNDETERMIN;
+	private int afe = 0;
+
+    private int OriginCount = 0;
+    private final MyHistogram hist;
+
+    private static MyAFEvidence instance;
+
+    private MyAFEvidence() {
+        hist = new MyHistogram();
+    }
+
+    public static MyAFEvidence getInstance(){
+        if(instance == null){
+            synchronized (MyAFEvidence.class){
+                if(instance == null){
+                    instance = new MyAFEvidence();
+                }
+            }
+        }
+        return instance;
+    }
 	
 	public void process(List<Double> RR) {
-		 for(int i = 1; i < RR.size()-1; i++) {
-         	addPoint(RR.get(i)-RR.get(i-1), RR.get(i+1)-RR.get(i));
-         }
+        if(RR.size() < 10) {
+            afe = 0;
+            classifyResult = UNDETERMIN;
+        } else {
+            for (int i = 1; i < RR.size() - 1; i++) {
+                addPoint(RR.get(i) - RR.get(i - 1), RR.get(i + 1) - RR.get(i));
+            }
+            afe = calculateAFEvidence();
+
+            if (afe >= THRESHOLD) {
+                classifyResult = AF;
+            } else {
+                classifyResult = NON_AF;
+            }
+        }
+        clear();
 	}
+
+	public int getAFEvidence() {
+        return afe;
+    }
+
+	public int getClassifyResult() {
+        return classifyResult;
+    }
 	
-	public void clear() {
+	private void clear() {
 		OriginCount = 0;
 		hist.clear();
 	}
@@ -60,18 +102,8 @@ public class MyAFEvidence {
 		
 	}
 	
-	public int getAFEvidence() {
-		System.out.println("Irreg:" + hist.getIrregularityEvidence() + "Origin:" + OriginCount + "PACE:" + hist.getPACEvidence());
+	private int calculateAFEvidence() {
 		return hist.getIrregularityEvidence() - OriginCount -2*hist.getPACEvidence();
-	}
-	
-	public void printHistogram() {
-		for(int i = 0; i <= 29; i++) {
-			for(int j = 0; j <= 29; j++) {
-				System.out.printf("%7s", hist.getBelongSegLabel(i, j));
-			}
-			System.out.println();
-		}
 	}
 	
 	private boolean isOutLier(double xMs, double yMs) {

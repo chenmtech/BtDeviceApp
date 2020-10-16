@@ -34,6 +34,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.ecgprocess.afdetector.AFEvidence.MyAFEvidence.NON_AF;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -170,18 +171,31 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     public void requestDiagnose() {
         EcgProcessor ecgProc = new EcgProcessor();
         ecgProc.process(ecgData, sampleRate);
+        int aveHr = ecgProc.getAverageHr();
 
         List<Double> RR = ecgProc.getRRIntervalInMs();
-        int aveHr = ecgProc.getAverageHr();
-        MyAFEvidence afEvi = new MyAFEvidence();
+        MyAFEvidence afEvi = MyAFEvidence.getInstance();
         afEvi.process(RR);
+        int afe = afEvi.getAFEvidence();
+        int classify = afEvi.getClassifyResult();
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("平均心率为：").append(aveHr).append("\n");
+        builder.append("房颤变异值：").append(afe).append("\n");
+        if(classify == MyAFEvidence.AF) {
+            builder.append("*您的心跳节律不规则，具有房颤风险。如有心脏不适症状，请及时就医。");
+        } else if(classify == NON_AF){
+            builder.append("未发现房颤异常。");
+        } else {
+            builder.append("由于信号质量较差，无法判断是否有房颤。");
+        }
+
         report.setReportTime(new Date().getTime());
-        report.setContent("平均心率为：" + aveHr + "bpm, AFEvidence值为：" + afEvi.getAFEvidence());
+        report.setContent(builder.toString());
         report.setStatus(EcgReport.DONE);
         report.save();
         setNeedUpload(true);
         save();
-        afEvi.clear();
     }
 
     private void processReport(Context context, int cmd, IWebCallback callback) {
