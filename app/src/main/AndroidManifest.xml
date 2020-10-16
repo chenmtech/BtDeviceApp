@@ -120,6 +120,8 @@
             android:name="com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity"
             android:label="配置心电带设备"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
+        <activity
+            android:name="com.mob.tools.MobUIShell" />
     </application>
 
 </manifest>

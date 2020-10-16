@@ -8,7 +8,7 @@ import com.cmtech.android.bledevice.ecg.process.signal.calibrator.EcgCalibrator6
 import com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecg.process.signal.filter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecg.process.signal.filter.IEcgFilter;
-import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
+import com.cmtech.android.bledeviceapp.ecgprocess.qrsdetbyhamilton.QrsDetector;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +54,7 @@ public class EcgSignalProcessor {
             ecgCalibrator = null;
             ecgFilter = null;
         }
-        qrsDetector = new QrsDetector(this.device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+        qrsDetector = new QrsDetector(this.device.getSampleRate());
 
         hrProcessorMap = new ConcurrentHashMap<>();
         HrStatisticProcessor hrStatisticProcessor = new HrStatisticProcessor(HR_FILTER_SECOND, this.device);
@@ -71,7 +71,7 @@ public class EcgSignalProcessor {
             ecgCalibrator.reset(device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         if(ecgFilter != null)
             ecgFilter.reset(device.getSampleRate());
-        qrsDetector = new QrsDetector(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+        qrsDetector = new QrsDetector(device.getSampleRate());
         resetHrAbnormalProcessor();
     }
 

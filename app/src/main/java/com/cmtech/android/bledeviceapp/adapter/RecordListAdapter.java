@@ -22,6 +22,7 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.FastClickUtil;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
@@ -186,7 +187,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     public void notifySelectedItemChanged() {
         if(position == INVALID_POS) return;
         BasicRecord record = records.get(position);
-        records.set(position, LitePal.find(record.getClass(), record.getId()));
+        records.set(position, LitePal.find(record.getClass(), record.getId(), true));
         notifyItemChanged(position);
     }
 }

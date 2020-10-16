@@ -43,8 +43,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         setContentView(R.layout.activity_record_ecg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
+        record = LitePal.find(BleEcgRecord10.class, recordId, true);
 
-        record = LitePal.where("id = ?", ""+recordId).findFirst(BleEcgRecord10.class, true);
         if(record == null) {
             Toast.makeText(EcgRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
             setResult(RESULT_CANCELED);
