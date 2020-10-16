@@ -8,7 +8,6 @@ import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.vise.log.ViseLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -198,28 +197,14 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     @Override
     public final void upload(Context context, IWebCallback callback) {
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_QUERY_ID, new IWebCallback() {
+        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, new IWebCallback() {
             @Override
-            public void onFinish(int code, final Object result) {
-                if (code == RETURN_CODE_SUCCESS) {
-                    IWebCallback cb = new IWebCallback() {
-                        @Override
-                        public void onFinish(int code, Object result) {
-                            if(code == RETURN_CODE_SUCCESS) {
-                                setNeedUpload(false);
-                                save();
-                            }
-                            callback.onFinish(code, result);
-                        }
-                    };
-                    if ((Integer) result == INVALID_ID) { // upload
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, cb).execute(BasicRecord.this);
-                    } else { // update
-                        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPDATE, false, cb).execute(BasicRecord.this);
-                    }
-                } else {
-                    callback.onFinish(code, result);
+            public void onFinish(int code, Object result) {
+                if(code == RETURN_CODE_SUCCESS) {
+                    setNeedUpload(false);
+                    save();
                 }
+                callback.onFinish(code, result);
             }
         }).execute(this);
     }
@@ -235,14 +220,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                         try {
                             fromJson(json);
                             save();
-                            callback.onFinish(code, result);
-                            return;
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            code = RETURN_CODE_OTHER_ERR;
                         }
                     }
                 }
-                callback.onFinish(RETURN_CODE_OTHER_ERR, result);
+                callback.onFinish(code, result);
             }
         }).execute(this);
     }

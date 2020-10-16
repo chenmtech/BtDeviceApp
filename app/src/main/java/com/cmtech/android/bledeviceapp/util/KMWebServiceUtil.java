@@ -100,7 +100,7 @@ public class KMWebServiceUtil {
             e.printStackTrace();
         }
     }
-
+/*
     public static void updateRecord(String platName, String platId, BasicRecord record, Callback callback) {
         JSONObject json = new JSONObject();
         try {
@@ -116,7 +116,7 @@ public class KMWebServiceUtil {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     public static void downloadRecord(String platName, String platId, BasicRecord record, Callback callback) {
         JSONObject json = new JSONObject();
