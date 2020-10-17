@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <EditText
-            android:id="@+id/et_report_content"
+            android:id="@+id/tv_report_content"
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_weight="1"

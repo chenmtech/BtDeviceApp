@@ -180,7 +180,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         int classify = afEvi.getClassifyResult();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("平均心率为：").append(aveHr).append("\n");
         builder.append("房颤变异值：").append(afe).append("\n");
         if(classify == MyAFEvidence.AF) {
             builder.append("*您的心跳节律不规则，具有房颤风险。如有心脏不适症状，请及时就医。");
@@ -193,6 +192,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         report.setReportTime(new Date().getTime());
         report.setContent(builder.toString());
         report.setStatus(EcgReport.DONE);
+        report.setAveHr(aveHr);
         report.save();
         setNeedUpload(true);
         save();

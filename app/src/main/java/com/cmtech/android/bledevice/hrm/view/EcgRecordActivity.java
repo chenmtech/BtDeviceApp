@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.hrm.view;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -35,6 +36,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
     private ImageButton ibReplayCtrl; // 转换播放状态
+
+    private Button btnOutputPdf;
 
 
     @Override
@@ -122,6 +125,14 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
         tvTotalTimeLength.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setMax(second);
+
+        btnOutputPdf = findViewById(R.id.btn_output_pdf);
+        btnOutputPdf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         ecgView.startShow();
     }

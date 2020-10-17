@@ -13,6 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.INVALID_HR;
+
 public class EcgReport extends LitePalSupport implements IJsonable {
     public static final String DEFAULT_VER = "1.0";
     public static final long INVALID_TIME = -1;
@@ -26,6 +28,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     private long reportTime = INVALID_TIME;
     private String content = DEFAULT_REPORT_CONTENT;
     private int status = DONE;
+    private int aveHr = INVALID_HR;
 
     public EcgReport() {
     }
@@ -66,12 +69,22 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         this.status = status;
     }
 
+    public int getAveHr() {
+        return aveHr;
+    }
+
+    public void setAveHr(int aveHr) {
+        this.aveHr = aveHr;
+    }
+
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         //ver = json.getString("ver");
         reportTime = json.getLong("reportTime");
         content = json.getString("content");
         status = json.getInt("status");
+        if(json.has("aveHr"))
+            aveHr = json.getInt("aveHr");
     }
 
     @Override
@@ -81,6 +94,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         json.put("reportTime", reportTime);
         json.put("content", content);
         json.put("status", status);
+        json.put("aveHr", aveHr);
         return json;
     }
 
@@ -103,6 +117,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
                 break;
         }
         return "时间：" + dateFmt.format(new Date(reportTime))
+                + "\n平均心率：" + aveHr
                 + "\n内容：" + content
                 + "\n状态：" + statusStr;
     }

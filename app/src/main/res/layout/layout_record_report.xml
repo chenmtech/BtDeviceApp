@@ -41,18 +41,20 @@
             android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
-    <EditText
-        android:id="@+id/et_report_content"
+    <TextView
+        android:id="@+id/tv_report_ave_hr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        android:minHeight="100dp"
-        android:background="@drawable/edit_background"
-        android:ems="10"
         android:gravity="start|top"
-        android:inputType="textMultiLine"
-        android:editable="false"
-        android:enabled="false"
+        android:text=""
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/tv_report_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start|top"
+        android:textColor="@color/red"
         android:text="暂无报告"/>
 
     <LinearLayout
@@ -66,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/primary"
-            android:text="重新诊断"/>
+            android:text="刷新"/>
     </LinearLayout>
 
 </LinearLayout>
