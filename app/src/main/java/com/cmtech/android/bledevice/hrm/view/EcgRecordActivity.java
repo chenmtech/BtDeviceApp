@@ -1,7 +1,11 @@
 package com.cmtech.android.bledevice.hrm.view;
 
+import android.graphics.Canvas;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -21,6 +25,12 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
@@ -130,11 +140,39 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnOutputPdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                outputPdf();
 
             }
         });
 
         ecgView.startShow();
+    }
+
+    private void outputPdf() {
+        View view = ecgView;
+        PdfDocument doc = new PdfDocument();
+        PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
+                (view.getWidth()), (view.getHeight()), 1)
+                .create();
+
+
+        PdfDocument.Page page = doc.startPage(pageInfo);
+
+        view.draw(page.getCanvas());
+        doc.finishPage(page);
+
+        //保存文件
+        //设置路径
+        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        try {
+            File uploadFile = new File(file.getAbsolutePath(),"测试.pdf");
+            doc.writeTo(new FileOutputStream(uploadFile));
+            ViseLog.d("生成pdf", "成功");
+        } catch (IOException e) {
+            Log.d("生成pdf", "失败");
+            e.printStackTrace();
+        }
+        doc.close();
     }
 
     @Override
