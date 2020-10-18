@@ -107,4 +107,10 @@
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 
+    <com.cmtech.android.bledevice.view.EcgReportPdfLayout
+        android:id="@+id/layout_ecg_report_pdf"
+        android:layout_width="1000dp"
+        android:layout_height="1000dp"
+        android:visibility="invisible"/>
+
 </LinearLayout>

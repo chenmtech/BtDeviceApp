@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledevice.view.EcgReportPdfLayout;
 import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RecordReportLayout;
@@ -151,12 +152,16 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void outputPdf() {
-        LinearLayout layout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.layout_record_report, null);
-        layout.setLayoutParams(new LinearLayout.LayoutParams(500,500));
-        //layout.setRecord(record);
+        EcgReportPdfLayout layout = findViewById(R.id.layout_ecg_report_pdf);
+        layout.setRecord(record);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         PdfDocument doc = new PdfDocument();
         PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
-                (layout.getWidth()), (layout.getHeight()), 1)
+                (layout.getWidth()), (layout.getHeight()   ), 1)
                 .create();
 
         PdfDocument.Page page = doc.startPage(pageInfo);
@@ -170,9 +175,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         try {
             File uploadFile = new File(file.getAbsolutePath(),"测试.pdf");
             doc.writeTo(new FileOutputStream(uploadFile));
-            ViseLog.d("生成pdf", "成功");
+            ViseLog.e("生成pdf成功");
         } catch (IOException e) {
-            Log.d("生成pdf", "失败");
+            ViseLog.e("生成pdf失败");
             e.printStackTrace();
         }
         doc.close();
