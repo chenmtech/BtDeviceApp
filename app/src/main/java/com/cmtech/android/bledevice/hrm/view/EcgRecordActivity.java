@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -149,16 +151,17 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void outputPdf() {
-        View view = ecgView;
+        LinearLayout layout = (LinearLayout) LayoutInflater.from(this).inflate(R.layout.layout_record_report, null);
+        layout.setLayoutParams(new LinearLayout.LayoutParams(500,500));
+        //layout.setRecord(record);
         PdfDocument doc = new PdfDocument();
         PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
-                (view.getWidth()), (view.getHeight()), 1)
+                (layout.getWidth()), (layout.getHeight()), 1)
                 .create();
-
 
         PdfDocument.Page page = doc.startPage(pageInfo);
 
-        view.draw(page.getCanvas());
+        layout.draw(page.getCanvas());
         doc.finishPage(page);
 
         //保存文件

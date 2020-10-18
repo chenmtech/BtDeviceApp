@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        Platform plat = ShareSDK.getPlatform(QQ.NAME);
+        /*Platform plat = ShareSDK.getPlatform(QQ.NAME);
         if(plat.isAuthValid()) {
             loginUsingQQorWechat(plat);
             return;
@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
         if(plat.isAuthValid()) {
             loginUsingQQorWechat(plat);
             return;
-        }
+        }*/
 
         qqLogin = findViewById(R.id.ib_qq_login);
         qqLogin.setOnClickListener(new View.OnClickListener() {
