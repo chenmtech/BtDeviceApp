@@ -28,6 +28,7 @@ import com.vise.log.ViseLog;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
@@ -159,6 +160,10 @@ public class ScanWaveView extends View {
         gestureDetector.setIsLongpressEnabled(false);
     }
 
+    public int getxPixelPerData() {
+        return xPixelPerData;
+    }
+
     // 设置分辨率
     public void setResolution(int xPixelPerData, float yValuePerPixel)
     {
@@ -259,7 +264,20 @@ public class ScanWaveView extends View {
     public void stop() {
         ViseLog.e("停止ScanWaveView");
 
-        ExecutorUtil.shutdownNowAndAwaitTerminate(showService);
+        //ExecutorUtil.shutdownNowAndAwaitTerminate(showService);
+        if (showService != null && !showService.isTerminated()) {
+            showService.shutdown();
+
+            try {
+                while (!showService.awaitTermination(1, TimeUnit.SECONDS)) {
+                    ViseLog.e("The thread pool is not terminated. Wait again");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                showService.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**

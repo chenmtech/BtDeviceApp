@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,10 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
-import static com.cmtech.android.bledevice.report.EcgReport.DONE;
 import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
-import static com.cmtech.android.bledevice.report.EcgReport.PROCESS;
-import static com.cmtech.android.bledevice.report.EcgReport.REQUEST;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -37,21 +33,25 @@ import static com.cmtech.android.bledevice.report.EcgReport.REQUEST;
 public class EcgReportPdfLayout extends LinearLayout {
     private BleEcgRecord10 record;
 
-    private final TextView tvTime;
-    private final TextView tvContent;
-    private final TextView tvStatus;
+    private final ScanEcgView ecgView1; // ecgView
+    private final ScanEcgView ecgView2; // ecgView
+    private final ScanEcgView ecgView3; // ecgView
+    private TextView tvTime;
+    private TextView tvContent;
     private final TextView tvAveHr;
-    private ScanEcgView ecgView; // ecgView
+    private final TextView tvNote;
 
     public EcgReportPdfLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_ecg_report_pdf, this);
 
-        tvContent = view.findViewById(R.id.tv_report_content);
-        tvTime = view.findViewById(R.id.tv_report_time);
-        tvStatus = view.findViewById(R.id.tv_report_status);
+        tvContent = findViewById(R.id.tv_report_content);
+        tvTime = findViewById(R.id.tv_report_time);
+        tvNote = view.findViewById(R.id.tv_note);
         tvAveHr = view.findViewById(R.id.tv_report_ave_hr);
-        ecgView = findViewById(R.id.roll_ecg_view);
+        ecgView1 = findViewById(R.id.roll_ecg_view1);
+        ecgView2 = findViewById(R.id.roll_ecg_view2);
+        ecgView3 = findViewById(R.id.roll_ecg_view3);
 
     }
 
@@ -63,38 +63,40 @@ public class EcgReportPdfLayout extends LinearLayout {
     private void updateView() {
         if(record == null || record.getReport() == null) return;
 
-        ecgView.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
-        ecgView.start();
-        ecgView.initialize();
+        ecgView1.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView1.start();
+        ecgView1.initialize();
         List<Short> ecgData = record.getEcgData();
-        for(Short d : ecgData) {
-            ecgView.showData(d);
+        int dataNum = ecgView1.getWidth()/ ecgView1.getxPixelPerData();
+        for(int i = 0; i < dataNum; i++) {
+            ecgView1.showData(ecgData.get(i));
         }
+        ecgView1.stop();
+        ecgView2.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView2.start();
+        ecgView2.initialize();
+        for(int i = dataNum; i < 2*dataNum; i++) {
+            ecgView2.showData(ecgData.get(i));
+        }
+        ecgView2.stop();
+        ecgView3.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView3.start();
+        ecgView3.initialize();
+        int minL = Math.min(3*dataNum, ecgData.size());
+        for(int i = 2*dataNum; i < minL; i++) {
+            ecgView3.showData(ecgData.get(i));
+        }
+        ecgView3.stop();
 
         long time = record.getReport().getReportTime();
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             tvTime.setText(dateFmt.format(time));
-
-            String statusStr = "未知";
-            switch (record.getReport().getStatus()) {
-                case DONE:
-                    statusStr = "已诊断";
-                    break;
-                case REQUEST:
-                    statusStr = "等待处理";
-                    break;
-                case PROCESS:
-                    statusStr = "正在处理";
-                    break;
-                default:
-                    break;
-            }
-            tvStatus.setText(statusStr);
-
             tvContent.setText(record.getReport().getContent());
 
             tvAveHr.setText("平均心率为：" + record.getReport().getAveHr() + "bpm");
+
+            tvNote.setText(record.getNote());
         } else {
 
         }

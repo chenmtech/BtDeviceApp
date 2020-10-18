@@ -13,10 +13,37 @@
         android:textSize="50sp"
         android:textColor="@color/secondary"/>
 
-    <com.cmtech.android.bledevice.view.ScanEcgView
-        android:id="@+id/roll_ecg_view"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="1dp"
+        android:layout_margin="6dp"
+        android:background="@color/primary_dark"/>
+
+    <com.cmtech.android.bledevice.view.ScanEcgView
+        android:id="@+id/roll_ecg_view1"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="center_horizontal"
+        cmtech:background_color="#fff"
+        cmtech:grid_color="#f00"
+        cmtech:wave_color="#000"
+        cmtech:show_gridline="true"/>
+
+    <com.cmtech.android.bledevice.view.ScanEcgView
+        android:id="@+id/roll_ecg_view2"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="center_horizontal"
+        cmtech:background_color="#fff"
+        cmtech:grid_color="#f00"
+        cmtech:wave_color="#000"
+        cmtech:show_gridline="true"/>
+
+    <com.cmtech.android.bledevice.view.ScanEcgView
+        android:id="@+id/roll_ecg_view3"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_gravity="center_horizontal"
         cmtech:background_color="#fff"
         cmtech:grid_color="#f00"
         cmtech:wave_color="#000"
@@ -28,12 +55,6 @@
         android:layout_margin="6dp"
         android:background="@color/primary_dark"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="诊断结果："
-        android:textColor="@color/secondary"/>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -42,28 +63,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:text="时间："/>
+            android:text="诊断时间："/>
 
         <TextView
             android:id="@+id/tv_report_time"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/time"
             android:text="  "/>
-
-        <TextView
-            android:id="@+id/tv_report_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="  "
-            android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
     <TextView
         android:id="@+id/tv_report_ave_hr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="start|top"
         android:text=""
         android:textSize="20sp"/>
 
@@ -71,7 +84,7 @@
         android:id="@+id/tv_report_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="start|top"
+        android:minLines="3"
         android:textColor="@color/red"
         android:text="暂无报告"/>
 
@@ -87,15 +100,11 @@
         android:text="备注："
         android:textColor="@color/secondary"/>
 
-    <EditText
-        android:id="@+id/et_note"
+    <TextView
+        android:id="@+id/tv_note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        android:background="@drawable/edit_background"
-        android:ems="10"
-        android:gravity="start|top"
-        android:inputType="textMultiLine"
-        android:enabled="false"/>
+        android:minLines="3"
+        android:layout_margin="6dp"/>
 
 </LinearLayout>
