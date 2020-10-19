@@ -1,16 +1,12 @@
 package com.cmtech.android.bledevice.hrm.view;
 
-import android.graphics.Canvas;
 import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,8 +28,6 @@ import org.litepal.LitePal;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
@@ -43,6 +37,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private RecordIntroductionLayout introductionLayout;
     private RecordNoteLayout noteLayout;
     private RecordReportLayout reportLayout;
+    private EcgReportPdfLayout reportPdfLayout;
 
     private RollEcgRecordWaveView ecgView; // ecgView
     private TextView tvTotalTimeLength; // 总时长
@@ -98,6 +93,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         reportLayout.setRecord(record);
         //reportLayout.updateFromWeb();
 
+        reportPdfLayout = findViewById(R.id.layout_ecg_report_pdf);
+
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
         ecgView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
@@ -152,21 +149,15 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void outputPdf() {
-        EcgReportPdfLayout layout = findViewById(R.id.layout_ecg_report_pdf);
-        layout.setRecord(record);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        reportPdfLayout.setRecord(record);
         PdfDocument doc = new PdfDocument();
         PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
-                (layout.getWidth()), (layout.getHeight()   ), 1)
+                (reportPdfLayout.getWidth()), (reportPdfLayout.getHeight()   ), 1)
                 .create();
 
         PdfDocument.Page page = doc.startPage(pageInfo);
 
-        layout.draw(page.getCanvas());
+        reportPdfLayout.draw(page.getCanvas());
         doc.finishPage(page);
 
         //保存文件

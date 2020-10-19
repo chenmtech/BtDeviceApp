@@ -8,7 +8,7 @@ public class MyAFEvidence {
 	private static final int BIN_SIZE = 40;
 	private static final int MAX_BIN = (MAX_MS - MIN_MS)/BIN_SIZE-1;
 
-	private static final int THRESHOLD = 15;
+	private static final int THRESHOLD = 10;
 
 	public static final int NON_AF = 0;
     public static final int AF = 1;

@@ -45,23 +45,18 @@ public class EcgReportPdfLayout extends LinearLayout {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_ecg_report_pdf, this);
 
-        tvContent = findViewById(R.id.tv_report_content);
-        tvTime = findViewById(R.id.tv_report_time);
+        tvContent = view.findViewById(R.id.tv_report_content);
+        tvTime = view.findViewById(R.id.tv_report_time);
         tvNote = view.findViewById(R.id.tv_note);
-        tvAveHr = view.findViewById(R.id.tv_report_ave_hr);
-        ecgView1 = findViewById(R.id.roll_ecg_view1);
-        ecgView2 = findViewById(R.id.roll_ecg_view2);
-        ecgView3 = findViewById(R.id.roll_ecg_view3);
-
+        tvAveHr= view.findViewById(R.id.tv_report_ave_hr);
+        ecgView1 = view.findViewById(R.id.roll_ecg_view1);
+        ecgView2 = view.findViewById(R.id.roll_ecg_view2);
+        ecgView3 = view.findViewById(R.id.roll_ecg_view3);
     }
 
     public void setRecord(BleEcgRecord10 record) {
+        if(record == null) return;
         this.record = record;
-        updateView();
-    }
-
-    private void updateView() {
-        if(record == null || record.getReport() == null) return;
 
         ecgView1.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
         ecgView1.start();
@@ -72,33 +67,39 @@ public class EcgReportPdfLayout extends LinearLayout {
             ecgView1.showData(ecgData.get(i));
         }
         ecgView1.stop();
-        ecgView2.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
-        ecgView2.start();
-        ecgView2.initialize();
-        for(int i = dataNum; i < 2*dataNum; i++) {
-            ecgView2.showData(ecgData.get(i));
+
+        if(ecgData.size() >= dataNum) {
+            ecgView2.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+            ecgView2.start();
+            ecgView2.initialize();
+            int minL = Math.min(2 * dataNum, ecgData.size());
+            for (int i = dataNum; i < minL; i++) {
+                ecgView2.showData(ecgData.get(i));
+            }
+            ecgView2.stop();
         }
-        ecgView2.stop();
-        ecgView3.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
-        ecgView3.start();
-        ecgView3.initialize();
-        int minL = Math.min(3*dataNum, ecgData.size());
-        for(int i = 2*dataNum; i < minL; i++) {
-            ecgView3.showData(ecgData.get(i));
+
+        if(ecgData.size() >= 2*dataNum) {
+            ecgView3.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+            ecgView3.start();
+            ecgView3.initialize();
+            int minL = Math.min(3 * dataNum, ecgData.size());
+            for (int i = 2 * dataNum; i < minL; i++) {
+                ecgView3.showData(ecgData.get(i));
+            }
+            ecgView3.stop();
         }
-        ecgView3.stop();
 
         long time = record.getReport().getReportTime();
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             tvTime.setText(dateFmt.format(time));
             tvContent.setText(record.getReport().getContent());
-
-            tvAveHr.setText("平均心率为：" + record.getReport().getAveHr() + "bpm");
-
+            tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
             tvNote.setText(record.getNote());
         } else {
 
         }
+        //requestLayout();
     }
 }

@@ -12,6 +12,25 @@
         android:text="康明心电图报告"
         android:textSize="50sp"
         android:textColor="@color/secondary"/>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="诊断时间："
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/tv_report_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="  "
+            android:textSize="20sp"/>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
@@ -55,56 +74,67 @@
         android:layout_margin="6dp"
         android:background="@color/primary_dark"/>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <TextView
-            android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:text="诊断时间："/>
+            android:text="平均心率："
+            android:textSize="20sp"/>
 
         <TextView
-            android:id="@+id/tv_report_time"
+            android:id="@+id/tv_report_ave_hr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="    "
+            android:textSize="20sp"/>
+        
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/time"
-            android:text="  "/>
-    </RelativeLayout>
+            android:text="次/分钟"
+            android:textSize="20sp"/>
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_report_ave_hr"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="20sp"/>
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="诊断结果："
+            android:textSize="20sp"/>
 
-    <TextView
-        android:id="@+id/tv_report_content"
+        <TextView
+            android:id="@+id/tv_report_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="3"
+            android:textColor="@color/red"
+            android:text="暂无"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minLines="3"
-        android:textColor="@color/red"
-        android:text="暂无报告"/>
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="备注："
+            android:textSize="20sp"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_margin="6dp"
-        android:background="@color/primary_dark"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="备注："
-        android:textColor="@color/secondary"/>
-
-    <TextView
-        android:id="@+id/tv_note"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minLines="3"
-        android:layout_margin="6dp"/>
+        <TextView
+            android:id="@+id/tv_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="3"
+            android:textSize="20sp"/>
+    </LinearLayout>
 
 </LinearLayout>
