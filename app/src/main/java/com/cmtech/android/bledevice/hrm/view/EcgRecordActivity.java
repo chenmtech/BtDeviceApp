@@ -150,6 +150,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private void outputPdf() {
         reportPdfLayout.setRecord(record);
+        reportPdfLayout.create();
         PdfDocument doc = new PdfDocument();
         PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
                 (reportPdfLayout.getWidth()), (reportPdfLayout.getHeight()   ), 1)
@@ -160,15 +161,13 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         reportPdfLayout.draw(page.getCanvas());
         doc.finishPage(page);
 
-        //保存文件
-        //设置路径
         File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         try {
             File uploadFile = new File(file.getAbsolutePath(),"测试.pdf");
             doc.writeTo(new FileOutputStream(uploadFile));
-            ViseLog.e("生成pdf成功");
+            Toast.makeText(this, "已生成PDF文件", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
-            ViseLog.e("生成pdf失败");
+            Toast.makeText(this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
         doc.close();

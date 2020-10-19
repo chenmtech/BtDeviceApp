@@ -180,13 +180,13 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         int classify = afEvi.getClassifyResult();
 
         StringBuilder builder = new StringBuilder();
-        builder.append("房颤变异值：").append(afe).append("\n");
+        builder.append("心率变异值：").append(afe).append("。");
         if(classify == MyAFEvidence.AF) {
-            builder.append("*您的心跳节律不规则，具有房颤风险。如有心脏不适症状，请及时就医。");
+            builder.append("*您的心律不规则性较大，提示注意房颤风险。如有心脏不适，请及时就医。");
         } else if(classify == NON_AF){
-            builder.append("未发现房颤异常。");
+            builder.append("未发现房颤风险。");
         } else {
-            builder.append("由于信号质量较差，无法判断是否有房颤。");
+            builder.append("由于信号质量原因，无法判断是否有房颤。");
         }
 
         report.setReportTime(new Date().getTime());

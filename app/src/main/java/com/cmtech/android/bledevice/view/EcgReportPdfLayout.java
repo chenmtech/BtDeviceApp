@@ -36,7 +36,9 @@ public class EcgReportPdfLayout extends LinearLayout {
     private final ScanEcgView ecgView1; // ecgView
     private final ScanEcgView ecgView2; // ecgView
     private final ScanEcgView ecgView3; // ecgView
-    private TextView tvTime;
+    private TextView tvRecordPerson;
+    private TextView tvRecordTime;
+    private TextView tvReportTime;
     private TextView tvContent;
     private final TextView tvAveHr;
     private final TextView tvNote;
@@ -45,8 +47,10 @@ public class EcgReportPdfLayout extends LinearLayout {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_ecg_report_pdf, this);
 
+        tvRecordPerson = view.findViewById(R.id.tv_record_person);
+        tvRecordTime = view.findViewById(R.id.tv_record_time);
         tvContent = view.findViewById(R.id.tv_report_content);
-        tvTime = view.findViewById(R.id.tv_report_time);
+        tvReportTime = view.findViewById(R.id.tv_report_time);
         tvNote = view.findViewById(R.id.tv_note);
         tvAveHr= view.findViewById(R.id.tv_report_ave_hr);
         ecgView1 = view.findViewById(R.id.roll_ecg_view1);
@@ -55,8 +59,18 @@ public class EcgReportPdfLayout extends LinearLayout {
     }
 
     public void setRecord(BleEcgRecord10 record) {
-        if(record == null) return;
         this.record = record;
+    }
+
+    public void create() {
+        if(record == null) return;
+
+        DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        tvRecordPerson.setText(record.getCreatorName());
+        long endTime = record.getCreateTime();
+        long beginTime = endTime-record.getRecordSecond()*1000;
+        tvRecordTime.setText(String.format("%s-%s", dateFmt.format(beginTime), dateFmt.format(endTime)));
 
         ecgView1.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
         ecgView1.start();
@@ -92,8 +106,7 @@ public class EcgReportPdfLayout extends LinearLayout {
 
         long time = record.getReport().getReportTime();
         if(time > INVALID_TIME) {
-            DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-            tvTime.setText(dateFmt.format(time));
+            tvReportTime.setText(dateFmt.format(time));
             tvContent.setText(record.getReport().getContent());
             tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
             tvNote.setText(record.getNote());
