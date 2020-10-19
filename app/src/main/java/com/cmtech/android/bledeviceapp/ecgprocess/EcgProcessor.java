@@ -84,6 +84,10 @@ public class EcgProcessor {
 		
 		// detect the QRS waves and RR interval
 		Map<String, Object> qrsAndRRInterval = getQrsPosAndRRInterval(ecgData, sampleRate);
+
+		if(qrsAndRRInterval == null || qrsAndRRInterval.size() < 6) {
+		    return;
+        }
 		
 		// detect the R wave position and the begin pos of each beat
 		Map<String, Object> rPosAndBeatBegin = getRPosAndBeatBegin(ecgData, qrsAndRRInterval);
@@ -172,7 +176,10 @@ public class EcgProcessor {
 		
 		List<Long> qrsPos = detector.getQrsPositions();
 		List<Integer> rrInterval = detector.getRrIntervals();
-		
+
+		if(qrsPos.size() < 6)
+		    return null;
+
 		qrsPos.remove(0);
 		rrInterval.remove(0);
 		for(int i = 0; i < qrsPos.size(); i++) {

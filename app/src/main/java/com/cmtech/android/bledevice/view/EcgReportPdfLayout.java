@@ -1,6 +1,8 @@
 package com.cmtech.android.bledevice.view;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -62,7 +65,7 @@ public class EcgReportPdfLayout extends LinearLayout {
         this.record = record;
     }
 
-    public void create() {
+    public void output(IPdfOutputCallback callback) {
         if(record == null) return;
 
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -82,37 +85,74 @@ public class EcgReportPdfLayout extends LinearLayout {
 
         }
 
-        ecgView1.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
-        ecgView1.start();
-        ecgView1.initialize();
-        List<Short> ecgData = record.getEcgData();
-        int dataNum = ecgView1.getWidth()/ ecgView1.getxPixelPerData();
-        for(int i = 0; i < dataNum; i++) {
-            ecgView1.showData(ecgData.get(i));
-        }
-        ecgView1.stop();
+        new DrawEcgViewAsyncTask(getContext(), callback).execute(record);
+    }
 
-        if(ecgData.size() >= dataNum) {
-            ecgView2.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
-            ecgView2.start();
-            ecgView2.initialize();
-            int minL = Math.min(2 * dataNum, ecgData.size());
-            for (int i = dataNum; i < minL; i++) {
-                ecgView2.showData(ecgData.get(i));
-            }
-            ecgView2.stop();
+    public interface IPdfOutputCallback {
+        void onFinish();
+    }
+
+    private class DrawEcgViewAsyncTask extends AsyncTask<BleEcgRecord10, Void, Void> {
+        private final ProgressDialog progressDialog;
+        private final IPdfOutputCallback callback;
+
+        private DrawEcgViewAsyncTask(Context context, IPdfOutputCallback callback) {
+            this.callback = callback;
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCancelable(false);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        }
+        @Override
+        protected void onPreExecute() {
+            progressDialog.show();
         }
 
-        if(ecgData.size() >= 2*dataNum) {
-            ecgView3.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
-            ecgView3.start();
-            ecgView3.initialize();
-            int minL = Math.min(3 * dataNum, ecgData.size());
-            for (int i = 2 * dataNum; i < minL; i++) {
-                ecgView3.showData(ecgData.get(i));
+        @Override
+        protected Void doInBackground(BleEcgRecord10... bleEcgRecord10s) {
+            record = bleEcgRecord10s[0];
+
+            ecgView1.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+            ecgView1.start();
+            ecgView1.initialize();
+            List<Short> ecgData = record.getEcgData();
+            ViseLog.e(ecgData.size());
+            int dataNum = ecgView1.getWidth()/ ecgView1.getxPixelPerData();
+            for(int i = 0; i < dataNum; i++) {
+                ecgView1.showData(ecgData.get(i));
             }
-            ecgView3.stop();
+            ecgView1.stop();
+
+            if(ecgData.size() >= dataNum) {
+                ecgView2.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+                ecgView2.start();
+                ecgView2.initialize();
+                int minL = Math.min(2 * dataNum, ecgData.size());
+                for (int i = dataNum; i < minL; i++) {
+                    ecgView2.showData(ecgData.get(i));
+                }
+                ecgView2.stop();
+            }
+
+            if(ecgData.size() >= 2*dataNum) {
+                ecgView3.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+                ecgView3.start();
+                ecgView3.initialize();
+                int minL = Math.min(3 * dataNum, ecgData.size());
+                for (int i = 2 * dataNum; i < minL; i++) {
+                    ecgView3.showData(ecgData.get(i));
+                }
+                ecgView3.stop();
+            }
+            return null;
         }
-        requestLayout();
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressDialog.dismiss();
+            if(callback != null)
+                callback.onFinish();
+        }
     }
 }

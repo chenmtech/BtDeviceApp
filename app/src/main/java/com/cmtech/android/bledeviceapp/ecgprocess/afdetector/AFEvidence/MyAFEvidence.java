@@ -38,7 +38,7 @@ public class MyAFEvidence {
     }
 	
 	public void process(List<Double> RR) {
-        if(RR.size() < 10) {
+        if(RR == null || RR.size() < 10) {
             afe = 0;
             classifyResult = UNDETERMIN;
         } else {

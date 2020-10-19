@@ -140,8 +140,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         btnOutputPdf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(ecgView.isStart())
+                    ecgView.stopShow();
                 outputPdf();
-
             }
         });
 
@@ -150,27 +151,31 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private void outputPdf() {
         reportPdfLayout.setRecord(record);
-        reportPdfLayout.create();
-        PdfDocument doc = new PdfDocument();
-        PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
-                (reportPdfLayout.getWidth()), (reportPdfLayout.getHeight()   ), 1)
-                .create();
+        reportPdfLayout.output(new EcgReportPdfLayout.IPdfOutputCallback() {
+            @Override
+            public void onFinish() {
+                PdfDocument doc = new PdfDocument();
+                PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
+                        (reportPdfLayout.getWidth()), (reportPdfLayout.getHeight()   ), 1)
+                        .create();
 
-        PdfDocument.Page page = doc.startPage(pageInfo);
+                PdfDocument.Page page = doc.startPage(pageInfo);
 
-        reportPdfLayout.draw(page.getCanvas());
-        doc.finishPage(page);
+                reportPdfLayout.draw(page.getCanvas());
+                doc.finishPage(page);
 
-        File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        try {
-            File uploadFile = new File(file.getAbsolutePath(),"测试.pdf");
-            doc.writeTo(new FileOutputStream(uploadFile));
-            Toast.makeText(this, "已生成PDF文件", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Toast.makeText(this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-        doc.close();
+                File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                try {
+                    File uploadFile = new File(file.getAbsolutePath(),"测试.pdf");
+                    doc.writeTo(new FileOutputStream(uploadFile));
+                    Toast.makeText(EcgRecordActivity.this, "已生成PDF文件", Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    Toast.makeText(EcgRecordActivity.this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+                doc.close();
+            }
+        });
     }
 
     @Override

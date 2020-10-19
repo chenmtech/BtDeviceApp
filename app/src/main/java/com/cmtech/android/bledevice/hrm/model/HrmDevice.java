@@ -206,6 +206,13 @@ public class HrmDevice extends AbstractDevice {
                     ecgRecord.setRecordSecond(recordSecond);
                     ecgRecord.save();
                     Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ecgRecord.requestDiagnose();
+                            Toast.makeText(getContext(), "心电报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT).show();
+                        }
+                    }).start();
                 }
             }
         }
