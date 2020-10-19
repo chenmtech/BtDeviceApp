@@ -70,7 +70,17 @@ public class EcgReportPdfLayout extends LinearLayout {
         tvRecordPerson.setText(record.getCreatorName());
         long endTime = record.getCreateTime();
         long beginTime = endTime-record.getRecordSecond()*1000;
-        tvRecordTime.setText(String.format("%s-%s", dateFmt.format(beginTime), dateFmt.format(endTime)));
+        tvRecordTime.setText(String.format("从%s 到%s", dateFmt.format(beginTime), dateFmt.format(endTime)));
+
+        long time = record.getReport().getReportTime();
+        if(time > INVALID_TIME) {
+            tvReportTime.setText(dateFmt.format(time));
+            tvContent.setText(record.getReport().getContent());
+            tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
+            tvNote.setText(record.getNote());
+        } else {
+
+        }
 
         ecgView1.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
         ecgView1.start();
@@ -103,16 +113,6 @@ public class EcgReportPdfLayout extends LinearLayout {
             }
             ecgView3.stop();
         }
-
-        long time = record.getReport().getReportTime();
-        if(time > INVALID_TIME) {
-            tvReportTime.setText(dateFmt.format(time));
-            tvContent.setText(record.getReport().getContent());
-            tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
-            tvNote.setText(record.getNote());
-        } else {
-
-        }
-        //requestLayout();
+        requestLayout();
     }
 }
