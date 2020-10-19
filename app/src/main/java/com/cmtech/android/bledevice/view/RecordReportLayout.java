@@ -24,32 +24,26 @@ import java.util.Locale;
 import static com.cmtech.android.bledevice.record.IDiagnosable.CODE_REPORT_FAILURE;
 import static com.cmtech.android.bledevice.record.IDiagnosable.CODE_REPORT_NO_NEW;
 import static com.cmtech.android.bledevice.record.IDiagnosable.CODE_REPORT_SUCCESS;
-import static com.cmtech.android.bledevice.report.EcgReport.DONE;
 import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
-import static com.cmtech.android.bledevice.report.EcgReport.PROCESS;
-import static com.cmtech.android.bledevice.report.EcgReport.REQUEST;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class RecordReportLayout extends LinearLayout {
     private BleEcgRecord10 record;
 
-    private final TextView tvTime;
-    private final TextView tvContent;
-    private final TextView tvStatus;
     private final TextView tvAveHr;
-    private final Button btnRequest;
+    private final TextView tvContent;
+    private final TextView tvTime;
 
     public RecordReportLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_record_report, this);
 
+        tvAveHr = view.findViewById(R.id.tv_report_ave_hr);
         tvContent = view.findViewById(R.id.tv_report_content);
         tvTime = view.findViewById(R.id.tv_report_time);
-        tvStatus = view.findViewById(R.id.tv_report_status);
-        tvAveHr = view.findViewById(R.id.tv_report_ave_hr);
 
-        btnRequest = view.findViewById(R.id.btn_request_report);
-        btnRequest.setOnClickListener(new View.OnClickListener() {
+        Button btnRefresh = view.findViewById(R.id.btn_request_report);
+        btnRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(record != null) {
@@ -71,31 +65,11 @@ public class RecordReportLayout extends LinearLayout {
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             tvTime.setText(dateFmt.format(time));
-
-            String statusStr = "未知";
-            switch (record.getReport().getStatus()) {
-                case DONE:
-                    statusStr = "已诊断";
-                    break;
-                case REQUEST:
-                    statusStr = "等待处理";
-                    break;
-                case PROCESS:
-                    statusStr = "正在处理";
-                    break;
-                default:
-                    break;
-            }
-            tvStatus.setText(statusStr);
-
+            tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
             tvContent.setText(record.getReport().getContent());
-
-            tvAveHr.setText("平均心率为：" + record.getReport().getAveHr() + "bpm");
         } else {
 
         }
-
-
     }
 
     public void updateFromWeb() {

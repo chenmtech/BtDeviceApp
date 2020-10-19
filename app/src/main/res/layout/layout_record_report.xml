@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:layout_margin="4dp"
     android:orientation="vertical">
     <View
@@ -9,12 +9,6 @@
         android:layout_height="1dp"
         android:layout_margin="6dp"
         android:background="@color/primary_dark"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="诊断结果："
-        android:textColor="@color/secondary"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -24,51 +18,64 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:text="时间："/>
+            android:text=">报告时间："
+            android:textSize="20sp"/>
 
         <TextView
             android:id="@+id/tv_report_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/time"
-            android:text="  "/>
-
-        <TextView
-            android:id="@+id/tv_report_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="  "
-            android:layout_alignParentEnd="true"/>
+            android:textSize="20sp"/>
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/tv_report_ave_hr"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="start|top"
-        android:text=""
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=">平均心率："
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/tv_report_ave_hr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:minEms="1"
+            android:text=" "
+            android:textSize="30sp"
+            android:textColor="@color/red"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="次/分钟"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=">智能诊断结果："
         android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/tv_report_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="start|top"
         android:textColor="@color/red"
-        android:text="暂无报告"/>
+        android:text="暂无"
+        android:textSize="20sp"/>
 
-    <LinearLayout
+    <Button
+        android:id="@+id/btn_request_report"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btn_request_report"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@color/primary"
-            android:text="刷新"/>
-    </LinearLayout>
+        android:text="刷新"
+        android:textColor="@color/blue"/>
 
 </LinearLayout>

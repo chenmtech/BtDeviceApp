@@ -125,7 +125,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=">房颤智能诊断结果："
+            android:text=">智能诊断结果："
             android:textSize="20sp"/>
 
         <TextView

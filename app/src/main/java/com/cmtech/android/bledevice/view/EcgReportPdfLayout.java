@@ -99,7 +99,7 @@ public class EcgReportPdfLayout extends LinearLayout {
         private DrawEcgViewAsyncTask(Context context, IPdfOutputCallback callback) {
             this.callback = callback;
             progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
+            progressDialog.setMessage("创建PDF文件中，请稍等。");
             progressDialog.setIndeterminate(false);
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -119,7 +119,8 @@ public class EcgReportPdfLayout extends LinearLayout {
             List<Short> ecgData = record.getEcgData();
             ViseLog.e(ecgData.size());
             int dataNum = ecgView1.getWidth()/ ecgView1.getxPixelPerData();
-            for(int i = 0; i < dataNum; i++) {
+            int minL = Math.min(dataNum, ecgData.size());
+            for(int i = 0; i < minL; i++) {
                 ecgView1.showData(ecgData.get(i));
             }
             ecgView1.stop();
@@ -128,7 +129,7 @@ public class EcgReportPdfLayout extends LinearLayout {
                 ecgView2.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
                 ecgView2.start();
                 ecgView2.initialize();
-                int minL = Math.min(2 * dataNum, ecgData.size());
+                minL = Math.min(2 * dataNum, ecgData.size());
                 for (int i = dataNum; i < minL; i++) {
                     ecgView2.showData(ecgData.get(i));
                 }
@@ -139,7 +140,7 @@ public class EcgReportPdfLayout extends LinearLayout {
                 ecgView3.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
                 ecgView3.start();
                 ecgView3.initialize();
-                int minL = Math.min(3 * dataNum, ecgData.size());
+                minL = Math.min(3 * dataNum, ecgData.size());
                 for (int i = 2 * dataNum; i < minL; i++) {
                     ecgView3.showData(ecgData.get(i));
                 }
