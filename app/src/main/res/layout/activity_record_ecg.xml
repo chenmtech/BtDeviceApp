@@ -23,7 +23,6 @@
                 android:id="@+id/btn_output_pdf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 android:text="输出PDF"
                 android:textColor="@color/blue"/>
 
@@ -84,7 +83,7 @@
                     android:layout_gravity="center_vertical"/>
 
                 <TextView
-                    android:id="@+id/tv_total_time"
+                    android:id="@+id/tv_time_length"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

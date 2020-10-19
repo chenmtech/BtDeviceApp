@@ -62,10 +62,9 @@ public class RecordReportLayout extends LinearLayout {
 
     public void setRecord(BleEcgRecord10 record) {
         this.record = record;
-        updateView();
     }
 
-    private void updateView() {
+    public void updateView() {
         if(record == null || record.getReport() == null) return;
 
         long time = record.getReport().getReportTime();

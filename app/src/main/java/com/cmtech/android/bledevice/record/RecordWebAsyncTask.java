@@ -3,8 +3,8 @@ package com.cmtech.android.bledevice.record;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
@@ -24,7 +24,9 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.*;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_OTHER_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -46,44 +48,38 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
     public static final int RECORD_CMD_DOWNLOAD_LIST = 5; // download basic record information command
 
     private static final int WAIT_TASK_FINISH_TIME = 10; // unit: second
-    private static final int DEFAULT_DOWNLOAD_NUM = 10;
+    private static final int DEFAULT_DOWNLOAD_NUM = 10; // default download record num per time
 
-    private ProgressDialog progressDialog;
+    private final ProgressDialog progressDialog;
     private final int cmd;
-    private final boolean showProgress;
+    private final String progressStr;
     private final Object[] params;
     private final IWebCallback callback;
 
-    public RecordWebAsyncTask(Context context, int cmd, IWebCallback callback) {
-        this(context, cmd, true, callback);
+    public RecordWebAsyncTask(Context context, String progressStr, int cmd, IWebCallback callback) {
+        this(context, progressStr, cmd, null, callback);
     }
 
-    public RecordWebAsyncTask(Context context, int cmd, boolean showProgress, IWebCallback callback) {
-        this(context, cmd, null, showProgress, callback);
-    }
-
-    public RecordWebAsyncTask(Context context, int cmd, Object[] params, IWebCallback callback) {
-        this(context, cmd, params, true, callback);
-    }
-
-    public RecordWebAsyncTask(Context context, int cmd, Object[] params, boolean showProgress, IWebCallback callback) {
+    public RecordWebAsyncTask(Context context, String progressStr, int cmd, Object[] params, IWebCallback callback) {
         this.cmd = cmd;
         this.params = params;
-        this.showProgress = showProgress;
+        this.progressStr = progressStr;
         this.callback = callback;
 
-        if(showProgress) {
+        if(!TextUtils.isEmpty(progressStr)) {
             progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
+            progressDialog.setMessage(progressStr);
             progressDialog.setIndeterminate(false);
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        } else {
+            progressDialog = null;
         }
     }
 
     @Override
     protected void onPreExecute() {
-        if(showProgress)
+        if(!TextUtils.isEmpty(progressStr))
             progressDialog.show();
     }
 
@@ -111,9 +107,8 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                             JSONObject json = new JSONObject(respBody);
                             result[0] = json.getInt("code");
                             if((Integer) result[0] == RETURN_CODE_SUCCESS) {
-                                int id = json.getInt("id");
-                                result[1] = id;
-                                ViseLog.e("Find Record id = " + id);
+                                result[1] = json.getInt("id");
+                                ViseLog.e("Find Record id = " + result[1]);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -257,7 +252,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
     @Override
     protected void onPostExecute(Object[] result) {
         callback.onFinish((Integer) result[0], result[1]);
-        if(showProgress)
+        if(!TextUtils.isEmpty(progressStr))
             progressDialog.dismiss();
     }
 }

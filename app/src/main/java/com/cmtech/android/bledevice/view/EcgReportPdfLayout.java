@@ -150,9 +150,9 @@ public class EcgReportPdfLayout extends LinearLayout {
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            progressDialog.dismiss();
             if(callback != null)
                 callback.onFinish();
+            progressDialog.dismiss();
         }
     }
 }

@@ -33,19 +33,18 @@ import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
-    private BleEcgRecord10 record;
-    private RecordIntroductionLayout introductionLayout;
-    private RecordNoteLayout noteLayout;
-    private RecordReportLayout reportLayout;
-    private EcgReportPdfLayout reportPdfLayout;
+    private BleEcgRecord10 record; // record
+    private RecordIntroductionLayout introductionLayout; // record introduction layout
+    private RecordReportLayout reportLayout; // record report layout
+    private RecordNoteLayout noteLayout; // record note layout
+    private EcgReportPdfLayout reportPdfLayout; // record report PDF layout
 
     private RollEcgRecordWaveView ecgView; // ecgView
-    private TextView tvTotalTimeLength; // 总时长
-    private TextView tvCurrentTime; // 当前播放信号的时刻
+    private TextView tvTimeLength; // record time length
+    private TextView tvCurrentTime; // current replay time
     private SeekBar sbReplay; // 播放条
-    private ImageButton ibReplayCtrl; // 转换播放状态
-
-    private Button btnOutputPdf;
+    private ImageButton ibReplayCtrl; // 播放状态控制
+    private Button btnOutputPdf; // output pdf
 
 
     @Override
@@ -86,12 +85,13 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         introductionLayout = findViewById(R.id.layout_record_intro);
         introductionLayout.redraw(record);
 
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
-
         reportLayout = findViewById(R.id.layout_record_report);
         reportLayout.setRecord(record);
-        //reportLayout.updateFromWeb();
+        reportLayout.updateView();
+
+        noteLayout = findViewById(R.id.layout_record_note);
+        noteLayout.setRecord(record);
+        noteLayout.updateView();
 
         reportPdfLayout = findViewById(R.id.layout_ecg_report_pdf);
 
@@ -100,7 +100,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         ecgView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
-        tvTotalTimeLength = findViewById(R.id.tv_total_time);
+        tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
+
+        tvTimeLength = findViewById(R.id.tv_time_length);
+        int second = record.getRecordSecond();
+        tvTimeLength.setText(DateTimeUtil.secToMinute(second));
 
         ibReplayCtrl = findViewById(R.id.ib_replay_control);
         ibReplayCtrl.setOnClickListener(new View.OnClickListener() {
@@ -130,10 +134,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-
-        int second = record.getRecordSecond();
-        tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
-        tvTotalTimeLength.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setMax(second);
 
         btnOutputPdf = findViewById(R.id.btn_output_pdf);

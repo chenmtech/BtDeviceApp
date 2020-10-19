@@ -165,7 +165,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     @Override
     public final void retrieveList(Context context, int num, String queryStr, long fromTime, IWebCallback callback) {
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_LIST, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
+        new RecordWebAsyncTask(context, "获取记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_LIST, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 JSONArray jsonArr = (JSONArray) result;
@@ -197,7 +197,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     @Override
     public final void upload(Context context, IWebCallback callback) {
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_UPLOAD, new IWebCallback() {
+        new RecordWebAsyncTask(context, "上传记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_UPLOAD, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == RETURN_CODE_SUCCESS) {
@@ -211,7 +211,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     @Override
     public final void download(Context context, IWebCallback callback) {
-        new RecordWebAsyncTask(context, RECORD_CMD_DOWNLOAD, new IWebCallback() {
+        new RecordWebAsyncTask(context, "下载记录中，请稍等。", RECORD_CMD_DOWNLOAD, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if (code == RETURN_CODE_SUCCESS) {
@@ -234,7 +234,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @Override
     public final void delete(Context context, IWebCallback callback) {
         Class<? extends BasicRecord> recordClass = getClass();
-        new RecordWebAsyncTask(context, RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebCallback() {
+        new RecordWebAsyncTask(context, "删除记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == RETURN_CODE_SUCCESS) {
