@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgprocess.qrsdetbyhamilton;
+package com.cmtech.android.bledeviceapp.ecgalgorithm.qrsdetbyhamilton;
 
 import java.util.ArrayList;
 import java.util.List;

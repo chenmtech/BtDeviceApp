@@ -8,13 +8,11 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.report.EcgReport;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.ecgprocess.EcgProcessor;
-import com.cmtech.android.bledeviceapp.ecgprocess.afdetector.AFEvidence.MyAFEvidence;
+import com.cmtech.android.bledeviceapp.ecgalgorithm.IEcgAlgorithm;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
-import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -24,7 +22,6 @@ import org.litepal.annotation.Column;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -35,7 +32,6 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
-import static com.cmtech.android.bledeviceapp.ecgprocess.afdetector.AFEvidence.MyAFEvidence.NON_AF;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -170,32 +166,13 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
 
     @Override
     public void requestDiagnose() {
-        EcgProcessor ecgProc = new EcgProcessor();
-        ecgProc.process(ecgData, sampleRate);
-        int aveHr = ecgProc.getAverageHr();
-        ViseLog.e("aveHr:" + aveHr);
-
-        List<Double> RR = ecgProc.getRRIntervalInMs();
-        MyAFEvidence afEvi = MyAFEvidence.getInstance();
-        afEvi.process(RR);
-        int afe = afEvi.getAFEvidence();
-        int classify = afEvi.getClassifyResult();
-        ViseLog.e("afe:" + afe + "classify:" + classify);
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("心率变异值：").append(afe).append("。");
-        if(classify == MyAFEvidence.AF) {
-            builder.append("*您的心律不规则性较大，提示注意房颤风险。如有心脏不适，请及时就医。");
-        } else if(classify == NON_AF){
-            builder.append("未发现房颤风险。");
-        } else {
-            builder.append("由于信号质量原因，无法判断是否有房颤。");
-        }
-
-        report.setReportTime(new Date().getTime());
-        report.setContent(builder.toString());
-        report.setStatus(EcgReport.DONE);
-        report.setAveHr(aveHr);
+        IEcgAlgorithm algorithm = MyApplication.getEcgAlgorithm();
+        EcgReport rtnReport = algorithm.process(this);
+        report.setVer(rtnReport.getVer());
+        report.setReportTime(rtnReport.getReportTime());
+        report.setContent(rtnReport.getContent());
+        report.setStatus(rtnReport.getStatus());
+        report.setAveHr(rtnReport.getAveHr());
         report.save();
         setNeedUpload(true);
         save();

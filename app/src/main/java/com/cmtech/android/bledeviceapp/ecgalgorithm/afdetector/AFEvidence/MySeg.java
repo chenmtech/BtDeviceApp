@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgprocess.afdetector.AFEvidence;
+package com.cmtech.android.bledeviceapp.ecgalgorithm.afdetector.AFEvidence;
 
 import java.util.LinkedList;
 import java.util.List;

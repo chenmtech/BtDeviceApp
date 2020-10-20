@@ -6,7 +6,7 @@
  * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
  *
  */
-package com.cmtech.android.bledeviceapp.ecgprocess.qrsdetbyhamilton;
+package com.cmtech.android.bledeviceapp.ecgalgorithm.qrsdetbyhamilton;
 
 /**
  * ClassName: QrsFilter

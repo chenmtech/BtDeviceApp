@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgprocess.qrsdetbyhamilton;
+package com.cmtech.android.bledeviceapp.ecgalgorithm.qrsdetbyhamilton;
 
 public class Derivative {
 	private final int DERIV_LENGTH;

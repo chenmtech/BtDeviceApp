@@ -210,7 +210,7 @@ public class HrmDevice extends AbstractDevice {
                         @Override
                         public void run() {
                             ecgRecord.requestDiagnose();
-                            Toast.makeText(getContext(), "心电报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "信号已处理，请到记录列表中查看报告。", Toast.LENGTH_SHORT).show();
                         }
                     }).start();
                 }

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgprocess;
+package com.cmtech.android.bledeviceapp.ecgalgorithm;
 
 import android.util.Pair;
 

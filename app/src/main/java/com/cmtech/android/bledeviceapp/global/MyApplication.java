@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
+import com.cmtech.android.bledeviceapp.ecgalgorithm.EcgAFDetector;
+import com.cmtech.android.bledeviceapp.ecgalgorithm.IEcgAlgorithm;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
@@ -126,6 +128,10 @@ public class MyApplication extends Application {
 
     public static boolean isRunInBackground() {
         return (instance.startedActivityCount == 0);
+    }
+
+    public static IEcgAlgorithm getEcgAlgorithm() {
+        return new EcgAFDetector();
     }
 
     // 初始化DeviceManager

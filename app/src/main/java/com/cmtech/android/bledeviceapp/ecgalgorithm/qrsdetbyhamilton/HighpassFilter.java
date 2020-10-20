@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgprocess.qrsdetbyhamilton;
+package com.cmtech.android.bledeviceapp.ecgalgorithm.qrsdetbyhamilton;
 
 public class HighpassFilter {
 	private final int HPBUFFER_LGTH;

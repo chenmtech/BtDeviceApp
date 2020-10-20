@@ -8,7 +8,7 @@ import com.cmtech.android.bledevice.ecg.process.signal.calibrator.EcgCalibrator6
 import com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecg.process.signal.filter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecg.process.signal.filter.IEcgFilter;
-import com.cmtech.android.bledeviceapp.ecgprocess.qrsdetbyhamilton.QrsDetector;
+import com.cmtech.android.bledeviceapp.ecgalgorithm.qrsdetbyhamilton.QrsDetector;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
