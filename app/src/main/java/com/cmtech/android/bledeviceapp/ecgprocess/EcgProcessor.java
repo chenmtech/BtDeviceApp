@@ -84,8 +84,7 @@ public class EcgProcessor {
 		
 		// detect the QRS waves and RR interval
 		Map<String, Object> qrsAndRRInterval = getQrsPosAndRRInterval(ecgData, sampleRate);
-
-		if(qrsAndRRInterval == null || qrsAndRRInterval.size() < 6) {
+		if(qrsAndRRInterval == null) {
 		    return;
         }
 		

@@ -3,9 +3,9 @@ package com.cmtech.android.bledevice.hrm.view;
 import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -28,6 +28,10 @@ import org.litepal.LitePal;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
@@ -44,7 +48,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private TextView tvCurrentTime; // current replay time
     private SeekBar sbReplay; // 播放条
     private ImageButton ibReplayCtrl; // 播放状态控制
-    private Button btnOutputPdf; // output pdf
 
 
     @Override
@@ -138,10 +141,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         });
         sbReplay.setMax(second);
 
-        btnOutputPdf = findViewById(R.id.btn_output_pdf);
-        btnOutputPdf.setOnClickListener(new View.OnClickListener() {
+        // set output pdf FAB
+        FloatingActionButton fabPdf = findViewById(R.id.fab_pdf);
+        fabPdf.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 if(ecgView.isStart())
                     ecgView.stopShow();
                 outputPdf();
@@ -152,12 +156,12 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void outputPdf() {
-        reportPdfLayout.output(new EcgReportPdfLayout.IPdfOutputCallback() {
+        reportPdfLayout.updateView(new EcgReportPdfLayout.IPdfOutputCallback() {
             @Override
             public void onFinish() {
                 PdfDocument doc = new PdfDocument();
                 PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
-                        (reportPdfLayout.getWidth()), (reportPdfLayout.getHeight()   ), 1)
+                        reportPdfLayout.getWidth(), reportPdfLayout.getHeight(), 1)
                         .create();
 
                 PdfDocument.Page page = doc.startPage(pageInfo);
@@ -165,11 +169,14 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                 reportPdfLayout.draw(page.getCanvas());
                 doc.finishPage(page);
 
+                DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss", Locale.getDefault());
+                String docTime = dateFmt.format(new Date());
                 File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+
                 try {
-                    File uploadFile = new File(file.getAbsolutePath(),"测试.pdf");
+                    File uploadFile = new File(file.getAbsolutePath(),"km_ecg_" + docTime + ".pdf");
                     doc.writeTo(new FileOutputStream(uploadFile));
-                    Toast.makeText(EcgRecordActivity.this, "已生成PDF文件", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EcgRecordActivity.this, "已生成PDF文件"+uploadFile.getName(), Toast.LENGTH_SHORT).show();
                 } catch (IOException e) {
                     Toast.makeText(EcgRecordActivity.this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();

@@ -58,4 +58,6 @@ public class RecordNoteLayout extends LinearLayout {
             etNote.setEnabled(false);
         }
     }
+
+
 }

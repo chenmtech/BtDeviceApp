@@ -36,10 +36,10 @@ public class EcgReportPdfLayout extends LinearLayout {
     private BleEcgRecord10 record;
 
     private final ScanEcgView[] ecgView = new ScanEcgView[3]; // ecgView array
-    private TextView tvRecordPerson;
-    private TextView tvRecordTime;
-    private TextView tvReportTime;
-    private TextView tvContent;
+    private final TextView tvRecordPerson;
+    private final TextView tvRecordTime;
+    private final TextView tvReportTime;
+    private final TextView tvContent;
     private final TextView tvAveHr;
     private final TextView tvNote;
 
@@ -62,7 +62,7 @@ public class EcgReportPdfLayout extends LinearLayout {
         this.record = record;
     }
 
-    public void output(IPdfOutputCallback callback) {
+    public void updateView(IPdfOutputCallback callback) {
         if(record == null) return;
 
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -109,18 +109,20 @@ public class EcgReportPdfLayout extends LinearLayout {
         protected Void doInBackground(BleEcgRecord10... bleEcgRecord10s) {
             record = bleEcgRecord10s[0];
             List<Short> ecgData = record.getEcgData();
-            int dataNum = ecgView[0].getWidth()/ ecgView[0].getxPixelPerData();
 
-            for(int i = 0; i < ecgView.length; i++) {
-                if(ecgData.size() > i*dataNum) {
-                    ecgView[i].setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
-                    ecgView[i].start();
-                    ecgView[i].initialize();
-                    int minL = Math.min((i+1) * dataNum, ecgData.size());
-                    for (int j = i*dataNum; j < minL; j++) {
-                        ecgView[i].showData(ecgData.get(j));
+            int begin = 0;
+            for (ScanEcgView scanEcgView : ecgView) {
+                scanEcgView.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+                int dataNum = scanEcgView.getWidth() / scanEcgView.getxPixelPerData();
+                if (ecgData.size() > begin) {
+                    scanEcgView.start();
+                    scanEcgView.initialize();
+                    int end = Math.min(begin + dataNum, ecgData.size());
+                    for (int j = begin; j < end; j++) {
+                        scanEcgView.showData(ecgData.get(j));
                     }
-                    ecgView[i].stop();
+                    scanEcgView.stop();
+                    begin = end;
                 } else {
                     break;
                 }

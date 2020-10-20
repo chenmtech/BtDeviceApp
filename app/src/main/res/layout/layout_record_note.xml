@@ -15,13 +15,25 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="备注："
-            android:textSize="20sp"
-            android:textColor="@color/secondary"/>
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="备注："
+                android:textColor="@color/secondary"/>
+            <Button
+                android:id="@+id/btn_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/minWidth0DpButtonStyle"
+                android:text="编辑"/>
+
+        </LinearLayout>
 
         <EditText
             android:id="@+id/et_note"
@@ -37,11 +49,4 @@
 
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_edit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="编辑"
-        android:textColor="@color/blue"/>
 </LinearLayout>

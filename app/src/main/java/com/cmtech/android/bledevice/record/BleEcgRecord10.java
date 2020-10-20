@@ -14,6 +14,7 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
+import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -172,12 +173,14 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         EcgProcessor ecgProc = new EcgProcessor();
         ecgProc.process(ecgData, sampleRate);
         int aveHr = ecgProc.getAverageHr();
+        ViseLog.e("aveHr:" + aveHr);
 
         List<Double> RR = ecgProc.getRRIntervalInMs();
         MyAFEvidence afEvi = MyAFEvidence.getInstance();
         afEvi.process(RR);
         int afe = afEvi.getAFEvidence();
         int classify = afEvi.getClassifyResult();
+        ViseLog.e("afe:" + afe + "classify:" + classify);
 
         StringBuilder builder = new StringBuilder();
         builder.append("心率变异值：").append(afe).append("。");
