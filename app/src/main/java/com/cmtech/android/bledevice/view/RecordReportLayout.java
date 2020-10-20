@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,13 +42,14 @@ public class RecordReportLayout extends LinearLayout {
         tvContent = view.findViewById(R.id.tv_report_content);
         tvTime = view.findViewById(R.id.tv_report_time);
 
-        Button btnRefresh = view.findViewById(R.id.btn_request_report);
-        btnRefresh.setOnClickListener(new View.OnClickListener() {
+        ImageButton ibRefresh = view.findViewById(R.id.ib_request_report);
+        ibRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(record != null) {
                     record.requestDiagnose();
                     updateView();
+                    Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
                 }
             }
         });
