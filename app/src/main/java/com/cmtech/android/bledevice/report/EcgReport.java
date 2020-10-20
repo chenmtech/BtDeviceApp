@@ -79,7 +79,8 @@ public class EcgReport extends LitePalSupport implements IJsonable {
 
     @Override
     public void fromJson(JSONObject json) throws JSONException{
-        //ver = json.getString("ver");
+        if(json.has("reportVer"))
+            ver = json.getString("reportVer");
         reportTime = json.getLong("reportTime");
         content = json.getString("content");
         status = json.getInt("status");
@@ -90,7 +91,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = new JSONObject();
-        json.put("ver", ver);
+        json.put("reportVer", ver);
         json.put("reportTime", reportTime);
         json.put("content", content);
         json.put("status", status);
