@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgalgorithm;
+package com.cmtech.android.bledeviceapp.util;
 
 import android.util.Pair;
 

@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.ecgalgorithm;
 
 import android.util.Pair;
 
+import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.dsp.filter.FIRFilter;
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.structure.StructType;

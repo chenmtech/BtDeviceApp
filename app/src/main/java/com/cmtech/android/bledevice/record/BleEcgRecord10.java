@@ -13,6 +13,7 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
+import com.cmtech.android.bledeviceapp.util.RecordUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -64,14 +65,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
-
-        ecgData.clear();
-        String ecgDataStr = json.getString("ecgData");
-        String[] strings = ecgDataStr.split(",");
-        for(String str : strings) {
-            ecgData.add(Short.parseShort(str));
-        }
-
+        RecordUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
         if(json.has("report")) {
             report.fromJson(json.getJSONObject("report"));
         }

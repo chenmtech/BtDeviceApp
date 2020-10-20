@@ -169,16 +169,19 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                 reportPdfLayout.draw(page.getCanvas());
                 doc.finishPage(page);
 
-                DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss", Locale.getDefault());
+                DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
                 String docTime = dateFmt.format(new Date());
-                File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-
+                File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 try {
-                    File uploadFile = new File(file.getAbsolutePath(),"km_ecg_" + docTime + ".pdf");
+                    if(!dir.exists()) {
+                        dir.mkdir();
+                    }
+                    File uploadFile = new File(dir,"km_ecgreport_" + docTime + ".pdf");
                     doc.writeTo(new FileOutputStream(uploadFile));
                     Toast.makeText(EcgRecordActivity.this, "已生成PDF文件"+uploadFile.getName(), Toast.LENGTH_SHORT).show();
                 } catch (IOException e) {
                     Toast.makeText(EcgRecordActivity.this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
+                    ViseLog.e(e);
                     e.printStackTrace();
                 }
                 doc.close();

@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.record;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.util.RecordUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,21 +65,10 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
         hrList.clear();
-        String hrListStr = json.getString("hrList");
-        String[] strings = hrListStr.split(",");
-        for(String str : strings) {
-            hrList.add(Short.parseShort(str));
-        }
-
+        RecordUtil.stringToList(json.getString("hrList"), hrList, Short.class);
         hrMax = (short)json.getInt("hrMax");
         hrAve = (short)json.getInt("hrAve");
-
-        hrHist.clear();
-        String hrHistStr = json.getString("hrHist");
-        strings = hrHistStr.split(",");
-        for(String str : strings) {
-            hrHist.add(Integer.parseInt(str));
-        }
+        RecordUtil.stringToList(json.getString("hrHist"), hrHist, Integer.class);
 
         createHistogramFromHrHist();
     }
