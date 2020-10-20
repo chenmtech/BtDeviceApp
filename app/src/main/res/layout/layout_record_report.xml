@@ -18,16 +18,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:text=">报告时间："
-            android:textSize="20sp"/>
+            android:text=">报告时间："/>
 
         <TextView
             android:id="@+id/tv_report_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/time"
-            android:text="  "
-            android:textSize="20sp"/>
+            android:text="  "/>
     </RelativeLayout>
 
     <LinearLayout
@@ -37,8 +35,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=">平均心率："
-            android:textSize="20sp"/>
+            android:text=">平均心率："/>
 
         <TextView
             android:id="@+id/tv_report_ave_hr"
@@ -47,21 +44,19 @@
             android:gravity="center_horizontal"
             android:minEms="1"
             android:text=" "
-            android:textSize="30sp"
+            android:textSize="20sp"
             android:textColor="@color/red"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="次/分钟"
-            android:textSize="20sp"/>
+            android:text="次/分钟"/>
     </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=">智能诊断结果："
-        android:textSize="20sp"/>
+        android:text=">智能诊断结果："/>
 
     <TextView
         android:id="@+id/tv_report_content"

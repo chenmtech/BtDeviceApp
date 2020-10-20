@@ -34,6 +34,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_LOGIN_P
  * Version:        1.0
  */
 public class RecordIntroductionLayout extends RelativeLayout {
+    private BasicRecord record;
     private ImageView ivExit;
     private TextView tvCreatorName; // 创建人名
     private ImageView ivCreatorImage;
@@ -49,17 +50,21 @@ public class RecordIntroductionLayout extends RelativeLayout {
         ivCreatorImage = findViewById(R.id.iv_creator_image);
         tvCreateTime = findViewById(R.id.tv_create_time);
         tvAddress = findViewById(R.id.tv_device_address);
-    }
-
-    public void redraw(BasicRecord record) {
-        if(record == null) return;
-
         ivExit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((Activity)getContext()).finish();
             }
         });
+
+    }
+
+    public void setRecord(BasicRecord record) {
+        this.record = record;
+    }
+
+    public void updateView() {
+        if(record == null) return;
 
         tvCreatorName.setText(record.getCreatorName());
         Account account = MyApplication.getAccount();

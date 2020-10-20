@@ -76,7 +76,12 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
         ViseLog.e(record);
 
         introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.redraw(record);
+        introLayout.setRecord(record);
+        introLayout.updateView();
+
+        noteLayout = findViewById(R.id.layout_record_note);
+        noteLayout.setRecord(record);
+        noteLayout.updateView();
 
         eegView = findViewById(R.id.roll_eeg_view);
         eegView.setListener(this);
@@ -117,8 +122,6 @@ public class EegRecordActivity extends AppCompatActivity implements RollWaveView
         tvTotalTime.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setMax(second);
 
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
 
         eegView.startShow();
     }

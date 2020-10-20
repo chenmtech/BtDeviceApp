@@ -78,16 +78,18 @@ public class ThermoRecordActivity extends AppCompatActivity {
         ViseLog.e(record);
 
         introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.redraw(record);
+        introLayout.setRecord(record);
+        introLayout.updateView();
 
+        noteLayout = findViewById(R.id.layout_record_note);
+        noteLayout.setRecord(record);
+        noteLayout.updateView();
+        
         lineChart = findViewById(R.id.line_chart);
         lineChart.setXAxisValueFormatter(2);
         lineChart.showFloatLineChart(record.getTemp(), getResources().getString(R.string.thermo_linechart), Color.BLUE);
 
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.temperature);
-
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
     }
 }

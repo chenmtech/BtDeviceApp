@@ -74,7 +74,12 @@ public class HrRecordActivity extends AppCompatActivity {
         record.createHistogramFromHrHist();
 
         introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.redraw(record);
+        introLayout.setRecord(record);
+        introLayout.updateView();
+
+        noteLayout = findViewById(R.id.layout_record_note);
+        noteLayout.setRecord(record);
+        noteLayout.updateView();
 
         hrLineChart = findViewById(R.id.line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
@@ -91,7 +96,5 @@ public class HrRecordActivity extends AppCompatActivity {
         tvMaxHr.setText(String.valueOf(record.getHrMax()));
         hrHistChart.update(record.getHrHistogram());
 
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
     }
 }

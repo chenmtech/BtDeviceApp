@@ -83,7 +83,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private void initUI() {
         introductionLayout = findViewById(R.id.layout_record_intro);
-        introductionLayout.redraw(record);
+        introductionLayout.setRecord(record);
+        introductionLayout.updateView();
 
         reportLayout = findViewById(R.id.layout_record_report);
         reportLayout.setRecord(record);
@@ -94,6 +95,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         noteLayout.updateView();
 
         reportPdfLayout = findViewById(R.id.layout_ecg_report_pdf);
+        reportPdfLayout.setRecord(record);
 
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
@@ -150,7 +152,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void outputPdf() {
-        reportPdfLayout.setRecord(record);
         reportPdfLayout.output(new EcgReportPdfLayout.IPdfOutputCallback() {
             @Override
             public void onFinish() {
