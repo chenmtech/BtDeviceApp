@@ -184,6 +184,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     }
                     File pdfFile = new File(dir,"km_ecgreport_" + docTime + ".pdf");
                     doc.writeTo(new FileOutputStream(pdfFile));
+                    doc.close();
+
                     final AlertDialog.Builder builder = new AlertDialog.Builder(EcgRecordActivity.this);
                     builder.setTitle("已生成pdf文档").setMessage("是否打开该文档？");
                     builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -192,7 +194,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                             Intent intent = new Intent(Intent.ACTION_VIEW);
 
                             Uri uri = FileProvider.getUriForFile(EcgRecordActivity.this,
-                                    getApplicationContext().getPackageName() + ".provider", pdfFile);
+                                    getApplicationContext().getPackageName() + ".provider", new File(dir,"km_ecgreport_" + docTime + ".pdf"));
                             //Uri uri = Uri.fromFile(pdfFile);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             intent.setDataAndType(uri, "application/pdf");
@@ -208,7 +210,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     ViseLog.e(e);
                     e.printStackTrace();
                 }
-                doc.close();
             }
         });
     }
