@@ -1,9 +1,15 @@
 package com.cmtech.android.bledevice.hrm.view;
 
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -176,9 +182,27 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     if(!dir.exists()) {
                         dir.mkdir();
                     }
-                    File uploadFile = new File(dir,"km_ecgreport_" + docTime + ".pdf");
-                    doc.writeTo(new FileOutputStream(uploadFile));
-                    Toast.makeText(EcgRecordActivity.this, "已生成PDF文件"+uploadFile.getName(), Toast.LENGTH_SHORT).show();
+                    File pdfFile = new File(dir,"km_ecgreport_" + docTime + ".pdf");
+                    doc.writeTo(new FileOutputStream(pdfFile));
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(EcgRecordActivity.this);
+                    builder.setTitle("已生成pdf文档").setMessage("是否打开该文档？");
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+
+                            Uri uri = FileProvider.getUriForFile(EcgRecordActivity.this,
+                                    getApplicationContext().getPackageName() + ".provider", pdfFile);
+                            //Uri uri = Uri.fromFile(pdfFile);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.setDataAndType(uri, "application/pdf");
+                            try {
+                                startActivity(intent);
+                            } catch (ActivityNotFoundException e) {
+                                ViseLog.e("打开pdf文档失败。");
+                            }
+                        }
+                    }).show();
                 } catch (IOException e) {
                     Toast.makeText(EcgRecordActivity.this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
                     ViseLog.e(e);
