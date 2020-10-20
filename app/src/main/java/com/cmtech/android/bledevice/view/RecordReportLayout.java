@@ -33,6 +33,7 @@ public class RecordReportLayout extends LinearLayout {
     private final TextView tvAveHr;
     private final TextView tvContent;
     private final TextView tvTime;
+    private final TextView tvReportVer;
 
     public RecordReportLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -41,6 +42,7 @@ public class RecordReportLayout extends LinearLayout {
         tvAveHr = view.findViewById(R.id.tv_report_ave_hr);
         tvContent = view.findViewById(R.id.tv_report_content);
         tvTime = view.findViewById(R.id.tv_report_time);
+        tvReportVer = view.findViewById(R.id.tv_report_ver);
 
         ImageButton ibRefresh = view.findViewById(R.id.ib_request_report);
         ibRefresh.setOnClickListener(new View.OnClickListener() {
@@ -68,6 +70,7 @@ public class RecordReportLayout extends LinearLayout {
             tvTime.setText(dateFmt.format(time));
             tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
             tvContent.setText(record.getReport().getContent());
+            tvReportVer.setText(record.getReport().getVer());
         } else {
 
         }

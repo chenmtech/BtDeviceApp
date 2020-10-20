@@ -38,10 +38,12 @@ public class EcgReportPdfLayout extends LinearLayout {
     private final ScanEcgView[] ecgView = new ScanEcgView[3]; // ecgView array
     private final TextView tvRecordPerson;
     private final TextView tvRecordTime;
+    private final TextView tvReportVer;
     private final TextView tvReportTime;
     private final TextView tvContent;
     private final TextView tvAveHr;
     private final TextView tvNote;
+
 
     public EcgReportPdfLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -50,6 +52,7 @@ public class EcgReportPdfLayout extends LinearLayout {
         tvRecordPerson = view.findViewById(R.id.tv_record_person);
         tvRecordTime = view.findViewById(R.id.tv_record_time);
         tvContent = view.findViewById(R.id.tv_report_content);
+        tvReportVer = view.findViewById(R.id.tv_report_ver);
         tvReportTime = view.findViewById(R.id.tv_report_time);
         tvNote = view.findViewById(R.id.tv_note);
         tvAveHr= view.findViewById(R.id.tv_report_ave_hr);
@@ -74,6 +77,7 @@ public class EcgReportPdfLayout extends LinearLayout {
 
         long reportTime = record.getReport().getReportTime();
         if(reportTime > INVALID_TIME) {
+            tvReportVer.setText(record.getReport().getVer());
             tvReportTime.setText(dateFmt.format(reportTime));
             tvContent.setText(record.getReport().getContent());
             tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
