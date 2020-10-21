@@ -10,7 +10,7 @@ import java.util.List;
 import static com.cmtech.android.bledeviceapp.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence.NON_AF;
 
 public class EcgAFDetector implements IEcgAlgorithm{
-    private final static String VER = "0.1.1";
+    private final static String VER = "0.1.2";
 
     @Override
     public String getVer() {
@@ -33,13 +33,13 @@ public class EcgAFDetector implements IEcgAlgorithm{
 
         StringBuilder builder = new StringBuilder();
         if(classify == MyAFEvidence.AF) {
-            builder.append("提示注意房颤风险。如有心脏不适，请及时就医。");
+            builder.append("提示房颤风险。如有心脏不适，请及时就医。");
         } else if(classify == NON_AF){
-            builder.append("无房颤风险。");
+            builder.append("未发现房颤。");
         } else {
-            builder.append("信号质量较差，无法判断是否有房颤风险。");
+            builder.append("无法判断是否有房颤风险。");
         }
-        builder.append("(心率变异值：").append(afe).append(")");
+        builder.append("(房颤风险值：").append(afe).append(")");
 
         EcgReport report = new EcgReport();
         report.setVer(VER);

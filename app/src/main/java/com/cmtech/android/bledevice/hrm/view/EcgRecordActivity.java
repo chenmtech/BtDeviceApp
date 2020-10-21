@@ -1,12 +1,17 @@
 package com.cmtech.android.bledevice.hrm.view;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfDocument;
 import android.graphics.pdf.PdfRenderer;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -191,7 +196,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void outputPdf() {
-        reportOutputLayout.updateView("正将报告输出为PDF文件，稍后请到文件管理器查阅文件。", new EcgReportOutputLayout.IPdfOutputCallback() {
+        reportOutputLayout.updateView("将报告保存为PDF文件，请稍等...", new EcgReportOutputLayout.IPdfOutputCallback() {
             @Override
             public void onFinish() {
                 PdfDocument doc = new PdfDocument();
@@ -206,30 +211,31 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
                 DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
                 String docTime = dateFmt.format(new Date());
-                File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                //File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File dir = DIR_CACHE;
                 try {
                     File pdfFile = new File(dir,"km_ecgreport_"+docTime+".pdf");
                     doc.writeTo(new FileOutputStream(pdfFile));
                     doc.close();
-                    Toast.makeText(EcgRecordActivity.this, "请到文件管理器中查阅PDF文件。", Toast.LENGTH_LONG).show();
-                    /*Uri uri = null;
+                    //Toast.makeText(EcgRecordActivity.this, "请到文件管理器中查阅PDF文件。", Toast.LENGTH_LONG).show();
+                    Uri uri = null;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         uri = FileProvider.getUriForFile(EcgRecordActivity.this,
                                 getApplicationContext().getPackageName() + ".provider", pdfFile);
-
                     } else {
                         uri = Uri.fromFile(pdfFile);
                     }
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     intent.setDataAndType(uri, "application/pdf");
                     try {
                         startActivity(intent);
                     } catch (ActivityNotFoundException e) {
-                        ViseLog.e("打开PDF文件失败。");
-                    }*/
+                        ViseLog.e("打开PDF文件错误。");
+                    }
                 } catch (IOException e) {
-                    Toast.makeText(EcgRecordActivity.this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EcgRecordActivity.this, "保存PDF文件失败", Toast.LENGTH_SHORT).show();
                     ViseLog.e(e);
                     e.printStackTrace();
                 }

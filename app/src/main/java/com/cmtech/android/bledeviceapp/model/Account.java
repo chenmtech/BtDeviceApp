@@ -70,6 +70,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         return platId;
     }
     public String getName() {
+        if("".equals(name)) {
+            String tmp = platId.substring(platId.length()/4, platId.length()*3/4);
+            return platId.replaceFirst(tmp, "*");
+        }
         return name;
     }
     public void setName(String name) {
