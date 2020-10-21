@@ -1,12 +1,12 @@
 package com.cmtech.android.bledevice.hrm.view;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.pdf.PdfDocument;
-import android.net.Uri;
+import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
-import com.cmtech.android.bledevice.view.EcgReportPdfLayout;
+import com.cmtech.android.bledevice.view.EcgReportOutputLayout;
 import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RecordReportLayout;
@@ -25,6 +25,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
+import com.vise.utils.view.BitmapUtil;
 
 import org.litepal.LitePal;
 
@@ -45,7 +46,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private RecordIntroductionLayout introductionLayout; // record introduction layout
     private RecordReportLayout reportLayout; // record report layout
     private RecordNoteLayout noteLayout; // record note layout
-    private EcgReportPdfLayout reportPdfLayout; // record report PDF layout
+    private EcgReportOutputLayout reportOutputLayout; // record report output layout
 
     private RollEcgRecordWaveView ecgView; // ecgView
     private TextView tvTimeLength; // record time length
@@ -101,8 +102,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         noteLayout.setRecord(record);
         noteLayout.updateView();
 
-        reportPdfLayout = findViewById(R.id.layout_ecg_report_pdf);
-        reportPdfLayout.setRecord(record);
+        reportOutputLayout = findViewById(R.id.layout_ecg_report_output);
+        reportOutputLayout.setRecord(record);
 
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
@@ -145,9 +146,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         });
         sbReplay.setMax(second);
 
-        // set output pdf FAB
-        FloatingActionButton fabPdf = findViewById(R.id.fab_pdf);
-        fabPdf.setOnClickListener(new View.OnClickListener() {
+        // set output report FAB
+        FloatingActionButton fabOutputReport = findViewById(R.id.fab_output_report);
+        fabOutputReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(ecgView.isStart())
@@ -155,55 +156,111 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                 outputPdf();
             }
         });
-
         ecgView.startShow();
     }
 
-    private void outputPdf() {
-        reportPdfLayout.updateView(new EcgReportPdfLayout.IPdfOutputCallback() {
+    private void outputPng() {
+        reportOutputLayout.updateView("将报告输出为PNG图片，请稍等...", new EcgReportOutputLayout.IPdfOutputCallback() {
             @Override
             public void onFinish() {
                 PdfDocument doc = new PdfDocument();
                 PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
-                        reportPdfLayout.getWidth(), reportPdfLayout.getHeight(), 1)
+                        reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)
                         .create();
-
                 PdfDocument.Page page = doc.startPage(pageInfo);
-
-                reportPdfLayout.draw(page.getCanvas());
+                reportOutputLayout.draw(page.getCanvas());
                 doc.finishPage(page);
-
-                DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
-                String docTime = dateFmt.format(new Date());
-                //File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                File dir = DIR_CACHE;
                 try {
-                    if(!dir.exists()) {
-                        dir.mkdir();
-                    }
-                    File pdfFile = new File(dir,"km_ecgreport_" + docTime + ".pdf");
+                    File pdfFile = new File(DIR_CACHE,"tmp.pdf");
                     doc.writeTo(new FileOutputStream(pdfFile));
                     doc.close();
-                    Toast.makeText(EcgRecordActivity.this, "已生成PDF文件。", Toast.LENGTH_SHORT).show();
-                    Uri uri = FileProvider.getUriForFile(EcgRecordActivity.this,
-                            getApplicationContext().getPackageName() + ".provider", new File(dir,"km_ecgreport_" + docTime + ".pdf"));
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.setDataAndType(uri, "application/pdf");
-                    //Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    //intent.putExtra(Browser.EXTRA_APPLICATION_ID, getPackageName());
-                    try {
-                        startActivity(intent);
-                    } catch (ActivityNotFoundException e) {
-                        ViseLog.e("打开pdf文档失败。");
-                    }
+                    Bitmap bitmap = pdfToBitmap(pdfFile);
+                    DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
+                    String docTime = dateFmt.format(new Date());
+                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                    File pngFile = new File(dir, "km_ecgreport_"+docTime+".png");
+                    BitmapUtil.saveBitmap(bitmap, pngFile);
+                    Toast.makeText(EcgRecordActivity.this, "PNG图片已放入相册中。", Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
-                    Toast.makeText(EcgRecordActivity.this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EcgRecordActivity.this, "生成图片文件失败", Toast.LENGTH_SHORT).show();
                     ViseLog.e(e);
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    private void outputPdf() {
+        reportOutputLayout.updateView("正将报告输出为PDF文件，稍后请到文件管理器查阅文件。", new EcgReportOutputLayout.IPdfOutputCallback() {
+            @Override
+            public void onFinish() {
+                PdfDocument doc = new PdfDocument();
+                PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
+                        reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)
+                        .create();
+
+                PdfDocument.Page page = doc.startPage(pageInfo);
+
+                reportOutputLayout.draw(page.getCanvas());
+                doc.finishPage(page);
+
+                DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
+                String docTime = dateFmt.format(new Date());
+                File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                try {
+                    File pdfFile = new File(dir,"km_ecgreport_"+docTime+".pdf");
+                    doc.writeTo(new FileOutputStream(pdfFile));
+                    doc.close();
+                    Toast.makeText(EcgRecordActivity.this, "请到文件管理器中查阅PDF文件。", Toast.LENGTH_LONG).show();
+                    /*Uri uri = null;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        uri = FileProvider.getUriForFile(EcgRecordActivity.this,
+                                getApplicationContext().getPackageName() + ".provider", pdfFile);
+
+                    } else {
+                        uri = Uri.fromFile(pdfFile);
+                    }
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setDataAndType(uri, "application/pdf");
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        ViseLog.e("打开PDF文件失败。");
+                    }*/
+                } catch (IOException e) {
+                    Toast.makeText(EcgRecordActivity.this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
+                    ViseLog.e(e);
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+    private  Bitmap pdfToBitmap(File pdfFile) {
+        try {
+            PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY));
+            PdfRenderer.Page page = renderer.openPage(0);
+
+            int width = getResources().getDisplayMetrics().densityDpi / 72 * page.getWidth();
+            int height = getResources().getDisplayMetrics().densityDpi / 72 * page.getHeight();
+            int scale = 1;
+            while(width > 2000) {
+                scale *= 2;
+                width /= 2;
+            }
+            height /= scale;
+            //ViseLog.e("w="+width+"h="+height);
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+            page.close();
+            renderer.close();
+            return bitmap;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     @Override

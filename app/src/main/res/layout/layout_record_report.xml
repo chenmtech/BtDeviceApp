@@ -53,7 +53,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="诊断意见："
+                    android:text="参考意见："
                     android:textSize="20sp"/>
 
                 <TextView
@@ -66,6 +66,10 @@
                     android:textSize="20sp"/>
             </LinearLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="*上述结论不能作为临床诊断依据。"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"

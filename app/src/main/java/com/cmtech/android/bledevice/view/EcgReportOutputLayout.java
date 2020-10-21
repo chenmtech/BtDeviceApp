@@ -32,7 +32,7 @@ import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class EcgReportPdfLayout extends LinearLayout {
+public class EcgReportOutputLayout extends LinearLayout {
     private BleEcgRecord10 record;
 
     private final ScanEcgView[] ecgView = new ScanEcgView[3]; // ecgView array
@@ -45,9 +45,9 @@ public class EcgReportPdfLayout extends LinearLayout {
     private final TextView tvNote;
 
 
-    public EcgReportPdfLayout(Context context, @Nullable AttributeSet attrs) {
+    public EcgReportOutputLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        View view = LayoutInflater.from(context).inflate(R.layout.layout_ecg_report_pdf, this);
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_ecg_report_output, this);
 
         tvRecordPerson = view.findViewById(R.id.tv_record_person);
         tvRecordTime = view.findViewById(R.id.tv_record_time);
@@ -65,7 +65,7 @@ public class EcgReportPdfLayout extends LinearLayout {
         this.record = record;
     }
 
-    public void updateView(IPdfOutputCallback callback) {
+    public void updateView(String showText, IPdfOutputCallback callback) {
         if(record == null) return;
 
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -85,7 +85,7 @@ public class EcgReportPdfLayout extends LinearLayout {
 
         tvNote.setText(record.getNote());
 
-        new DrawEcgViewAsyncTask(getContext(), callback).execute(record);
+        new DrawEcgViewAsyncTask(getContext(), showText, callback).execute(record);
     }
 
     public interface IPdfOutputCallback {
@@ -96,10 +96,10 @@ public class EcgReportPdfLayout extends LinearLayout {
         private final ProgressDialog progressDialog;
         private final IPdfOutputCallback callback;
 
-        private DrawEcgViewAsyncTask(Context context, IPdfOutputCallback callback) {
+        private DrawEcgViewAsyncTask(Context context, String showText, IPdfOutputCallback callback) {
             this.callback = callback;
             progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage("创建PDF文件中，请稍等。");
+            progressDialog.setMessage(showText);
             progressDialog.setIndeterminate(false);
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
