@@ -210,7 +210,12 @@ public class HrmDevice extends AbstractDevice {
                         @Override
                         public void run() {
                             ecgRecord.requestDiagnose();
-                            Toast.makeText(getContext(), "信号已处理，请到记录列表中查看报告。", Toast.LENGTH_SHORT).show();
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     }).start();
                 }

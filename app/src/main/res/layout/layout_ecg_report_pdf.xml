@@ -91,8 +91,6 @@
         android:layout_margin="6dp"
         android:background="@color/primary_dark"/>
 
-
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -100,7 +98,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=">平均心率："
+            android:text="平均心率："
             android:textSize="20sp"/>
 
         <TextView
@@ -127,7 +125,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=">诊断意见："
+            android:text="诊断意见："
             android:textSize="20sp"/>
 
         <TextView
@@ -137,24 +135,6 @@
             android:minLines="3"
             android:textColor="@color/red"
             android:text="暂无"
-            android:textSize="20sp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=">备注："
-            android:textSize="20sp"/>
-
-        <TextView
-            android:id="@+id/tv_note"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minLines="3"
             android:textSize="20sp"/>
     </LinearLayout>
 
@@ -186,7 +166,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="报告版本："
+            android:text="版本："
             android:textSize="20sp"/>
 
         <TextView
@@ -194,7 +174,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:minEms="10"
-            android:text="0.0"
+            android:text="   "
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="备注："
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/tv_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="3"
             android:textSize="20sp"/>
     </LinearLayout>
 </LinearLayout>

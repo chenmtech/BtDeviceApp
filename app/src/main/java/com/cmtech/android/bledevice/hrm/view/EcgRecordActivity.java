@@ -1,15 +1,12 @@
 package com.cmtech.android.bledevice.hrm.view;
 
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
@@ -40,6 +37,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
@@ -177,7 +175,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
                 DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
                 String docTime = dateFmt.format(new Date());
-                File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                //File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                File dir = DIR_CACHE;
                 try {
                     if(!dir.exists()) {
                         dir.mkdir();
@@ -185,26 +184,18 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     File pdfFile = new File(dir,"km_ecgreport_" + docTime + ".pdf");
                     doc.writeTo(new FileOutputStream(pdfFile));
                     doc.close();
-
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(EcgRecordActivity.this);
-                    builder.setTitle("已生成pdf文档").setMessage("是否打开该文档？");
-                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-
-                            Uri uri = FileProvider.getUriForFile(EcgRecordActivity.this,
-                                    getApplicationContext().getPackageName() + ".provider", new File(dir,"km_ecgreport_" + docTime + ".pdf"));
-                            //Uri uri = Uri.fromFile(pdfFile);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.setDataAndType(uri, "application/pdf");
-                            try {
-                                startActivity(intent);
-                            } catch (ActivityNotFoundException e) {
-                                ViseLog.e("打开pdf文档失败。");
-                            }
-                        }
-                    }).show();
+                    Toast.makeText(EcgRecordActivity.this, "已生成PDF文件。", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    Uri uri = FileProvider.getUriForFile(EcgRecordActivity.this,
+                            getApplicationContext().getPackageName() + ".provider", new File(dir,"km_ecgreport_" + docTime + ".pdf"));
+                    //Uri uri = Uri.fromFile(pdfFile);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setDataAndType(uri, "application/pdf");
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        ViseLog.e("打开pdf文档失败。");
+                    }
                 } catch (IOException e) {
                     Toast.makeText(EcgRecordActivity.this, "生成PDF文件失败", Toast.LENGTH_SHORT).show();
                     ViseLog.e(e);

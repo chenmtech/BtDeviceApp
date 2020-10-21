@@ -48,13 +48,5 @@ public class EcgAFDetector implements IEcgAlgorithm{
         report.setStatus(EcgReport.DONE);
         report.setAveHr(aveHr);
         return report;
-
-        /*report.setReportTime(new Date().getTime());
-        report.setContent(builder.toString());
-        report.setStatus(EcgReport.DONE);
-        report.setAveHr(aveHr);
-        report.save();
-        record.setNeedUpload(true);
-        record.save();*/
     }
 }

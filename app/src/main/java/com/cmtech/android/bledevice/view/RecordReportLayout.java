@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 
 import org.json.JSONException;
@@ -49,9 +50,13 @@ public class RecordReportLayout extends LinearLayout {
             @Override
             public void onClick(View v) {
                 if(record != null) {
-                    record.requestDiagnose();
-                    updateView();
-                    Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
+                    if(MyApplication.getEcgAlgorithm().getVer().compareTo(record.getReport().getVer()) > 0) {
+                        record.requestDiagnose();
+                        updateView();
+                        Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "当前报告已是最新版本的。", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
