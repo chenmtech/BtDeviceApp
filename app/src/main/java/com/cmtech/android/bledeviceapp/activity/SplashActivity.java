@@ -16,12 +16,15 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.vise.utils.file.FileUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SPLASH_ACTIVITY_COUNT_DOWN_SECOND;
 
 /**
@@ -141,6 +144,17 @@ public class SplashActivity extends AppCompatActivity {
             }
         });
         thread.start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if(DIR_CACHE.exists())
+                        FileUtil.cleanDirectory(DIR_CACHE);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void stopCountDown() throws InterruptedException{
