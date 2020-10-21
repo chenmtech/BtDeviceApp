@@ -64,8 +64,8 @@
         android:layout_marginTop="4dp"
         android:layout_marginStart="50px"
         cmtech:background_color="#fff"
-        cmtech:grid_color="#f00"
-        cmtech:wave_color="#000"
+        cmtech:grid_color="@color/primary_dark"
+        cmtech:wave_color="#f00"
         cmtech:show_gridline="true"/>
 
     <LinearLayout
@@ -174,8 +174,8 @@
         android:layout_marginTop="4dp"
         android:layout_marginStart="50px"
         cmtech:background_color="#fff"
-        cmtech:grid_color="#f00"
-        cmtech:wave_color="#000"
+        cmtech:grid_color="@color/primary_dark"
+        cmtech:wave_color="#f00"
         cmtech:show_gridline="true"/>
 
     <LinearLayout
@@ -282,8 +282,8 @@
         android:layout_marginTop="4dp"
         android:layout_marginStart="50px"
         cmtech:background_color="#fff"
-        cmtech:grid_color="#f00"
-        cmtech:wave_color="#000"
+        cmtech:grid_color="@color/primary_dark"
+        cmtech:wave_color="#f00"
         cmtech:show_gridline="true"/>
 
     <LinearLayout
