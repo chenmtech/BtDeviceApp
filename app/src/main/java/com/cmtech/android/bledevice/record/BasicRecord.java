@@ -238,8 +238,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             @Override
             public void onFinish(int code, Object result) {
                 if(code == RETURN_CODE_SUCCESS) {
-                    LitePal.delete(recordClass, getId());
+
                 }
+                LitePal.delete(recordClass, getId());
                 callback.onFinish(code, result);
             }
         }).execute(this);

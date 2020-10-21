@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BasicRecord;
-import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.R;
@@ -255,11 +254,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     record.delete(RecordExplorerActivity.this, new IWebCallback() {
                         @Override
                         public void onFinish(int code, Object result) {
-                            if(code == RETURN_CODE_SUCCESS) {
-                                if (allRecords.remove(record)) {
-                                    recordAdapter.unselected();
-                                    updateRecordView();
-                                }
+                            if (allRecords.remove(record)) {
+                                recordAdapter.unselected();
+                                updateRecordView();
                             }
                         }
                     });

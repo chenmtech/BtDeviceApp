@@ -69,6 +69,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         if(json.has("report")) {
             report.fromJson(json.getJSONObject("report"));
         }
+        report.save();
     }
 
     @Override

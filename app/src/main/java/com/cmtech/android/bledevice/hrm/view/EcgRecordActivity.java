@@ -185,12 +185,13 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     doc.writeTo(new FileOutputStream(pdfFile));
                     doc.close();
                     Toast.makeText(EcgRecordActivity.this, "已生成PDF文件。", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
                     Uri uri = FileProvider.getUriForFile(EcgRecordActivity.this,
                             getApplicationContext().getPackageName() + ".provider", new File(dir,"km_ecgreport_" + docTime + ".pdf"));
-                    //Uri uri = Uri.fromFile(pdfFile);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.setDataAndType(uri, "application/pdf");
+                    //Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    //intent.putExtra(Browser.EXTRA_APPLICATION_ID, getPackageName());
                     try {
                         startActivity(intent);
                     } catch (ActivityNotFoundException e) {

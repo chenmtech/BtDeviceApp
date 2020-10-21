@@ -200,15 +200,26 @@ public class HrmDevice extends AbstractDevice {
             if(ecgRecord != null) {
                 int recordSecond = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 if (recordSecond < RECORD_MIN_SECOND) {
-                    Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 } else {
                     ecgRecord.setCreateTime(new Date().getTime());
                     ecgRecord.setRecordSecond(recordSecond);
                     ecgRecord.save();
-                    Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
                             ecgRecord.requestDiagnose();
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
