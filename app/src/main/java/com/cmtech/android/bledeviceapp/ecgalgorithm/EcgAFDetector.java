@@ -33,7 +33,7 @@ public class EcgAFDetector implements IEcgAlgorithm{
 
         StringBuilder builder = new StringBuilder();
         if(classify == MyAFEvidence.AF) {
-            builder.append("提示房颤风险。如有心脏不适，请及时就医。");
+            builder.append("提示房颤风险。");
         } else if(classify == NON_AF){
             builder.append("未发现房颤。");
         } else {

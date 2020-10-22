@@ -67,7 +67,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="*上述检测结论不能作为临床诊断依据。"/>
+                android:text="*以上结论不能作为临床诊断依据。如有心脏不适，请及时就医。"
+                android:textSize="10sp"
+                android:textColor="@color/red"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
