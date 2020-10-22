@@ -31,11 +31,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
- * Created by bme on 2018/12/06.
- */
-
-/**
  *
  * ClassName:      ScanWaveView
  * Description:    以扫描的方式显示波形的View
@@ -55,9 +50,14 @@ public class ScanWaveView extends View {
     private static final float DEFAULT_VALUE_PER_PIXEL = 1.0f; // 缺省纵向每个像素代表的数值
     public static final double DEFAULT_ZERO_LOCATION = 0.5; // 缺省的零值位置在纵向的高度比
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 每个栅格的像素个数
-    private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
-    private static final int DEFAULT_GRID_COLOR = Color.RED;
-    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW;
+    private static final int SMALL_GRID_NUM_IN_LARGE_GRID = 5; // 一个大的栅格包含多少个小的栅格
+    private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK; // 背景色
+    private static final int DEFAULT_LARGE_GRID_LINE_COLOR = Color.RED; // 大栅格线颜色
+    private static final int DEFAULT_SMALL_GRID_LINE_COLOR = Color.RED; // 小栅格线颜色
+    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 波形颜色
+    private static final int DEFAULT_ZERO_LINE_WIDTH = 4;
+    private static final int DEFAULT_LARGE_GRID_LINE_WIDTH = 2;
+    private static final int DEFAULT_SMALL_GRID_LINE_WIDTH = 0;
 
     private int viewWidth = 100; //视图宽度
     private int viewHeight = 100; //视图高度
@@ -70,17 +70,22 @@ public class ScanWaveView extends View {
     private Bitmap foreBitmap;	//前景bitmap
     private Canvas foreCanvas;	//前景canvas
     private final int backgroundColor; // 背景颜色
-    private final int gridColor; // 栅格颜色
-    private int waveColor; // 画线颜色
-    private final int defaultWaveColor; // 缺省的画线颜色
-    private PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
-    private PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
+    private final int largeGridLineColor; // 大栅格线颜色
+    private final int smallGridLineColor; // 小栅格线颜色
+    private int waveColor; // 波形颜色
+    private final int defaultWaveColor; // 缺省的波形颜色
+    private final PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
+    private final PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
     // View初始化主要需要设置下面4个参数
     private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每个栅格的像素个数
     private int xPixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
     private float yValuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，表示Y方向每个像素代表的信号值，value/pixel
     private double zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
+
+    private final int zeroLineWidth;
+    private final int largeGridLineWidth;
+    private final int smallGridLineWidth;
 
     private boolean showGridLine = true; // 是否显示栅格线
     private boolean isFirstData = false; // 是否是第一个数据
@@ -99,7 +104,7 @@ public class ScanWaveView extends View {
 
 
     private GestureDetector gestureDetector;
-    private GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
+    private final GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
         @Override
         public boolean onDown(MotionEvent motionEvent) {
             return false;
@@ -132,29 +137,37 @@ public class ScanWaveView extends View {
     public ScanWaveView(Context context) {
         super(context);
         backgroundColor = DEFAULT_BACKGROUND_COLOR;
-        gridColor = DEFAULT_GRID_COLOR;
+        largeGridLineColor = DEFAULT_LARGE_GRID_LINE_COLOR;
+        smallGridLineColor = DEFAULT_SMALL_GRID_LINE_COLOR;
         waveColor = defaultWaveColor = DEFAULT_WAVE_COLOR;
-        initPaint();
-        gestureDetector = new GestureDetector(context, gestureListener);
-        gestureDetector.setIsLongpressEnabled(false);
+
+        zeroLineWidth = DEFAULT_ZERO_LINE_WIDTH;
+        largeGridLineWidth = DEFAULT_LARGE_GRID_LINE_WIDTH;
+        smallGridLineWidth = DEFAULT_SMALL_GRID_LINE_WIDTH;
+
+        initialize(context);
     }
 
     public ScanWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        //第二个参数就是我们在attrs.xml文件中的<declare-styleable>标签
-        //即属性集合的标签，在R文件中名称为R.styleable+name
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WaveView);
+        TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.WaveView);
+        showGridLine = styledAttributes.getBoolean(R.styleable.WaveView_show_grid_line, true);
+        backgroundColor = styledAttributes.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
+        largeGridLineColor = styledAttributes.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_LARGE_GRID_LINE_COLOR);
+        smallGridLineColor = styledAttributes.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_SMALL_GRID_LINE_COLOR);
+        waveColor = defaultWaveColor = styledAttributes.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
 
-        //第一个参数为属性集合里面的属性，R文件名称：R.styleable+属性集合名称+下划线+属性名称
-        //第二个参数为，如果没有设置这个属性，则设置的默认的值
-        backgroundColor = a.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
-        gridColor = a.getColor(R.styleable.WaveView_grid_color, DEFAULT_GRID_COLOR);
-        waveColor = defaultWaveColor = a.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
-        showGridLine = a.getBoolean(R.styleable.WaveView_show_gridline, true);
+        zeroLineWidth = styledAttributes.getInt(R.styleable.WaveView_zero_line_width, DEFAULT_ZERO_LINE_WIDTH);
+        largeGridLineWidth = styledAttributes.getInt(R.styleable.WaveView_large_grid_line_width, DEFAULT_LARGE_GRID_LINE_WIDTH);
+        smallGridLineWidth = styledAttributes.getInt(R.styleable.WaveView_small_grid_line_width, DEFAULT_SMALL_GRID_LINE_WIDTH);
 
-        //最后记得将TypedArray对象回收
-        a.recycle();
+        styledAttributes.recycle();
+
+        initialize(context);
+    }
+
+    public void initialize(Context context) {
         initPaint();
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
@@ -216,7 +229,7 @@ public class ScanWaveView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         viewWidth = getWidth();
         viewHeight = getHeight();
-        initialize();
+        reset();
     }
 
     private void initPaint() {
@@ -226,9 +239,9 @@ public class ScanWaveView extends View {
     }
 
     /**
-     * 初始化
+     * 重置
      */
-    public void initialize()
+    public void reset()
     {
         //创建背景Bitmap
         createBackBitmap();
@@ -349,56 +362,60 @@ public class ScanWaveView extends View {
     {
         initX = 0;
         initY = (int)(viewHeight * zeroLocation);
+
         //创建背景Bitmap
         backBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
         if(!showGridLine) return;
+
         Canvas backCanvas = new Canvas(backBitmap);
         Paint paint = new Paint();
-        paint.setColor(gridColor);
+
         // 画零位线
-        paint.setStrokeWidth(4);
+        setPaint(paint, largeGridLineColor, zeroLineWidth);
         backCanvas.drawLine(initX, initY, initX + viewWidth, initY, paint);
-        paint.setStrokeWidth(1);
+
         // 画水平线
-        int vCoordinate = initY - pixelPerGrid;
-        int i = 1;
-        while(vCoordinate > 0) {
-            backCanvas.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, paint);
-            vCoordinate -= pixelPerGrid;
-            if(++i == 5) {
-                paint.setStrokeWidth(2);
-                i = 0;
+        int deltaY;
+        for(int drawed = 0; drawed < 2; drawed++ ) {
+            if(drawed == 0) {
+                deltaY = -pixelPerGrid;
+            } else {
+                deltaY = pixelPerGrid;
             }
-            else
-                paint.setStrokeWidth(1);
-        }
-        paint.setStrokeWidth(1);
-        vCoordinate = initY + pixelPerGrid;
-        i = 1;
-        while(vCoordinate < viewHeight) {
-            backCanvas.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, paint);
-            vCoordinate += pixelPerGrid;
-            if(++i == 5) {
-                paint.setStrokeWidth(2);
-                i = 0;
+
+            setPaint(paint, smallGridLineColor, smallGridLineWidth);
+            int y = initY + deltaY;
+            int n = 1;
+            while((drawed == 0 && y >= 0) || (drawed == 1 && y <= viewHeight) ) {
+                backCanvas.drawLine(initX, y, initX + viewWidth, y, paint);
+                y += deltaY;
+                if(++n == SMALL_GRID_NUM_IN_LARGE_GRID) {
+                    setPaint(paint, largeGridLineColor, largeGridLineWidth);
+                    n = 0;
+                }
+                else {
+                    setPaint(paint, smallGridLineColor, smallGridLineWidth);
+                }
             }
-            else
-                paint.setStrokeWidth(1);
         }
 
         // 画垂直线
-        paint.setStrokeWidth(1);
-        int hCoordinate = initX + pixelPerGrid;
-        i = 1;
-        while(hCoordinate < viewWidth) {
-            backCanvas.drawLine(hCoordinate, 0, hCoordinate, viewHeight, paint);
-            hCoordinate += pixelPerGrid;
-            if(++i == 5) {
-                paint.setStrokeWidth(2);
-                i = 0;
+        setPaint(paint, largeGridLineColor, largeGridLineWidth);
+        backCanvas.drawLine(initX, 0, initX, viewHeight, paint);
+        setPaint(paint, smallGridLineColor, smallGridLineWidth);
+
+        int x = initX + pixelPerGrid;
+        int n = 1;
+        while(x <= viewWidth) {
+            backCanvas.drawLine(x, 0, x, viewHeight, paint);
+            x += pixelPerGrid;
+            if(++n == SMALL_GRID_NUM_IN_LARGE_GRID) {
+                setPaint(paint, largeGridLineColor, largeGridLineWidth);
+                n = 0;
             }
-            else
-                paint.setStrokeWidth(1);
+            else {
+                setPaint(paint, smallGridLineColor, smallGridLineWidth);
+            }
         }
 
         // 画定标脉冲
@@ -412,6 +429,11 @@ public class ScanWaveView extends View {
 
         //mainPaint.setColor(waveColor);
         //mainPaint.setStrokeWidth(2);
+    }
+
+    private void setPaint(Paint paint, int color, int lineWidth) {
+        paint.setColor(color);
+        paint.setStrokeWidth(lineWidth);
     }
 
     public void setListener(OnWaveViewListener listener) {

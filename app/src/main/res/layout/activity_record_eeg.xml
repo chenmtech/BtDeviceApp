@@ -36,9 +36,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     cmtech:background_color="#666"
-                    cmtech:grid_color="#f00"
+                    cmtech:large_grid_line_color="#f00"
+                    cmtech:small_grid_line_color="#f00"
                     cmtech:wave_color="#ff0"
-                    cmtech:show_gridline="true"/>
+                    cmtech:show_grid_line="true"/>
 
                 <TextView
                     android:id="@+id/tv_current_time"

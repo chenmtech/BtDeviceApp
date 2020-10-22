@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!--定义Wave View中要使用的几种属性-->
     <declare-styleable name="WaveView">
+        <attr name="show_grid_line" format="boolean"/>
         <attr name="background_color" format="color" />
-        <attr name="grid_color" format="color"/>
+        <attr name="large_grid_line_color" format="color"/>
+        <attr name="small_grid_line_color" format="color"/>
         <attr name="wave_color" format="color"/>
-        <attr name="show_gridline" format="boolean"/>
+        <attr name="zero_line_width" format="integer"/>
+        <attr name="large_grid_line_width" format="integer"/>
+        <attr name="small_grid_line_width" format="integer"/>
     </declare-styleable>
 
     <declare-styleable name="HrHistogramChart">

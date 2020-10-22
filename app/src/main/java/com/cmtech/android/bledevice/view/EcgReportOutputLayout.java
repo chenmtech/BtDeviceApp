@@ -120,7 +120,7 @@ public class EcgReportOutputLayout extends LinearLayout {
                 int dataNum = scanEcgView.getWidth() / scanEcgView.getxPixelPerData();
                 if (ecgData.size() > begin) {
                     scanEcgView.start();
-                    scanEcgView.initialize();
+                    scanEcgView.reset();
                     int end = Math.min(begin + dataNum, ecgData.size());
                     for (int j = begin; j < end; j++) {
                         scanEcgView.showData(ecgData.get(j));

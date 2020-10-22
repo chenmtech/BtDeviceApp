@@ -17,9 +17,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             cmtech:background_color="@color/ecg_view_background"
-            cmtech:grid_color="@color/ecg_view_grid"
+            cmtech:large_grid_line_color="@color/ecg_view_grid"
+            cmtech:small_grid_line_color="@color/ecg_view_grid"
             cmtech:wave_color="@color/ecg_view_wave"
-            cmtech:show_gridline="true"/>
+            cmtech:show_grid_line="true"/>
 
         <TextView
             android:id="@+id/tv_message"

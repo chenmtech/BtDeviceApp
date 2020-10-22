@@ -60,13 +60,15 @@
     <com.cmtech.android.bledevice.view.ScanEcgView
         android:id="@+id/roll_ecg_view1"
         android:layout_width="2500px"
-        android:layout_height="550px"
+        android:layout_height="500px"
         android:layout_marginTop="4dp"
         android:layout_marginStart="50px"
         cmtech:background_color="#fff"
-        cmtech:grid_color="@color/primary_dark"
+        cmtech:large_grid_line_color="@color/primary_dark"
+        cmtech:small_grid_line_color="@color/secondary_dark"
         cmtech:wave_color="#f00"
-        cmtech:show_gridline="true"/>
+        cmtech:show_grid_line="true"
+        cmtech:large_grid_line_width="4"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -170,13 +172,15 @@
     <com.cmtech.android.bledevice.view.ScanEcgView
         android:id="@+id/roll_ecg_view2"
         android:layout_width="2500px"
-        android:layout_height="550px"
+        android:layout_height="500px"
         android:layout_marginTop="4dp"
         android:layout_marginStart="50px"
         cmtech:background_color="#fff"
-        cmtech:grid_color="@color/primary_dark"
+        cmtech:large_grid_line_color="@color/primary_dark"
+        cmtech:small_grid_line_color="@color/secondary_dark"
         cmtech:wave_color="#f00"
-        cmtech:show_gridline="true"/>
+        cmtech:show_grid_line="true"
+        cmtech:large_grid_line_width="4"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -278,13 +282,15 @@
     <com.cmtech.android.bledevice.view.ScanEcgView
         android:id="@+id/roll_ecg_view3"
         android:layout_width="2500px"
-        android:layout_height="550px"
+        android:layout_height="500px"
         android:layout_marginTop="4dp"
         android:layout_marginStart="50px"
         cmtech:background_color="#fff"
-        cmtech:grid_color="@color/primary_dark"
+        cmtech:large_grid_line_color="@color/primary_dark"
+        cmtech:small_grid_line_color="@color/secondary_dark"
         cmtech:wave_color="#f00"
-        cmtech:show_gridline="true"/>
+        cmtech:show_grid_line="true"
+        cmtech:large_grid_line_width="4"/>
 
     <LinearLayout
         android:layout_width="match_parent"

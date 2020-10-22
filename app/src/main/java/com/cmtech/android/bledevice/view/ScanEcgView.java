@@ -22,6 +22,6 @@ public class ScanEcgView extends ScanWaveView {
         setResolution(pixelPerData, valuePerPixel);
         setPixelPerGrid(PIXEL_PER_GRID);
         setZeroLocation(zeroLocation);
-        initialize();
+        reset();
     }
 }
