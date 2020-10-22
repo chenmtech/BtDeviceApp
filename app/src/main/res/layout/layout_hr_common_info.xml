@@ -3,49 +3,84 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:gravity="center_vertical"
     android:baselineAligned="false">
+
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/max_hr"
-            android:textSize="12sp"/>
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/max_hr"
+                android:textSize="12sp"/>
 
-        <TextView
-            android:id="@+id/tv_hr_max_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ellipsis"
-            android:textSize="25sp"
-            android:textColor="@color/primary_text"/>
+            <TextView
+                android:id="@+id/tv_hr_max_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ellipsis"
+                android:textSize="25sp"
+                android:textColor="@color/primary_text"/>
 
-        <TextView
-            android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/BPM"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/BPM"
-            android:textSize="12sp"/>
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/average_hr"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/tv_hr_ave_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ellipsis"
+                android:textSize="25sp"
+                android:textColor="@color/primary_text"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/BPM"
+                android:textSize="12sp"
+                android:layout_marginEnd="10dp"/>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/average_hr"
+            android:text="心率变异性(SDNN)："
             android:textSize="12sp"/>
 
         <TextView
-            android:id="@+id/tv_hr_ave_value"
+            android:id="@+id/tv_hrv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ellipsis"
@@ -55,10 +90,10 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/BPM"
+            android:text="毫秒(正常范围：30-90)"
             android:textSize="12sp"
             android:layout_marginEnd="10dp"/>
-    </LinearLayout>
 
+    </LinearLayout>
 
 </LinearLayout>

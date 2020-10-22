@@ -43,6 +43,21 @@ public class MathUtil {
 		  }
 		  return (float)Math.sqrt(dVar/(m-1));    
 	 }
+
+    //标准差σ=sqrt(s^2)
+    public static double doubleStd(List<Double> x) {
+        int m = x.size();
+        Double sum = 0.0;
+        for(Double d : x) {
+            sum += d;
+        }
+        double dAve = sum/m;//求平均值
+        double dVar = 0;
+        for(Double d : x) {
+            dVar += (d-dAve)*(d-dAve);
+        }
+        return (double)Math.sqrt(dVar/(m-1));
+    }
 	 
 	 //均值
 	 public static float shortAve(List<Short> x) { 

@@ -13,9 +13,13 @@ import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MA_FILTER_SPAN;
@@ -27,6 +31,7 @@ public class HrRecordActivity extends AppCompatActivity {
 
     private TextView tvMaxHr; // max HR
     private TextView tvAveHr; // average HR
+    private TextView tvHrv; // HRV value
     private MyLineChart hrLineChart; // HR line chart
     private HrHistogramChart hrHistChart; // HR histogram chart
 
@@ -91,9 +96,16 @@ public class HrRecordActivity extends AppCompatActivity {
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         tvAveHr = findViewById(R.id.tv_hr_ave_value);
         tvMaxHr = findViewById(R.id.tv_hr_max_value);
+        tvHrv = findViewById(R.id.tv_hrv);
 
         tvAveHr.setText(String.valueOf(record.getHrAve()));
         tvMaxHr.setText(String.valueOf(record.getHrMax()));
+        List<Short> hrList = record.getHrList();
+        List<Short> hrListMs = new ArrayList<>();
+        for(Short d : hrList) {
+            hrListMs.add((short)(60000/d));
+        }
+        tvHrv.setText(String.valueOf((short)MathUtil.shortStd(hrListMs)));
         hrHistChart.update(record.getHrHistogram());
 
     }
