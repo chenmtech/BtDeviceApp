@@ -15,7 +15,7 @@ public interface IEcgDevice extends HrStatisticProcessor.OnHrStatisticInfoUpdate
         void onValue1mVUpdated(int value1mV, int value1mVAfterCalibration);  // 1mV值更新
         void onRecordStateUpdated(boolean isRecord); // 记录状态更新
         void onBroadcastStateUpdated(boolean isBroadcast); // 广播状态更新
-        void onEcgViewSetup(int sampleRate, int value1mV, double zeroLocation); // 信号View设置
+        void onEcgViewSetup(int sampleRate, int value1mV, float zeroLocation); // 信号View设置
         void onEcgSignalUpdated(int ecgSignal); // 心电信号更新
         void onEcgSignalShowStateUpdated(boolean isStart); // 心电信号显示状态更新，开始还是停止
         void onEcgSignalRecordSecondUpdated(int second); // 心电信号记录秒数更新

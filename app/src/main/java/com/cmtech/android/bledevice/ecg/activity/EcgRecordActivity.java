@@ -218,13 +218,13 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     @Override
-    public void onShowStateUpdated(boolean isShow) {
-        if(isShow) {
+    public void onShowStateUpdated(boolean show) {
+        if(show) {
             btnReplayCtrl.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_pause_32px));
         } else {
             btnReplayCtrl.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_play_32px));
         }
-        sbReplay.setEnabled(!isShow);
+        sbReplay.setEnabled(!show);
     }
 
     @Override

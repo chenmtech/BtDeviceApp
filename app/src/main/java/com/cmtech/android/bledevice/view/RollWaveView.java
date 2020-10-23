@@ -31,7 +31,7 @@ public class RollWaveView extends View {
     private static final int DEFAULT_SIZE = 100; // 缺省View的大小
     private static final int DEFAULT_XRES = 2; // 缺省的X方向的分辨率
     private static final float DEFAULT_YRES = 1.0f; // 缺省的Y方向的分辨率
-    public static final double DEFAULT_ZERO_LOCATION = 0.5; // 缺省的零线位置在Y方向的高度的比例
+    public static final float DEFAULT_ZERO_LOCATION = 0.5f; // 缺省的零线位置在Y方向的高度的比例
     private static final int DEFAULT_GRID_WIDTH = 10; // 缺省的每个栅格的像素宽度
     private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK; // 缺省的背景颜色
     private static final int DEFAULT_GRID_COLOR = Color.RED; // 缺省的栅格线颜色

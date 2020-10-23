@@ -226,7 +226,7 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
     }
 
     @Override
-    public void onEcgViewSetup(int sampleRate, int value1mV, double zeroLocation) {
+    public void onEcgViewSetup(int sampleRate, int value1mV, float zeroLocation) {
         ecgView.setup(sampleRate, value1mV, zeroLocation);
     }
 
@@ -318,8 +318,8 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
     }
 
     @Override
-    public void onShowStateUpdated(boolean isShow) {
-        if(isShow) {
+    public void onShowStateUpdated(boolean show) {
+        if(show) {
             tvPauseMessage.setVisibility(View.GONE);
         } else {
             tvPauseMessage.setVisibility(View.VISIBLE);

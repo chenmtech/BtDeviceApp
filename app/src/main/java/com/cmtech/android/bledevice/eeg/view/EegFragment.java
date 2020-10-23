@@ -97,7 +97,7 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation) {
+    public void onFragmentUpdated(final int sampleRate, final int value1mV, final float zeroLocation) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -134,8 +134,8 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
     }
 
     @Override
-    public void onShowStateUpdated(boolean isShow) {
-        if(isShow) {
+    public void onShowStateUpdated(boolean show) {
+        if(show) {
             tvMessage.setVisibility(View.GONE);
         } else {
             tvMessage.setVisibility(View.VISIBLE);

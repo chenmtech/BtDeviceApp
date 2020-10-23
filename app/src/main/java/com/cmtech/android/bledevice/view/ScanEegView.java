@@ -16,7 +16,7 @@ public class ScanEegView extends ScanWaveView {
         super(context, attrs);
     }
 
-    public void setup(int sampleRate, int value1mV, double zeroLocation) {
+    public void setup(int sampleRate, int value1mV, float zeroLocation) {
         int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * sampleRate)); // 计算横向分辨率
         float valuePerPixel = value1mV * MV_PER_GRID / PIXEL_PER_GRID; // 计算纵向分辨率
         setResolution(pixelPerData, valuePerPixel);

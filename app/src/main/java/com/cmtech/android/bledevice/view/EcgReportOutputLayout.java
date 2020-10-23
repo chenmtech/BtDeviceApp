@@ -117,7 +117,7 @@ public class EcgReportOutputLayout extends LinearLayout {
             int begin = 0;
             for (ScanEcgView scanEcgView : ecgView) {
                 scanEcgView.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
-                int dataNum = scanEcgView.getWidth() / scanEcgView.getxPixelPerData();
+                int dataNum = scanEcgView.getWidth() / scanEcgView.getPixelPerData();
                 if (ecgData.size() > begin) {
                     scanEcgView.start();
                     scanEcgView.reset();

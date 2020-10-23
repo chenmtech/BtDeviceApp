@@ -198,7 +198,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation, final boolean inHrMode) {
+    public void onFragmentUpdated(final int sampleRate, final int value1mV, final float zeroLocation, final boolean inHrMode) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -269,8 +269,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onShowStateUpdated(boolean isShow) {
-        if(isShow) {
+    public void onShowStateUpdated(boolean show) {
+        if(show) {
             tvMessage.setVisibility(View.GONE);
         } else {
             tvMessage.setVisibility(View.VISIBLE);
