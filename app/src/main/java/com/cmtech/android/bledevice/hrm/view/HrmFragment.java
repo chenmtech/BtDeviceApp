@@ -203,7 +203,6 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ecgView.setup(sampleRate, value1mV, zeroLocation);
                     tvSwitchMode.setVisibility(View.VISIBLE);
                     if(inHrMode) {
                         flInHrMode.setVisibility(View.VISIBLE);
@@ -216,6 +215,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
                                 getResources().getDrawable(R.mipmap.ic_hr_24px, null), null, null);
                     } else {
+                        ecgView.setup(sampleRate, value1mV, zeroLocation);
                         fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
                         tvSwitchMode.setText(R.string.ecg_switch_on);
                         tvSwitchMode.setTextColor(Color.WHITE);
