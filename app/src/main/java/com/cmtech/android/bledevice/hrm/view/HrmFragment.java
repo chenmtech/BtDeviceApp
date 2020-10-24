@@ -253,7 +253,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     flInHrMode.setVisibility(View.GONE);
                     flInEcgMode.setVisibility(View.VISIBLE);
                     ecgView.start();
-                    ecgView.reset();
+                    ecgView.resetView(false);
                 } else {
                     flInHrMode.setVisibility(View.VISIBLE);
                     flInEcgMode.setVisibility(View.GONE);

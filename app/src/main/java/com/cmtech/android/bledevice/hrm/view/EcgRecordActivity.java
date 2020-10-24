@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.view.EcgReportOutputLayout;
+import com.cmtech.android.bledevice.view.OnRollWaveViewListener;
 import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RecordReportLayout;
@@ -46,7 +47,7 @@ import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
-public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
+public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
     private BleEcgRecord10 record; // record
     private RecordIntroductionLayout introductionLayout; // record introduction layout
     private RecordReportLayout reportLayout; // record report layout

@@ -21,6 +21,7 @@ import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecg.view.EcgHrHistogramChart;
 import com.cmtech.android.bledevice.ecg.view.EcgHrLineChart;
+import com.cmtech.android.bledevice.view.OnRollWaveViewListener;
 import com.cmtech.android.bledevice.view.RollSignalRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
@@ -38,7 +39,7 @@ import java.util.List;
 import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.HR_FILTER_SECOND;
 import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.HR_HISTOGRAM_BAR_NUM;
 
-public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener{
+public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener{
     private EcgRecord record;
     private long modifyTime;
 

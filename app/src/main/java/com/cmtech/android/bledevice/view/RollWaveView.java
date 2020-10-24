@@ -37,8 +37,8 @@ public class RollWaveView extends View {
     private static final int DEFAULT_GRID_COLOR = Color.RED; // 缺省的栅格线颜色
     protected static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 缺省的波形颜色
 
-    private int viewWidth = 100; //视图宽度
-    private int viewHeight = 100;  //视图高度
+    private int viewWidth = DEFAULT_SIZE; //视图宽度
+    private int viewHeight = DEFAULT_SIZE;  //视图高度
     protected int initX, initY;	 //画图起始位置
     protected int preX, preY; //画线的前一个点坐标
     protected final Paint wavePaint = new Paint(); // 波形画笔
@@ -57,11 +57,6 @@ public class RollWaveView extends View {
     private final int gridColor; // 栅格线颜色
     private final int waveColor; // 波形颜色
     private final boolean showGridLine; // 是否显示栅格线
-
-    // 滚动波形视图监听器接口
-    public interface OnRollWaveViewListener extends OnWaveViewListener{
-        void onDataLocationUpdated(long dataLocation, int sampleRate); // 数据位置更新
-    }
 
     protected OnRollWaveViewListener listener;
 
@@ -94,6 +89,36 @@ public class RollWaveView extends View {
 
         setDataNumXDirection(viewWidth, xRes);
         initWavePaint();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(calculateMeasure(widthMeasureSpec), calculateMeasure(heightMeasureSpec));
+
+        viewWidth = getWidth();
+        viewHeight = getHeight();
+        setDataNumXDirection(viewWidth, xRes);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+
+        super.onDraw(canvas);
+
+        //canvas.drawColor(backgroundColor);
+        canvas.drawBitmap(foreBitmap, 0, 0, null);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        viewWidth = getWidth();
+        viewHeight = getHeight();
+        setDataNumXDirection(viewWidth, xRes);
+
+        initialize();
+        drawDataOnForeCanvas();
     }
 
     private void initWavePaint() {
@@ -133,26 +158,6 @@ public class RollWaveView extends View {
         dataNumXDirection = viewWidth/xRes+1;
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-
-        super.onDraw(canvas);
-
-        //canvas.drawColor(backgroundColor);
-        canvas.drawBitmap(foreBitmap, 0, 0, null);
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-        setMeasuredDimension(calculateMeasure(widthMeasureSpec), calculateMeasure(heightMeasureSpec));
-
-        viewWidth = getWidth();
-        viewHeight = getHeight();
-        setDataNumXDirection(viewWidth, xRes);
-    }
-
     private int calculateMeasure(int measureSpec)
     {
         int size = (int)(DEFAULT_SIZE * getResources().getDisplayMetrics().density);
@@ -168,18 +173,6 @@ public class RollWaveView extends View {
             size = Math.min(size, specSize);
         }
         return size;
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-
-        viewWidth = getWidth();
-        viewHeight = getHeight();
-        setDataNumXDirection(viewWidth, xRes);
-
-        initialize();
-        drawDataOnForeCanvas();
     }
 
     public void initialize()

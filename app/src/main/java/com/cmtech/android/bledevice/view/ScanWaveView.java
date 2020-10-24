@@ -61,8 +61,8 @@ public class ScanWaveView extends View {
     private static final int DEFAULT_WAVE_WIDTH = 2; // 波形线宽
 
 
-    private int viewWidth = 100; //视图宽度
-    private int viewHeight = 100; //视图高度
+    private int viewWidth = DEFAULT_SIZE; //视图宽度
+    private int viewHeight = DEFAULT_SIZE; //视图高度
     private int initX, initY; //画图起始坐标
     private int preX, preY; //画线的前一个点坐标
     private int curX, curY; //画线的当前点坐标
@@ -74,7 +74,7 @@ public class ScanWaveView extends View {
 
     private final boolean showGridLine; // 是否显示栅格线
 
-    private final int backgroundColor; // 背景颜色
+    private final int bgColor; // 背景颜色
     private final int largeGridLineColor; // 大栅格线颜色
     private final int smallGridLineColor; // 小栅格线颜色
     private int waveColor; // 波形颜色
@@ -86,7 +86,7 @@ public class ScanWaveView extends View {
     private final int waveWidth = DEFAULT_WAVE_WIDTH; // 波形线宽
 
     private boolean first = true; // 是否是第一个数据
-    private boolean show = true; // 是否在显示
+    private boolean showWave = true; // 是否显示波形
 
     private final PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
     private final PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
@@ -110,7 +110,7 @@ public class ScanWaveView extends View {
         }
         @Override
         public boolean onSingleTapUp(MotionEvent motionEvent) {
-            setShow(!show);
+            setShowWave(!showWave);
             return false;
         }
         @Override
@@ -133,7 +133,7 @@ public class ScanWaveView extends View {
         super(context);
 
         showGridLine = true;
-        backgroundColor = DEFAULT_BACKGROUND_COLOR;
+        bgColor = DEFAULT_BACKGROUND_COLOR;
         largeGridLineColor = DEFAULT_LARGE_GRID_LINE_COLOR;
         smallGridLineColor = DEFAULT_SMALL_GRID_LINE_COLOR;
         waveColor = defaultWaveColor = DEFAULT_WAVE_COLOR;
@@ -144,8 +144,6 @@ public class ScanWaveView extends View {
 
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
-
-        initPaint();
     }
 
     public ScanWaveView(Context context, AttributeSet attrs) {
@@ -153,7 +151,7 @@ public class ScanWaveView extends View {
 
         TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.WaveView);
         showGridLine = styledAttributes.getBoolean(R.styleable.WaveView_show_grid_line, true);
-        backgroundColor = styledAttributes.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
+        bgColor = styledAttributes.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
         largeGridLineColor = styledAttributes.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_LARGE_GRID_LINE_COLOR);
         smallGridLineColor = styledAttributes.getColor(R.styleable.WaveView_small_grid_line_color, DEFAULT_SMALL_GRID_LINE_COLOR);
         waveColor = defaultWaveColor = styledAttributes.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
@@ -166,29 +164,6 @@ public class ScanWaveView extends View {
 
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
-
-        initPaint();
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return true;
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.drawColor(backgroundColor);
-        canvas.drawBitmap(foreBitmap, 0, 0, null);
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(calculateMeasure(widthMeasureSpec), calculateMeasure(heightMeasureSpec));
-        viewWidth = getWidth();
-        viewHeight = getHeight();
     }
 
     @Override
@@ -196,7 +171,19 @@ public class ScanWaveView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         viewWidth = getWidth();
         viewHeight = getHeight();
-        reset();
+        resetView(true);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        //canvas.drawColor(bgColor);
+        canvas.drawBitmap(foreBitmap, 0, 0, null);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return true;
     }
 
     public int getPixelPerData() {
@@ -207,12 +194,12 @@ public class ScanWaveView extends View {
         this.pixelPerGrid = pixelPerGrid;
     }
 
-    // 改变显示状态
-    public void setShow(boolean show) {
-        if(this.show != show) {
-            this.show = show;
+    // 是否显示波形
+    public void setShowWave(boolean showWave) {
+        if(this.showWave != showWave) {
+            this.showWave = showWave;
             if (listener != null) {
-                listener.onShowStateUpdated(show);
+                listener.onShowStateUpdated(showWave);
             }
         }
     }
@@ -237,6 +224,7 @@ public class ScanWaveView extends View {
     public void setWaveColor(int waveColor) {
         this.waveColor = waveColor;
     }
+
     public void restoreDefaultWaveColor() {
         this.waveColor = defaultWaveColor;
     }
@@ -246,11 +234,17 @@ public class ScanWaveView extends View {
     }
 
     // 重置view
-    public void reset()
+    // includeBackground: 是否重绘背景bitmap
+    public void resetView(boolean includeBackground)
     {
-        //创建背景Bitmap
-        createBackBitmap();
+        initX = 0;
+        initY = (int)(viewHeight * zeroLocation);
 
+        //重新创建背景Bitmap
+        if(includeBackground)
+            createBackBitmap();
+
+        // 创建前景bitmap和canvas
         //将背景bitmap复制为前景bitmap
         foreBitmap = backBitmap.copy(Bitmap.Config.ARGB_8888,true);
         foreCanvas = new Canvas(foreBitmap);
@@ -260,7 +254,12 @@ public class ScanWaveView extends View {
         preY = curY = initY;
 
         first = true;
-        setShow(true);
+        setShowWave(true);
+
+        // 重置前景画笔
+        initForePaint();
+
+        postInvalidate();
     }
 
     // 开始显示
@@ -277,9 +276,7 @@ public class ScanWaveView extends View {
         }
     }
 
-    /**
-     * 停止显示
-     */
+    // 停止显示
     public void stop() {
         ViseLog.e("停止ScanWaveView");
         if (showService != null && !showService.isTerminated()) {
@@ -298,7 +295,7 @@ public class ScanWaveView extends View {
 
     // 显示数据
     public void showData(final int data) {
-        if(show && !ExecutorUtil.isDead(showService)) {
+        if(showWave && !ExecutorUtil.isDead(showService)) {
             showService.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -308,10 +305,12 @@ public class ScanWaveView extends View {
         }
     }
 
-    private void initPaint() {
+    // 初始化前景画笔
+    private void initForePaint() {
         forePaint.setXfermode(srcOverMode);
         forePaint.setAlpha(255);
         forePaint.setStrokeWidth(waveWidth);
+        forePaint.setColor(waveColor);
     }
 
     private void drawData(int data) {
@@ -320,28 +319,12 @@ public class ScanWaveView extends View {
             preY = dataY;
             first = false;
         } else {
-            drawPointOnForeCanvas(dataY);
+            drawDataOnForeCanvas(dataY);
             postInvalidate();
         }
     }
 
-    private int calculateMeasure(int measureSpec)
-    {
-        int size = (int)(DEFAULT_SIZE * getResources().getDisplayMetrics().density);
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
-        if(specMode == MeasureSpec.EXACTLY)
-        {
-            size = specSize;
-        }
-        else if(specMode == MeasureSpec.AT_MOST)
-        {
-            size = Math.min(size, specSize);
-        }
-        return size;
-    }
-
-    private void drawPointOnForeCanvas(int dataY)
+    private void drawDataOnForeCanvas(int dataY)
     {
         curY = dataY;
         if(preX == viewWidth)	//最后一个像素，抹去第一列
@@ -352,7 +335,7 @@ public class ScanWaveView extends View {
         else	//画线
         {
             curX += pixelPerData;
-            forePaint.setColor(waveColor);
+            //forePaint.setColor(waveColor);
             foreCanvas.drawLine(preX, preY, curX, curY, forePaint);
             deleteRect.set(curX +1, 0, curX + pixelPerGrid, viewHeight);
         }
@@ -366,14 +349,13 @@ public class ScanWaveView extends View {
 
     private void createBackBitmap()
     {
-        initX = 0;
-        initY = (int)(viewHeight * zeroLocation);
-
         //创建背景Bitmap
         backBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
+        Canvas backCanvas = new Canvas(backBitmap);
+        backCanvas.drawColor(bgColor);
+
         if(!showGridLine) return;
 
-        Canvas backCanvas = new Canvas(backBitmap);
         Paint paint = new Paint();
 
         // 画零位线
