@@ -91,7 +91,6 @@ public class ScanWaveView extends View {
     private final PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
     private final PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
-    // View初始化主要需要设置下面4个参数
     private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每个栅格的像素个数
     private int pixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
     private float valuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，表示Y方向每个像素代表的信号值，value/pixel
@@ -176,7 +175,6 @@ public class ScanWaveView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        //canvas.drawColor(bgColor);
         canvas.drawBitmap(foreBitmap, 0, 0, null);
     }
 

@@ -79,14 +79,14 @@ public class ColorRollWaveView extends RollWaveView {
         clearData();
         addData(data[begin], markers[begin]);
         preX = initX;
-        preY = initY - Math.round(data[begin]/yRes);
+        preY = initY - Math.round(data[begin]/ valuePerPixel);
         Path path = new Path();
         path.moveTo(preX, preY);
         wavePaint.setColor((markers[begin]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);
         for(int i = begin+1; i < dataNum; i++) {
             addData(data[i], markers[i]);
-            preX += xRes;
-            preY = initY - Math.round(data[i]/yRes);
+            preX += pixelPerData;
+            preY = initY - Math.round(data[i]/ valuePerPixel);
             path.lineTo(preX, preY);
             if(markers[i] != markers[i-1]) {
                 foreCanvas.drawPath(path, wavePaint);
