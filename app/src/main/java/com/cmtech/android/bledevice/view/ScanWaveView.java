@@ -333,7 +333,6 @@ public class ScanWaveView extends View {
         else	//画线
         {
             curX += pixelPerData;
-            //forePaint.setColor(waveColor);
             foreCanvas.drawLine(preX, preY, curX, curY, forePaint);
             deleteRect.set(curX +1, 0, curX + pixelPerGrid, viewHeight);
         }

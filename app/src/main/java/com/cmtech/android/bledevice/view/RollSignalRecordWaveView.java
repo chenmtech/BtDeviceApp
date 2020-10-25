@@ -20,7 +20,7 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  * Created by bme on 2018/12/06.
  */
 
-public class RollSignalRecordWaveView extends ColorRollWaveView {
+public class RollSignalRecordWaveView extends RollWaveView {
     private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
     private ISignalRecord signalRecord; // 要播放的信号记录
@@ -50,7 +50,7 @@ public class RollSignalRecordWaveView extends ColorRollWaveView {
                                     break;
                                 }
                             }
-                            showData(cacheData, cacheMarked);
+                            showData(cacheData);
                             cacheData.clear();
                             cacheMarked.clear();
                             if(listener != null) {
@@ -187,7 +187,7 @@ public class RollSignalRecordWaveView extends ColorRollWaveView {
         } else if(location < 0) {
             location = 0;
         }
-        long begin = location - getDataNumXDirection();
+        long begin = location - getDataNumInView();
         if(begin < 0) {
             begin = 0;
         }
@@ -196,7 +196,7 @@ public class RollSignalRecordWaveView extends ColorRollWaveView {
         clearData();
         while(begin++ <= location) {
             try {
-                addData(signalRecord.readData(), false);
+                addData(signalRecord.readData());
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

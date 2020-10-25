@@ -71,7 +71,7 @@ public class ColorRollWaveView extends RollWaveView {
             return true;
         }
 
-        int begin = dataNum - dataNumXDirection;
+        int begin = dataNum - dataNumInView;
         if(begin < 0) {
             begin = 0;
         }
@@ -82,20 +82,20 @@ public class ColorRollWaveView extends RollWaveView {
         preY = initY - Math.round(data[begin]/ valuePerPixel);
         Path path = new Path();
         path.moveTo(preX, preY);
-        wavePaint.setColor((markers[begin]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);
+        forePaint.setColor((markers[begin]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);
         for(int i = begin+1; i < dataNum; i++) {
             addData(data[i], markers[i]);
             preX += pixelPerData;
             preY = initY - Math.round(data[i]/ valuePerPixel);
             path.lineTo(preX, preY);
             if(markers[i] != markers[i-1]) {
-                foreCanvas.drawPath(path, wavePaint);
+                foreCanvas.drawPath(path, forePaint);
                 path = new Path();
                 path.moveTo(preX, preY);
-                wavePaint.setColor((markers[i]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);
+                forePaint.setColor((markers[i]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);
             }
         }
-        foreCanvas.drawPath(path, wavePaint);
+        foreCanvas.drawPath(path, forePaint);
 
         return true;
     }

@@ -26,6 +26,6 @@ public class RollEcgRecordWaveView extends RollSignalRecordWaveView {
         setResolution(pixelPerData, valuePerPixel);
         setPixelPerGrid(PIXEL_PER_GRID);
         setZeroLocation(zeroLocation);
-        initialize();
+        resetView(true);
     }
 }

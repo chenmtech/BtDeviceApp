@@ -18,6 +18,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.util.FixSizeLinkedList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class RollWaveView extends View {
     private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK; // 背景色
     private static final int DEFAULT_LARGE_GRID_LINE_COLOR = Color.RED; // 大栅格线颜色
     private static final int DEFAULT_SMALL_GRID_LINE_COLOR = Color.RED; // 小栅格线颜色
-    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 波形颜色
+    protected static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 波形颜色
     private static final int DEFAULT_ZERO_LINE_WIDTH = 4; // 零位置线宽
     private static final int DEFAULT_LARGE_GRID_LINE_WIDTH = 2; // 大栅格线宽
     private static final int DEFAULT_SMALL_GRID_LINE_WIDTH = 0; // 小栅格线宽，0代表头发丝风格
@@ -47,66 +48,84 @@ public class RollWaveView extends View {
     private int viewHeight = DEFAULT_SIZE;  //视图高度
     protected int initX, initY;	 //画图起始位置
     protected int preX, preY; //画线的前一个点坐标
-    protected final Paint wavePaint = new Paint(); // 波形画笔
+    protected final Paint forePaint = new Paint(); // 波形画笔
     protected Bitmap backBitmap; //背景bitmap
     private Bitmap foreBitmap; //前景bitmap
     protected Canvas foreCanvas; //前景canvas
-    protected List<Integer> viewData = new ArrayList<>(); //要显示的信号数据对象的引用
+
+    private final boolean showGridLine; // 是否显示栅格线
+
+    private final int bgColor; // 背景颜色
+    private final int gridColor; // 栅格线颜色
+    private final int waveColor; // 波形颜色
 
     private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 一个栅格的像素宽度
     protected int pixelPerData = DEFAULT_PIXEL_PER_DATA;	 //X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
     protected float valuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
     private double zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
 
-    protected int dataNumXDirection; // X方向上一屏包含的数据点数
-    private final int backgroundColor; // 背景颜色
-    private final int gridColor; // 栅格线颜色
-    private final int waveColor; // 波形颜色
-    private final boolean showGridLine; // 是否显示栅格线
+    protected int dataNumInView; // X方向上一屏包含的数据点数
+
+    protected List<Integer> viewData = new FixSizeLinkedList<>(1); //要显示的信号数据对象的引用
 
     protected OnRollWaveViewListener listener;
 
     public RollWaveView(Context context) {
         super(context);
 
-        backgroundColor = DEFAULT_BACKGROUND_COLOR;
+        showGridLine = true;
+        bgColor = DEFAULT_BACKGROUND_COLOR;
         gridColor = DEFAULT_LARGE_GRID_LINE_COLOR;
         waveColor = DEFAULT_WAVE_COLOR;
-        showGridLine = true;
-
-        setDataNumXDirection(viewWidth, pixelPerData);
-        initWavePaint();
     }
 
     public RollWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WaveView);
-
-        //第一个参数为属性集合里面的属性，R文件名称：R.styleable+属性集合名称+下划线+属性名称
-        //第二个参数为，如果没有设置这个属性，则设置的默认的值
-        backgroundColor = a.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
+        showGridLine = a.getBoolean(R.styleable.WaveView_show_grid_line, true);
+        bgColor = a.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
         gridColor = a.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_LARGE_GRID_LINE_COLOR);
         waveColor = a.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
-        showGridLine = a.getBoolean(R.styleable.WaveView_show_grid_line, true);
-
-        //最后记得将TypedArray对象回收
         a.recycle();
-
-        setDataNumXDirection(viewWidth, pixelPerData);
-        initWavePaint();
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
         viewWidth = getWidth();
         viewHeight = getHeight();
-        setDataNumXDirection(viewWidth, pixelPerData);
+        resetView(true);
+    }
 
-        initialize();
-        drawDataOnForeCanvas();
+    // 重置view
+    // includeBackground: 是否重绘背景bitmap
+    public void resetView(boolean includeBackground)
+    {
+        setDataNumInView(viewWidth, pixelPerData);
+
+        clearData();
+
+        initX = 0;
+        initY = (int)(viewHeight * zeroLocation);
+
+        //重新创建背景Bitmap
+        if(includeBackground)
+            createBackBitmap();
+
+        // 创建前景bitmap和canvas
+        //将背景bitmap复制为前景bitmap
+        foreBitmap = backBitmap.copy(Bitmap.Config.ARGB_8888,true);
+        foreCanvas = new Canvas(foreBitmap);
+
+        // 初始化画图起始位置
+        preX = initX;
+        preY = initY;
+
+        // 重置前景画笔
+        initForePaint();
+
+        postInvalidate();
     }
 
     @Override
@@ -114,11 +133,11 @@ public class RollWaveView extends View {
         canvas.drawBitmap(foreBitmap, 0, 0, null);
     }
 
-    private void initWavePaint() {
-        wavePaint.setAlpha(255);
-        wavePaint.setStyle(Paint.Style.STROKE);
-        wavePaint.setStrokeWidth(2);
-        wavePaint.setColor(waveColor);
+    private void initForePaint() {
+        forePaint.setAlpha(255);
+        forePaint.setStyle(Paint.Style.STROKE);
+        forePaint.setStrokeWidth(2);
+        forePaint.setColor(waveColor);
     }
 
     public void setPixelPerGrid(int gridWidth) {
@@ -141,31 +160,13 @@ public class RollWaveView extends View {
         initY = (int)(viewHeight * this.zeroLocation);
     }
 
-    public int getDataNumXDirection() {
-        return dataNumXDirection;
+    public int getDataNumInView() {
+        return dataNumInView;
     }
 
-    public void setDataNumXDirection(int viewWidth, int xRes) {
-        dataNumXDirection = viewWidth/xRes+1;
-    }
-
-    public void initialize()
-    {
-        // 清除缓存区
-        //viewData.design();
-
-        //创建背景Bitmap
-        createBackBitmap();
-
-        //将背景bitmap复制到前景bitmap
-        foreBitmap = backBitmap.copy(Bitmap.Config.ARGB_8888,true);
-        foreCanvas = new Canvas(foreBitmap);
-
-        // 初始化画图起始位置
-        preX = initX;
-        preY = initY;
-
-        invalidate();
+    public void setDataNumInView(int viewWidth, int pixelPerData) {
+        dataNumInView = viewWidth/pixelPerData+1;
+        viewData = new FixSizeLinkedList<>(dataNumInView);
     }
 
     public void clearData() {
@@ -179,7 +180,7 @@ public class RollWaveView extends View {
     public synchronized void showData(List<Integer> data) {
         viewData.addAll(data);
         drawDataOnForeCanvas();
-        invalidate();
+        postInvalidate();
     }
 
     public void setListener(OnRollWaveViewListener listener) {
@@ -196,7 +197,7 @@ public class RollWaveView extends View {
             return true;
         }
 
-        int begin = dataNum - dataNumXDirection;
+        int begin = dataNum - dataNumInView;
         if(begin < 0) {
             begin = 0;
         }
@@ -214,7 +215,7 @@ public class RollWaveView extends View {
             path.lineTo(preX, preY);
         }
 
-        foreCanvas.drawPath(path, wavePaint);
+        foreCanvas.drawPath(path, forePaint);
         return true;
     }
 
@@ -230,7 +231,7 @@ public class RollWaveView extends View {
         if(!showGridLine) return;
 
         Canvas backCanvas = new Canvas(backBitmap);
-        backCanvas.drawColor(backgroundColor);
+        backCanvas.drawColor(bgColor);
 
         Paint paint = new Paint();
         paint.setColor(gridColor);
