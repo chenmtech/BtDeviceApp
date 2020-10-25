@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
+import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.ISignalRecord;
 
 import java.io.IOException;
@@ -16,50 +17,46 @@ import java.util.TimerTask;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
- * RollSignalRecordWaveView: 用于播放信号记录的卷轴滚动式的波形显示视图
+ * RollRecordView: 用于播放信号记录的卷轴滚动式的波形显示视图
  * Created by bme on 2018/12/06.
  */
 
-public class RollSignalRecordWaveView extends RollWaveView {
+public class RollRecordView extends RollWaveView {
     private static final int MIN_TIME_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
     private ISignalRecord record; // 要播放的信号记录
     private boolean showing = false; // 是否正在播放
     private int curIndex = 0; // 当前读取记录文件中的第几个数据
-    private int timeInterval = 0; // 每次更新显示的时间间隔，为采样间隔的整数倍
     private int dataNumReadEachUpdate = 1; // 每次更新显示时需要读取的数据个数
-    private final List<Integer> cacheData = new ArrayList<>(); // 每次更新显示时需要读取的数据缓存
 
     // 定时周期显示任务
     private class ShowTask extends TimerTask {
         @Override
         public void run() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        if(record.isEOD()) {
-                            stop();
-                        } else {
-                            // 读出数据
-                            for (int i = 0; i < dataNumReadEachUpdate; i++, curIndex++) {
-                                cacheData.add(record.readData());
-                                if (record.isEOD()) {
-                                    break;
-                                }
-                            }
-                            addData(cacheData, true);
-                            cacheData.clear();
-                            if(listener != null) {
-                                listener.onDataLocationUpdated(curIndex, record.getSampleRate());
-                            }
+            try {
+                if(record.isEOD()) {
+                    stop();
+                } else {
+                    // 读出数据
+                    for (int i = 0; i < dataNumReadEachUpdate; i++, curIndex++) {
+                        addData(record.readData(), false);
+                        if (record.isEOD()) {
+                            break;
                         }
-                    } catch (IOException e) {
-                        stop();
+                    }
+                    showView();
+                    if(listener != null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
+                            }
+                        });
                     }
                 }
-            });
-
+            } catch (IOException e) {
+                stop();
+            }
         }
     }
     private Timer showTimer; // 定时器
@@ -103,13 +100,13 @@ public class RollSignalRecordWaveView extends RollWaveView {
         }
     };
 
-    public RollSignalRecordWaveView(Context context) {
+    public RollRecordView(Context context) {
         super(context);
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
     }
 
-    public RollSignalRecordWaveView(Context context, AttributeSet attrs) {
+    public RollRecordView(Context context, AttributeSet attrs) {
         super(context, attrs);
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
@@ -121,20 +118,27 @@ public class RollSignalRecordWaveView extends RollWaveView {
         return true;
     }
 
+    public void setup(ISignalRecord record, float zeroLocation, float secondPerGrid, float mvPerGrid, int pixelPerGrid) {
+        setRecord(record);
+        int pixelPerData = Math.round(pixelPerGrid / (secondPerGrid * record.getSampleRate())); // 计算横向分辨率
+        float valuePerPixel = record.getCaliValue() * mvPerGrid / pixelPerGrid; // 计算纵向分辨率
+        setResolution(pixelPerData, valuePerPixel);
+        setPixelPerGrid(pixelPerGrid);
+        setZeroLocation(zeroLocation);
+        resetView(true);
+    }
+
     public void setRecord(ISignalRecord record) {
         if(record == null) {
             throw new IllegalArgumentException();
         }
         stop();
         this.record = record;
+        curIndex = 0;
+        record.seekData(curIndex);
+
         int sampleInterval = 1000/ record.getSampleRate();
         dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_TIME_INTERVAL /sampleInterval));
-        timeInterval = dataNumReadEachUpdate *sampleInterval;
-        if(timeInterval == 0) {
-            throw new IllegalArgumentException();
-        }
-        record.seekData(0);
-        curIndex = 0;
     }
 
     public boolean isShowing() {
@@ -144,15 +148,28 @@ public class RollSignalRecordWaveView extends RollWaveView {
     public void start() {
         if(!showing && record != null) {
             if(record.isEOD()) {
-                record.seekData(0);
-                resetView(true);
                 curIndex = 0;
+                record.seekData(curIndex);
+                resetView(true);
             }
+
+            int sampleInterval = 1000/ record.getSampleRate();
+            int timeInterval = dataNumReadEachUpdate * sampleInterval;
+            if(timeInterval == 0) {
+                throw new IllegalArgumentException();
+            }
+
             showTimer = new Timer();
             showTimer.scheduleAtFixedRate(new ShowTask(), timeInterval, timeInterval);
             showing = true;
+
             if(listener != null) {
-                listener.onShowStateUpdated(true);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onShowStateUpdated(true);
+                    }
+                });
             }
         }
     }
@@ -163,7 +180,12 @@ public class RollSignalRecordWaveView extends RollWaveView {
             showTimer = null;
             showing = false;
             if(listener != null) {
-                listener.onShowStateUpdated(false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onShowStateUpdated(false);
+                    }
+                });
             }
         }
     }
@@ -188,22 +210,20 @@ public class RollSignalRecordWaveView extends RollWaveView {
         }
 
         record.seekData((int)begin);
-        List<Integer> list = new ArrayList<>();
+        clearData();
         while(begin++ <= location) {
             try {
-                list.add(record.readData());
+                addData(record.readData(), false);
             } catch (IOException e) {
                 e.printStackTrace();
                 break;
             }
         }
-        clearData();
-        addData(list, true);
-
+        showView();
         curIndex = (int)location;
 
         if(listener != null) {
-            listener.onDataLocationUpdated(curIndex, record.getSampleRate());
+            listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
         }
     }
 

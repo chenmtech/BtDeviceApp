@@ -25,7 +25,7 @@ import com.cmtech.android.bledevice.view.OnRollWaveViewListener;
 import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RecordReportLayout;
-import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
+import com.cmtech.android.bledevice.view.RollEcgView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
@@ -54,7 +54,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     private RecordNoteLayout noteLayout; // record note layout
     private EcgReportOutputLayout reportOutputLayout; // record report output layout
 
-    private RollEcgRecordWaveView ecgView; // ecgView
+    private RollEcgView ecgView; // ecgView
     private TextView tvTimeLength; // record time length
     private TextView tvCurrentTime; // current replay time
     private SeekBar sbReplay; // 播放条
@@ -271,8 +271,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     }
 
     @Override
-    public void onDataLocationUpdated(long dataLocation, int sampleRate) {
-        int second = (int)(dataLocation/ sampleRate);
+    public void onDataLocationUpdated(long location, int second) {
         tvCurrentTime.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setProgress(second);
     }

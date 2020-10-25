@@ -22,7 +22,7 @@ import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecg.view.EcgHrHistogramChart;
 import com.cmtech.android.bledevice.ecg.view.EcgHrLineChart;
 import com.cmtech.android.bledevice.view.OnRollWaveViewListener;
-import com.cmtech.android.bledevice.view.RollSignalRecordWaveView;
+import com.cmtech.android.bledevice.view.RollRecordView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -50,7 +50,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     private TextView tvHrNum; // 心率次数
 
     private LinearLayout signalLayout;
-    private RollSignalRecordWaveView signalView; // signalView
+    private RollRecordView signalView; // signalView
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
@@ -229,9 +229,8 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     }
 
     @Override
-    public void onDataLocationUpdated(long dataLocation, int sampleRate) {
-        int second = (int)(dataLocation/ sampleRate);
-        tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
+    public void onDataLocationUpdated(long location, int second) {
+        tvCurrentTime.setText(DateTimeUtil.secToTime(second));
         sbReplay.setProgress(second);
     }
 

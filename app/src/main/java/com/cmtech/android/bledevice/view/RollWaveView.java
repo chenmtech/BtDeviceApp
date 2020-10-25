@@ -32,9 +32,9 @@ import kotlin.collections.ArrayDeque;
  */
 
 public abstract class RollWaveView extends WaveView {
-    protected int dataNumInView; // X方向上一屏包含的数据点数
+    protected int dataNumInView; // View上一屏包含的数据点数
 
-    protected List<Integer> viewData = new FixSizeLinkedList<>(1); //要显示的信号数据缓冲
+    protected List<Integer> viewData = new FixSizeLinkedList<>(1); //要显示数据缓冲
 
     protected OnRollWaveViewListener listener;
 
@@ -87,8 +87,7 @@ public abstract class RollWaveView extends WaveView {
     public void addData(final int datum, boolean show) {
         viewData.add(datum);
         if(show) {
-            drawDataOnForeCanvas();
-            postInvalidate();
+            showView();
         }
     }
 
@@ -97,9 +96,13 @@ public abstract class RollWaveView extends WaveView {
     public synchronized void addData(List<Integer> data, boolean show) {
         viewData.addAll(data);
         if(show) {
-            drawDataOnForeCanvas();
-            postInvalidate();
+            showView();
         }
+    }
+
+    public void showView() {
+        drawDataOnForeCanvas();
+        postInvalidate();
     }
 
     public void setListener(OnRollWaveViewListener listener) {

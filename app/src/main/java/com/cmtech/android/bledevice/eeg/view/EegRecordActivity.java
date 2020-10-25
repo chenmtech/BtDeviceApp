@@ -12,7 +12,7 @@ import com.cmtech.android.bledevice.record.BleEegRecord10;
 import com.cmtech.android.bledevice.view.OnRollWaveViewListener;
 import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
-import com.cmtech.android.bledevice.view.RollEegRecordWaveView;
+import com.cmtech.android.bledevice.view.RollEegView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
@@ -29,7 +29,7 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
     private RecordIntroductionLayout introLayout;
 
-    private RollEegRecordWaveView eegView; // eegView
+    private RollEegView eegView; // eegView
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
@@ -128,8 +128,7 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
     }
 
     @Override
-    public void onDataLocationUpdated(long dataLocation, int sampleRate) {
-        int second = (int)(dataLocation/ sampleRate);
+    public void onDataLocationUpdated(long location, int second) {
         tvCurrentTime.setText(DateTimeUtil.secToMinute(second));
         sbReplay.setProgress(second);
     }
