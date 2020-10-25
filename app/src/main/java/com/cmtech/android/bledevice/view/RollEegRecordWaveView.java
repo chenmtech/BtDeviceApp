@@ -18,8 +18,8 @@ public class RollEegRecordWaveView extends RollSignalRecordWaveView {
         super(context, attrs);
     }
 
-    public void setup(BleEegRecord10 record, double zeroLocation) {
-        setSignalRecord(record);
+    public void setup(BleEegRecord10 record, float zeroLocation) {
+        setRecord(record);
         int value1mV = record.getCaliValue();
         int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * record.getSampleRate())); // 计算横向分辨率
         float valuePerPixel = value1mV * MV_PER_GRID / PIXEL_PER_GRID; // 计算纵向分辨率

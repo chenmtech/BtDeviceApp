@@ -13,317 +13,258 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
+import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 
-public class WaveView extends View {
-
-	private static final int DEFAULT_SIZE = 100;                // 缺省View的大小
-	private static final int DEFAULT_XRES = 2;                  // 缺省的X方向的分辨率
-	private static final float DEFAULT_YRES = 1.0f;	            // 缺省的Y方向的分辨率
-	private static final double DEFAULT_ZERO_LOCATION = 0.5;   // 缺省的零线位置在Y方向的高度的比例
-	private static final int DEFAULT_GRID_WIDTH = 10;           // 背景栅格像素宽度
-
-	private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
-	private static final int DEFAULT_GRID_COLOR = Color.RED;
-	private static final int DEFAULT_WAVE_COLOR = Color.BLACK;
-	
-	private boolean canShow = false;
-	private boolean isFirstDraw = true;
-
-	private int viewWidth;					//视图宽度
-	private int viewHeight;				    //视图高度
-	private int initX, initY;			        //画图起始位置
-	private int preX, preY;				    //画线的前一个点坐标
-	private int curX, curY;				    //画线的当前点坐标
-
-	private Paint mainPaint = new Paint();
-	private Bitmap backBitmap, foreBitmap;	//背景和前景bitmap
-	private Canvas foreCanvas;					//前景画布
-
-	private final int backgroundColor;
-	private final int gridColor;
-	private final int waveColor;
+public abstract class WaveView extends View {
+    private static final int DEFAULT_SIZE = 100; // 缺省View的大小
+    private static final int DEFAULT_PIXEL_PER_DATA = 2; // 缺省横向每个数据占的像素数
+    private static final float DEFAULT_VALUE_PER_PIXEL = 1.0f; // 缺省纵向每个像素代表的数值
+    public static final float DEFAULT_ZERO_LOCATION = 0.5f; // 缺省的零值位置在纵向的高度比
+    private static final int DEFAULT_PIXEL_PER_GRID = 10; // 每个小栅格的像素个数
+    private static final int SMALL_GRID_NUM_PER_LARGE_GRID = 5; // 每个大栅格包含多少个小栅格
+    private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK; // 背景色
+    private static final int DEFAULT_LARGE_GRID_LINE_COLOR = Color.RED; // 大栅格线颜色
+    private static final int DEFAULT_SMALL_GRID_LINE_COLOR = Color.RED; // 小栅格线颜色
+    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 波形颜色
+    private static final int DEFAULT_ZERO_LINE_WIDTH = 4; // 零位置线宽
+    private static final int DEFAULT_LARGE_GRID_LINE_WIDTH = 2; // 大栅格线宽
+    private static final int DEFAULT_SMALL_GRID_LINE_WIDTH = 0; // 小栅格线宽，0代表头发丝风格
+    private static final int DEFAULT_WAVE_WIDTH = 2; // 波形线宽
 
 
-	private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
-	private Thread showThread;
+    protected int viewWidth = DEFAULT_SIZE; //视图宽度
+    protected int viewHeight = DEFAULT_SIZE; //视图高度
+    protected int initX, initY; //画图起始坐标
+    protected int preX, preY; //画线的前一个点坐标
+    protected final Paint forePaint = new Paint(); // 前景画笔
+    protected Bitmap backBitmap;  //背景bitmap
+    protected Bitmap foreBitmap;	//前景bitmap
+    protected Canvas foreCanvas;	//前景canvas
 
-	// View初始化主要需要设置下面4个参数
-	private int gridWidth;                // 栅格像素宽度
-	private int xRes;						//X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
-	private float yRes;					//Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
-	private double zeroLocation;			//表示零值位置占视图高度的百分比
+    private final boolean showGridLine; // 是否显示栅格线
 
+    private final int bgColor; // 背景颜色
+    private final int largeGridLineColor; // 大栅格线颜色
+    private final int smallGridLineColor; // 小栅格线颜色
+    protected final int waveColor; // 波形颜色
 
+    private final int zeroLineWidth; // 零线宽度
+    private final int largeGridLineWidth; // 大栅格线宽
+    private final int smallGridLineWidth; // 小栅格线宽
+    protected final int waveWidth = DEFAULT_WAVE_WIDTH; // 波形线宽
 
-	public WaveView(Context context) {
-		super(context);
+    protected int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每个栅格的像素个数
+    protected int pixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
+    protected float valuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，表示Y方向每个像素代表的信号值，value/pixel
+    private float zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
 
-		backgroundColor = DEFAULT_BACKGROUND_COLOR;
-		gridColor = DEFAULT_GRID_COLOR;
+    protected OnWaveViewListener listener; // 监听器
+
+    public WaveView(Context context) {
+        super(context);
+
+        showGridLine = true;
+        bgColor = DEFAULT_BACKGROUND_COLOR;
+        largeGridLineColor = DEFAULT_LARGE_GRID_LINE_COLOR;
+        smallGridLineColor = DEFAULT_SMALL_GRID_LINE_COLOR;
         waveColor = DEFAULT_WAVE_COLOR;
 
-		initialize();
-	}
+        zeroLineWidth = DEFAULT_ZERO_LINE_WIDTH;
+        largeGridLineWidth = DEFAULT_LARGE_GRID_LINE_WIDTH;
+        smallGridLineWidth = DEFAULT_SMALL_GRID_LINE_WIDTH;
+    }
 
-	public WaveView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		//第二个参数就是我们在attrs.xml文件中的<declare-styleable>标签
-		//即属性集合的标签，在R文件中名称为R.styleable+name
-		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WaveView);
+    public WaveView(Context context, AttributeSet attrs) {
+        super(context, attrs);
 
-		//第一个参数为属性集合里面的属性，R文件名称：R.styleable+属性集合名称+下划线+属性名称
-		//第二个参数为，如果没有设置这个属性，则设置的默认的值
-		backgroundColor = a.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
-		gridColor = a.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_GRID_COLOR);
-        waveColor = a.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
+        TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.WaveView);
+        showGridLine = styledAttributes.getBoolean(R.styleable.WaveView_show_grid_line, true);
+        bgColor = styledAttributes.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
+        largeGridLineColor = styledAttributes.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_LARGE_GRID_LINE_COLOR);
+        smallGridLineColor = styledAttributes.getColor(R.styleable.WaveView_small_grid_line_color, DEFAULT_SMALL_GRID_LINE_COLOR);
+        waveColor = styledAttributes.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
 
-		//最后记得将TypedArray对象回收
-		a.recycle();
+        zeroLineWidth = styledAttributes.getInt(R.styleable.WaveView_zero_line_width, DEFAULT_ZERO_LINE_WIDTH);
+        largeGridLineWidth = styledAttributes.getInt(R.styleable.WaveView_large_grid_line_width, DEFAULT_LARGE_GRID_LINE_WIDTH);
+        smallGridLineWidth = styledAttributes.getInt(R.styleable.WaveView_small_grid_line_width, DEFAULT_SMALL_GRID_LINE_WIDTH);
+        styledAttributes.recycle();
+    }
 
-		initialize();
-	}
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        viewWidth = getWidth();
+        viewHeight = getHeight();
+        resetView(true);
+    }
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+        canvas.drawBitmap(foreBitmap, 0, 0, null);
+    }
 
-	private void initialize()
-	{
-		//初始化分辨率
-		xRes = DEFAULT_XRES;
-		yRes = DEFAULT_YRES;
+    public int getPixelPerData() {
+        return pixelPerData;
+    }
 
-        gridWidth = DEFAULT_GRID_WIDTH;
+    public void setPixelPerGrid(int pixelPerGrid) {
+        this.pixelPerGrid = pixelPerGrid;
+    }
 
-		//初始化零值位置占视图高度的百分比
-		zeroLocation = DEFAULT_ZERO_LOCATION;
+    // 设置分辨率
+    public void setResolution(int pixelPerData, float valuePerPixel)
+    {
+        if((pixelPerData < 1) || (valuePerPixel < 0)) {
+            throw new IllegalArgumentException();
+        }
+        this.pixelPerData = pixelPerData;
+        this.valuePerPixel = valuePerPixel;
+    }
 
-		//创建显示线程
-		showThread = new Thread(new Runnable(){
-			public void run()
-			{
-			while(canShow)
-			{
-				// 先画点，再刷新
-				if(drawPoint())
-				{
-					postInvalidate();
-				}
-			}
-			}
-		});
-	}
+    // 设置零值位置
+    public void setZeroLocation(float zeroLocation)
+    {
+        this.zeroLocation = zeroLocation;
+        initY = (int)(viewHeight * this.zeroLocation);
+    }
 
-	public void addData(Integer data) {
-		viewData.offer(data);
-	}
+    public void setListener(OnWaveViewListener listener) {
+        this.listener = listener;
+    }
 
-	public void setRes(int xRes, float yRes)
-	{
-		if((xRes < 1) || (yRes < 0)) return;
-		this.xRes = xRes;
-		this.yRes = yRes;
-	}
-
-	public int getXRes()
-	{
-		return xRes;
-	}
-
-	public float getYRes()
-	{
-		return yRes;
-	}
-
-	public void setGridWidth(int gridWidth) {
-        this.gridWidth = gridWidth;}
-
-	public void setZeroLocation(double zeroLocation)
-	{
-		this.zeroLocation = zeroLocation;
-		initY = (int)(viewHeight * this.zeroLocation);
-		if(!isFirstDraw) updateBackBitmap();
-	}
-
-	public void startShow()
-	{
-		if((showThread != null) && !showThread.isAlive())
-		{
-			canShow = true;
-			showThread.start();
-		}
-	}
-
-	public void clearView()
-	{
-		viewData.clear();
-		isFirstDraw = true;
-	}
-
-	@Override
-	protected void onDraw(Canvas canvas) {
-
-		super.onDraw(canvas);
-
-		canvas.drawColor(backgroundColor);
-
-		if(isFirstDraw)
-		{
-			isFirstDraw = false;
-
-			initWhenFirstDraw();
-		}
-
-		canvas.drawBitmap(foreBitmap, 0, 0, mainPaint);
-
-        canvas.drawBitmap(backBitmap, 0, 0, null);
-	}
-
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-		setMeasuredDimension(calculateMeasure(widthMeasureSpec), calculateMeasure(heightMeasureSpec));
-	}
-
-	private int calculateMeasure(int measureSpec)
-	{
-		int size = (int)(DEFAULT_SIZE * getResources().getDisplayMetrics().density);
-		int specMode = MeasureSpec.getMode(measureSpec);
-		int specSize = MeasureSpec.getSize(measureSpec);
-
-		if(specMode == MeasureSpec.EXACTLY)
-		{
-			size = specSize;
-		}
-		else if(specMode == MeasureSpec.AT_MOST)
-		{
-			size = Math.min(size, specSize);
-		}
-		return size;
-	}
-
-	private boolean drawPoint()
-	{
-		Integer value = 0;
-
-		try {
-			value = viewData.take();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		curY = initY - Math.round(value/yRes);
-
-		if(preX == viewWidth)	//最后一个像素，抹去第一列
-		{
-			curX = initX;
-			mainPaint.setColor(backgroundColor);
-			foreCanvas.drawRect(initX, 0, initX +2, viewHeight, mainPaint);
-		}
-		else	//画线
-		{
-			curX += xRes;
-			mainPaint.setColor(waveColor);
-			foreCanvas.drawLine(preX, preY, curX, curY, mainPaint);
-
-			//抹去前面一个宽度为2的矩形区域
-			mainPaint.setColor(backgroundColor);
-			foreCanvas.drawRect(curX +1, 0, curX +3, viewHeight, mainPaint);
-		}
-		//mainPaint.setColor(ecgColor);
-
-		preX = curX;
-		preY = curY;
-
-		return true;
-	}
-
-	private void initWhenFirstDraw()
-	{
-		viewWidth = getWidth();
-		viewHeight = getHeight();
-
-		//创建背景Bitmap
-		createBackBitmap();
-
-		//创建前景画布，底色透明
-		foreBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
-		foreCanvas = new Canvas(foreBitmap);
-
-        preX = curX = initX;
-        preY = curY = initY;
-	}
-
-	private void updateBackBitmap()
-	{
-		createBackBitmap();
-	}
-
-	private void createBackBitmap()
-	{
+    // 重置view
+    // includeBackground: 是否重绘背景bitmap
+    public void resetView(boolean includeBackground)
+    {
         initX = 0;
         initY = (int)(viewHeight * zeroLocation);
 
-		//创建背景Bitmap
-		backBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
-		Canvas c = new Canvas(backBitmap);
-		mainPaint.setColor(gridColor);
+        //重新创建背景Bitmap
+        if(includeBackground)
+            createBackBitmap();
 
-		// 画零位线
-		mainPaint.setStrokeWidth(2);
-		c.drawLine(initX, initY, initX + viewWidth, initY, mainPaint);
+        // 创建前景bitmap和canvas
+        //将背景bitmap复制为前景bitmap
+        foreBitmap = backBitmap.copy(Bitmap.Config.ARGB_8888,true);
+        foreCanvas = new Canvas(foreBitmap);
 
-		mainPaint.setStrokeWidth(1);
+        // 初始化画图起始位置
+        preX = initX;
+        preY = initY;
 
-		// 画水平线
-		int vCoordinate = initY - gridWidth;
-		int i = 1;
-		while(vCoordinate > 0) {
-			c.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, mainPaint);
-			vCoordinate -= gridWidth;
-			if(++i == 5) {
-                mainPaint.setStrokeWidth(2); i = 0;}
-			else mainPaint.setStrokeWidth(1);
-		}
-        mainPaint.setStrokeWidth(1);
-		vCoordinate = initY + gridWidth;
-		i = 1;
-		while(vCoordinate < viewHeight) {
-			c.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, mainPaint);
-			vCoordinate += gridWidth;
-			if(++i == 5) {
-                mainPaint.setStrokeWidth(2); i = 0;}
-			else mainPaint.setStrokeWidth(1);
-		}
+        // 重置前景画笔
+        initForePaint();
 
-		// 画垂直线
-        mainPaint.setStrokeWidth(1);
-		int hCoordinate = initX + gridWidth;
-		i = 1;
-		while(hCoordinate < viewWidth) {
-			c.drawLine(hCoordinate, 0, hCoordinate, viewHeight, mainPaint);
-			hCoordinate += gridWidth;
-            if(++i == 5) {
-                mainPaint.setStrokeWidth(2); i = 0;}
-            else mainPaint.setStrokeWidth(1);
-		}
+        postInvalidate();
+    }
+
+    // 初始化前景画笔
+    public abstract void initForePaint();
+
+    // 开始显示
+    public abstract void start();
+
+    // 停止显示
+    public abstract void stop();
+
+    // 添加单个数据
+    public abstract void addData(final int datum, boolean show);
+
+    // 添加数据
+    public abstract void addData(final List<Integer> data, boolean show);
+
+    //创建背景Bitmap
+    private void createBackBitmap()
+    {
+        backBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
+        Canvas backCanvas = new Canvas(backBitmap);
+        backCanvas.drawColor(bgColor);
+
+        if(!showGridLine) return;
+
+        Paint paint = new Paint();
+
+        // 画零位线
+        setPaint(paint, largeGridLineColor, zeroLineWidth);
+        backCanvas.drawLine(initX, initY, initX + viewWidth, initY, paint);
+
+        // 画水平线
+        int deltaY;
+        for(int drawed = 0; drawed < 2; drawed++ ) {
+            if(drawed == 0) { // 零线以上
+                deltaY = -pixelPerGrid;
+            } else { // 零线以下
+                deltaY = pixelPerGrid;
+            }
+
+            setPaint(paint, smallGridLineColor, smallGridLineWidth);
+            int y = initY + deltaY;
+            int n = 1;
+            while((drawed == 0 && y >= 0) || (drawed == 1 && y <= viewHeight) ) {
+                backCanvas.drawLine(initX, y, initX + viewWidth, y, paint);
+                y += deltaY;
+                if(++n == SMALL_GRID_NUM_PER_LARGE_GRID) {
+                    setPaint(paint, largeGridLineColor, largeGridLineWidth);
+                    n = 0;
+                }
+                else {
+                    setPaint(paint, smallGridLineColor, smallGridLineWidth);
+                }
+            }
+        }
+
+        // 画垂直线
+        setPaint(paint, largeGridLineColor, largeGridLineWidth);
+        backCanvas.drawLine(initX, 0, initX, viewHeight, paint);
+        setPaint(paint, smallGridLineColor, smallGridLineWidth);
+
+        int x = initX + pixelPerGrid;
+        int n = 1;
+        while(x <= viewWidth) {
+            backCanvas.drawLine(x, 0, x, viewHeight, paint);
+            x += pixelPerGrid;
+            if(++n == SMALL_GRID_NUM_PER_LARGE_GRID) {
+                setPaint(paint, largeGridLineColor, largeGridLineWidth);
+                n = 0;
+            }
+            else {
+                setPaint(paint, smallGridLineColor, smallGridLineWidth);
+            }
+        }
 
         // 画定标脉冲
-/*        mainPaint.setStrokeWidth(2);
+        /*mainPaint.setStrokeWidth(2);
 		mainPaint.setColor(Color.BLACK);
-		c.drawLine(0, initY, 2*gridWidth, initY, mainPaint);
-		c.drawLine(2*gridWidth, initY, 2*gridWidth, initY-10*gridWidth, mainPaint);
-		c.drawLine(2*gridWidth, initY-10*gridWidth, 7*gridWidth, initY-10*gridWidth, mainPaint);
-        c.drawLine(7*gridWidth, initY-10*gridWidth, 7*gridWidth, initY, mainPaint);
-        c.drawLine(7*gridWidth, initY, 10*gridWidth, initY, mainPaint);*/
+		c.drawLine(0, initY, 2*pixelPerGrid, initY, mainPaint);
+		c.drawLine(2*pixelPerGrid, initY, 2*pixelPerGrid, initY-10*pixelPerGrid, mainPaint);
+		c.drawLine(2*pixelPerGrid, initY-10*pixelPerGrid, 7*pixelPerGrid, initY-10*pixelPerGrid, mainPaint);
+        c.drawLine(7*pixelPerGrid, initY-10*pixelPerGrid, 7*pixelPerGrid, initY, mainPaint);
+        c.drawLine(7*pixelPerGrid, initY, 10*pixelPerGrid, initY, mainPaint);*/
 
-        mainPaint.setColor(waveColor);
-        mainPaint.setStrokeWidth(2);
+        //mainPaint.setColor(waveColor);
+        //mainPaint.setStrokeWidth(2);
+    }
+
+    private void setPaint(Paint paint, int color, int lineWidth) {
+        paint.setColor(color);
+        paint.setStrokeWidth(lineWidth);
     }
 }

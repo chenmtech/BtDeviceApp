@@ -126,10 +126,10 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         ibReplayCtrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ecgView.isStart()) {
-                    ecgView.stopShow();
+                if(ecgView.isShowing()) {
+                    ecgView.stop();
                 } else {
-                    ecgView.startShow();
+                    ecgView.start();
                 }
             }
         });
@@ -157,12 +157,12 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         fabOutputReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ecgView.isStart())
-                    ecgView.stopShow();
+                if(ecgView.isShowing())
+                    ecgView.stop();
                 outputPdf();
             }
         });
-        ecgView.startShow();
+        ecgView.start();
     }
 
     private void outputPng() {
@@ -292,6 +292,6 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         super.onDestroy();
 
         if(ecgView != null)
-            ecgView.stopShow();
+            ecgView.stop();
     }
 }

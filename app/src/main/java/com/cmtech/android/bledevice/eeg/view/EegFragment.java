@@ -110,7 +110,7 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
 
     @Override
     public void onEegSignalShowed(final int eegSignal) {
-        eegView.showData(eegSignal);
+        eegView.addData(eegSignal);
     }
 
     @Override

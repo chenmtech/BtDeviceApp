@@ -13,6 +13,11 @@ import java.util.List;
  * Created by bme on 2019/2/26.
  */
 
+public class ColorRollWaveView {
+
+}
+
+/*
 public class ColorRollWaveView extends RollWaveView {
     protected static final int MARKED_WAVE_COLOR = Color.WHITE; // 缺省的标记波形颜色
 
@@ -38,17 +43,8 @@ public class ColorRollWaveView extends RollWaveView {
     }
 
     public void addData(Integer data, boolean isMarked) {
-        super.addData(data);
+        super.showData(data, false);
         markerList.add(isMarked);
-    }
-
-    @Override
-    public synchronized void showData(List<Integer> data) {
-        for(Integer d : data) {
-            addData(d);
-        }
-        drawDataOnForeCanvas();
-        invalidate();
     }
 
     public synchronized void showData(List<Integer> data, List<Boolean> markers) {
@@ -60,7 +56,7 @@ public class ColorRollWaveView extends RollWaveView {
     }
 
     @Override
-    protected boolean drawDataOnForeCanvas()
+    protected void drawDataOnForeCanvas()
     {
         foreCanvas.drawBitmap(backBitmap, 0, 0, null);
 
@@ -68,7 +64,7 @@ public class ColorRollWaveView extends RollWaveView {
         Boolean[] markers = markerList.toArray(new Boolean[0]);
         int dataNum = data.length;
         if(dataNum <= 1) {
-            return true;
+            return;
         }
 
         int begin = dataNum - dataNumInView;
@@ -97,6 +93,6 @@ public class ColorRollWaveView extends RollWaveView {
         }
         foreCanvas.drawPath(path, forePaint);
 
-        return true;
     }
 }
+*/

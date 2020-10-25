@@ -1,6 +1,8 @@
 package com.cmtech.android.bledeviceapp.util;
 
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -15,8 +17,6 @@ import java.util.LinkedList;
  * Version:        1.0
  */
 public class FixSizeLinkedList<T> extends LinkedList<T> {
-
-    // 定义缓存的容量
     private final int capacity;
 
     public FixSizeLinkedList(int capacity) {
@@ -26,11 +26,21 @@ public class FixSizeLinkedList<T> extends LinkedList<T> {
 
     @Override
     public boolean add(T e) {
-        // 超过长度，移除最后一个
-        if (size() >= capacity) {
+        while (size() >= capacity) {
             super.removeFirst();
         }
         return super.add(e);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        boolean result = super.addAll(c);
+
+        while(size() > capacity) {
+            super.removeFirst();
+        }
+
+        return result;
     }
 }
 

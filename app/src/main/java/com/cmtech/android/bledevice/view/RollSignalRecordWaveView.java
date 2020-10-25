@@ -21,15 +21,14 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  */
 
 public class RollSignalRecordWaveView extends RollWaveView {
-    private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
+    private static final int MIN_TIME_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
-    private ISignalRecord signalRecord; // 要播放的信号记录
-    private boolean replaying = false; // 是否正在播放
-    private int num = 0; // 当前读取的文件中的第几个数据
-    private int interval = 0; // 每次更新显示的时间间隔，为采样间隔的整数倍
+    private ISignalRecord record; // 要播放的信号记录
+    private boolean showing = false; // 是否正在播放
+    private int curIndex = 0; // 当前读取记录文件中的第几个数据
+    private int timeInterval = 0; // 每次更新显示的时间间隔，为采样间隔的整数倍
     private int dataNumReadEachUpdate = 1; // 每次更新显示时需要读取的数据个数
     private final List<Integer> cacheData = new ArrayList<>(); // 每次更新显示时需要读取的数据缓存
-    private final List<Boolean> cacheMarked = new ArrayList<>(); // 标记缓存
 
     // 定时周期显示任务
     private class ShowTask extends TimerTask {
@@ -39,26 +38,24 @@ public class RollSignalRecordWaveView extends RollWaveView {
                 @Override
                 public void run() {
                     try {
-                        if(signalRecord.isEOD()) {
-                            stopShow();
+                        if(record.isEOD()) {
+                            stop();
                         } else {
                             // 读出数据
-                            for (int i = 0; i < dataNumReadEachUpdate; i++, num++) {
-                                cacheData.add(signalRecord.readData());
-                                cacheMarked.add(false);
-                                if (signalRecord.isEOD()) {
+                            for (int i = 0; i < dataNumReadEachUpdate; i++, curIndex++) {
+                                cacheData.add(record.readData());
+                                if (record.isEOD()) {
                                     break;
                                 }
                             }
-                            showData(cacheData);
+                            addData(cacheData, true);
                             cacheData.clear();
-                            cacheMarked.clear();
                             if(listener != null) {
-                                listener.onDataLocationUpdated(num, signalRecord.getSampleRate());
+                                listener.onDataLocationUpdated(curIndex, record.getSampleRate());
                             }
                         }
                     } catch (IOException e) {
-                        stopShow();
+                        stop();
                     }
                 }
             });
@@ -67,8 +64,8 @@ public class RollSignalRecordWaveView extends RollWaveView {
     }
     private Timer showTimer; // 定时器
 
-    private GestureDetector gestureDetector;
-    private GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
+    private final GestureDetector gestureDetector;
+    private final GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
         @Override
         public boolean onDown(MotionEvent motionEvent) {
             return false;
@@ -81,17 +78,17 @@ public class RollSignalRecordWaveView extends RollWaveView {
 
         @Override
         public boolean onSingleTapUp(MotionEvent motionEvent) {
-            if(isStart()) {
-                stopShow();
+            if(showing) {
+                stop();
             } else {
-                startShow();
+                start();
             }
             return false;
         }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float v, float v1) {
-            showAt((long)(num+v));
+            showAt((long)(curIndex +v));
             return true;
         }
 
@@ -124,91 +121,89 @@ public class RollSignalRecordWaveView extends RollWaveView {
         return true;
     }
 
-    public void setSignalRecord(ISignalRecord signalRecord) {
-        stopShow();
-        this.signalRecord = signalRecord;
-        int sampleInterval = 1000/signalRecord.getSampleRate();
-        dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_SHOW_INTERVAL /sampleInterval));
-        interval = dataNumReadEachUpdate *sampleInterval;
-        signalRecord.seekData(0);
-        num = 0;
+    public void setRecord(ISignalRecord record) {
+        if(record == null) {
+            throw new IllegalArgumentException();
+        }
+        stop();
+        this.record = record;
+        int sampleInterval = 1000/ record.getSampleRate();
+        dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_TIME_INTERVAL /sampleInterval));
+        timeInterval = dataNumReadEachUpdate *sampleInterval;
+        if(timeInterval == 0) {
+            throw new IllegalArgumentException();
+        }
+        record.seekData(0);
+        curIndex = 0;
     }
 
-    public boolean isStart() {
-        return replaying;
+    public boolean isShowing() {
+        return showing;
     }
 
-    public void startShow() {
-        if(!replaying && signalRecord != null && interval > 0) {
-            if(signalRecord.isEOD()) {
-                signalRecord.seekData(0);
-                clearData();
-                num = 0;
+    public void start() {
+        if(!showing && record != null) {
+            if(record.isEOD()) {
+                record.seekData(0);
+                resetView(true);
+                curIndex = 0;
             }
             showTimer = new Timer();
-            showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
-            replaying = true;
+            showTimer.scheduleAtFixedRate(new ShowTask(), timeInterval, timeInterval);
+            showing = true;
             if(listener != null) {
                 listener.onShowStateUpdated(true);
             }
         }
     }
 
-    public void stopShow() {
-        if(replaying) {
+    public void stop() {
+        if(showing) {
             showTimer.cancel();
             showTimer = null;
-            replaying = false;
+            showing = false;
             if(listener != null) {
                 listener.onShowStateUpdated(false);
             }
         }
     }
 
-    public void switchState() {
-        if(replaying) {
-            stopShow();
-        } else {
-            startShow();
-        }
-    }
-
     // 显示指定秒数的信号
     public void showAtSecond(int second) {
-        showAt(second* signalRecord.getSampleRate());
+        showAt(second * record.getSampleRate());
     }
 
     // 显示指定数据位置信号
     public void showAt(long location) {
-        if(signalRecord == null) return;
+        if(record == null) return;
+        if(location < 0) return;
 
-        if(location >= signalRecord.getDataNum()) {
-            location = signalRecord.getDataNum()-1;
-        } else if(location < 0) {
-            location = 0;
+        if(location >= record.getDataNum()) {
+            location = record.getDataNum()-1;
         }
+
         long begin = location - getDataNumInView();
         if(begin < 0) {
             begin = 0;
         }
 
-        signalRecord.seekData((int)begin);
-        clearData();
+        record.seekData((int)begin);
+        List<Integer> list = new ArrayList<>();
         while(begin++ <= location) {
             try {
-                addData(signalRecord.readData());
+                list.add(record.readData());
             } catch (IOException e) {
                 e.printStackTrace();
-                return;
+                break;
             }
         }
-        drawDataOnForeCanvas();
-        invalidate();
+        clearData();
+        addData(list, true);
 
-        num = (int)location;
+        curIndex = (int)location;
 
         if(listener != null) {
-            listener.onDataLocationUpdated(num, signalRecord.getSampleRate());
+            listener.onDataLocationUpdated(curIndex, record.getSampleRate());
         }
     }
 

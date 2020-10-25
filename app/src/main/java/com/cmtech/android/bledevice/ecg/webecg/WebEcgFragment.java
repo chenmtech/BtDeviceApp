@@ -228,7 +228,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
 
     @Override
     public void onEcgSignalUpdated(final int ecgSignal) {
-        ecgView.showData(ecgSignal);
+        ecgView.addData(ecgSignal);
     }
 
     @Override

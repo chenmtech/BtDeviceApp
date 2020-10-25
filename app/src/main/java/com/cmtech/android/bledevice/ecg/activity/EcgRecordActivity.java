@@ -108,10 +108,10 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         btnReplayCtrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(signalView.isStart()) {
-                    signalView.stopShow();
+                if(signalView.isShowing()) {
+                    signalView.stop();
                 } else {
-                    signalView.startShow();
+                    signalView.start();
                 }
             }
         });
@@ -188,13 +188,13 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             signalLayout.setVisibility(View.GONE);
         } else {
             signalLayout.setVisibility(View.VISIBLE);
-            signalView.startShow();
+            signalView.start();
         }
     }
 
     private void initEcgView(EcgRecord ecgRecord) {
         if(ecgRecord == null) return;
-        signalView.setSignalRecord(ecgRecord);
+        signalView.setRecord(ecgRecord);
         signalView.setZeroLocation(RollWaveView.DEFAULT_ZERO_LOCATION);
     }
 
@@ -271,7 +271,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     protected void onDestroy() {
         super.onDestroy();
 
-        signalView.stopShow();
+        signalView.stop();
         try {
             record.closeSigFile();
         } catch (IOException e) {

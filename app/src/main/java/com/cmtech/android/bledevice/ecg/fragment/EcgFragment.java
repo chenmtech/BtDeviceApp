@@ -232,7 +232,7 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
 
     @Override
     public void onEcgSignalUpdated(final int ecgSignal) {
-        ecgView.showData(ecgSignal);
+        ecgView.addData(ecgSignal);
     }
 
     @Override

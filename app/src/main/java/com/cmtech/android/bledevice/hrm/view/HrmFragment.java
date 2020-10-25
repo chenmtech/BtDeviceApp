@@ -234,7 +234,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
     @Override
     public void onEcgSignalShowed(final int ecgSignal) {
-        ecgView.showData(ecgSignal);
+        ecgView.addData(ecgSignal);
     }
 
     @Override
