@@ -27,6 +27,7 @@ import com.cmtech.android.bledevice.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,6 +143,20 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                 device.updateConfig(cfg);
             }
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        BleHrRecord10 record = device.getHrRecord();
+        if(record != null)
+            hrRecFrag.updateHrInfo(record.getHrList(), record.getHrMax(), record.getHrAve());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ViseLog.e("onStop");
     }
 
     @Override

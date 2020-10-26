@@ -411,6 +411,10 @@ public class HrmDevice extends AbstractDevice {
         super.disconnect(forever);
     }
 
+    public BleHrRecord10 getHrRecord() {
+        return hrRecord;
+    }
+
     public final int getSampleRate() {
         return sampleRate;
     }

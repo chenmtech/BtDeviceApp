@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
