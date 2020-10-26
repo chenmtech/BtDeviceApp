@@ -152,18 +152,15 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                setResult(RESULT_CANCELED, null);
-                finish();
-                break;
-
-            case R.id.search_record:
-                if(etNoteFilter.getVisibility() == View.VISIBLE)
-                    etNoteFilter.setVisibility(View.GONE);
-                else
-                    etNoteFilter.setVisibility(View.VISIBLE);
-                break;
+        int id = item.getItemId();
+        if(id == android.R.id.home) {
+            setResult(RESULT_CANCELED, null);
+            finish();
+        } else if(id == R.id.search_record) {
+            if(etNoteFilter.getVisibility() == View.VISIBLE)
+                etNoteFilter.setVisibility(View.GONE);
+            else
+                etNoteFilter.setVisibility(View.VISIBLE);
         }
         return true;
     }
