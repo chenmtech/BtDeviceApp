@@ -40,6 +40,7 @@ import java.util.Map;
 import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 /**
   *
@@ -214,6 +215,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
         record.retrieveList(this, DOWNLOAD_RECORD_NUM, noteFilterStr, from, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
+                if(code == RETURN_CODE_WEB_FAILURE) {
+                    Toast.makeText(RecordExplorerActivity.this, "网络错误，仅加载本地记录。", Toast.LENGTH_SHORT).show();
+                }
+
                 List<? extends BasicRecord> records = BasicRecord.retrieveFromLocalDb(recordType, MyApplication.getAccount(), from, noteFilterStr, DOWNLOAD_RECORD_NUM);
 
                 if(records == null) {

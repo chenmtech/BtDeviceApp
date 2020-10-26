@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         fragTabManager = new DeviceTabFragManager(getSupportFragmentManager(), tabLayout, R.id.layout_device_fragment);
         fragTabManager.setOnFragmentUpdatedListener(this);
 
-        MyApplication.getAccount().download(this, false, new IWebCallback() {
+        MyApplication.getAccount().download(this, null, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == RETURN_CODE_SUCCESS) {

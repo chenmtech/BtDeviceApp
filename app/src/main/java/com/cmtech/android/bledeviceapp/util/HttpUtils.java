@@ -15,7 +15,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class HttpUtils {
-    private static OkHttpClient client = new OkHttpClient();
+    private static final OkHttpClient client = new OkHttpClient();
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     public static void requestGet(String baseUrl, Map<String, String> requestData, Callback callback) {

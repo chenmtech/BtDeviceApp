@@ -52,24 +52,21 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
 
     private final ProgressDialog progressDialog;
     private final int cmd;
-    private final String progressStr;
     private final Object[] params;
     private final IWebCallback callback;
 
-    public RecordWebAsyncTask(Context context, String progressStr, int cmd, IWebCallback callback) {
-        this(context, progressStr, cmd, null, callback);
+    public RecordWebAsyncTask(Context context, String showString, int cmd, IWebCallback callback) {
+        this(context, showString, cmd, null, callback);
     }
 
-    public RecordWebAsyncTask(Context context, String progressStr, int cmd, Object[] params, IWebCallback callback) {
+    public RecordWebAsyncTask(Context context, String showString, int cmd, Object[] params, IWebCallback callback) {
         this.cmd = cmd;
         this.params = params;
-        this.progressStr = progressStr;
         this.callback = callback;
 
-        if(!TextUtils.isEmpty(progressStr)) {
+        if(!TextUtils.isEmpty(showString)) {
             progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage(progressStr);
-            progressDialog.setIndeterminate(false);
+            progressDialog.setMessage(showString);
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         } else {
@@ -79,7 +76,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
 
     @Override
     protected void onPreExecute() {
-        if(!TextUtils.isEmpty(progressStr))
+        if(progressDialog != null)
             progressDialog.show();
     }
 
@@ -88,11 +85,11 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
         if(records == null || records.length == 0) return null;
 
         BasicRecord record = records[0];
-        CountDownLatch done = new CountDownLatch(1);
         final Object[] result = {RETURN_CODE_WEB_FAILURE, null};
+        CountDownLatch done = new CountDownLatch(1);
 
         switch (cmd) {
-            // QUERY
+            // QUERY ID
             case RECORD_CMD_QUERY_ID:
                 KMWebServiceUtil.queryRecordId(record.getTypeCode(), record.getCreateTime(), record.getDevAddress(), record.getVer(), new Callback() {
                     @Override
@@ -108,7 +105,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                             result[0] = json.getInt("code");
                             if((Integer) result[0] == RETURN_CODE_SUCCESS) {
                                 result[1] = json.getInt("id");
-                                ViseLog.e("Find Record id = " + result[1]);
+                                ViseLog.e("Find Record ID = " + result[1]);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -252,7 +249,8 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
     @Override
     protected void onPostExecute(Object[] result) {
         callback.onFinish((Integer) result[0], result[1]);
-        if(!TextUtils.isEmpty(progressStr))
+
+        if(progressDialog != null)
             progressDialog.dismiss();
     }
 }

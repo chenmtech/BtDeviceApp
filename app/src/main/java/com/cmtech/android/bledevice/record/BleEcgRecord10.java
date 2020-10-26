@@ -206,7 +206,6 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
             this.cmd = cmd;
             progressDialog = new ProgressDialog(context);
             progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
-            progressDialog.setIndeterminate(false);
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         }

@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
@@ -45,14 +46,13 @@ public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
     private final int cmd;
     private final IWebCallback callback;
 
-    public AccountWebAsyncTask(Context context, int cmd, boolean showProgress, IWebCallback callback) {
+    public AccountWebAsyncTask(Context context, String showString, int cmd, IWebCallback callback) {
         this.cmd = cmd;
         this.callback = callback;
 
-        if(showProgress) {
+        if(!TextUtils.isEmpty(showString)) {
             progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
-            progressDialog.setIndeterminate(false);
+            progressDialog.setMessage(showString);
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         } else {
@@ -139,9 +139,9 @@ public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
 
     @Override
     protected void onPostExecute(Object[] result) {
-        if(progressDialog != null)
-            progressDialog.dismiss();
         int code = (int)result[0];
         callback.onFinish(code, result[1]);
+        if(progressDialog != null)
+            progressDialog.dismiss();
     }
 }

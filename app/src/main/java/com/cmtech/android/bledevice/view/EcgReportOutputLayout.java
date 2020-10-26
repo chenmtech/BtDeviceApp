@@ -33,9 +33,9 @@ import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
  * Version:        1.0
  */
 public class EcgReportOutputLayout extends LinearLayout {
-    private BleEcgRecord10 record;
+    private static final ScanEcgView[] ECG_VIEWS = new ScanEcgView[3]; // ecgView array
 
-    private final ScanEcgView[] ecgView = new ScanEcgView[3]; // ecgView array
+    private BleEcgRecord10 record;
     private final TextView tvRecordPerson;
     private final TextView tvRecordTime;
     private final TextView tvReportVer;
@@ -56,9 +56,9 @@ public class EcgReportOutputLayout extends LinearLayout {
         tvReportTime = view.findViewById(R.id.tv_report_time);
         tvNote = view.findViewById(R.id.tv_note);
         tvAveHr= view.findViewById(R.id.tv_report_ave_hr);
-        ecgView[0] = view.findViewById(R.id.roll_ecg_view1);
-        ecgView[1] = view.findViewById(R.id.roll_ecg_view2);
-        ecgView[2] = view.findViewById(R.id.roll_ecg_view3);
+        ECG_VIEWS[0] = view.findViewById(R.id.roll_ecg_view1);
+        ECG_VIEWS[1] = view.findViewById(R.id.roll_ecg_view2);
+        ECG_VIEWS[2] = view.findViewById(R.id.roll_ecg_view3);
     }
 
     public void setRecord(BleEcgRecord10 record) {
@@ -92,7 +92,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         void onFinish();
     }
 
-    private class DrawEcgViewAsyncTask extends AsyncTask<BleEcgRecord10, Void, Void> {
+    private static class DrawEcgViewAsyncTask extends AsyncTask<BleEcgRecord10, Void, Void> {
         private final ProgressDialog progressDialog;
         private final IPdfOutputCallback callback;
 
@@ -100,7 +100,6 @@ public class EcgReportOutputLayout extends LinearLayout {
             this.callback = callback;
             progressDialog = new ProgressDialog(context);
             progressDialog.setMessage(showText);
-            progressDialog.setIndeterminate(false);
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         }
@@ -111,11 +110,11 @@ public class EcgReportOutputLayout extends LinearLayout {
 
         @Override
         protected Void doInBackground(BleEcgRecord10... bleEcgRecord10s) {
-            record = bleEcgRecord10s[0];
+            BleEcgRecord10 record = bleEcgRecord10s[0];
             List<Short> ecgData = record.getEcgData();
 
             int begin = 0;
-            for (ScanEcgView scanEcgView : ecgView) {
+            for (ScanEcgView scanEcgView : ECG_VIEWS) {
                 scanEcgView.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
                 int dataNum = scanEcgView.getWidth() / scanEcgView.getPixelPerData();
                 if (ecgData.size() > begin) {
