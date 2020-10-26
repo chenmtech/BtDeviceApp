@@ -45,15 +45,11 @@ public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
     private final int cmd;
     private final IWebCallback callback;
 
-    public AccountWebAsyncTask(Context context, int cmd, IWebCallback callback) {
-        this(context, cmd, true, callback);
-    }
-
-    private AccountWebAsyncTask(Context context, int cmd, boolean isShowProgress, IWebCallback callback) {
+    public AccountWebAsyncTask(Context context, int cmd, boolean showProgress, IWebCallback callback) {
         this.cmd = cmd;
         this.callback = callback;
 
-        if(isShowProgress) {
+        if(showProgress) {
             progressDialog = new ProgressDialog(context);
             progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
             progressDialog.setIndeterminate(false);

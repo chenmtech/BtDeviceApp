@@ -140,12 +140,16 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
 
     @Override
     public void upload(Context context, IWebCallback callback) {
-        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, callback).execute(this);
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.UPLOAD_CMD, true, callback).execute(this);
     }
 
     @Override
     public void download(Context context, IWebCallback callback) {
-        new AccountWebAsyncTask(context, AccountWebAsyncTask.DOWNLOAD_CMD, new IWebCallback() {
+        download(context, true, callback);
+    }
+
+    public void download(Context context, boolean showProgress, IWebCallback callback) {
+        new AccountWebAsyncTask(context, AccountWebAsyncTask.DOWNLOAD_CMD, showProgress, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 String resultStr = "下载错误";

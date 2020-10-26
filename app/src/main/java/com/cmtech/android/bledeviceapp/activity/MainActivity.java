@@ -46,6 +46,7 @@ import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
@@ -69,6 +70,7 @@ import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KM_STORE_URI;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_LOGIN_PLATFORM;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
  *  MainActivity: 主界面
@@ -177,6 +179,15 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         TabLayout tabLayout = findViewById(R.id.device_tab);
         fragTabManager = new DeviceTabFragManager(getSupportFragmentManager(), tabLayout, R.id.layout_device_fragment);
         fragTabManager.setOnFragmentUpdatedListener(this);
+
+        MyApplication.getAccount().download(this, false, new IWebCallback() {
+            @Override
+            public void onFinish(int code, Object result) {
+                if(code == RETURN_CODE_SUCCESS) {
+                    updateNavigationHeader();
+                }
+            }
+        });
 
         // init main layout
         initMainLayout();
