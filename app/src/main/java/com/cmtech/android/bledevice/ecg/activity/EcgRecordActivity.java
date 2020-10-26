@@ -109,9 +109,9 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             @Override
             public void onClick(View view) {
                 if(signalView.isShowing()) {
-                    signalView.stop();
+                    signalView.stopShow();
                 } else {
-                    signalView.start();
+                    signalView.startShow();
                 }
             }
         });
@@ -188,7 +188,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             signalLayout.setVisibility(View.GONE);
         } else {
             signalLayout.setVisibility(View.VISIBLE);
-            signalView.start();
+            signalView.startShow();
         }
     }
 
@@ -270,7 +270,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     protected void onDestroy() {
         super.onDestroy();
 
-        signalView.stop();
+        signalView.stopShow();
         try {
             record.closeSigFile();
         } catch (IOException e) {

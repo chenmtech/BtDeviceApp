@@ -126,10 +126,10 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
     @Override
     public void onEegSignalShowStatusUpdated(boolean isShow) {
         if(isShow) {
-            eegView.start();
+            eegView.startShow();
             //eegView.initialize();
         } else {
-            eegView.stop();
+            eegView.stopShow();
         }
     }
 
@@ -149,7 +149,7 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
         if(device != null)
             device.removeListener();
 
-        eegView.stop();
+        eegView.stopShow();
     }
 
     public void setEegRecord(boolean isRecord) {

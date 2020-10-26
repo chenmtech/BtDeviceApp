@@ -207,7 +207,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     if(inHrMode) {
                         flInHrMode.setVisibility(View.VISIBLE);
                         flInEcgMode.setVisibility(View.GONE);
-                        ecgView.stop();
+                        ecgView.stopShow();
                         fragAdapter.removeFragment(ecgRecFrag);
                         pager.setCurrentItem(fragAdapter.getCount()-1);
                         tvSwitchMode.setText(R.string.ecg_switch_off);
@@ -252,12 +252,12 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                 if (ecgOn) {
                     flInHrMode.setVisibility(View.GONE);
                     flInEcgMode.setVisibility(View.VISIBLE);
-                    ecgView.start();
+                    ecgView.startShow();
                     ecgView.resetView(false);
                 } else {
                     flInHrMode.setVisibility(View.VISIBLE);
                     flInEcgMode.setVisibility(View.GONE);
-                    ecgView.stop();
+                    ecgView.stopShow();
                 }
             }
         });
@@ -285,7 +285,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             device.removeListener();
 
         if(ecgView != null)
-            ecgView.stop();
+            ecgView.stopShow();
     }
 
     public void setHrRecord(boolean isRecord) {

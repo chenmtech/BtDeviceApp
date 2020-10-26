@@ -127,9 +127,9 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             @Override
             public void onClick(View view) {
                 if(ecgView.isShowing()) {
-                    ecgView.stop();
+                    ecgView.stopShow();
                 } else {
-                    ecgView.start();
+                    ecgView.startShow();
                 }
             }
         });
@@ -158,11 +158,11 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             @Override
             public void onClick(View view) {
                 if(ecgView.isShowing())
-                    ecgView.stop();
+                    ecgView.stopShow();
                 outputPdf();
             }
         });
-        ecgView.start();
+        ecgView.startShow();
     }
 
     private void outputPng() {
@@ -291,6 +291,6 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         super.onDestroy();
 
         if(ecgView != null)
-            ecgView.stop();
+            ecgView.stopShow();
     }
 }

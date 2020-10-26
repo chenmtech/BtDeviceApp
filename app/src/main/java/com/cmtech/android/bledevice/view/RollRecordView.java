@@ -5,12 +5,10 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.ISignalRecord;
+import com.vise.log.ViseLog;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,7 +33,7 @@ public class RollRecordView extends RollWaveView {
         public void run() {
             try {
                 if(record.isEOD()) {
-                    stop();
+                    stopShow();
                 } else {
                     // 读出数据
                     for (int i = 0; i < dataNumReadEachUpdate; i++, curIndex++) {
@@ -44,18 +42,18 @@ public class RollRecordView extends RollWaveView {
                             break;
                         }
                     }
-                    showView();
-                    if(listener != null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showView();
+                            if(listener != null) {
                                 listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             } catch (IOException e) {
-                stop();
+                stopShow();
             }
         }
     }
@@ -76,9 +74,9 @@ public class RollRecordView extends RollWaveView {
         @Override
         public boolean onSingleTapUp(MotionEvent motionEvent) {
             if(showing) {
-                stop();
+                stopShow();
             } else {
-                start();
+                startShow();
             }
             return false;
         }
@@ -132,7 +130,7 @@ public class RollRecordView extends RollWaveView {
         if(record == null) {
             throw new IllegalArgumentException();
         }
-        stop();
+        stopShow();
         this.record = record;
         curIndex = 0;
         record.seekData(curIndex);
@@ -145,8 +143,9 @@ public class RollRecordView extends RollWaveView {
         return showing;
     }
 
-    public void start() {
+    public void startShow() {
         if(!showing && record != null) {
+            ViseLog.e("启动RollRecordView");
             if(record.isEOD()) {
                 curIndex = 0;
                 record.seekData(curIndex);
@@ -174,8 +173,9 @@ public class RollRecordView extends RollWaveView {
         }
     }
 
-    public void stop() {
+    public void stopShow() {
         if(showing) {
+            ViseLog.e("停止RollRecordView");
             showTimer.cancel();
             showTimer = null;
             showing = false;

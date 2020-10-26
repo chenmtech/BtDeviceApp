@@ -13,24 +13,13 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.View;
 
-import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledeviceapp.R;
-import com.vise.log.ViseLog;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 
 public abstract class WaveView extends View {
@@ -49,27 +38,24 @@ public abstract class WaveView extends View {
     private static final int DEFAULT_SMALL_GRID_LINE_WIDTH = 0; // 小栅格线宽，0代表头发丝风格
     private static final int DEFAULT_WAVE_WIDTH = 2; // 波形线宽
 
-
     protected int viewWidth = DEFAULT_SIZE; //视图宽度
     protected int viewHeight = DEFAULT_SIZE; //视图高度
     protected int initX, initY; //画图起始坐标
     protected int preX, preY; //画线的前一个点坐标
-    protected final Paint forePaint = new Paint(); // 前景画笔
+    protected final Paint wavePaint = new Paint(); // 波形画笔
     protected Bitmap backBitmap;  //背景bitmap
-    protected Bitmap foreBitmap;	//前景bitmap
-    protected Canvas foreCanvas;	//前景canvas
 
     private final boolean showGridLine; // 是否显示栅格线
 
     private final int bgColor; // 背景颜色
     private final int largeGridLineColor; // 大栅格线颜色
     private final int smallGridLineColor; // 小栅格线颜色
-    protected final int waveColor; // 波形颜色
+    private final int waveColor; // 波形颜色
 
     private final int zeroLineWidth; // 零线宽度
     private final int largeGridLineWidth; // 大栅格线宽
     private final int smallGridLineWidth; // 小栅格线宽
-    protected final int waveWidth = DEFAULT_WAVE_WIDTH; // 波形线宽
+    private final int waveWidth = DEFAULT_WAVE_WIDTH; // 波形线宽
 
     protected int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每个栅格的像素个数
     protected int pixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
@@ -116,11 +102,6 @@ public abstract class WaveView extends View {
         resetView(true);
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        canvas.drawBitmap(foreBitmap, 0, 0, null);
-    }
-
     public int getPixelPerData() {
         return pixelPerData;
     }
@@ -158,32 +139,32 @@ public abstract class WaveView extends View {
         initY = (int)(viewHeight * zeroLocation);
 
         //重新创建背景Bitmap
-        if(includeBackground)
-            createBackBitmap();
-
-        // 创建前景bitmap和canvas
-        //将背景bitmap复制为前景bitmap
-        foreBitmap = backBitmap.copy(Bitmap.Config.ARGB_8888,true);
-        foreCanvas = new Canvas(foreBitmap);
+        if(includeBackground) {
+            backBitmap = createBackBitmap();
+            setBackground(new BitmapDrawable(getResources(), backBitmap));
+        }
 
         // 初始化画图起始位置
         preX = initX;
         preY = initY;
 
-        // 重置前景画笔
-        initForePaint();
+        initWavePaint();
 
         postInvalidate();
     }
 
-    // 初始化前景画笔
-    public abstract void initForePaint();
+    // 初始化波形画笔
+    public void initWavePaint() {
+        wavePaint.setAlpha(255);
+        wavePaint.setStrokeWidth(waveWidth);
+        wavePaint.setColor(waveColor);
+    }
 
     // 开始显示
-    public abstract void start();
+    public abstract void startShow();
 
     // 停止显示
-    public abstract void stop();
+    public abstract void stopShow();
 
     // 添加单个数据
     public abstract void addData(final int datum, boolean show);
@@ -192,13 +173,13 @@ public abstract class WaveView extends View {
     public abstract void addData(final List<Integer> data, boolean show);
 
     //创建背景Bitmap
-    private void createBackBitmap()
+    private Bitmap createBackBitmap()
     {
-        backBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
+        Bitmap backBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
         Canvas backCanvas = new Canvas(backBitmap);
         backCanvas.drawColor(bgColor);
 
-        if(!showGridLine) return;
+        if(!showGridLine) return null;
 
         Paint paint = new Paint();
 
@@ -261,6 +242,8 @@ public abstract class WaveView extends View {
 
         //mainPaint.setColor(waveColor);
         //mainPaint.setStrokeWidth(2);
+
+        return backBitmap;
     }
 
     private void setPaint(Paint paint, int color, int lineWidth) {

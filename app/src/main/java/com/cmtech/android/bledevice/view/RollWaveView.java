@@ -7,24 +7,14 @@
 package com.cmtech.android.bledevice.view;
 
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-import android.view.View;
 
-import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.FixSizeLinkedList;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import kotlin.collections.ArrayDeque;
 
 /**
  * RollWaveView: 卷轴滚动式的波形显示视图
@@ -51,6 +41,12 @@ public abstract class RollWaveView extends WaveView {
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        drawDataOnCanvas(canvas);
+    }
+
     // 重置view
     // includeBackground: 是否重绘背景bitmap
     @Override
@@ -62,11 +58,9 @@ public abstract class RollWaveView extends WaveView {
     }
 
     @Override
-    public void initForePaint() {
-        forePaint.setAlpha(255);
-        forePaint.setStyle(Paint.Style.STROKE);
-        forePaint.setStrokeWidth(waveWidth);
-        forePaint.setColor(waveColor);
+    public void initWavePaint() {
+        wavePaint.setStyle(Paint.Style.STROKE);
+        super.initWavePaint();
     }
 
     public int getDataNumInView() {
@@ -101,7 +95,6 @@ public abstract class RollWaveView extends WaveView {
     }
 
     public void showView() {
-        drawDataOnForeCanvas();
         postInvalidate();
     }
 
@@ -109,10 +102,8 @@ public abstract class RollWaveView extends WaveView {
         this.listener = listener;
     }
 
-    protected void drawDataOnForeCanvas()
+    private void drawDataOnCanvas(Canvas canvas)
     {
-        foreCanvas.drawBitmap(backBitmap, 0, 0, null);
-
         if(viewData.size() <= 1) {
             return;
         }
@@ -129,6 +120,6 @@ public abstract class RollWaveView extends WaveView {
             path.lineTo(preX, preY);
         }
 
-        foreCanvas.drawPath(path, forePaint);
+        canvas.drawPath(path, wavePaint);
     }
 }

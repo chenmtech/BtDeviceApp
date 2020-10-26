@@ -7,22 +7,17 @@
 package com.cmtech.android.bledevice.view;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import java.util.List;
@@ -48,6 +43,9 @@ import java.util.concurrent.TimeUnit;
 public class ScanWaveView extends WaveView {
     private int curX, curY; //画线的当前点坐标
     private final Rect deleteRect = new Rect(); // 要抹去的小矩形
+
+    private Bitmap waveBitmap;	//波形bitmap
+    private Canvas waveCanvas;	//波形canvas
 
     private boolean first = true; // 是否是第一个数据
     private boolean showWave = true; // 是否显示波形
@@ -104,6 +102,13 @@ public class ScanWaveView extends WaveView {
     }
 
     @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if(waveBitmap != null)
+            canvas.drawBitmap(waveBitmap, 0, 0, null);
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
         return true;
@@ -126,6 +131,10 @@ public class ScanWaveView extends WaveView {
     {
         super.resetView(includeBackground);
 
+        // 创建波形bitmap和canvas
+        waveBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
+        waveCanvas = new Canvas(waveBitmap);
+
         curX = initX;
         curY = initY;
 
@@ -135,7 +144,7 @@ public class ScanWaveView extends WaveView {
 
     // 开始显示
     @Override
-    public void start() {
+    public void startShow() {
         if(showService == null || showService.isTerminated()) {
             ViseLog.e("启动ScanWaveView");
 
@@ -150,9 +159,9 @@ public class ScanWaveView extends WaveView {
 
     // 停止显示
     @Override
-    public void stop() {
-        ViseLog.e("停止ScanWaveView");
+    public void stopShow() {
         if (showService != null && !showService.isTerminated()) {
+            ViseLog.e("停止ScanWaveView");
             showService.shutdown();
             try {
                 if(!showService.awaitTermination(10, TimeUnit.SECONDS)) {
@@ -196,11 +205,9 @@ public class ScanWaveView extends WaveView {
     }
 
     @Override
-    public void initForePaint() {
-        forePaint.setXfermode(srcOverMode);
-        forePaint.setAlpha(255);
-        forePaint.setStrokeWidth(waveWidth);
-        forePaint.setColor(waveColor);
+    public void initWavePaint() {
+        wavePaint.setXfermode(srcOverMode);
+        super.initWavePaint();
     }
 
     private void drawData(int data, boolean updateView) {
@@ -209,7 +216,7 @@ public class ScanWaveView extends WaveView {
             preY = dataY;
             first = false;
         } else {
-            drawDataOnForeCanvas(dataY);
+            drawDataOnWaveCanvas(dataY);
             if(updateView)
                 postInvalidate();
         }
@@ -223,7 +230,7 @@ public class ScanWaveView extends WaveView {
             postInvalidate();
     }
 
-    private void drawDataOnForeCanvas(int dataY)
+    private void drawDataOnWaveCanvas(int dataY)
     {
         curY = dataY;
         if(preX == viewWidth)	//最后一个像素，抹去第一列
@@ -234,14 +241,14 @@ public class ScanWaveView extends WaveView {
         else	//画线
         {
             curX += pixelPerData;
-            foreCanvas.drawLine(preX, preY, curX, curY, forePaint);
+            waveCanvas.drawLine(preX, preY, curX, curY, wavePaint);
             deleteRect.set(curX +1, 0, curX + pixelPerGrid, viewHeight);
         }
         preX = curX;
         preY = curY;
         //抹去前面一个矩形区域
-        forePaint.setXfermode(srcInMode);
-        foreCanvas.drawBitmap(backBitmap, deleteRect, deleteRect, forePaint);
-        forePaint.setXfermode(srcOverMode);
+        wavePaint.setXfermode(srcInMode);
+        waveCanvas.drawBitmap(backBitmap, deleteRect, deleteRect, wavePaint);
+        wavePaint.setXfermode(srcOverMode);
     }
 }

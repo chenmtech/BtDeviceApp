@@ -95,9 +95,9 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
             @Override
             public void onClick(View view) {
                 if(eegView.isShowing()) {
-                    eegView.stop();
+                    eegView.stopShow();
                 } else {
-                    eegView.start();
+                    eegView.startShow();
                 }
             }
         });
@@ -124,7 +124,7 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
         sbReplay.setMax(second);
 
 
-        eegView.start();
+        eegView.startShow();
     }
 
     @Override
@@ -148,6 +148,6 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
         super.onDestroy();
 
         if(eegView != null)
-            eegView.stop();
+            eegView.stopShow();
     }
 }

@@ -188,7 +188,7 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
         if(hrAbnormalWarnAudio != null)
             hrAbnormalWarnAudio.stop();
 
-        ecgView.stop();
+        ecgView.stopShow();
     }
 
     @Override
@@ -238,9 +238,9 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
     @Override
     public void onEcgSignalShowStateUpdated(boolean isStart) {
         if(isStart)
-            ecgView.start();
+            ecgView.startShow();
         else
-            ecgView.stop();
+            ecgView.stopShow();
     }
 
     @Override
