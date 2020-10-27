@@ -180,6 +180,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         fragTabManager = new DeviceTabFragManager(getSupportFragmentManager(), tabLayout, R.id.layout_device_fragment);
         fragTabManager.setOnFragmentUpdatedListener(this);
 
+        // init main layout
+        initMainLayout();
+
+        // download account info
         MyApplication.getAccount().download(this, null, new IWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
@@ -189,8 +193,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             }
         });
 
-        // init main layout
-        initMainLayout();
+
     }
 
     private void initNavigation() {

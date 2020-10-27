@@ -31,6 +31,13 @@ public class KMWebServiceUtil {
 
     private static final String ACCOUNT_OP_URL = "Account?";
     private static final String RECORD_OP_URL = "Record?";
+    private static final String APP_UPDATE_INFO_URL = "AppUpdateInfo?";
+
+    public static void downloadAppUpdateInfo(Callback callback) {
+        Map<String, String> data = new HashMap<>();
+        data.put("cmd", "download");
+        HttpUtils.requestGet(KMURL + APP_UPDATE_INFO_URL, data, callback);
+    }
 
     public static void signUp(String platName, String platId, Callback callback) {
         Map<String, String> data = new HashMap<>();
