@@ -11,6 +11,7 @@ import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.ecgalgorithm.EcgAFDetector;
 import com.cmtech.android.bledeviceapp.ecgalgorithm.IEcgAlgorithm;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.AppUpdateManager;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
@@ -28,6 +29,7 @@ public class MyApplication extends Application {
     private static MyApplication instance;
     private DeviceManager deviceManager;
     private AccountManager accountManager;
+    private AppUpdateManager appUpdateManager;
     private SystemTTS tts;
     private int startedActivityCount = 0;
 
@@ -96,6 +98,8 @@ public class MyApplication extends Application {
 
         accountManager = new AccountManager();
 
+        appUpdateManager = new AppUpdateManager();
+
         tts = new SystemTTS(this);
     }
 
@@ -107,6 +111,10 @@ public class MyApplication extends Application {
 
     public static AccountManager getAccountManager() {
         return instance.accountManager;
+    }
+
+    public static AppUpdateManager getAppUpdateManager() {
+        return instance.appUpdateManager;
     }
 
     public static SystemTTS getTts() {

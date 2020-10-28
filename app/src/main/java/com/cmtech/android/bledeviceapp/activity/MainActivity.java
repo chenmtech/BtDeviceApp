@@ -13,7 +13,9 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private final static int RC_ADD_DEVICE = 1;     // return code for adding new devices
     private final static int RC_MODIFY_DEVICE_INFO = 2;       // return code for modifying device info
     private final static int RC_MODIFY_ACCOUNT = 3;
+    private final static int RC_OPEN_INSTALL_PERMISSION = 4;
 
     private LocalDevicesFragment localDevicesFragment;
     //WebDevicesFragment webDevicesFragment;
@@ -193,7 +196,36 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             }
         });
 
+        checkAppUpdateInfo();
+    }
 
+    private void checkAppUpdateInfo() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            boolean haveInstallPermission = getPackageManager().canRequestPackageInstalls();
+            if (!haveInstallPermission) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("开启安装应用权限").setMessage("应用升级需要您打开未知来源权限，请去设置中开启权限。");
+                builder.setCancelable(false);
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startInstallPermissionSettingActivity();
+                        }
+                    }
+                }).setNegativeButton("", null).show();
+                return;
+            }
+        }
+        //有权限，开始获取应用升级信息
+        MyApplication.getAppUpdateManager().retrieveUpdateInfo(this);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void startInstallPermissionSettingActivity() {
+        Uri packageURI = Uri.parse("package:" + getPackageName());
+        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
+        startActivityForResult(intent, RC_OPEN_INSTALL_PERMISSION);
     }
 
     private void initNavigation() {
@@ -352,6 +384,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 if(resultCode == RESULT_OK) {
                     updateNavigationHeader();
                 }
+                break;
+
+            case RC_OPEN_INSTALL_PERMISSION:
+                checkAppUpdateInfo();
                 break;
         }
     }
@@ -621,7 +657,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     private void initMainLayout() {
         TextView tvVersionName = noDeviceOpenLayout.findViewById(R.id.tv_version);
-        tvVersionName.setText(APKVersionCodeUtils.getVerName(this));
+        tvVersionName.setText(APKVersionCodeUtils.getVerName());
         updateMainLayout(null);
     }
 

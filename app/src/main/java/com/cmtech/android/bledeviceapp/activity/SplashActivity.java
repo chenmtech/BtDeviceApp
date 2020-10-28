@@ -83,8 +83,9 @@ public class SplashActivity extends AppCompatActivity {
         }
         if(permission.size() != 0)
             ActivityCompat.requestPermissions(SplashActivity.this, permission.toArray(new String[0]), 1);
-        else
+        else {
             initialize();
+        }
     }
 
     private void initialize() {
