@@ -4,6 +4,7 @@ import com.vise.log.ViseLog;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +14,11 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class HttpUtils {
     private static final OkHttpClient client = new OkHttpClient();
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+    private static final MediaType JSON = MediaType.Companion.parse("application/json; charset=utf-8");
 
     public static void requestGet(String baseUrl, Map<String, String> requestData, Callback callback) {
         String url = baseUrl + convertToString(requestData);
@@ -26,15 +28,29 @@ public class HttpUtils {
 
     public static void requestGet(String url, Callback callback) {
         Request request = new Request.Builder()
-                .get() //请求参数
+                .get()
                 .url(url)
                 .build();
 
         client.newCall(request).enqueue(callback);
     }
 
+    public static Response requestGet(String baseUrl, Map<String, String> requestData) throws IOException{
+        String url = baseUrl + convertToString(requestData);
+        return requestGet(url);
+    }
+
+    public static Response requestGet(String url) throws IOException{
+        Request request = new Request.Builder()
+                .get()
+                .url(url)
+                .build();
+
+        return client.newCall(request).execute();
+    }
+
     public static void requestPost(String url, JSONObject json, Callback callback) {
-        RequestBody body = RequestBody.create(JSON, json.toString());
+        RequestBody body = RequestBody.Companion.create(json.toString(), JSON);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
@@ -42,12 +58,21 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
+    public static Response requestPost(String url, JSONObject json) throws IOException {
+        RequestBody body = RequestBody.Companion.create(json.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        return client.newCall(request).execute();
+    }
+
     private static String convertToString(Map<String, String> data) {
         if (data == null || data.isEmpty()) return "";
 
         StringBuilder builder = new StringBuilder();
         boolean isFirst = true;
-        for (Map.Entry entry : data.entrySet()) {
+        for (Map.Entry<String, String> entry : data.entrySet()) {
             if (isFirst) {
                 isFirst = false;
             } else {

@@ -24,7 +24,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_OTHER_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
@@ -109,7 +109,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = RETURN_CODE_OTHER_ERR;
+                            result[0] = RETURN_CODE_DATA_ERR;
                         } finally {
                             done.countDown();
                         }
@@ -133,7 +133,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                             result[0] = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = RETURN_CODE_OTHER_ERR;
+                            result[0] = RETURN_CODE_DATA_ERR;
                         } finally {
                             done.countDown();
                         }
@@ -160,7 +160,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = RETURN_CODE_OTHER_ERR;
+                            result[0] = RETURN_CODE_DATA_ERR;
                         } finally {
                             done.countDown();
                         }
@@ -184,7 +184,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                             result[0] = json.getInt("code");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = RETURN_CODE_OTHER_ERR;
+                            result[0] = RETURN_CODE_DATA_ERR;
                         } finally {
                             done.countDown();
                         }
@@ -224,7 +224,7 @@ public class RecordWebAsyncTask extends AsyncTask<BasicRecord, Void, Object[]> {
                             result[1] = json.get("records");
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            result[0] = RETURN_CODE_OTHER_ERR;
+                            result[0] = RETURN_CODE_DATA_ERR;
                         } finally {
                             done.countDown();
                         }

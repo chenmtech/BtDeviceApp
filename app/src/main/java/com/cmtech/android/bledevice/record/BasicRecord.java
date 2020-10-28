@@ -222,7 +222,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             save();
                         } catch (JSONException e) {
                             e.printStackTrace();
-                            code = RETURN_CODE_OTHER_ERR;
+                            code = RETURN_CODE_DATA_ERR;
                         }
                     }
                 }

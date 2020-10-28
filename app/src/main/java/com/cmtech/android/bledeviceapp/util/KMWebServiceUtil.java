@@ -3,17 +3,22 @@ package com.cmtech.android.bledeviceapp.util;
 import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import okhttp3.Callback;
+import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMURL;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -29,14 +34,31 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.KMURL;
  */
 public class KMWebServiceUtil {
 
-    private static final String ACCOUNT_OP_URL = "Account?";
-    private static final String RECORD_OP_URL = "Record?";
-    private static final String APP_UPDATE_INFO_URL = "AppUpdateInfo?";
+    private static final String ACCOUNT_SERVLET_URL = "Account?";
+    private static final String RECORD_SERVLET_URL = "Record?";
+    private static final String APP_UPDATE_INFO_SERVLET_URL = "AppUpdateInfo?";
 
     public static void downloadAppUpdateInfo(Callback callback) {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "download");
-        HttpUtils.requestGet(KMURL + APP_UPDATE_INFO_URL, data, callback);
+        HttpUtils.requestGet(KMURL + APP_UPDATE_INFO_SERVLET_URL, data, callback);
+    }
+
+    public static WebResponse downloadAppUpdateInfo() {
+        Map<String, String> data = new HashMap<>();
+        data.put("cmd", "download");
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestGet(KMURL + APP_UPDATE_INFO_SERVLET_URL, data)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject json = new JSONObject(respBody);
+            //ViseLog.e(json);
+            wResp.setCode(json.getInt("code"));
+            wResp.setContent(json.getJSONObject("appUpdateInfo"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return wResp;
     }
 
     public static void signUp(String platName, String platId, Callback callback) {
@@ -44,7 +66,7 @@ public class KMWebServiceUtil {
         data.put("cmd", "signUp");
         data.put("platName", platName);
         data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + ACCOUNT_OP_URL, data, callback);
+        HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data, callback);
     }
 
     public static void login(String platName, String platId, Callback callback) {
@@ -52,7 +74,7 @@ public class KMWebServiceUtil {
         data.put("cmd", "login");
         data.put("platName", platName);
         data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + ACCOUNT_OP_URL, data, callback);
+        HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data, callback);
     }
 
     public static void signUporLogin(String platName, String platId, Callback callback) {
@@ -60,7 +82,7 @@ public class KMWebServiceUtil {
         data.put("cmd", "signUporLogin");
         data.put("platName", platName);
         data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + ACCOUNT_OP_URL, data, callback);
+        HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data, callback);
     }
 
     public static void uploadAccountInfo(Account account, Callback callback) {
@@ -68,7 +90,7 @@ public class KMWebServiceUtil {
             JSONObject json = account.toJson();
             json.put("cmd", "upload");
             ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + ACCOUNT_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + ACCOUNT_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -80,7 +102,7 @@ public class KMWebServiceUtil {
             json.put("cmd", "download");
             json.put("platName", account.getPlatName());
             json.put("platId", account.getPlatId());
-            HttpUtils.requestPost(KMURL + ACCOUNT_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + ACCOUNT_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -92,7 +114,7 @@ public class KMWebServiceUtil {
         data.put("createTime", String.valueOf(createTime));
         data.put("devAddress", devAddress);
         data.put("ver", ver);
-        HttpUtils.requestGet(KMURL + RECORD_OP_URL, data, callback);
+        HttpUtils.requestGet(KMURL + RECORD_SERVLET_URL, data, callback);
     }
 
     public static void uploadRecord(String platName, String platId, BasicRecord record, Callback callback) {
@@ -102,7 +124,7 @@ public class KMWebServiceUtil {
             json.put("platName", platName);
             json.put("platId", platId);
             ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -118,7 +140,7 @@ public class KMWebServiceUtil {
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             json.put("ver", record.getVer());
-            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -134,7 +156,7 @@ public class KMWebServiceUtil {
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             json.put("ver", record.getVer());
-            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -152,7 +174,7 @@ public class KMWebServiceUtil {
             json.put("fromTime", fromTime);
             json.put("num", num);
             json.put("noteSearchStr", noteSearchStr);
-            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -167,7 +189,7 @@ public class KMWebServiceUtil {
             json.put("platName", platName);
             json.put("platId", platId);
             ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -182,7 +204,7 @@ public class KMWebServiceUtil {
             json.put("platName", platName);
             json.put("platId", platId);
             ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -197,7 +219,7 @@ public class KMWebServiceUtil {
             json.put("platName", platName);
             json.put("platId", platId);
             ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + RECORD_OP_URL, json, callback);
+            HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
         }

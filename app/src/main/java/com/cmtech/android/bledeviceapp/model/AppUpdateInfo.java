@@ -17,7 +17,6 @@ import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,11 +28,7 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
@@ -102,22 +97,19 @@ public class AppUpdateInfo implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void download(Context context, IWebCallback callback) {
-        new AppUpdateInfoWebAsyncTask(new IWebCallback() {
-            @Override
-            public void onFinish(int code, Object result) {
-                if (code == RETURN_CODE_SUCCESS) {
-                    JSONObject json = (JSONObject) result;
-                    if(json != null) {
-                        try {
-                            fromJson(json);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            code = RETURN_CODE_OTHER_ERR;
-                        }
+        new AppUpdateInfoWebAsyncTask(context, AppUpdateInfoWebAsyncTask.CMD_DOWNLOAD_INFO, (code, result) -> {
+            if (code == RETURN_CODE_SUCCESS) {
+                JSONObject json = (JSONObject) result;
+                if(json != null) {
+                    try {
+                        fromJson(json);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        code = RETURN_CODE_DATA_ERR;
                     }
                 }
-                callback.onFinish(code, result);
             }
+            callback.onFinish(code, result);
         }).execute();
     }
 
@@ -135,7 +127,7 @@ public class AppUpdateInfo implements Serializable, IJsonable, IWebOperation {
      * 下载最新版本的apk
      *
      */
-    public void downApkFile(Context context) {
+    public void downUrlFile(Context context) {
         if(TextUtils.isEmpty(url)) return;
 
         ProgressDialog pBar = new ProgressDialog(context);
@@ -216,58 +208,48 @@ public class AppUpdateInfo implements Serializable, IJsonable, IWebOperation {
         return "verCode:" + verCode + " verName:" + verName + " note:" + note + " size:" + size + " url:" + url;
     }
 
-    private static class AppUpdateInfoWebAsyncTask extends AsyncTask<Void, Void, Object[]> {
-        private static final int WAIT_TASK_SECOND = 10;
+    private static class AppUpdateInfoWebAsyncTask extends AsyncTask<Void, Void, WebResponse> {
+        private static final int CMD_DOWNLOAD_INFO = 0;
+        private static final int CMD_DOWNLOAD_APK = 1;
 
-        private IWebCallback callback;
+        private final int cmd;
+        private final IWebCallback callback;
+        private final ProgressDialog pBar;
 
-        public AppUpdateInfoWebAsyncTask(IWebCallback callback) {
+        public AppUpdateInfoWebAsyncTask(Context context, int cmd, IWebCallback callback) {
+            this.cmd = cmd;
             this.callback = callback;
+
+            if(cmd == CMD_DOWNLOAD_APK) {
+                pBar = new ProgressDialog(context);
+                pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                pBar.setCancelable(false);
+                pBar.setMessage("正在下载安装包，请稍后...");
+                pBar.setProgress(0);
+            } else {
+                pBar = null;
+            }
         }
 
         @Override
         protected void onPreExecute() {
-        }
-
-        @Override
-        protected Object[] doInBackground(Void... voids) {
-            final Object[] result = {RETURN_CODE_WEB_FAILURE, null};
-
-            CountDownLatch done = new CountDownLatch(1);
-            KMWebServiceUtil.downloadAppUpdateInfo(new Callback() {
-                @Override
-                public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    done.countDown();
-                }
-
-                @Override
-                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                    String respBody = Objects.requireNonNull(response.body()).string();
-                    try {
-                        JSONObject json = new JSONObject(respBody);
-                        //ViseLog.e(json);
-                        result[0] = json.getInt("code");
-                        result[1] = json.getJSONObject("appUpdateInfo");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } finally {
-                        done.countDown();
-                    }
-                }
-            });
-
-
-            try {
-                done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if(pBar != null) {
+                pBar.show();
             }
-            return result;
         }
 
         @Override
-        protected void onPostExecute(Object[] result) {
-            callback.onFinish((Integer) result[0], result[1]);
+        protected WebResponse doInBackground(Void... voids) {
+            return KMWebServiceUtil.downloadAppUpdateInfo();
+        }
+
+        @Override
+        protected void onPostExecute(WebResponse result) {
+            if(pBar != null) {
+                pBar.dismiss();
+            }
+            if(callback != null)
+                callback.onFinish(result.getCode(), result.getContent());
         }
     }
 }
