@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgalgorithm;
+package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm;
 
 import android.util.Pair;
 

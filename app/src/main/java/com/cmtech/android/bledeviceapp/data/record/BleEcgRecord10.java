@@ -7,12 +7,12 @@ import android.widget.Toast;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
-import com.cmtech.android.bledeviceapp.ecgalgorithm.IEcgAlgorithm;
+import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.IEcgAlgorithm;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.RecordUtil;
+import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,7 +56,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
-        RecordUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
+        ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
         if(json.has("report")) {
             report.fromJson(json.getJSONObject("report"));
         }
@@ -69,7 +69,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         json.put("sampleRate", sampleRate);
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
-        json.put("ecgData", RecordUtil.listToString(ecgData));
+        json.put("ecgData", ListStringUtil.listToString(ecgData));
         json.put("report", report.toJson());
         return json;
     }

@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.data.record;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.RecordUtil;
+import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +47,7 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
-        RecordUtil.stringToList(json.getString("eegData"), eegData, Integer.class);
+        ListStringUtil.stringToList(json.getString("eegData"), eegData, Integer.class);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
         json.put("sampleRate", sampleRate);
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
-        json.put("eegData", RecordUtil.listToString(eegData));
+        json.put("eegData", ListStringUtil.listToString(eegData));
         return json;
     }
 

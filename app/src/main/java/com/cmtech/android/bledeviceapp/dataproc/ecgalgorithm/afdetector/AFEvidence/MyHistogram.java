@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgalgorithm.afdetector.AFEvidence;
+package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEvidence;
 
 public class MyHistogram {
 	private MySeg[] segs = new MySeg[13];

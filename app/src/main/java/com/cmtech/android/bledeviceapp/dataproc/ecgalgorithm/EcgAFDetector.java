@@ -1,13 +1,13 @@
-package com.cmtech.android.bledeviceapp.ecgalgorithm;
+package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm;
 
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
-import com.cmtech.android.bledeviceapp.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence;
+import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence;
 
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence.NON_AF;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence.NON_AF;
 
 public class EcgAFDetector implements IEcgAlgorithm{
     private final static String VER = "0.1.2";

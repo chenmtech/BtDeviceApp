@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.data.record;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.RecordUtil;
+import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,10 +65,10 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
         hrList.clear();
-        RecordUtil.stringToList(json.getString("hrList"), hrList, Short.class);
+        ListStringUtil.stringToList(json.getString("hrList"), hrList, Short.class);
         hrMax = (short)json.getInt("hrMax");
         hrAve = (short)json.getInt("hrAve");
-        RecordUtil.stringToList(json.getString("hrHist"), hrHist, Integer.class);
+        ListStringUtil.stringToList(json.getString("hrHist"), hrHist, Integer.class);
 
         createHistogramFromHrHist();
     }
@@ -76,10 +76,10 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        json.put("hrList", RecordUtil.listToString(hrList));
+        json.put("hrList", ListStringUtil.listToString(hrList));
         json.put("hrMax", hrMax);
         json.put("hrAve", hrAve);
-        json.put("hrHist", RecordUtil.listToString(hrHist));
+        json.put("hrHist", ListStringUtil.listToString(hrHist));
         return json;
     }
 

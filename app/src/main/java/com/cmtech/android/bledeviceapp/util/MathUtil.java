@@ -19,72 +19,57 @@ public class MathUtil {
         return sum/m;
     }
 	
-	 //均值
-	 public static float floatAve(List<Float> x) { 
-		 int m = x.size();
-		 float sum = 0;
-		  for(Float d : x) {
-			  sum += d;
-		  }
-		 return sum/m; 
-	 }
+    //均值
+    public static float floatAve(List<Float> x) {
+        int m = x.size();
+        float sum = 0;
+        for(Float d : x) {
+            sum += d;
+        }
+        return sum/m;
+    }
+
+    //short均值,返回float
+    public static float shortAve(List<Short> x) {
+        int m = x.size();
+        float sum = 0;
+        for(Short d : x) {
+            sum += d;
+        }
+        return sum/m;
+    }
 	
-	 //标准差σ=sqrt(s^2)
-	 public static float floatStd(List<Float> x) { 
-		  int m = x.size();
-		  float sum = 0;
-		  for(Float d : x) {
-			  sum += d;
-		  }
-		  double dAve = sum/m;//求平均值
-		  double dVar = 0;
-		  for(Float d : x) {
-			  dVar += (d-dAve)*(d-dAve);
-		  }
-		  return (float)Math.sqrt(dVar/(m-1));    
-	 }
+    //标准差σ=sqrt(s^2)
+    public static float floatStd(List<Float> x) {
+        float ave = floatAve(x);//求平均值
+        float var = 0;
+        for(Float d : x) {
+            var += (d-ave)*(d-ave);
+        }
+        return (float)Math.sqrt(var/(ave-1));
+    }
 
     //标准差σ=sqrt(s^2)
     public static double doubleStd(List<Double> x) {
-        int m = x.size();
-        Double sum = 0.0;
-        for(Double d : x) {
-            sum += d;
+        double ave = doubleAve(x);//求平均值
+        double var = 0;
+        for(double d : x) {
+            var += (d-ave)*(d-ave);
         }
-        double dAve = sum/m;//求平均值
-        double dVar = 0;
-        for(Double d : x) {
-            dVar += (d-dAve)*(d-dAve);
-        }
-        return (double)Math.sqrt(dVar/(m-1));
+        return Math.sqrt(var/(ave-1));
     }
-	 
-	 //均值
-	 public static float shortAve(List<Short> x) { 
-		  int m = x.size();
-		  float sum = 0;
-		  for(Short d : x) {
-			  sum += d;
-		  }
-		  return sum/m; 
-	 }
 	
-	 //标准差σ=sqrt(s^2)
-	 public static float shortStd(List<Short> x) { 
-		  int m=x.size();
-		  float sum=0;
-		  for(Short d : x) {
-			  sum += d;
-		  }
-		  double dAve = sum/m;//求平均值
-		  double dVar = 0;
+    //标准差σ=sqrt(s^2)
+    public static float shortStd(List<Short> x) {
+	    float ave = shortAve(x);
+        float var = 0;
 
-		  for(Short d : x) {
-			  dVar += (d-dAve)*(d-dAve);
-		  }
-		  
-		  return (float)Math.sqrt(dVar/(m-1));    
-	 }
+        for(Short d : x) {
+            var += (d-ave)*(d-ave);
+        }
+
+        return (float)Math.sqrt(var/(ave-1));
+    }
 	 
 	 public static Pair<Integer, Float> floatMin(List<Float> x) {
 		 float minV = Float.MAX_VALUE;
@@ -95,7 +80,7 @@ public class MathUtil {
 				 minI = i;
 			 }
 		 }
-		 return new Pair<Integer, Float>(minI, minV);
+		 return new Pair<>(minI, minV);
 	 }
 	 
 	 public static Pair<Integer, Float> floatMax(List<Float> x) {
@@ -107,7 +92,7 @@ public class MathUtil {
 				 maxI = i;
 			 }
 		 }
-		 return new Pair<Integer, Float>(maxI, maxV);
+		 return new Pair<>(maxI, maxV);
 	 }
 
 }

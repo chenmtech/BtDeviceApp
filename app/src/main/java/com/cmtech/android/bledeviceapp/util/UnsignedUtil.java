@@ -41,7 +41,7 @@ public class UnsignedUtil {
      * @return
      */
     public long getUnsignedInt (int data){
-        return data&0x0FFFFFFFF;
+        return data&(long)0x0000FFFFFFFF;
     }
 
 }

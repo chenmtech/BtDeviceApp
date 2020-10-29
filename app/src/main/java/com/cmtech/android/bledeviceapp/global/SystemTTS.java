@@ -4,7 +4,7 @@ import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
-import com.cmtech.android.bledeviceapp.util.TTS;
+import com.cmtech.android.bledeviceapp.interfac.ITextSpeakable;
 import com.vise.log.ViseLog;
 
 import java.util.Locale;
@@ -21,7 +21,7 @@ import java.util.Locale;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class SystemTTS extends UtteranceProgressListener implements TTS {
+public class SystemTTS extends UtteranceProgressListener implements ITextSpeakable {
     private Context mContext;
     private TextToSpeech textToSpeech;
 

@@ -1,6 +1,6 @@
-package com.cmtech.android.bledeviceapp.ecgalgorithm;
+package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm;
 
-import com.cmtech.android.bledeviceapp.ecgalgorithm.qrsdetbyhamilton.QrsDetectorWithQRSInfo;
+import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.qrsdetbyhamilton.QrsDetectorWithQRSInfo;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.dsp.filter.FIRFilter;
 import com.cmtech.dsp.filter.IIRFilter;

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.common;
+package com.cmtech.android.bledeviceapp.dataproc;
 
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;

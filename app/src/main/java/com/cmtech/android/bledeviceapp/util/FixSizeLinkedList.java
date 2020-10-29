@@ -8,8 +8,8 @@ import java.util.List;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.util
  * ClassName:      FixSizeLinkedList
- * Description:    java类作用描述
- * Author:         作者名
+ * Description:    固定大小的List
+ * Author:         chenm
  * CreateDate:     2020/10/25 上午8:25
  * UpdateUser:     更新者
  * UpdateDate:     2020/10/25 上午8:25

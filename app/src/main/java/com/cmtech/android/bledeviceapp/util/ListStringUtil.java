@@ -3,8 +3,8 @@ package com.cmtech.android.bledeviceapp.util;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-public class RecordUtil {
-    private RecordUtil() {
+public class ListStringUtil {
+    private ListStringUtil() {
     }
 
     public static <T extends Number> String listToString(List<T> list) {

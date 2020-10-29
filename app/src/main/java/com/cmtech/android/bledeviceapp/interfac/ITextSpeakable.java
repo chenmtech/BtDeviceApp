@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.util;
+package com.cmtech.android.bledeviceapp.interfac;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -12,7 +12,7 @@ package com.cmtech.android.bledeviceapp.util;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface TTS {
+public interface ITextSpeakable {
     void speak(String playText);
     void stopSpeak();
 }

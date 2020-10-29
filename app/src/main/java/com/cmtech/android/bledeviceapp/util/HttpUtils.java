@@ -1,7 +1,5 @@
 package com.cmtech.android.bledeviceapp.util;
 
-import com.vise.log.ViseLog;
-
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -16,16 +14,22 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * Http操作
+ */
+
 public class HttpUtils {
     private static final OkHttpClient client = new OkHttpClient();
     private static final MediaType JSON = MediaType.Companion.parse("application/json; charset=utf-8");
 
+    // 异步版GET
     public static void requestGet(String baseUrl, Map<String, String> requestData, Callback callback) {
         String url = baseUrl + convertToString(requestData);
         requestGet(url, callback);
-        ViseLog.e(url);
+        //ViseLog.e(url);
     }
 
+    // 异步版GET
     public static void requestGet(String url, Callback callback) {
         Request request = new Request.Builder()
                 .get()
@@ -35,11 +39,13 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
+    // 同步版GET
     public static Response requestGet(String baseUrl, Map<String, String> requestData) throws IOException{
         String url = baseUrl + convertToString(requestData);
         return requestGet(url);
     }
 
+    // 同步版GET
     public static Response requestGet(String url) throws IOException{
         Request request = new Request.Builder()
                 .get()
@@ -49,6 +55,7 @@ public class HttpUtils {
         return client.newCall(request).execute();
     }
 
+    // 异步版POST
     public static void requestPost(String url, JSONObject json, Callback callback) {
         RequestBody body = RequestBody.Companion.create(json.toString(), JSON);
         Request request = new Request.Builder()
@@ -58,6 +65,7 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
+    // 同步版POST
     public static Response requestPost(String url, JSONObject json) throws IOException {
         RequestBody body = RequestBody.Companion.create(json.toString(), JSON);
         Request request = new Request.Builder()

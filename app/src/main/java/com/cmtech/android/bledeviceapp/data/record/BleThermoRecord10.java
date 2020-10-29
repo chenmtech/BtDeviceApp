@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.data.record;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.RecordUtil;
+import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +37,7 @@ public class BleThermoRecord10 extends BasicRecord {
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
-        RecordUtil.stringToList(json.getString("temp"), temp, Float.class);
+        ListStringUtil.stringToList(json.getString("temp"), temp, Float.class);
         this.highestTemp = Collections.max(temp);
     }
 
@@ -45,7 +45,7 @@ public class BleThermoRecord10 extends BasicRecord {
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
 
-        json.put("temp", RecordUtil.listToString(temp));
+        json.put("temp", ListStringUtil.listToString(temp));
 
         return json;
     }

@@ -8,8 +8,8 @@ import android.util.Log;
 
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
-import com.cmtech.android.bledeviceapp.ecgalgorithm.EcgAFDetector;
-import com.cmtech.android.bledeviceapp.ecgalgorithm.IEcgAlgorithm;
+import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.EcgAFDetector;
+import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.IEcgAlgorithm;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AppUpdateManager;
 import com.mob.MobSDK;

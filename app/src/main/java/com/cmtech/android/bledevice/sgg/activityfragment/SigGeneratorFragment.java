@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.sgg.view;
+package com.cmtech.android.bledevice.sgg.activityfragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

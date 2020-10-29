@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.ecgalgorithm.qrsdetbyhamilton;
+package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.qrsdetbyhamilton;
 
 public class LowpassFilter {
 	private final int LPBUFFER_LGTH;
