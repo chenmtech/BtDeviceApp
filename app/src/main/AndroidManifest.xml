@@ -79,7 +79,7 @@
             android:label="@string/cfg_device_basic_info"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
-            android:name="com.cmtech.android.bledevice.hrm.view.HrmCfgActivity"
+            android:name="com.cmtech.android.bledevice.hrm.activityfragment.HrmCfgActivity"
             android:label="@string/title_activity_hrmcfg"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
@@ -92,11 +92,11 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.cmtech.android.bledevice.hrm.view.HrRecordActivity"
+            android:name="com.cmtech.android.bledevice.hrm.activityfragment.HrRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordActivity"
+            android:name="com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
@@ -109,7 +109,7 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".model.NotificationService"
+            android:name=".activity.NotificationService"
             android:enabled="true"
             android:exported="false"
             android:priority="1000" />

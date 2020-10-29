@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.cmtech.android.bledevice.view.RecordIntroductionLayout
+    <com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout
         android:id="@+id/layout_record_intro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -28,7 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="300dp"/>
 
-            <com.cmtech.android.bledevice.view.RecordNoteLayout
+            <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
                 android:id="@+id/layout_record_note"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"/>

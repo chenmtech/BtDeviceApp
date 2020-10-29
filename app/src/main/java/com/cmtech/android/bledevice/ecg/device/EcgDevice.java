@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 import static com.cmtech.android.ble.core.DeviceConnectState.CONNECT;
 import static com.cmtech.android.bledevice.ecg.EcgConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
-import static com.cmtech.android.bledevice.view.ScanEcgView.PIXEL_PER_GRID;
-import static com.cmtech.android.bledevice.view.ScanEcgView.SECOND_PER_GRID;
+import static com.cmtech.android.bledeviceapp.view.ScanEcgView.PIXEL_PER_GRID;
+import static com.cmtech.android.bledeviceapp.view.ScanEcgView.SECOND_PER_GRID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 

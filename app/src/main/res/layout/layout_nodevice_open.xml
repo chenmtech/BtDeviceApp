@@ -21,7 +21,7 @@
         android:gravity="bottom"
         android:orientation="vertical">
 
-        <com.cmtech.android.bledevice.view.RoundImageView
+        <com.cmtech.android.bledeviceapp.view.RoundImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center_horizontal"

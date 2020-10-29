@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.util;
 
-import com.cmtech.android.bledevice.record.BasicRecord;
-import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.vise.log.ViseLog;
@@ -39,7 +39,7 @@ public class KMWebServiceUtil {
     private static final String RECORD_SERVLET_URL = "Record?";
     private static final String APP_UPDATE_INFO_SERVLET_URL = "AppUpdateInfo?";
 
-    public static WebResponse downloadAppUpdateInfo() {
+    public static WebResponse downloadNewestAppUpdateInfo() {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "download");
 

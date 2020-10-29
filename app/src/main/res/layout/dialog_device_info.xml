@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="@string/device_image"/>
-        <com.cmtech.android.bledevice.view.RoundImageView
+        <com.cmtech.android.bledeviceapp.view.RoundImageView
             android:id="@+id/iv_tab_image"
             android:layout_width="60dp"
             android:layout_height="60dp"

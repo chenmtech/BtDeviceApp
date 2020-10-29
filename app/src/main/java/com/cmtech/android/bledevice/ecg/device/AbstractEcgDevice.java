@@ -19,7 +19,7 @@ import org.litepal.LitePal;
 import java.io.IOException;
 
 import static com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
-import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 public abstract class AbstractEcgDevice extends AbstractDevice implements IEcgDevice {
     protected static final int DEFAULT_VALUE_1MV = 164; // 缺省定标前1mV值

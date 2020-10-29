@@ -7,7 +7,7 @@ import com.cmtech.android.bledevice.ecg.device.EcgFactory;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory;
 import com.cmtech.android.bledevice.eeg.model.EegFactory;
 import com.cmtech.android.bledevice.hrm.model.HrmFactory;
-import com.cmtech.android.bledevice.record.RecordType;
+import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
 import com.cmtech.android.bledevice.thm.model.ThmFactory;
 import com.cmtech.android.bledeviceapp.R;
@@ -23,11 +23,11 @@ import java.util.UUID;
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
 
-import static com.cmtech.android.bledevice.record.RecordType.ALL;
-import static com.cmtech.android.bledevice.record.RecordType.ECG;
-import static com.cmtech.android.bledevice.record.RecordType.EEG;
-import static com.cmtech.android.bledevice.record.RecordType.HR;
-import static com.cmtech.android.bledevice.record.RecordType.THERMO;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.ALL;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.THERMO;
 
 /**
  * AppConstant: App constant

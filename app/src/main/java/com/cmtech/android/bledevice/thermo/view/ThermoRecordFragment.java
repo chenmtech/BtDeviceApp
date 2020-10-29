@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.view.MyLineChart;
+import com.cmtech.android.bledeviceapp.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.ArrayList;

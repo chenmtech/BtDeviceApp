@@ -8,7 +8,6 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 
 public class AboutUsActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

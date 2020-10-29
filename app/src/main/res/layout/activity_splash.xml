@@ -13,7 +13,7 @@
         android:layout_alignParentEnd="true"
         android:layout_margin="10dp"/>
 
-    <com.cmtech.android.bledevice.view.RoundImageView
+    <com.cmtech.android.bledeviceapp.view.RoundImageView
         android:id="@+id/iv_kang"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

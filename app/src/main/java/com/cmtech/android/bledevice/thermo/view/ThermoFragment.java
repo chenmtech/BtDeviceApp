@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.thermo.model.OnThermoListener;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 
 import java.util.ArrayList;

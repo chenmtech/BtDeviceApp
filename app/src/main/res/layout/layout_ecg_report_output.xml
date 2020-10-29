@@ -57,7 +57,7 @@
         android:layout_margin="6dp"
         android:background="@color/primary_dark"/>
 
-    <com.cmtech.android.bledevice.view.ScanEcgView
+    <com.cmtech.android.bledeviceapp.view.ScanEcgView
         android:id="@+id/roll_ecg_view1"
         android:layout_width="2500px"
         android:layout_height="500px"
@@ -169,7 +169,7 @@
     </LinearLayout>
 
 
-    <com.cmtech.android.bledevice.view.ScanEcgView
+    <com.cmtech.android.bledeviceapp.view.ScanEcgView
         android:id="@+id/roll_ecg_view2"
         android:layout_width="2500px"
         android:layout_height="500px"
@@ -279,7 +279,7 @@
             android:text="20s"/>
 
     </LinearLayout>
-    <com.cmtech.android.bledevice.view.ScanEcgView
+    <com.cmtech.android.bledeviceapp.view.ScanEcgView
         android:id="@+id/roll_ecg_view3"
         android:layout_width="2500px"
         android:layout_height="500px"

@@ -54,7 +54,7 @@
             android:gravity="end"
             android:textSize="18sp"
             android:text="@string/account_portrait"/>
-        <com.cmtech.android.bledevice.view.RoundImageView
+        <com.cmtech.android.bledeviceapp.view.RoundImageView
             android:id="@+id/iv_account_image"
             android:layout_width="100dp"
             android:layout_height="100dp"

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
@@ -22,8 +23,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.tencent.qq.QQ;
+import cn.sharesdk.wechat.friends.Wechat;
+
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.model.AccountWebAsyncTask.CMD_SIGNUP_OR_LOGIN;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.QQ_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.WX_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP_OR_LOGIN;
 
 /**
   *
@@ -140,13 +149,38 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         }
     }
 
-    public void signupOrLogin(Context context, IWebResponseCallback callback) {
-        new AccountWebAsyncTask(context, null, CMD_SIGNUP_OR_LOGIN, callback);
+    public void signupOrLogin(Context context, ICodeCallback callback) {
+        new AccountAsyncTask(context, null, CMD_SIGNUP_OR_LOGIN, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                callback.onFinish(response.getCode());
+            }
+        });
+    }
+
+    public void logout() {
+        if(platName.equals(QQ_PLAT_NAME)) {
+            Platform plat = ShareSDK.getPlatform(QQ.NAME);
+            plat.removeAccount(true);
+        } else if(platName.equals(WX_PLAT_NAME)) {
+            Platform plat = ShareSDK.getPlatform(Wechat.NAME);
+            plat.removeAccount(true);
+        } else if(platName.equals(PHONE_PLAT_NAME)) {
+            PhoneAccount.removeAccount();
+        }
+
+        if(!TextUtils.isEmpty(icon)) {
+            try {
+                FileUtil.deleteFile(new File(icon));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        new AccountWebAsyncTask(context, "请稍等...", AccountWebAsyncTask.CMD_UPLOAD, new IWebResponseCallback() {
+        new AccountAsyncTask(context, "请稍等...", AccountAsyncTask.CMD_UPLOAD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 callback.onFinish(response.getCode());
@@ -160,7 +194,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     public void download(Context context, String showString, ICodeCallback callback) {
-        new AccountWebAsyncTask(context, showString, AccountWebAsyncTask.CMD_DOWNLOAD, new IWebResponseCallback() {
+        new AccountAsyncTask(context, showString, AccountAsyncTask.CMD_DOWNLOAD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();

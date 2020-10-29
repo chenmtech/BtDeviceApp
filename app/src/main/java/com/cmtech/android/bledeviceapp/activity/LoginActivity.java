@@ -172,7 +172,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String platName, String platId, String name, String icon) {
-        MyApplication.getAccountManager().login(platName, platId, name, icon);
+        MyApplication.getAccountManager().localLogin(platName, platId, name, icon);
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();

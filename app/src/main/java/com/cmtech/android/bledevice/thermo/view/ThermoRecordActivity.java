@@ -6,10 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.record.BleThermoRecord10;
-import com.cmtech.android.bledevice.view.MyLineChart;
-import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
-import com.cmtech.android.bledevice.view.RecordNoteLayout;
+import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord10;
+import com.cmtech.android.bledeviceapp.view.MyLineChart;
+import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
+import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.vise.log.ViseLog;

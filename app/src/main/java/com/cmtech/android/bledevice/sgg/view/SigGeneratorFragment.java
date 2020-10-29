@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 
 public class SigGeneratorFragment extends DeviceFragment {
     private static final String TAG = "SigGeneratorFragment";

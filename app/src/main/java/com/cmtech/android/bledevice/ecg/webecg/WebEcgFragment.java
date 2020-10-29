@@ -26,10 +26,10 @@ import com.cmtech.android.bledevice.ecg.fragment.EcgHrStatisticsFragment;
 import com.cmtech.android.bledevice.ecg.fragment.EcgRecordFragment;
 import com.cmtech.android.bledevice.ecg.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
-import com.cmtech.android.bledevice.view.OnWaveViewListener;
-import com.cmtech.android.bledevice.view.ScanEcgView;
+import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
+import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
   *

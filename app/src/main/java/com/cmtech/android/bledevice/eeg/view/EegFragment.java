@@ -13,17 +13,17 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.eeg.model.EegDevice;
 import com.cmtech.android.bledevice.eeg.model.OnEegListener;
-import com.cmtech.android.bledevice.view.OnWaveViewListener;
-import com.cmtech.android.bledevice.view.ScanEegView;
+import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
+import com.cmtech.android.bledeviceapp.view.ScanEegView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
  * ProjectName:    BtDeviceApp

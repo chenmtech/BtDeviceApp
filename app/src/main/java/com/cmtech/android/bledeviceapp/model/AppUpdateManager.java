@@ -9,7 +9,7 @@ import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class AppUpdateManager {
-    private final AppUpdateInfo updateInfo = new AppUpdateInfo();
+    private final AppInfo updateInfo = new AppInfo();
 
     public AppUpdateManager() {
 
@@ -40,7 +40,7 @@ public class AppUpdateManager {
     }
 
     private void downloadApk(Context context) {
-        updateInfo.downUrlFile(context);
+        updateInfo.downloadAndInstallApkFile(context);
     }
 
     private boolean isNeedUpdate() {

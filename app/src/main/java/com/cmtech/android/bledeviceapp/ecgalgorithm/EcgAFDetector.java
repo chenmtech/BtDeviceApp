@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.ecgalgorithm;
 
-import com.cmtech.android.bledevice.record.BleEcgRecord10;
-import com.cmtech.android.bledevice.report.EcgReport;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence;
 
 import java.util.Date;

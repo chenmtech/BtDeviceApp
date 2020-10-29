@@ -8,12 +8,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.record.BleEegRecord10;
-import com.cmtech.android.bledevice.view.OnRollWaveViewListener;
-import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
-import com.cmtech.android.bledevice.view.RecordNoteLayout;
-import com.cmtech.android.bledevice.view.RollEegView;
-import com.cmtech.android.bledevice.view.RollWaveView;
+import com.cmtech.android.bledeviceapp.data.record.BleEegRecord10;
+import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
+import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
+import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
+import com.cmtech.android.bledeviceapp.view.RollEegView;
+import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -21,7 +21,7 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.record.BasicRecord.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class EegRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {

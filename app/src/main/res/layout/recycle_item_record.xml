@@ -14,7 +14,7 @@
         android:gravity="center_horizontal"
         android:layout_margin="4dp"
         android:orientation="vertical">
-        <com.cmtech.android.bledevice.view.RoundImageView
+        <com.cmtech.android.bledeviceapp.view.RoundImageView
             android:id="@+id/iv_creator_image"
             android:layout_width="40dp"
             android:layout_height="40dp"

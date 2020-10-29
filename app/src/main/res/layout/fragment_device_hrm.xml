@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context = "com.cmtech.android.bledevice.hrm.view.HrmFragment">
+    tools:context = "com.cmtech.android.bledevice.hrm.activityfragment.HrmFragment">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -49,7 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone">
-            <com.cmtech.android.bledevice.view.ScanEcgView
+            <com.cmtech.android.bledeviceapp.view.ScanEcgView
                 android:id="@+id/ecg_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

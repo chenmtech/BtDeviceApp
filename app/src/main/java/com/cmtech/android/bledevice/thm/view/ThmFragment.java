@@ -14,7 +14,7 @@ import com.cmtech.android.bledevice.thm.model.BleTempHumidData;
 import com.cmtech.android.bledevice.thm.model.OnThmListener;
 import com.cmtech.android.bledevice.thm.model.ThmDevice;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 
 
 /**

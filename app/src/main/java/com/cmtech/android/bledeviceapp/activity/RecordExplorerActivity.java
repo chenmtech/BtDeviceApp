@@ -22,9 +22,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.record.BasicRecord;
-import com.cmtech.android.bledevice.record.RecordFactory;
-import com.cmtech.android.bledevice.record.RecordType;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
+import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
+import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.cmtech.android.bledevice.report.EcgReport.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;

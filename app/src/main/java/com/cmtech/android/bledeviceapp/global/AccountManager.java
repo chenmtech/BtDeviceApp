@@ -2,29 +2,13 @@ package com.cmtech.android.bledeviceapp.global;
 
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.PhoneAccount;
-import com.cmtech.android.bledeviceapp.model.WebResponse;
-import com.vise.utils.file.FileUtil;
 
 import org.litepal.LitePal;
 
-import java.io.File;
-import java.io.IOException;
-
-import cn.sharesdk.framework.Platform;
-import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.tencent.qq.QQ;
-import cn.sharesdk.wechat.friends.Wechat;
-
-import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.QQ_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.WX_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
@@ -51,7 +35,7 @@ public class AccountManager {
     }
 
     // login account
-    public void login(String platName, String platId, String name, String icon) {
+    public void localLogin(String platName, String platId, String name, String icon) {
         Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
         if(account == null) {
             account = new Account(platName, platId, name, "", icon);
@@ -66,12 +50,9 @@ public class AccountManager {
     public void webLogin(final Context context) {
         if(!isLogin()) return;
 
-        account.signupOrLogin(context, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                if(response.getCode() != RETURN_CODE_SUCCESS) {
-                    runOnUiThread(() -> Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show());
-                }
+        account.signupOrLogin(context, code -> {
+            if(code != RETURN_CODE_SUCCESS) {
+                runOnUiThread(() -> Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show());
             }
         });
     }
@@ -81,23 +62,7 @@ public class AccountManager {
         if(!isLogin()) return;
 
         if(isRemoved) {
-            if(account.getPlatName().equals(QQ_PLAT_NAME)) {
-                Platform plat = ShareSDK.getPlatform(QQ.NAME);
-                plat.removeAccount(true);
-            } else if(account.getPlatName().equals(WX_PLAT_NAME)) {
-                Platform plat = ShareSDK.getPlatform(Wechat.NAME);
-                plat.removeAccount(true);
-            } else if(account.getPlatName().equals(PHONE_PLAT_NAME)) {
-                PhoneAccount.removeAccount();
-            }
-
-            if(!TextUtils.isEmpty(account.getIcon())) {
-                try {
-                    FileUtil.deleteFile(new File(account.getIcon()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            account.logout();
         }
 
         account = null;

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.cmtech.android.bledevice.view.HrHistogramChart
+    <com.cmtech.android.bledeviceapp.view.HrHistogramChart
         android:id="@+id/chart_hr_histogram"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
