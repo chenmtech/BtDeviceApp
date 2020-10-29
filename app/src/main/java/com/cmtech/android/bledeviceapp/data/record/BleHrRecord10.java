@@ -91,6 +91,15 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     public List<Short> getHrList() {
         return hrList;
     }
+
+    public List<Short> getHrListInMS() {
+        List<Short> hrListMs = new ArrayList<>();
+        for(Short d : hrList) {
+            hrListMs.add((short)(60000/d));
+        }
+        return hrListMs;
+    }
+
     public short getHrMax() {
         return hrMax;
     }

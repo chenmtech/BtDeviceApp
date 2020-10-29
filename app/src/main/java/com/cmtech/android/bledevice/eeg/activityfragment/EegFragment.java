@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.eeg.view;
+package com.cmtech.android.bledevice.eeg.activityfragment;
 
 import android.content.Intent;
 import android.os.Bundle;

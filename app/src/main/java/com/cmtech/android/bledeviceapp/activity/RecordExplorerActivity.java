@@ -22,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
@@ -56,6 +57,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
+    private static final int RC_OPEN_RECORD = 1;
     private static final int DOWNLOAD_RECORD_NUM = 20;
 
     private List<BasicRecord> allRecords = new ArrayList<>(); // all records
@@ -169,8 +171,12 @@ public class RecordExplorerActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1) {
-            recordAdapter.notifySelectedItemChanged();
+        if(requestCode == RC_OPEN_RECORD) {
+            if(resultCode == RESULT_OK) {
+                recordAdapter.notifySelectedItemChanged();
+            } else {
+                Toast.makeText(this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -241,7 +247,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             }
             if (intent != null) {
                 intent.putExtra("record_id", record.getId());
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, RC_OPEN_RECORD);
             }
         }
     }

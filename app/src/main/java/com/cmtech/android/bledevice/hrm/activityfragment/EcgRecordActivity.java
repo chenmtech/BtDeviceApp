@@ -10,16 +10,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.interfac.ISimpleCallback;
 import com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
@@ -28,7 +27,6 @@ import com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.view.BitmapUtil;
@@ -57,8 +55,8 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     private RollEcgView ecgView; // ecgView
     private TextView tvTimeLength; // record time length
     private TextView tvCurrentTime; // current replay time
-    private SeekBar sbReplay; // 播放条
-    private ImageButton ibReplayCtrl; // 播放状态控制
+    private SeekBar sbReplay; // ecg replay seek bar
+    private ImageButton ibReplayCtrl; // ecg replay control button
 
 
     @Override
@@ -70,24 +68,17 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         record = LitePal.find(BleEcgRecord10.class, recordId, true);
 
         if(record == null) {
-            Toast.makeText(EcgRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
             setResult(RESULT_CANCELED);
             finish();
         }
 
-        ViseLog.e(record);
-
         if(record.noSignal()) {
-            record.download(this, new ICodeCallback() {
-                @Override
-                public void onFinish(int code) {
-                    if (code == RETURN_CODE_SUCCESS) {
-                        initUI();
-                    } else {
-                        Toast.makeText(EcgRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    }
+            record.download(this, code -> {
+                if (code == RETURN_CODE_SUCCESS) {
+                    initUI();
+                } else {
+                    setResult(RESULT_CANCELED);
+                    finish();
                 }
             });
         } else {
@@ -119,23 +110,11 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
 
         tvTimeLength = findViewById(R.id.tv_time_length);
-        int second = record.getRecordSecond();
-        tvTimeLength.setText(DateTimeUtil.secToMinute(second));
-
-        ibReplayCtrl = findViewById(R.id.ib_replay_control);
-        ibReplayCtrl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(ecgView.isShowing()) {
-                    ecgView.stopShow();
-                } else {
-                    ecgView.startShow();
-                }
-            }
-        });
+        int timeLength = record.getRecordSecond();
+        tvTimeLength.setText(DateTimeUtil.secToMinute(timeLength));
 
         sbReplay = findViewById(R.id.sb_replay);
-        sbReplay.setEnabled(false);
+        sbReplay.setMax(timeLength);
         sbReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -150,97 +129,89 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        sbReplay.setMax(second);
+        sbReplay.setEnabled(false);
 
-        // set output report FAB
-        FloatingActionButton fabOutputReport = findViewById(R.id.fab_output_report);
-        fabOutputReport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(ecgView.isShowing())
-                    ecgView.stopShow();
-                outputPdf();
+        ibReplayCtrl = findViewById(R.id.ib_replay_control);
+        ibReplayCtrl.setOnClickListener(view -> {
+            if(ecgView.isShowing()) {
+                ecgView.stopShow();
+            } else {
+                ecgView.startShow();
             }
         });
+
+        TextView tvOutputReport = findViewById(R.id.tv_output_report);
+        tvOutputReport.setOnClickListener(view -> {
+            if(ecgView.isShowing())
+                ecgView.stopShow();
+            outputPdf();
+        });
+
         ecgView.startShow();
     }
 
-    private void outputPng() {
-        reportOutputLayout.updateView("将报告输出为PNG图片，请稍等...", new EcgReportOutputLayout.IPdfOutputCallback() {
-            @Override
-            public void onFinish() {
-                PdfDocument doc = new PdfDocument();
-                PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
-                        reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)
-                        .create();
-                PdfDocument.Page page = doc.startPage(pageInfo);
-                reportOutputLayout.draw(page.getCanvas());
-                doc.finishPage(page);
-                try {
-                    File pdfFile = new File(DIR_CACHE,"tmp.pdf");
-                    doc.writeTo(new FileOutputStream(pdfFile));
-                    doc.close();
-                    Bitmap bitmap = pdfToBitmap(pdfFile);
-                    DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
-                    String docTime = dateFmt.format(new Date());
-                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                    File pngFile = new File(dir, "km_ecgreport_"+docTime+".png");
-                    BitmapUtil.saveBitmap(bitmap, pngFile);
-                    Toast.makeText(EcgRecordActivity.this, "PNG图片已放入相册中。", Toast.LENGTH_LONG).show();
-                } catch (IOException e) {
-                    Toast.makeText(EcgRecordActivity.this, "生成图片文件失败", Toast.LENGTH_SHORT).show();
-                    ViseLog.e(e);
-                    e.printStackTrace();
+    private void outputPdf() {
+        reportOutputLayout.outputPdf("将报告保存为PDF文件，请稍等...", () -> {
+            PdfDocument doc = new PdfDocument();
+            PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
+                    reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)
+                    .create();
+
+            PdfDocument.Page page = doc.startPage(pageInfo);
+
+            reportOutputLayout.draw(page.getCanvas());
+            doc.finishPage(page);
+
+            DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
+            String docTime = dateFmt.format(new Date());
+            //File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            try {
+                File pdfFile = new File(DIR_CACHE,"km_ecgreport_"+docTime+".pdf");
+                doc.writeTo(new FileOutputStream(pdfFile));
+                doc.close();
+                Uri uri;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    uri = FileProvider.getUriForFile(EcgRecordActivity.this,
+                            getApplicationContext().getPackageName() + ".provider", pdfFile);
+                } else {
+                    uri = Uri.fromFile(pdfFile);
                 }
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.setDataAndType(uri, "application/pdf");
+                startActivity(intent);
+            } catch (IOException e) {
+                Toast.makeText(EcgRecordActivity.this, "输出PDF文件失败", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
             }
         });
     }
 
-    private void outputPdf() {
-        reportOutputLayout.updateView("将报告保存为PDF文件，请稍等...", new EcgReportOutputLayout.IPdfOutputCallback() {
-            @Override
-            public void onFinish() {
-                PdfDocument doc = new PdfDocument();
-                PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
-                        reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)
-                        .create();
-
-                PdfDocument.Page page = doc.startPage(pageInfo);
-
-                reportOutputLayout.draw(page.getCanvas());
-                doc.finishPage(page);
-
+    private void outputPng() {
+        reportOutputLayout.outputPdf("将报告输出为PNG图片，请稍等...", () -> {
+            PdfDocument doc = new PdfDocument();
+            PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
+                    reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)
+                    .create();
+            PdfDocument.Page page = doc.startPage(pageInfo);
+            reportOutputLayout.draw(page.getCanvas());
+            doc.finishPage(page);
+            try {
+                File pdfFile = new File(DIR_CACHE,"tmp.pdf");
+                doc.writeTo(new FileOutputStream(pdfFile));
+                doc.close();
+                Bitmap bitmap = pdfToBitmap(pdfFile);
                 DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
                 String docTime = dateFmt.format(new Date());
-                //File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                File dir = DIR_CACHE;
-                try {
-                    File pdfFile = new File(dir,"km_ecgreport_"+docTime+".pdf");
-                    doc.writeTo(new FileOutputStream(pdfFile));
-                    doc.close();
-                    //Toast.makeText(EcgRecordActivity.this, "请到文件管理器中查阅PDF文件。", Toast.LENGTH_LONG).show();
-                    Uri uri = null;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        uri = FileProvider.getUriForFile(EcgRecordActivity.this,
-                                getApplicationContext().getPackageName() + ".provider", pdfFile);
-                    } else {
-                        uri = Uri.fromFile(pdfFile);
-                    }
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    intent.setDataAndType(uri, "application/pdf");
-                    try {
-                        startActivity(intent);
-                    } catch (ActivityNotFoundException e) {
-                        ViseLog.e("打开PDF文件错误。");
-                    }
-                } catch (IOException e) {
-                    Toast.makeText(EcgRecordActivity.this, "保存PDF文件失败", Toast.LENGTH_SHORT).show();
-                    ViseLog.e(e);
-                    e.printStackTrace();
-                }
-
+                File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                File pngFile = new File(dir, "km_ecgreport_"+docTime+".png");
+                BitmapUtil.saveBitmap(bitmap, pngFile);
+                Toast.makeText(EcgRecordActivity.this, "PNG图片已放入相册中。", Toast.LENGTH_LONG).show();
+            } catch (IOException e) {
+                Toast.makeText(EcgRecordActivity.this, "生成图片文件失败", Toast.LENGTH_SHORT).show();
+                ViseLog.e(e);
+                e.printStackTrace();
             }
         });
     }
@@ -288,9 +259,9 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         if(ecgView != null)
             ecgView.stopShow();
+
+        super.onDestroy();
     }
 }

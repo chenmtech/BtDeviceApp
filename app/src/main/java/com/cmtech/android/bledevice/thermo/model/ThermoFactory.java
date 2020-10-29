@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
+import com.cmtech.android.bledevice.thermo.activityfragment.ThermoFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.global.MyApplication;

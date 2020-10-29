@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.interfac.ISimpleCallback;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.R;
@@ -67,7 +68,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         this.record = record;
     }
 
-    public void updateView(String showText, IPdfOutputCallback callback) {
+    public void outputPdf(String showText, ISimpleCallback callback) {
         if(record == null) return;
 
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -90,15 +91,11 @@ public class EcgReportOutputLayout extends LinearLayout {
         new DrawEcgViewAsyncTask(getContext(), showText, callback).execute(record);
     }
 
-    public interface IPdfOutputCallback {
-        void onFinish();
-    }
-
     private static class DrawEcgViewAsyncTask extends AsyncTask<BleEcgRecord10, Void, Void> {
         private final ProgressDialog progressDialog;
-        private final IPdfOutputCallback callback;
+        private final ISimpleCallback callback;
 
-        private DrawEcgViewAsyncTask(Context context, String showText, IPdfOutputCallback callback) {
+        private DrawEcgViewAsyncTask(Context context, String showText, ISimpleCallback callback) {
             this.callback = callback;
             progressDialog = new ProgressDialog(context);
             progressDialog.setMessage(showText);

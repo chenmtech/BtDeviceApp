@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.thermo.view;
+package com.cmtech.android.bledevice.thermo.activityfragment;
 
 import android.graphics.Color;
 import android.os.Bundle;

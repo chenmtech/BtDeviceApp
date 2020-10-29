@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.thm.view;
+package com.cmtech.android.bledevice.thm.activityfragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

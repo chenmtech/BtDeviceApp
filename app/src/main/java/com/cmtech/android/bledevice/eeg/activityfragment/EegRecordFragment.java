@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.eeg.view;
+package com.cmtech.android.bledevice.eeg.activityfragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;

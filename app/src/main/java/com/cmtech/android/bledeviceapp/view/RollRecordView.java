@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 
 import com.cmtech.android.bledeviceapp.data.record.ISignalRecord;
 import com.vise.log.ViseLog;
+import com.vise.utils.handler.HandlerUtil;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -27,6 +28,16 @@ public class RollRecordView extends RollWaveView {
     private int curIndex = 0; // 当前读取记录文件中的第几个数据
     private int dataNumReadEachUpdate = 1; // 每次更新显示时需要读取的数据个数
 
+    private final Runnable updateViewRunnable = new Runnable() {
+        @Override
+        public void run() {
+            showView();
+            if(listener != null) {
+                listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
+            }
+        }
+    };
+
     // 定时周期显示任务
     private class ShowTask extends TimerTask {
         @Override
@@ -42,15 +53,7 @@ public class RollRecordView extends RollWaveView {
                             break;
                         }
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showView();
-                            if(listener != null) {
-                                listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
-                            }
-                        }
-                    });
+                    runOnUiThread(updateViewRunnable);
                 }
             } catch (IOException e) {
                 stopShow();
@@ -178,6 +181,7 @@ public class RollRecordView extends RollWaveView {
             ViseLog.e("停止RollRecordView");
             showTimer.cancel();
             showTimer = null;
+            HandlerUtil.removeRunnable(updateViewRunnable);
             showing = false;
             if(listener != null) {
                 runOnUiThread(new Runnable() {

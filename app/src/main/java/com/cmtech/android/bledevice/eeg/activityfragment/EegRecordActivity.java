@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.eeg.view;
+package com.cmtech.android.bledevice.eeg.activityfragment;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.data.record.BleEegRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
@@ -28,6 +29,7 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
     private BleEegRecord10 record;
 
     private RecordIntroductionLayout introLayout;
+    private RecordNoteLayout noteLayout;
 
     private RollEegView eegView; // eegView
     private TextView tvTotalTime; // 总时长
@@ -35,37 +37,25 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
     private SeekBar sbReplay; // 播放条
     private ImageButton btnReplayCtrl; // 转换播放状态
 
-    private RecordNoteLayout noteLayout;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_eeg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-
-        record = LitePal.where("id = ?", ""+recordId).findFirst(BleEegRecord10.class);
-        ViseLog.e(record);
+        record = LitePal.find(BleEegRecord10.class, recordId, true);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
         }
-        if(record.getNote() == null) {
-            record.setNote("");
-            record.save();
-        }
 
         if(record.noSignal()) {
-            record.download(this, new ICodeCallback() {
-                @Override
-                public void onFinish(int code) {
-                    if (code == RETURN_CODE_SUCCESS) {
-                        initUI();
-                    } else {
-                        Toast.makeText(EegRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    }
+            record.download(this, code -> {
+                if (code == RETURN_CODE_SUCCESS) {
+                    initUI();
+                } else {
+                    setResult(RESULT_CANCELED);
+                    finish();
                 }
             });
         } else {
@@ -74,8 +64,6 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
     }
 
     private void initUI() {
-        ViseLog.e(record);
-
         introLayout = findViewById(R.id.layout_record_intro);
         introLayout.setRecord(record);
         introLayout.updateView();
@@ -89,20 +77,14 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
         eegView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
+        tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
+
         tvTotalTime = findViewById(R.id.tv_total_time);
-        btnReplayCtrl = findViewById(R.id.ib_replay_control);
-        btnReplayCtrl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(eegView.isShowing()) {
-                    eegView.stopShow();
-                } else {
-                    eegView.startShow();
-                }
-            }
-        });
+        int timeLength = record.getRecordSecond();
+        tvTotalTime.setText(DateTimeUtil.secToMinute(timeLength));
+
         sbReplay = findViewById(R.id.sb_replay);
-        sbReplay.setEnabled(false);
+        sbReplay.setMax(timeLength);
         sbReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -117,12 +99,16 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+        sbReplay.setEnabled(false);
 
-        int second = record.getRecordSecond();
-        tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
-        tvTotalTime.setText(DateTimeUtil.secToMinute(second));
-        sbReplay.setMax(second);
-
+        btnReplayCtrl = findViewById(R.id.ib_replay_control);
+        btnReplayCtrl.setOnClickListener(view -> {
+            if(eegView.isShowing()) {
+                eegView.stopShow();
+            } else {
+                eegView.startShow();
+            }
+        });
 
         eegView.startShow();
     }
@@ -145,9 +131,9 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         if(eegView != null)
             eegView.stopShow();
+
+        super.onDestroy();
     }
 }

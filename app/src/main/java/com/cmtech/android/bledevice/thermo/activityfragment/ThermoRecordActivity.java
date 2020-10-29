@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.thermo.view;
+package com.cmtech.android.bledevice.thermo.activityfragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
 import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
@@ -16,6 +17,7 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
@@ -34,39 +36,29 @@ public class ThermoRecordActivity extends AppCompatActivity {
     private BleThermoRecord10 record;
 
     private RecordIntroductionLayout introLayout;
+    private RecordNoteLayout noteLayout;
 
     private MyLineChart lineChart; //
-
-    private RecordNoteLayout noteLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_thermo);
 
-        int recordId = getIntent().getIntExtra("record_id", -1);
-
-        record = LitePal.where("id = ?", ""+recordId).findFirst(BleThermoRecord10.class);
+        int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
+        record = LitePal.find(BleThermoRecord10.class, recordId, true);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
         }
-        if(record.getNote() == null) {
-            record.setNote("");
-            record.save();
-        }
 
         if(record.noSignal()) {
-            record.download(this, new ICodeCallback() {
-                @Override
-                public void onFinish(int code) {
-                    if (code == RETURN_CODE_SUCCESS) {
-                        initUI();
-                    } else {
-                        Toast.makeText(ThermoRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    }
+            record.download(this, code -> {
+                if (code == RETURN_CODE_SUCCESS) {
+                    initUI();
+                } else {
+                    setResult(RESULT_CANCELED);
+                    finish();
                 }
             });
         } else {
@@ -75,8 +67,6 @@ public class ThermoRecordActivity extends AppCompatActivity {
     }
 
     private void initUI() {
-        ViseLog.e(record);
-
         introLayout = findViewById(R.id.layout_record_intro);
         introLayout.setRecord(record);
         introLayout.updateView();

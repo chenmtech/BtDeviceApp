@@ -2,10 +2,10 @@ package com.cmtech.android.bledeviceapp.data.record;
 
 import android.app.Activity;
 
-import com.cmtech.android.bledevice.eeg.view.EegRecordActivity;
+import com.cmtech.android.bledevice.eeg.activityfragment.EegRecordActivity;
 import com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.activityfragment.HrRecordActivity;
-import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
+import com.cmtech.android.bledevice.thermo.activityfragment.ThermoRecordActivity;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 

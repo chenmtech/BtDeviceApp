@@ -97,17 +97,15 @@
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_output_report"
+        <TextView
+            android:id="@+id/tv_output_report"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:src="@mipmap/ic_output_report_32px"
-            app:backgroundTint="@color/primary"
-            app:fabSize="normal"
-            app:borderWidth="0dp"
-            app:elevation="8dp"
-            app:pressedTranslationZ="16dp"/>
+            android:drawableTop="@mipmap/ic_output_report_32px"
+            android:text="输出PDF"
+            android:textSize="12sp"
+            android:textColor="@color/white"/>
 
     </FrameLayout>
 

@@ -84,11 +84,11 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.cmtech.android.bledevice.thm.view.ThmCfgActivity"
+            android:name="com.cmtech.android.bledevice.thm.activityfragment.ThmCfgActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.cmtech.android.bledevice.thermo.view.ThermoCfgActivity"
+            android:name="com.cmtech.android.bledevice.thermo.activityfragment.ThermoCfgActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
@@ -100,11 +100,11 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity"
+            android:name="com.cmtech.android.bledevice.thermo.activityfragment.ThermoRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.cmtech.android.bledevice.eeg.view.EegRecordActivity"
+            android:name="com.cmtech.android.bledevice.eeg.activityfragment.EegRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 

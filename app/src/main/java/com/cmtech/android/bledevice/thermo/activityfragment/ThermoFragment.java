@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.thermo.view;
+package com.cmtech.android.bledevice.thermo.activityfragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
