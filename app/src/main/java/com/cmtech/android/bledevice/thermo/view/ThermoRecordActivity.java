@@ -11,7 +11,7 @@ import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.view.RecordIntroductionLayout;
 import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -57,9 +57,9 @@ public class ThermoRecordActivity extends AppCompatActivity {
         }
 
         if(record.noSignal()) {
-            record.download(this, new IWebCallback() {
+            record.download(this, new ICodeCallback() {
                 @Override
-                public void onFinish(int code, Object result) {
+                public void onFinish(int code) {
                     if (code == RETURN_CODE_SUCCESS) {
                         initUI();
                     } else {

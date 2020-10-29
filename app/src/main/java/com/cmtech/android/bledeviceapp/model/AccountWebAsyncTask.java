@@ -5,22 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
-
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
@@ -36,17 +22,16 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
-    public static final int UPLOAD_CMD = 1; // upload user info command
-    public static final int DOWNLOAD_CMD = 2; // download user info command
-
-    private static final int WAIT_TASK_SECOND = 10; // time to wait for task finish
+public class AccountWebAsyncTask extends AsyncTask<Account, Void, WebResponse> {
+    public static final int CMD_UPLOAD = 1; // upload user info command
+    public static final int CMD_DOWNLOAD = 2; // download user info command
+    public static final int CMD_SIGNUP_OR_LOGIN = 3;
 
     private final ProgressDialog progressDialog;
     private final int cmd;
-    private final IWebCallback callback;
+    private final IWebResponseCallback callback;
 
-    public AccountWebAsyncTask(Context context, String showString, int cmd, IWebCallback callback) {
+    public AccountWebAsyncTask(Context context, String showString, int cmd, IWebResponseCallback callback) {
         this.cmd = cmd;
         this.callback = callback;
 
@@ -67,80 +52,37 @@ public class AccountWebAsyncTask extends AsyncTask<Account, Void, Object[]> {
     }
 
     @Override
-    protected Object[] doInBackground(Account... accounts) {
-        final Object[] result = {RETURN_CODE_WEB_FAILURE, null};
-
-        if(accounts == null || accounts.length == 0 || accounts[0] == null) return result;
+    protected WebResponse doInBackground(Account... accounts) {
+        WebResponse response = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        if(accounts == null || accounts.length == 0 || accounts[0] == null) return response;
 
         Account account = accounts[0];
-        CountDownLatch done = new CountDownLatch(1);
-
         switch (cmd) {
             // UPLOAD
-            case UPLOAD_CMD:
-                KMWebServiceUtil.uploadAccountInfo(account, new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        done.countDown();
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = Objects.requireNonNull(response.body()).string();
-                        try {
-                            JSONObject json = new JSONObject(respBody);
-                            result[0] = json.getInt("code");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } finally {
-                            done.countDown();
-                        }
-                    }
-                });
+            case CMD_UPLOAD:
+                response = KMWebServiceUtil.uploadAccountInfo(account);
                 break;
 
             // DOWNLOAD
-            case DOWNLOAD_CMD:
-                KMWebServiceUtil.downloadAccountInfo(account, new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        done.countDown();
-                    }
+            case CMD_DOWNLOAD:
+                response = KMWebServiceUtil.downloadAccountInfo(account);
+                break;
 
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = Objects.requireNonNull(response.body()).string();
-                        try {
-                            JSONObject json = new JSONObject(respBody);
-                            result[0] = json.getInt("code");
-                            result[1] = json.get("account");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } finally {
-                            done.countDown();
-                        }
-                    }
-                });
+            case CMD_SIGNUP_OR_LOGIN:
+                response = KMWebServiceUtil.signUporLogin(account);
                 break;
 
             default:
-                done.countDown();
                 break;
         }
 
-        try {
-            done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return result;
+        return response;
     }
 
     @Override
-    protected void onPostExecute(Object[] result) {
-        int code = (int)result[0];
-        callback.onFinish(code, result[1]);
+    protected void onPostExecute(WebResponse response) {
+        callback.onFinish(response);
+
         if(progressDialog != null)
             progressDialog.dismiss();
     }

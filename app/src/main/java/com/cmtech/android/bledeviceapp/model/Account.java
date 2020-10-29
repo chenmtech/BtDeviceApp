@@ -7,9 +7,10 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
+import static com.cmtech.android.bledeviceapp.model.AccountWebAsyncTask.CMD_SIGNUP_OR_LOGIN;
 
 /**
   *
@@ -138,41 +140,47 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         }
     }
 
-    @Override
-    public void upload(Context context, IWebCallback callback) {
-        new AccountWebAsyncTask(context, "请稍等...", AccountWebAsyncTask.UPLOAD_CMD, callback).execute(this);
+    public void signupOrLogin(Context context, IWebResponseCallback callback) {
+        new AccountWebAsyncTask(context, null, CMD_SIGNUP_OR_LOGIN, callback);
     }
 
     @Override
-    public void download(Context context, IWebCallback callback) {
-        download(context, "请稍等...", callback);
-    }
-
-    public void download(Context context, String showString, IWebCallback callback) {
-        new AccountWebAsyncTask(context, showString, AccountWebAsyncTask.DOWNLOAD_CMD, new IWebCallback() {
+    public void upload(Context context, ICodeCallback callback) {
+        new AccountWebAsyncTask(context, "请稍等...", AccountWebAsyncTask.CMD_UPLOAD, new IWebResponseCallback() {
             @Override
-            public void onFinish(int code, Object result) {
-                String resultStr = "下载错误";
-                if (code == RETURN_CODE_SUCCESS) {
-                    JSONObject json = (JSONObject) result;
-
-                    fromJson(json);
-                    save();
-                    resultStr = "下载成功";
-                }
-
-                callback.onFinish(code, resultStr);
+            public void onFinish(WebResponse response) {
+                callback.onFinish(response.getCode());
             }
         }).execute(this);
     }
 
     @Override
-    public void delete(Context context, IWebCallback callback) {
+    public void download(Context context, ICodeCallback callback) {
+        download(context, "请稍等...", callback);
+    }
+
+    public void download(Context context, String showString, ICodeCallback callback) {
+        new AccountWebAsyncTask(context, showString, AccountWebAsyncTask.CMD_DOWNLOAD, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                if (code == RETURN_CODE_SUCCESS) {
+                    JSONObject json = (JSONObject) response.getContent();
+                    fromJson(json);
+                    save();
+                }
+                callback.onFinish(code);
+            }
+        }).execute(this);
+    }
+
+    @Override
+    public void delete(Context context, ICodeCallback callback) {
 
     }
 
     @Override
-    public void retrieveList(Context context, int num, String queryStr, long fromTime, IWebCallback callback) {
+    public void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
 
     }
 

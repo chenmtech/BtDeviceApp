@@ -4,10 +4,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.WebResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -164,11 +166,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     @Override
-    public final void retrieveList(Context context, int num, String queryStr, long fromTime, IWebCallback callback) {
-        new RecordWebAsyncTask(context, "获取记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_LIST, new Object[]{num, queryStr, fromTime}, new IWebCallback() {
+    public final void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
+        new RecordWebAsyncTask(context, "获取记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_LIST, new Object[]{num, queryStr, fromTime}, new IWebResponseCallback() {
             @Override
-            public void onFinish(int code, Object result) {
-                JSONArray jsonArr = (JSONArray) result;
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                JSONArray jsonArr = (JSONArray) response.getContent();
                 if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
                     for (int i = 0; i < jsonArr.length(); i++) {
                         try {
@@ -190,32 +193,34 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                         }
                     }
                 }
-                callback.onFinish(code, result);
+                callback.onFinish(code);
             }
         }).execute(this);
     }
 
     @Override
-    public final void upload(Context context, IWebCallback callback) {
-        new RecordWebAsyncTask(context, "上传记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_UPLOAD, new IWebCallback() {
+    public final void upload(Context context, ICodeCallback callback) {
+        new RecordWebAsyncTask(context, "上传记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_UPLOAD, new IWebResponseCallback() {
             @Override
-            public void onFinish(int code, Object result) {
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
                 if(code == RETURN_CODE_SUCCESS) {
                     setNeedUpload(false);
                     save();
                 }
-                callback.onFinish(code, result);
+                callback.onFinish(code);
             }
         }).execute(this);
     }
 
     @Override
-    public final void download(Context context, IWebCallback callback) {
-        new RecordWebAsyncTask(context, "下载记录中，请稍等。", RECORD_CMD_DOWNLOAD, new IWebCallback() {
+    public final void download(Context context, ICodeCallback callback) {
+        new RecordWebAsyncTask(context, "下载记录中，请稍等。", RECORD_CMD_DOWNLOAD, new IWebResponseCallback() {
             @Override
-            public void onFinish(int code, Object result) {
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
                 if (code == RETURN_CODE_SUCCESS) {
-                    JSONObject json = (JSONObject) result;
+                    JSONObject json = (JSONObject) response.getContent();
                     if(json != null) {
                         try {
                             fromJson(json);
@@ -226,22 +231,23 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                         }
                     }
                 }
-                callback.onFinish(code, result);
+                callback.onFinish(code);
             }
         }).execute(this);
     }
 
     @Override
-    public final void delete(Context context, IWebCallback callback) {
+    public final void delete(Context context, ICodeCallback callback) {
         Class<? extends BasicRecord> recordClass = getClass();
-        new RecordWebAsyncTask(context, "删除记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebCallback() {
+        new RecordWebAsyncTask(context, "删除记录中，请稍等。", RecordWebAsyncTask.RECORD_CMD_DELETE, new IWebResponseCallback() {
             @Override
-            public void onFinish(int code, Object result) {
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
                 if(code == RETURN_CODE_SUCCESS) {
 
                 }
                 LitePal.delete(recordClass, getId());
-                callback.onFinish(code, result);
+                callback.onFinish(code);
             }
         }).execute(this);
     }

@@ -28,7 +28,7 @@ import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -212,9 +212,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        record.retrieveList(this, DOWNLOAD_RECORD_NUM, noteFilterStr, from, new IWebCallback() {
+        record.retrieveList(this, DOWNLOAD_RECORD_NUM, noteFilterStr, from, new ICodeCallback() {
             @Override
-            public void onFinish(int code, Object result) {
+            public void onFinish(int code) {
                 if(code == RETURN_CODE_WEB_FAILURE) {
                     Toast.makeText(RecordExplorerActivity.this, "网络错误，仅加载本地记录。", Toast.LENGTH_SHORT).show();
                 }
@@ -253,9 +253,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    record.delete(RecordExplorerActivity.this, new IWebCallback() {
+                    record.delete(RecordExplorerActivity.this, new ICodeCallback() {
                         @Override
-                        public void onFinish(int code, Object result) {
+                        public void onFinish(int code) {
                             if (allRecords.remove(record)) {
                                 recordAdapter.unselected();
                                 updateRecordView();
@@ -268,9 +268,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     public void uploadRecord(final BasicRecord record) {
-        record.upload(this, new IWebCallback() {
+        record.upload(this, new ICodeCallback() {
             @Override
-            public void onFinish(int code, final Object rlt) {
+            public void onFinish(int code) {
                 if (code == RETURN_CODE_SUCCESS) {
                     updateRecordView();
                 } else {

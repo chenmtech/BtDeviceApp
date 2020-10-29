@@ -48,7 +48,7 @@ import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
@@ -187,9 +187,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         initMainLayout();
 
         // download account info
-        MyApplication.getAccount().download(this, null, new IWebCallback() {
+        MyApplication.getAccount().download(this, null, new ICodeCallback() {
             @Override
-            public void onFinish(int code, Object result) {
+            public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     updateNavigationHeader();
                 }

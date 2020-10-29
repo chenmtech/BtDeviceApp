@@ -18,6 +18,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMURL;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 /**
@@ -38,12 +39,6 @@ public class KMWebServiceUtil {
     private static final String RECORD_SERVLET_URL = "Record?";
     private static final String APP_UPDATE_INFO_SERVLET_URL = "AppUpdateInfo?";
 
-    public static void downloadAppUpdateInfo(Callback callback) {
-        Map<String, String> data = new HashMap<>();
-        data.put("cmd", "download");
-        HttpUtils.requestGet(KMURL + APP_UPDATE_INFO_SERVLET_URL, data, callback);
-    }
-
     public static WebResponse downloadAppUpdateInfo() {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "download");
@@ -51,10 +46,9 @@ public class KMWebServiceUtil {
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
         try(Response response = HttpUtils.requestGet(KMURL + APP_UPDATE_INFO_SERVLET_URL, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject json = new JSONObject(respBody);
-            //ViseLog.e(json);
-            wResp.setCode(json.getInt("code"));
-            wResp.setContent(json.getJSONObject("appUpdateInfo"));
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+            wResp.setContent(rtn.getJSONObject("appUpdateInfo"));
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
@@ -77,37 +71,248 @@ public class KMWebServiceUtil {
         HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data, callback);
     }
 
-    public static void signUporLogin(String platName, String platId, Callback callback) {
+    public static WebResponse signUporLogin(Account account) {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "signUporLogin");
-        data.put("platName", platName);
-        data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data, callback);
-    }
+        data.put("platName", account.getPlatName());
+        data.put("platId", account.getPlatId());
 
-    public static void uploadAccountInfo(Account account, Callback callback) {
-        try {
-            JSONObject json = account.toJson();
-            json.put("cmd", "upload");
-            ViseLog.e(json.toString());
-            HttpUtils.requestPost(KMURL + ACCOUNT_SERVLET_URL, json, callback);
-        } catch (JSONException e) {
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+        } catch (JSONException | IOException e) {
             e.printStackTrace();
         }
+        return wResp;
     }
 
-    public static void downloadAccountInfo(Account account, Callback callback) {
+    public static WebResponse uploadAccountInfo(Account account) {
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        JSONObject json = account.toJson();
+        try {
+            json.put("cmd", "upload");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+
+        try(Response response = HttpUtils.requestPost(KMURL + ACCOUNT_SERVLET_URL, json)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return wResp;
+    }
+
+    public static WebResponse downloadAccountInfo(Account account) {
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "download");
             json.put("platName", account.getPlatName());
             json.put("platId", account.getPlatId());
-            HttpUtils.requestPost(KMURL + ACCOUNT_SERVLET_URL, json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
+
+        try(Response response = HttpUtils.requestPost(KMURL + ACCOUNT_SERVLET_URL, json)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+            wResp.setContent(rtn.get("account"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return wResp;
     }
 
+    public static WebResponse queryRecordId(int recordTypeCode, long createTime, String devAddress, String ver) {
+        Map<String, String> data = new HashMap<>();
+        data.put("recordTypeCode", String.valueOf(recordTypeCode));
+        data.put("createTime", String.valueOf(createTime));
+        data.put("devAddress", devAddress);
+        data.put("ver", ver);
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestGet(KMURL + RECORD_SERVLET_URL, data)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+            wResp.setContent(rtn.getInt("id"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return wResp;
+    }
+
+    public static WebResponse uploadRecord(String platName, String platId, BasicRecord record) {
+        JSONObject json;
+        try {
+            json = record.toJson();
+            json.put("cmd", "upload");
+            json.put("platName", platName);
+            json.put("platId", platId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        }
+        return wResp;
+    }
+
+    public static WebResponse downloadRecord(String platName, String platId, BasicRecord record) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "download");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("recordTypeCode", record.getTypeCode());
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("ver", record.getVer());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+            wResp.setContent(rtn.get("record"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        }
+        return wResp;
+    }
+
+    public static WebResponse deleteRecord(String platName, String platId, BasicRecord record) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "delete");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("recordTypeCode", record.getTypeCode());
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("ver", record.getVer());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        }
+        return wResp;
+    }
+
+    public static WebResponse downloadRecordList(String platName, String platId, BasicRecord record, long fromTime, int num, String noteSearchStr) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "downloadList");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("recordTypeCode", record.getTypeCode());
+            json.put("creatorPlat", record.getCreatorPlat());
+            json.put("creatorId", record.getCreatorId());
+            json.put("fromTime", fromTime);
+            json.put("num", num);
+            json.put("noteSearchStr", noteSearchStr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+            wResp.setContent(rtn.get("records"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        }
+        return wResp;
+    }
+
+    public static WebResponse downloadReport(String platName, String platId, BleEcgRecord10 record) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("cmd", "downloadReport");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            ViseLog.e(json.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+            wResp.setContent(rtn.getJSONObject("reportResult"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        }
+        return wResp;
+    }
+
+    public static WebResponse requestReport(String platName, String platId, BleEcgRecord10 record) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("cmd", "requestReport");
+            json.put("platName", platName);
+            json.put("platId", platId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+            wResp.setContent(rtn.getJSONObject("reportResult"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        }
+        return wResp;
+    }
+
+/*
     public static void queryRecordId(int recordTypeCode, long createTime, String devAddress, String ver, Callback callback) {
         Map<String, String> data = new HashMap<>();
         data.put("recordTypeCode", String.valueOf(recordTypeCode));
@@ -224,4 +429,5 @@ public class KMWebServiceUtil {
             e.printStackTrace();
         }
     }
+    */
 }

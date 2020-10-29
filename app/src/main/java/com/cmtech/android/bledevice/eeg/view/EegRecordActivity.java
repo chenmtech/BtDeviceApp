@@ -15,7 +15,7 @@ import com.cmtech.android.bledevice.view.RecordNoteLayout;
 import com.cmtech.android.bledevice.view.RollEegView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
@@ -56,9 +56,9 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
         }
 
         if(record.noSignal()) {
-            record.download(this, new IWebCallback() {
+            record.download(this, new ICodeCallback() {
                 @Override
-                public void onFinish(int code, Object result) {
+                public void onFinish(int code) {
                     if (code == RETURN_CODE_SUCCESS) {
                         initUI();
                     } else {

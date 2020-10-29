@@ -12,6 +12,6 @@ package com.cmtech.android.bledeviceapp.interfac;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface IWebCallback {
-    void onFinish(int code, Object result);
+public interface ICodeCallback {
+    void onFinish(int code);
 }

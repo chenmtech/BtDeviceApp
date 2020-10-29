@@ -10,12 +10,13 @@ import com.cmtech.android.bledevice.report.EcgReport;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.ecgalgorithm.IEcgAlgorithm;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 import com.cmtech.android.bledeviceapp.util.RecordUtil;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.annotation.Column;
@@ -24,13 +25,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 
@@ -155,8 +149,8 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     }
 
     @Override
-    public void retrieveDiagnoseResult(Context context, IWebCallback callback) {
-        processReport(context, REPORT_CMD_DOWNLOAD, callback);
+    public void retrieveDiagnoseResult(Context context, IWebResponseCallback callback) {
+        processReport(context, CMD_DOWNLOAD_REPORT, callback);
     }
 
     @Override
@@ -173,11 +167,11 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         save();
     }
 
-    private void processReport(Context context, int cmd, IWebCallback callback) {
+    private void processReport(Context context, int cmd, IWebResponseCallback callback) {
         if(needUpload()) {
-            upload(context, new IWebCallback() {
+            upload(context, new ICodeCallback() {
                 @Override
-                public void onFinish(int code, Object result) {
+                public void onFinish(int code) {
                     if (code == RETURN_CODE_SUCCESS) {
                         doProcessRequest(context, cmd, callback);
                     } else {
@@ -190,18 +184,16 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         }
     }
 
-    private void doProcessRequest(Context context, int cmd, IWebCallback callback) {
+    private void doProcessRequest(Context context, int cmd, IWebResponseCallback callback) {
         new ReportWebAsyncTask(context, cmd, callback).execute(this);
     }
 
-    private static class ReportWebAsyncTask extends AsyncTask<BleEcgRecord10, Void, Object[]> {
-        private static final int WAIT_TASK_SECOND = 10;
-
-        private IWebCallback callback;
+    private static class ReportWebAsyncTask extends AsyncTask<BleEcgRecord10, Void, WebResponse> {
+        private IWebResponseCallback callback;
         private ProgressDialog progressDialog;
         private int cmd;
 
-        public ReportWebAsyncTask(Context context, int cmd, IWebCallback callback) {
+        public ReportWebAsyncTask(Context context, int cmd, IWebResponseCallback callback) {
             this.callback = callback;
             this.cmd = cmd;
             progressDialog = new ProgressDialog(context);
@@ -216,58 +208,30 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
         }
 
         @Override
-        protected Object[] doInBackground(BleEcgRecord10... ecgRecords) {
-            final Object[] result = {RETURN_CODE_WEB_FAILURE, null};
-            if(ecgRecords == null || ecgRecords.length == 0 || ecgRecords[0] == null) return result;
+        protected WebResponse doInBackground(BleEcgRecord10... ecgRecords) {
+            WebResponse response = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+            if(ecgRecords == null || ecgRecords.length == 0 || ecgRecords[0] == null) return response;
 
             BleEcgRecord10 record = ecgRecords[0];
-            CountDownLatch done = new CountDownLatch(1);
-
-            Callback callback = new Callback() {
-                @Override
-                public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    done.countDown();
-                }
-
-                @Override
-                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                    String respBody = Objects.requireNonNull(response.body()).string();
-                    try {
-                        JSONObject json = new JSONObject(respBody);
-                        result[0] = json.getInt("code");
-                        if(json.has("reportResult"))
-                            result[1] = json.getJSONObject("reportResult");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } finally {
-                        done.countDown();
-                    }
-                }
-            };
 
             switch (cmd) {
-                case REPORT_CMD_REQUEST:
-                    KMWebServiceUtil.requestReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
+                case CMD_REQUEST_REPORT:
+                    response = KMWebServiceUtil.requestReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record);
                     break;
-                case REPORT_CMD_DOWNLOAD:
-                    KMWebServiceUtil.downloadReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record, callback);
+                case CMD_DOWNLOAD_REPORT:
+                    response = KMWebServiceUtil.downloadReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record);
                     break;
                 default:
-                    done.countDown();
                     break;
             }
-            try {
-                done.await(WAIT_TASK_SECOND, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return result;
+            return response;
         }
 
         @Override
-        protected void onPostExecute(Object[] result) {
-            callback.onFinish((Integer) result[0], result[1]);
-            progressDialog.dismiss();
+        protected void onPostExecute(WebResponse response) {
+            callback.onFinish(response);
+            if(progressDialog != null)
+                progressDialog.dismiss();
         }
     }
 }

@@ -13,7 +13,8 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
+import com.cmtech.android.bledeviceapp.model.WebResponse;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,12 +84,12 @@ public class RecordReportLayout extends LinearLayout {
 
     public void updateFromWeb() {
         if(record != null) {
-            IWebCallback getReportWebCallback = new IWebCallback() {
+            IWebResponseCallback getReportWebCallback = new IWebResponseCallback() {
                 @Override
-                public void onFinish(int code, Object result) {
+                public void onFinish(WebResponse response) {
                     Context context = RecordReportLayout.this.getContext();
-                    if(code == RETURN_CODE_SUCCESS) {
-                        JSONObject reportResult = (JSONObject) result;
+                    if(response.getCode() == RETURN_CODE_SUCCESS) {
+                        JSONObject reportResult = (JSONObject) response.getContent();
                         try {
                             int reportCode = reportResult.getInt("reportCode");
                             switch (reportCode) {

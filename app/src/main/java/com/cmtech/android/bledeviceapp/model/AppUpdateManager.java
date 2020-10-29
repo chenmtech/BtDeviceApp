@@ -16,7 +16,7 @@ public class AppUpdateManager {
     }
 
     public void retrieveUpdateInfo(Context context) {
-        updateInfo.download(context, (code, result) -> {
+        updateInfo.download(context, (code) -> {
             if(code == RETURN_CODE_SUCCESS) {
                 if(isNeedUpdate())
                     updateApp(context);

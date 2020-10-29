@@ -12,9 +12,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
-import com.cmtech.android.bledeviceapp.interfac.IWebCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 
 import org.json.JSONException;
@@ -22,14 +23,10 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Objects;
-
-import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 
@@ -91,15 +88,16 @@ public class AppUpdateInfo implements Serializable, IJsonable, IWebOperation {
     }
 
     @Override
-    public void upload(Context context, IWebCallback callback) {
+    public void upload(Context context, ICodeCallback callback) {
 
     }
 
     @Override
-    public void download(Context context, IWebCallback callback) {
-        new AppUpdateInfoWebAsyncTask(context, AppUpdateInfoWebAsyncTask.CMD_DOWNLOAD_INFO, (code, result) -> {
+    public void download(Context context, ICodeCallback callback) {
+        new AppUpdateInfoWebAsyncTask(context, AppUpdateInfoWebAsyncTask.CMD_DOWNLOAD_INFO, (response) -> {
+            int code = response.getCode();
             if (code == RETURN_CODE_SUCCESS) {
-                JSONObject json = (JSONObject) result;
+                JSONObject json = (JSONObject) response.getContent();
                 if(json != null) {
                     try {
                         fromJson(json);
@@ -109,17 +107,17 @@ public class AppUpdateInfo implements Serializable, IJsonable, IWebOperation {
                     }
                 }
             }
-            callback.onFinish(code, result);
+            callback.onFinish(code);
         }).execute();
     }
 
     @Override
-    public void delete(Context context, IWebCallback callback) {
+    public void delete(Context context, ICodeCallback callback) {
 
     }
 
     @Override
-    public void retrieveList(Context context, int num, String queryStr, long fromTime, IWebCallback callback) {
+    public void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
 
     }
 
@@ -213,10 +211,10 @@ public class AppUpdateInfo implements Serializable, IJsonable, IWebOperation {
         private static final int CMD_DOWNLOAD_APK = 1;
 
         private final int cmd;
-        private final IWebCallback callback;
+        private final IWebResponseCallback callback;
         private final ProgressDialog pBar;
 
-        public AppUpdateInfoWebAsyncTask(Context context, int cmd, IWebCallback callback) {
+        public AppUpdateInfoWebAsyncTask(Context context, int cmd, IWebResponseCallback callback) {
             this.cmd = cmd;
             this.callback = callback;
 
@@ -244,12 +242,12 @@ public class AppUpdateInfo implements Serializable, IJsonable, IWebOperation {
         }
 
         @Override
-        protected void onPostExecute(WebResponse result) {
+        protected void onPostExecute(WebResponse response) {
             if(pBar != null) {
                 pBar.dismiss();
             }
             if(callback != null)
-                callback.onFinish(result.getCode(), result.getContent());
+                callback.onFinish(response);
         }
     }
 }
