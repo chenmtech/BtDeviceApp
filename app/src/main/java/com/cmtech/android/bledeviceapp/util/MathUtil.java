@@ -46,7 +46,7 @@ public class MathUtil {
         for(Float d : x) {
             var += (d-ave)*(d-ave);
         }
-        return (float)Math.sqrt(var/(ave-1));
+        return (float)Math.sqrt(var/(x.size()-1));
     }
 
     //标准差σ=sqrt(s^2)
@@ -56,7 +56,7 @@ public class MathUtil {
         for(double d : x) {
             var += (d-ave)*(d-ave);
         }
-        return Math.sqrt(var/(ave-1));
+        return Math.sqrt(var/(x.size()-1));
     }
 	
     //标准差σ=sqrt(s^2)
@@ -68,7 +68,7 @@ public class MathUtil {
             var += (d-ave)*(d-ave);
         }
 
-        return (float)Math.sqrt(var/(ave-1));
+        return (float)Math.sqrt(var/(x.size()-1));
     }
 	 
 	 public static Pair<Integer, Float> floatMin(List<Float> x) {

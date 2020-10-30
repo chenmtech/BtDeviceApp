@@ -2,23 +2,18 @@ package com.cmtech.android.bledevice.eeg.activityfragment;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEegRecord10;
-import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
-import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
-import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 import com.cmtech.android.bledeviceapp.view.RollEegView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.log.ViseLog;
+import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
+import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 
 import org.litepal.LitePal;
 
@@ -126,6 +121,7 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
     @Override
     public void onBackPressed() {
+        setResult(RESULT_OK);
         finish();
     }
 

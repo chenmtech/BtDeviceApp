@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfDocument;
@@ -17,17 +16,16 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
-import com.cmtech.android.bledeviceapp.interfac.ISimpleCallback;
-import com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
+import com.cmtech.android.bledeviceapp.view.RollEcgView;
+import com.cmtech.android.bledeviceapp.view.RollWaveView;
+import com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout;
-import com.cmtech.android.bledeviceapp.view.RollEcgView;
-import com.cmtech.android.bledeviceapp.view.RollWaveView;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.view.BitmapUtil;
 
@@ -254,6 +252,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
     @Override
     public void onBackPressed() {
+        setResult(RESULT_OK);
         finish();
     }
 

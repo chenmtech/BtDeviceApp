@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -39,17 +40,17 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.SPLASH_ACTIVITY
   * Version:        1.0
  */
 public class SplashActivity extends AppCompatActivity {
-    private static final int MSG_COUNT_DOWN = 1; // count down message
+    private static final int MSG_COUNT_SECOND = 1; // count second message
 
     private TextView tvSecond;
     private Thread thread; // count down thread
 
-    private final Handler handler = new Handler(new Handler.Callback() {
+    private final Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if(msg.what == MSG_COUNT_DOWN) {
+            if(msg.what == MSG_COUNT_SECOND) {
                 int nSecond = msg.arg1;
-                SplashActivity.this.tvSecond.setText(String.format("%d%s", nSecond, getString(R.string.second)));
+                SplashActivity.this.tvSecond.setText(String.format(Locale.getDefault(), "%d%s", nSecond, getString(R.string.second)));
 
                 if(nSecond == 0) {
                     Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
@@ -57,7 +58,7 @@ public class SplashActivity extends AppCompatActivity {
                     finish();
                 }
             }
-            return false;
+            return true;
         }
     });
 
@@ -66,21 +67,27 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        clearCacheDir();
+
         // 检查权限
         checkPermissions();
     }
+
     // 检查权限
     private void checkPermissions() {
         List<String> permission = new ArrayList<>();
+        // 定位权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(SplashActivity.this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 permission.add(ACCESS_COARSE_LOCATION);
             }
         }
+        // 读写权限
         if(ContextCompat.checkSelfPermission(SplashActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             permission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
+
         if(permission.size() != 0)
             ActivityCompat.requestPermissions(SplashActivity.this, permission.toArray(new String[0]), 1);
         else {
@@ -97,16 +104,14 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                for(int result : grantResults) {
-                    if(result != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "The app exits because of no permission.", Toast.LENGTH_SHORT).show();
-                        MyApplication.killProcess();
-                        break;
-                    }
+        if (requestCode == 1) {
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "没有授予所需权限，应用程序退出。", Toast.LENGTH_SHORT).show();
+                    MyApplication.killProcess();
+                    break;
                 }
-                break;
+            }
         }
 
         initialize();
@@ -114,12 +119,11 @@ public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         try {
             stopCountDown();
         } catch (InterruptedException ignored) {
         }
+        super.onDestroy();
     }
 
     @Override
@@ -137,7 +141,7 @@ public class SplashActivity extends AppCompatActivity {
                 try {
                     while (--nSecond >= 0) {
                         Thread.sleep(1000);
-                        Message.obtain(handler, MSG_COUNT_DOWN, nSecond, 0).sendToTarget();
+                        Message.obtain(handler, MSG_COUNT_SECOND, nSecond, 0).sendToTarget();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -145,17 +149,7 @@ public class SplashActivity extends AppCompatActivity {
             }
         });
         thread.start();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if(DIR_CACHE.exists())
-                        FileUtil.cleanDirectory(DIR_CACHE);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+
     }
 
     private void stopCountDown() throws InterruptedException{
@@ -163,6 +157,21 @@ public class SplashActivity extends AppCompatActivity {
             thread.interrupt();
             thread.join();
         }
+    }
+
+    private void clearCacheDir() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    assert DIR_CACHE != null;
+                    if(DIR_CACHE.exists())
+                        FileUtil.cleanDirectory(DIR_CACHE);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
 }

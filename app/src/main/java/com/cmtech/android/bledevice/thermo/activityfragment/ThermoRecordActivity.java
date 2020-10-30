@@ -4,16 +4,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
@@ -64,6 +60,12 @@ public class ThermoRecordActivity extends AppCompatActivity {
         } else {
             initUI();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        finish();
     }
 
     private void initUI() {

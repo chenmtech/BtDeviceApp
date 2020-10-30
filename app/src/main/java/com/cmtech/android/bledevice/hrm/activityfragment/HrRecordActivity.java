@@ -62,6 +62,7 @@ public class HrRecordActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        setResult(RESULT_OK);
         finish();
     }
 
