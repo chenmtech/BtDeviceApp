@@ -1,19 +1,20 @@
 package com.cmtech.android.bledeviceapp.view;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import com.cmtech.android.bledeviceapp.data.record.ISignalRecord;
 import com.vise.log.ViseLog;
-import com.vise.utils.handler.HandlerUtil;
 
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * RollRecordView: 用于播放信号记录的卷轴滚动式的波形显示视图
@@ -22,29 +23,43 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 public class RollRecordView extends RollWaveView {
     private static final int MIN_TIME_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
+    private static final int MSG_UPDATE_VIEW = 1;
+    private static final int MSG_UPDATE_SHOW_STATE = 2;
+    private static final int MSG_STOP_SHOW = 3;
 
     private ISignalRecord record; // 要播放的信号记录
     private boolean showing = false; // 是否正在播放
     private int curIndex = 0; // 当前读取记录文件中的第几个数据
     private int dataNumReadEachUpdate = 1; // 每次更新显示时需要读取的数据个数
-
-    private final Runnable updateViewRunnable = new Runnable() {
+    private ScheduledExecutorService showExecutor; // 定时更新显示线程池
+    private final Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
-        public void run() {
-            showView();
-            if(listener != null) {
-                listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
+        public boolean handleMessage(Message msg) {
+            if(msg.what == MSG_UPDATE_VIEW) {
+                int curIndex = msg.arg1;
+                showView();
+                if(listener != null) {
+                    listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
+                }
+            } else if(msg.what == MSG_UPDATE_SHOW_STATE) {
+                boolean isShow = (msg.arg1 == 1);
+                if(listener != null) {
+                    listener.onShowStateUpdated(isShow);
+                }
+            } else if(msg.what == MSG_STOP_SHOW) {
+                stopShow();
             }
+            return true;
         }
-    };
+    });
 
     // 定时周期显示任务
-    private class ShowTask extends TimerTask {
+    private class ShowTask implements Runnable {
         @Override
         public void run() {
             try {
                 if(record.isEOD()) {
-                    stopShow();
+                    Message.obtain(handler, MSG_STOP_SHOW).sendToTarget();
                 } else {
                     // 读出数据
                     for (int i = 0; i < dataNumReadEachUpdate; i++, curIndex++) {
@@ -53,14 +68,13 @@ public class RollRecordView extends RollWaveView {
                             break;
                         }
                     }
-                    runOnUiThread(updateViewRunnable);
+                    Message.obtain(handler, MSG_UPDATE_VIEW, curIndex, 0).sendToTarget();
                 }
             } catch (IOException e) {
                 stopShow();
             }
         }
     }
-    private Timer showTimer; // 定时器
 
     private final GestureDetector gestureDetector;
     private final GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
@@ -161,17 +175,12 @@ public class RollRecordView extends RollWaveView {
                 throw new IllegalArgumentException();
             }
 
-            showTimer = new Timer();
-            showTimer.scheduleAtFixedRate(new ShowTask(), timeInterval, timeInterval);
+            showExecutor = Executors.newScheduledThreadPool(1);
+            showExecutor.scheduleAtFixedRate(new ShowTask(), timeInterval, timeInterval, TimeUnit.MILLISECONDS);
             showing = true;
 
             if(listener != null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onShowStateUpdated(true);
-                    }
-                });
+                Message.obtain(handler, MSG_UPDATE_SHOW_STATE, 1, 0).sendToTarget();
             }
         }
     }
@@ -179,17 +188,25 @@ public class RollRecordView extends RollWaveView {
     public void stopShow() {
         if(showing) {
             ViseLog.e("停止RollRecordView");
-            showTimer.cancel();
-            showTimer = null;
-            HandlerUtil.removeRunnable(updateViewRunnable);
+
+            if(showExecutor != null && !showExecutor.isTerminated()) {
+                showExecutor.shutdown();
+                try {
+                    while (!showExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
+                        ViseLog.e("The thread pool is not terminated. Wait again");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    showExecutor.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
+            }
+
+            handler.removeCallbacksAndMessages(null);
+
             showing = false;
             if(listener != null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onShowStateUpdated(false);
-                    }
-                });
+                Message.obtain(handler, MSG_UPDATE_SHOW_STATE, 0, 0).sendToTarget();
             }
         }
     }

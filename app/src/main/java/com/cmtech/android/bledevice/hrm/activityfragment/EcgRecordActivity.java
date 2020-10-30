@@ -252,15 +252,15 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
     @Override
     public void onBackPressed() {
+        if(ecgView != null)
+            ecgView.stopShow();
+
         setResult(RESULT_OK);
         finish();
     }
 
     @Override
     protected void onDestroy() {
-        if(ecgView != null)
-            ecgView.stopShow();
-
         super.onDestroy();
     }
 }

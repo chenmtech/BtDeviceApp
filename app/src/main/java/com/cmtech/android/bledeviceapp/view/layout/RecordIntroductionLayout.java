@@ -53,7 +53,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
         ivExit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((Activity)getContext()).finish();
+                ((Activity)getContext()).onBackPressed();
             }
         });
 

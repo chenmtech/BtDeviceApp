@@ -121,15 +121,15 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
     @Override
     public void onBackPressed() {
+        if(eegView != null)
+            eegView.stopShow();
+
         setResult(RESULT_OK);
         finish();
     }
 
     @Override
     protected void onDestroy() {
-        if(eegView != null)
-            eegView.stopShow();
-
         super.onDestroy();
     }
 }
