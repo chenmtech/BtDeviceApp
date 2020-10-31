@@ -65,8 +65,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone">
+        android:layout_height="wrap_content">
         <TextView
             android:labelFor="@id/et_account_note"
             android:layout_width="100dp"
@@ -85,10 +84,18 @@
             android:maxLength="50"/>
     </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="*备注信息将会显示在您输出的记录报告中。"
+        android:textSize="12sp"/>
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp">
         <Button
             android:id="@+id/btn_userinfo_cancel"
             android:layout_width="0dp"

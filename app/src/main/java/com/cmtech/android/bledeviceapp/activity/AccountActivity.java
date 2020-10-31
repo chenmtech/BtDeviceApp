@@ -45,9 +45,9 @@ public class AccountActivity extends AppCompatActivity {
     private EditText etName;
     private ImageView ivImage;
     private EditText etNote;
-    private String cacheImagePath = ""; // 账户头像文件路径缓存
+    private String cacheImageFile = ""; // 账户头像文件名缓存
 
-    private final Account account = MyApplication.getAccount();
+    private Account account;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +56,11 @@ public class AccountActivity extends AppCompatActivity {
 
         if(!MyApplication.getAccountManager().isLogin())  {
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
+            setResult(RESULT_CANCELED);
             finish();
         }
+
+        account = MyApplication.getAccount();
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_set_account_info);
@@ -80,19 +83,20 @@ public class AccountActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Account account = MyApplication.getAccount();
+                //Account account = MyApplication.getAccount();
                 account.setName(etName.getText().toString());
 
-                String iconPath = account.getIcon();
-                if(!cacheImagePath.equals(iconPath)) {
+                String icon = account.getIcon();
+                if(!cacheImageFile.equals(icon)) {
                     // 把原来的图像文件删除
-                    if(!TextUtils.isEmpty(iconPath)) {
-                        File imageFile = new File(iconPath);
-                        imageFile.delete();
+                    if(!TextUtils.isEmpty(icon)) {
+                        File iconFile = new File(icon);
+                        if(iconFile.exists())
+                            iconFile.delete();
                     }
 
                     // 把当前图像保存到DIR_IMAGE
-                    if(TextUtils.isEmpty(cacheImagePath)) {
+                    if(TextUtils.isEmpty(cacheImageFile)) {
                         account.setIcon("");
                     } else {
                         try {
@@ -117,8 +121,8 @@ public class AccountActivity extends AppCompatActivity {
                 account.upload(AccountActivity.this, new ICodeCallback() {
                     @Override
                     public void onFinish(int code) {
-                        int strId = (code == RETURN_CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
-                        Toast.makeText(AccountActivity.this, strId, Toast.LENGTH_SHORT).show();
+                        String str = (code == RETURN_CODE_SUCCESS) ? "账户信息已上传。" : "更新账户信息错误。";
+                        Toast.makeText(AccountActivity.this, str, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
                         setResult(RESULT_OK, intent);
                         finish();
@@ -141,11 +145,11 @@ public class AccountActivity extends AppCompatActivity {
     private void updateUI() {
         etName.setText(account.getName());
 
-        cacheImagePath = account.getIcon();
-        if(TextUtils.isEmpty(cacheImagePath)) {
+        cacheImageFile = account.getIcon();
+        if(TextUtils.isEmpty(cacheImageFile)) {
             Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
         } else {
-            Glide.with(this).load(cacheImagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
+            Glide.with(this).load(cacheImageFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
         }
 
         etNote.setText(account.getNote());
@@ -153,21 +157,17 @@ public class AccountActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case 1:
-                if(resultCode == RESULT_OK) {
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        cacheImagePath = handleImageOnKitKat(data);
-                    } else {
-                        cacheImagePath = handleImageBeforeKitKat(data);
-                    }
-                    if(!TextUtils.isEmpty(cacheImagePath)) {
-                        Glide.with(AccountActivity.this).load(cacheImagePath).centerCrop().into(ivImage);
-                    }
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    cacheImageFile = handleImageOnKitKat(data);
+                } else {
+                    cacheImageFile = handleImageBeforeKitKat(data);
                 }
-                break;
-            default:
-                break;
+                if (!TextUtils.isEmpty(cacheImageFile)) {
+                    Glide.with(AccountActivity.this).load(cacheImageFile).centerCrop().into(ivImage);
+                }
+            }
         }
     }
 
@@ -200,7 +200,7 @@ public class AccountActivity extends AppCompatActivity {
                 if (code == RETURN_CODE_SUCCESS) {
                     updateUI();
                 } else {
-                    Toast.makeText(AccountActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AccountActivity.this, "下载账户信息错误。", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -232,7 +232,7 @@ public class AccountActivity extends AppCompatActivity {
                 String selection = MediaStore.Images.Media._ID + "=" + id;
                 imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
             } else if("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(docId));
                 imagePath = getImagePath(contentUri, null);
             }
         } else if("content".equalsIgnoreCase(uri.getScheme())) {
