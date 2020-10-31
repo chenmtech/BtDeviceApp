@@ -17,7 +17,7 @@ import org.litepal.LitePal;
 
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord10.HR_MA_FILTER_SPAN;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 

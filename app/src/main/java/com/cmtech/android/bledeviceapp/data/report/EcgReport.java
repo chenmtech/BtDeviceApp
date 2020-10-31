@@ -14,9 +14,9 @@ import java.util.Date;
 import java.util.Locale;
 
 import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.INVALID_HR;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 
 public class EcgReport extends LitePalSupport implements IJsonable {
-    public static final String DEFAULT_VER = "0.0";
     public static final long INVALID_TIME = -1;
     public static final String DEFAULT_REPORT_CONTENT = "无";
     public static final int DONE = 0;
@@ -24,7 +24,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     public static final int PROCESS = 2;
 
     private int id;
-    private String ver = DEFAULT_VER;
+    private String ver = DEFAULT_RECORD_VER;
     private long reportTime = INVALID_TIME;
     private String content = DEFAULT_REPORT_CONTENT;
     private int status = DONE;

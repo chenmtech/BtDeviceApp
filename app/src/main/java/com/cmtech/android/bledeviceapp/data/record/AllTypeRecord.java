@@ -18,6 +18,6 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.ALL;
  */
 public class AllTypeRecord extends BasicRecord {
     private AllTypeRecord(long createTime, String devAddress, Account creator) {
-        super(ALL, createTime, devAddress, creator);
+        super(ALL, DEFAULT_RECORD_VER, createTime, devAddress, creator);
     }
 }

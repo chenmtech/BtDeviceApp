@@ -27,6 +27,7 @@ import org.litepal.LitePal;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
@@ -143,7 +144,7 @@ public class HrmDevice extends AbstractDevice {
 
         this.hrRecording = record;
         if(record) {
-            hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            hrRecord = (BleHrRecord10) RecordFactory.create(HR, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord);
                 Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
@@ -189,7 +190,7 @@ public class HrmDevice extends AbstractDevice {
 
         this.ecgRecording = record;
         if(record) {
-            ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
             if(ecgRecord != null) {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);

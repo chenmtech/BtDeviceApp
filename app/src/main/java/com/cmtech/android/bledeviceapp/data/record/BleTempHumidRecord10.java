@@ -25,8 +25,8 @@ public class BleTempHumidRecord10 extends BasicRecord {
     private float heatIndex = 0.0f;
     private String location = "室内";
 
-    private BleTempHumidRecord10(long createTime, String devAddress, Account creator) {
-        super(TH, createTime, devAddress, creator);
+    private BleTempHumidRecord10(String ver, long createTime, String devAddress, Account creator) {
+        super(TH, ver, createTime, devAddress, creator);
     }
 
     @Override

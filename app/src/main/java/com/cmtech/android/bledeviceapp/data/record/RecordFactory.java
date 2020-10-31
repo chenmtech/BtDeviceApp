@@ -17,18 +17,17 @@ import java.lang.reflect.Constructor;
  * Version:        1.0
  */
 public class RecordFactory {
-    public static BasicRecord create(RecordType type, long createTime, String devAddress, Account creator) {
+    public static BasicRecord create(RecordType type, String ver, long createTime, String devAddress, Account creator) {
         Class<? extends BasicRecord> recordClass = type.getRecordClass();
         if(recordClass != null) {
             try {
-                Constructor<? extends BasicRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, Account.class);
+                Constructor<? extends BasicRecord> constructor = recordClass.getDeclaredConstructor(String.class, long.class, String.class, Account.class);
                 constructor.setAccessible(true);
-                return constructor.newInstance(createTime, devAddress, creator);
+                return constructor.newInstance(ver, createTime, devAddress, creator);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return null;
     }
-
 }

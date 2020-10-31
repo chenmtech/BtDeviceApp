@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
@@ -110,7 +111,7 @@ public class ThmDevice extends AbstractDevice {
     }
 
     public void save(String loc) {
-        BleTempHumidRecord10 record = (BleTempHumidRecord10) RecordFactory.create(RecordType.TH, new Date().getTime(), getAddress(), MyApplication.getAccount());
+        BleTempHumidRecord10 record = (BleTempHumidRecord10) RecordFactory.create(RecordType.TH, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
         record.setTemperature(tempHumidData.getTemp()/100.0f);
         record.setHumid(tempHumidData.getHumid()/100.0f);
         record.setHeatIndex(tempHumidData.calculateHeatIndex());

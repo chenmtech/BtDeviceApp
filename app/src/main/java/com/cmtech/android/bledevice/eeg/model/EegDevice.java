@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
@@ -198,7 +199,7 @@ public class EegDevice extends AbstractDevice {
 
         isEegRecord = isRecord;
         if(isRecord) {
-            eegRecord = (BleEegRecord10) RecordFactory.create(EEG, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            eegRecord = (BleEegRecord10) RecordFactory.create(EEG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
             if(eegRecord != null) {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);

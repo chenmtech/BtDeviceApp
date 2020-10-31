@@ -39,7 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 

@@ -13,7 +13,7 @@ import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**

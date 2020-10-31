@@ -30,8 +30,8 @@ public class BleThermoRecord10 extends BasicRecord {
     private final List<Float> temp = new ArrayList<>();
     private float highestTemp = 0.0f;
 
-    private BleThermoRecord10(long createTime, String devAddress, Account creator) {
-        super(THERMO, createTime, devAddress, creator);
+    private BleThermoRecord10(String ver, long createTime, String devAddress, Account creator) {
+        super(THERMO, ver, createTime, devAddress, creator);
     }
 
     @Override

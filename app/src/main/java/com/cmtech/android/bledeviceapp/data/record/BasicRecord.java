@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.DEFAULT_VER;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -40,14 +39,13 @@ import static com.cmtech.android.bledeviceapp.data.report.EcgReport.DEFAULT_VER;
  * Version:        1.0
  */
 public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
-    public static final int INVALID_ID = -1;
-
+    public static final String DEFAULT_RECORD_VER = "1.0";
     private int id;
     @Column(ignore = true)
     private final RecordType type; // record type
     private long createTime; // create time
     private final String devAddress; // device address
-    private String ver = DEFAULT_VER; // record version
+    private String ver = DEFAULT_RECORD_VER; // record version
     private final String creatorPlat; // creator plat name
     private final String creatorId; // creator plat ID
 
@@ -56,8 +54,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     private int recordSecond = 0; // unit: s
     private boolean needUpload = true; // need uploaded
 
-    BasicRecord(RecordType type, long createTime, String devAddress, Account creator) {
+    BasicRecord(RecordType type, String ver, long createTime, String devAddress, Account creator) {
         this.type = type;
+        this.ver = ver;
         this.createTime = createTime;
         this.devAddress = devAddress;
         this.creatorPlat = creator.getPlatName();
@@ -143,7 +142,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public void basicRecordFromJson(JSONObject json) throws JSONException{
-        //ver = json.getString("ver");
         note = json.getString("note");
         recordSecond = json.getInt("recordSecond");
     }
@@ -179,11 +177,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             if(json == null) continue;
                             RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
+                            String ver = json.getString("ver");
                             long createTime = json.getLong("createTime");
                             String devAddress = json.getString("devAddress");
                             String creatorPlat = json.getString("creatorPlat");
                             String creatorId = json.getString("creatorId");
-                            BasicRecord record = RecordFactory.create(type, createTime, devAddress, new Account(creatorPlat, creatorId, "", "", ""));
+                            BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, new Account(creatorPlat, creatorId, "", "", ""));
                             if (record != null) {
                                 record.basicRecordFromJson(json);
                                 record.setNeedUpload(false);

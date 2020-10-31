@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
@@ -212,7 +213,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordList(final long from) {
-        BasicRecord record = RecordFactory.create(recordType, INVALID_TIME, null, MyApplication.getAccount());
+        BasicRecord record = RecordFactory.create(recordType, DEFAULT_RECORD_VER, INVALID_TIME, null, MyApplication.getAccount());
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
