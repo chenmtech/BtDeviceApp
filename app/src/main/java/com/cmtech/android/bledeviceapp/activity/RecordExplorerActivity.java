@@ -158,7 +158,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == android.R.id.home) {
-            setResult(RESULT_CANCELED, null);
+            setResult(RESULT_CANCELED);
             finish();
         } else if(id == R.id.search_record) {
             if(etNoteFilter.getVisibility() == View.VISIBLE)
