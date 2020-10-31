@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.hrm.model;
 
-import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -16,7 +16,7 @@ import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
  */
 public interface OnHrmListener {
     void onHRUpdated(BleHeartRateData hrData); // heart rate updated
-    void onHRStatisticInfoUpdated(BleHrRecord10 record);
+    void onHRStatisticInfoUpdated(BleHrRecord record);
     void onHRSensLocUpdated(int loc); // sensor location updated
     void onHRCtrlPtUpdated(int ctrl); // control point updated
     void onFragmentUpdated(int sampleRate, int value1mV, float zeroLocation, boolean inHrMode); // fragment updated

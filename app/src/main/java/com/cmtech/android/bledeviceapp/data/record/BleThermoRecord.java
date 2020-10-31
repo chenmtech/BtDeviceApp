@@ -26,11 +26,11 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.THERMO;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleThermoRecord10 extends BasicRecord {
+public class BleThermoRecord extends BasicRecord {
     private final List<Float> temp = new ArrayList<>();
     private float highestTemp = 0.0f;
 
-    private BleThermoRecord10(String ver, long createTime, String devAddress, Account creator) {
+    private BleThermoRecord(String ver, long createTime, String devAddress, Account creator) {
         super(THERMO, ver, createTime, devAddress, creator);
     }
 

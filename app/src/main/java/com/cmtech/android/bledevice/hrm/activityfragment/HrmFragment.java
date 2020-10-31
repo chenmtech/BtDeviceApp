@@ -21,7 +21,7 @@ import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrm.model.HrmCfg;
 import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledevice.hrm.model.OnHrmListener;
-import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.R;
@@ -148,7 +148,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     @Override
     public void onStart() {
         super.onStart();
-        BleHrRecord10 record = device.getHrRecord();
+        BleHrRecord record = device.getHrRecord();
         if(record != null)
             hrRecFrag.updateHrInfo(record.getHrList(), record.getHrMax(), record.getHrAve());
     }
@@ -188,7 +188,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHRStatisticInfoUpdated(BleHrRecord10 record) {
+    public void onHRStatisticInfoUpdated(BleHrRecord record) {
         Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
             @Override
             public void run() {

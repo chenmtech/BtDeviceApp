@@ -2,7 +2,7 @@
 
 <litepal>
     <dbname value = "BtDeviceApp"/>
-    <version value="60"/>
+    <version value="61"/>
     <list>
         <mapping class="com.cmtech.android.bledeviceapp.model.Account"/>
         <mapping class="com.cmtech.android.ble.core.BleDeviceCommonInfo"/>
@@ -11,11 +11,11 @@
         <mapping class="com.cmtech.android.bledevice.ecg.device.EcgConfiguration"/>
         <mapping class="com.cmtech.android.bledevice.hrm.model.HrmCfg"/>
         <mapping class="com.cmtech.android.bledevice.thm.model.TempHumidHistoryData"/>
-        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleHrRecord10"/>
-        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10"/>
-        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleThermoRecord10"/>
-        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleTempHumidRecord10"/>
-        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleEegRecord10"/>
+        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleHrRecord"/>
+        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleEcgRecord"/>
+        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleThermoRecord"/>
+        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleTempHumidRecord"/>
+        <mapping class="com.cmtech.android.bledeviceapp.data.record.BleEegRecord"/>
         <mapping class="com.cmtech.android.bledeviceapp.data.report.EcgReport"/>
     </list>
 </litepal>

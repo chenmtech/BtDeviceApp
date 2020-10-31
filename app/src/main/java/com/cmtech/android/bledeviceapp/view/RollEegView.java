@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.view;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.cmtech.android.bledeviceapp.data.record.BleEegRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
 
 public class RollEegView extends RollRecordView {
     private static final int PIXEL_PER_GRID = 10; // 每个栅格包含的像素个数
@@ -18,7 +18,7 @@ public class RollEegView extends RollRecordView {
         super(context, attrs);
     }
 
-    public void setup(BleEegRecord10 record, float zeroLocation) {
+    public void setup(BleEegRecord record, float zeroLocation) {
         super.setup(record, zeroLocation, SECOND_PER_GRID, MV_PER_GRID, PIXEL_PER_GRID);
     }
 }

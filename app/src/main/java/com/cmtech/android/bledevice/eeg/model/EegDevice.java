@@ -10,7 +10,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledeviceapp.data.record.BleEegRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -81,7 +81,7 @@ public class EegDevice extends AbstractDevice {
 
     private OnEegListener listener; // device listener
 
-    private BleEegRecord10 eegRecord;
+    private BleEegRecord eegRecord;
     private boolean isEegRecord = false; // is recording eeg
 
     public EegDevice(Context context, DeviceCommonInfo registerInfo) {
@@ -199,7 +199,7 @@ public class EegDevice extends AbstractDevice {
 
         isEegRecord = isRecord;
         if(isRecord) {
-            eegRecord = (BleEegRecord10) RecordFactory.create(EEG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            eegRecord = (BleEegRecord) RecordFactory.create(EEG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
             if(eegRecord != null) {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);

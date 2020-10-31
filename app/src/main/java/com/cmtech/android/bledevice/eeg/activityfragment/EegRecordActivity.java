@@ -7,7 +7,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.data.record.BleEegRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEegView;
@@ -21,7 +21,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class EegRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
-    private BleEegRecord10 record;
+    private BleEegRecord record;
 
     private RecordIntroductionLayout introLayout;
     private RecordNoteLayout noteLayout;
@@ -38,7 +38,7 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
         setContentView(R.layout.activity_record_eeg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BleEegRecord10.class, recordId, true);
+        record = LitePal.find(BleEegRecord.class, recordId, true);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();

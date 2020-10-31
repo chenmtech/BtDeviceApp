@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.interfac.ISimpleCallback;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
@@ -38,7 +38,7 @@ import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME
 public class EcgReportOutputLayout extends LinearLayout {
     private static final ScanEcgView[] ECG_VIEWS = new ScanEcgView[3]; // ecgView array
 
-    private BleEcgRecord10 record;
+    private BleEcgRecord record;
     private final TextView tvRecordPerson;
     private final TextView tvRecordTime;
     private final TextView tvReportVer;
@@ -64,7 +64,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         ECG_VIEWS[2] = view.findViewById(R.id.roll_ecg_view3);
     }
 
-    public void setRecord(BleEcgRecord10 record) {
+    public void setRecord(BleEcgRecord record) {
         this.record = record;
     }
 
@@ -91,7 +91,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         new DrawEcgViewAsyncTask(getContext(), showText, callback).execute(record);
     }
 
-    private static class DrawEcgViewAsyncTask extends AsyncTask<BleEcgRecord10, Void, Void> {
+    private static class DrawEcgViewAsyncTask extends AsyncTask<BleEcgRecord, Void, Void> {
         private final ProgressDialog progressDialog;
         private final ISimpleCallback callback;
 
@@ -108,8 +108,8 @@ public class EcgReportOutputLayout extends LinearLayout {
         }
 
         @Override
-        protected Void doInBackground(BleEcgRecord10... bleEcgRecord10s) {
-            BleEcgRecord10 record = bleEcgRecord10s[0];
+        protected Void doInBackground(BleEcgRecord... bleEcgRecords) {
+            BleEcgRecord record = bleEcgRecords[0];
             List<Short> ecgData = record.getEcgData();
 
             int begin = 0;

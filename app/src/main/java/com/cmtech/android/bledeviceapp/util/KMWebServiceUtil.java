@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.util;
 
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.vise.log.ViseLog;
@@ -259,7 +259,7 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static WebResponse downloadReport(String platName, String platId, BleEcgRecord10 record) {
+    public static WebResponse downloadReport(String platName, String platId, BleEcgRecord record) {
         JSONObject json = new JSONObject();
         try {
             json.put("createTime", record.getCreateTime());
@@ -286,7 +286,7 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static WebResponse requestReport(String platName, String platId, BleEcgRecord10 record) {
+    public static WebResponse requestReport(String platName, String platId, BleEcgRecord record) {
         JSONObject json = new JSONObject();
         try {
             json.put("createTime", record.getCreateTime());

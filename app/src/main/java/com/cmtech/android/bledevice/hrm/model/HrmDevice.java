@@ -13,8 +13,8 @@ import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceConnectState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
-import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
+import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -123,8 +123,8 @@ public class HrmDevice extends AbstractDevice {
     private final HRSpeaker speaker = new HRSpeaker(); // HR Speaker
 
     private EcgDataPacketProcessor ecgProcessor; // ecg signal processor
-    private BleHrRecord10 hrRecord; // HR record
-    private BleEcgRecord10 ecgRecord; // ECG record
+    private BleHrRecord hrRecord; // HR record
+    private BleEcgRecord ecgRecord; // ECG record
 
     private OnHrmListener listener; // HRM device listener
 
@@ -144,7 +144,7 @@ public class HrmDevice extends AbstractDevice {
 
         this.hrRecording = record;
         if(record) {
-            hrRecord = (BleHrRecord10) RecordFactory.create(HR, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            hrRecord = (BleHrRecord) RecordFactory.create(HR, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord);
                 Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
@@ -190,7 +190,7 @@ public class HrmDevice extends AbstractDevice {
 
         this.ecgRecording = record;
         if(record) {
-            ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
             if(ecgRecord != null) {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);
@@ -412,7 +412,7 @@ public class HrmDevice extends AbstractDevice {
         super.disconnect(forever);
     }
 
-    public BleHrRecord10 getHrRecord() {
+    public BleHrRecord getHrRecord() {
         return hrRecord;
     }
 

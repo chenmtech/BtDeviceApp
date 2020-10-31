@@ -10,7 +10,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.R;
@@ -61,7 +61,7 @@ public class ThermoDevice extends AbstractDevice {
     private OnThermoListener listener;
 
     private float highestTemp = 0.0f;
-    private BleThermoRecord10 record;
+    private BleThermoRecord record;
     private boolean isRecord = false;
 
     public ThermoDevice(Context context, DeviceCommonInfo registerInfo) {
@@ -135,7 +135,7 @@ public class ThermoDevice extends AbstractDevice {
         return isRecord;
     }
 
-    public BleThermoRecord10 getRecord() {
+    public BleThermoRecord getRecord() {
         return record;
     }
 
@@ -143,7 +143,7 @@ public class ThermoDevice extends AbstractDevice {
         if(this.isRecord == isRecord) return;
 
         if(isRecord) {
-            record = (BleThermoRecord10) RecordFactory.create(RecordType.THERMO, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            record = (BleThermoRecord) RecordFactory.create(RecordType.THERMO, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
             Toast.makeText(MyApplication.getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
         } else {
             if(record != null) {

@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord;
 import com.cmtech.android.bledeviceapp.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
@@ -29,7 +29,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
  * Version:        1.0
  */
 public class ThermoRecordActivity extends AppCompatActivity {
-    private BleThermoRecord10 record;
+    private BleThermoRecord record;
 
     private RecordIntroductionLayout introLayout;
     private RecordNoteLayout noteLayout;
@@ -42,7 +42,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_record_thermo);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BleThermoRecord10.class, recordId, true);
+        record = LitePal.find(BleThermoRecord.class, recordId, true);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();

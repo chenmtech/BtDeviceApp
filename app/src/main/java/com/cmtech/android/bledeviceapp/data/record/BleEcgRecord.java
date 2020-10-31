@@ -37,7 +37,7 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
+public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
     private int sampleRate = 0; // sample rate
     private int caliValue = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
@@ -46,7 +46,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, IDiagn
     @Column(ignore = true)
     private int pos = 0; // current position to the ecgData
 
-    private BleEcgRecord10(String ver, long createTime, String devAddress, Account creator) {
+    private BleEcgRecord(String ver, long createTime, String devAddress, Account creator) {
         super(ECG, ver, createTime, devAddress, creator);
     }
 

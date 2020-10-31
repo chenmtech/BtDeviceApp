@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.data.record.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.android.bledeviceapp.view.HrHistogramChart;
 import com.cmtech.android.bledeviceapp.view.MyLineChart;
@@ -18,11 +18,11 @@ import org.litepal.LitePal;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord10.HR_MA_FILTER_SPAN;
+import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class HrRecordActivity extends AppCompatActivity {
-    private BleHrRecord10 record;
+    private BleHrRecord record;
     private RecordIntroductionLayout introLayout;
     private RecordNoteLayout noteLayout;
 
@@ -39,7 +39,7 @@ public class HrRecordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_record_hr);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BleHrRecord10.class, recordId, true);
+        record = LitePal.find(BleHrRecord.class, recordId, true);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();

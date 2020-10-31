@@ -19,13 +19,13 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.TH;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleTempHumidRecord10 extends BasicRecord {
+public class BleTempHumidRecord extends BasicRecord {
     private float temperature = 0.0f;
     private float humid = 0.0f;
     private float heatIndex = 0.0f;
     private String location = "室内";
 
-    private BleTempHumidRecord10(String ver, long createTime, String devAddress, Account creator) {
+    private BleTempHumidRecord(String ver, long createTime, String devAddress, Account creator) {
         super(TH, ver, createTime, devAddress, creator);
     }
 

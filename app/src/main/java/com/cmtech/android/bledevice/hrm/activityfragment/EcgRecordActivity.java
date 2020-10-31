@@ -17,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
@@ -44,7 +44,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
-    private BleEcgRecord10 record; // record
+    private BleEcgRecord record; // record
     private RecordIntroductionLayout introductionLayout; // record introduction layout
     private RecordReportLayout reportLayout; // record report layout
     private RecordNoteLayout noteLayout; // record note layout
@@ -63,7 +63,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         setContentView(R.layout.activity_record_ecg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BleEcgRecord10.class, recordId, true);
+        record = LitePal.find(BleEcgRecord.class, recordId, true);
 
         if(record == null) {
             setResult(RESULT_CANCELED);

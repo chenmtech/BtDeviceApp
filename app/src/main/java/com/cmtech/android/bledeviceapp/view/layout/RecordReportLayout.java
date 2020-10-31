@@ -10,7 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
@@ -30,7 +30,7 @@ import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class RecordReportLayout extends LinearLayout {
-    private BleEcgRecord10 record;
+    private BleEcgRecord record;
 
     private final TextView tvAveHr;
     private final TextView tvContent;
@@ -63,7 +63,7 @@ public class RecordReportLayout extends LinearLayout {
         });
     }
 
-    public void setRecord(BleEcgRecord10 record) {
+    public void setRecord(BleEcgRecord record) {
         this.record = record;
     }
 

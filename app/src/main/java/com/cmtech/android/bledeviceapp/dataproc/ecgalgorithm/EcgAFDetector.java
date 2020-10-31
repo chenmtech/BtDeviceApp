@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm;
 
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord10;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence;
 
@@ -18,7 +18,7 @@ public class EcgAFDetector implements IEcgAlgorithm{
     }
 
     @Override
-    public EcgReport process(BleEcgRecord10 record) {
+    public EcgReport process(BleEcgRecord record) {
         EcgProcessor ecgProc = new EcgProcessor();
         ecgProc.process(record.getEcgData(), record.getSampleRate());
         int aveHr = ecgProc.getAverageHr();

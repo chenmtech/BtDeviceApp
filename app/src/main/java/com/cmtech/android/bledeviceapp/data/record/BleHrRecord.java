@@ -28,7 +28,7 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleHrRecord10 extends BasicRecord implements Serializable {
+public class BleHrRecord extends BasicRecord implements Serializable {
     public static final int HR_MA_FILTER_SPAN = 10; // unit: second
 
     private final List<Short> hrList = new ArrayList<>();; // filtered HR list
@@ -47,7 +47,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
-    private BleHrRecord10(String ver, long createTime, String devAddress, Account creator) {
+    private BleHrRecord(String ver, long createTime, String devAddress, Account creator) {
         super(HR, ver, createTime, devAddress, creator);
         initHrHistogram();
     }

@@ -28,7 +28,7 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serializable {
+public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializable {
     private int sampleRate = 0; // sample rate
     private int caliValue = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
@@ -37,7 +37,7 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     @Column(ignore = true)
     private int pos = 0;
 
-    private BleEegRecord10(String ver, long createTime, String devAddress, Account creator) {
+    private BleEegRecord(String ver, long createTime, String devAddress, Account creator) {
         super(EEG, ver, createTime, devAddress, creator);
     }
 
