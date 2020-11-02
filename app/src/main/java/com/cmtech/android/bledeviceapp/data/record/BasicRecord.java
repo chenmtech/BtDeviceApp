@@ -40,6 +40,9 @@ import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWN
  */
 public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
     public static final String DEFAULT_RECORD_VER = "1.0";
+    private static final String[] basicItems = {"id", "createTime", "devAddress",
+            "creatorPlat", "creatorId", "ver", "note", "recordSecond", "needUpload"};
+
     private int id;
     @Column(ignore = true)
     private final RecordType type; // record type
@@ -48,7 +51,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     private String ver = DEFAULT_RECORD_VER; // record version
     private final String creatorPlat; // creator plat name
     private final String creatorId; // creator plat ID
-
 
     private String note = ""; // note
     private int recordSecond = 0; // unit: s
@@ -273,7 +275,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
 
-    public static List<? extends BasicRecord> retrieveFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
+    public static List<? extends BasicRecord> retrieveListFromLocalDb(RecordType type, Account creator, long fromTime, String noteFilterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
             for(RecordType t : RecordType.values()) {
@@ -290,10 +292,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             Class<? extends BasicRecord> recordClass = t.getRecordClass();
             if (recordClass != null) {
                 if(TextUtils.isEmpty(noteFilterStr)) {
-                    records.addAll(LitePal.where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
+                    records.addAll(LitePal.select(basicItems)
+                            .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
-                    records.addAll(LitePal.where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
+                    records.addAll(LitePal.select(basicItems)
+                            .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }

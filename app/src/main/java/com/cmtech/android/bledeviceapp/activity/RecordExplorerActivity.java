@@ -58,17 +58,17 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
     private static final int RC_OPEN_RECORD = 1;
-    private static final int DOWNLOAD_RECORD_NUM = 20;
+    private static final int DEFAULT_DOWNLOAD_RECORD_NUM = 20;
 
-    private List<BasicRecord> allRecords = new ArrayList<>(); // all records
+    private final List<BasicRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter recordAdapter; // Adapter
     private RecyclerView recordView; // RecycleView
     private TextView tvNoRecord; // no record
-    private Spinner typeSpinner;
+    private EditText etNoteFilter; // note string filter
+
     private RecordType recordType = null; // record type in record list
     private String noteFilterStr = ""; // record note filter string
     private long updateTime; // update time in record list
-    private EditText etNoteFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +81,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         if(getSupportActionBar() != null)
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        // init spinner
-        typeSpinner = findViewById(R.id.spinner_record_type);
+        // init record type spinner
+        Spinner typeSpinner = findViewById(R.id.spinner_record_type);
         List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
         for (RecordType type : SUPPORT_RECORD_TYPES) {
             Map<String, Object> item = new HashMap<String, Object>();
@@ -133,8 +133,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
             }
         });
 
-        tvNoRecord = findViewById(R.id.tv_no_record);
-        tvNoRecord.setText(R.string.no_record);
 
         etNoteFilter = findViewById(R.id.et_note_filter_string);
         etNoteFilter.setVisibility(View.GONE);
@@ -145,6 +143,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        tvNoRecord = findViewById(R.id.tv_no_record);
+        tvNoRecord.setText(R.string.no_record);
+
     }
 
     @Override
@@ -218,14 +220,14 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        record.retrieveList(this, DOWNLOAD_RECORD_NUM, noteFilterStr, from, new ICodeCallback() {
+        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, noteFilterStr, from, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code == RETURN_CODE_WEB_FAILURE) {
-                    Toast.makeText(RecordExplorerActivity.this, "网络错误，仅加载本地记录。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RecordExplorerActivity.this, "网络错误，只能加载本地记录。", Toast.LENGTH_SHORT).show();
                 }
 
-                List<? extends BasicRecord> records = BasicRecord.retrieveFromLocalDb(recordType, MyApplication.getAccount(), from, noteFilterStr, DOWNLOAD_RECORD_NUM);
+                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), from, noteFilterStr, DEFAULT_DOWNLOAD_RECORD_NUM);
 
                 if(records == null) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
@@ -280,7 +282,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 if (code == RETURN_CODE_SUCCESS) {
                     updateRecordView();
                 } else {
-                    Toast.makeText(RecordExplorerActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RecordExplorerActivity.this, "上传记录出错。", Toast.LENGTH_SHORT).show();
                 }
             }
         });
