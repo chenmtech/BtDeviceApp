@@ -3,11 +3,9 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.ScanFilter;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
@@ -51,7 +51,7 @@ public class ScanActivity extends AppCompatActivity {
 
     private final List<BleDeviceDetailInfo> scannedDevInfos = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
     private List<String> registeredDevAddrs = new ArrayList<>(); // 已注册的设备mac地址列表
-    private SwipeRefreshLayout srlDevice;
+    private ProgressBar pbScan;
     private ScanAdapter devAdapter;
     private RecyclerView rvDevice;
     private Handler mHandle = new Handler(Looper.getMainLooper());
@@ -77,7 +77,7 @@ public class ScanActivity extends AppCompatActivity {
 
                 case CODE_BLE_CLOSED:
                     Toast.makeText(ScanActivity.this, R.string.scan_failed_bt_closed, Toast.LENGTH_SHORT).show();
-                    srlDevice.setRefreshing(false);
+                    pbScan.setVisibility(View.GONE);
                     BleScanner.stopScan(this);
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivity(intent);
@@ -85,7 +85,7 @@ public class ScanActivity extends AppCompatActivity {
 
                 case CODE_BLE_INNER_ERROR:
                     Toast.makeText(ScanActivity.this, R.string.scan_failed_ble_inner_error, Toast.LENGTH_SHORT).show();
-                    srlDevice.setRefreshing(false);
+                    pbScan.setVisibility(View.GONE);
                     BleScanner.stopScan(this);
                     break;
             }
@@ -107,22 +107,32 @@ public class ScanActivity extends AppCompatActivity {
             registeredDevAddrs = (List<String>) intent.getSerializableExtra("device_address_list");
         }
 
+        pbScan = findViewById(R.id.pb_scan_device);
+
         // 初始化扫描设备列表
         rvDevice = findViewById(R.id.rv_device);
         rvDevice.setLayoutManager(new LinearLayoutManager(this));
         rvDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         devAdapter = new ScanAdapter(scannedDevInfos, registeredDevAddrs, this);
         rvDevice.setAdapter(devAdapter);
-
-        srlDevice = findViewById(R.id.srl_device);
-        Point pt = new Point();
-        getWindowManager().getDefaultDisplay().getSize(pt);
-        int height = pt.y;
-        srlDevice.setProgressViewOffset(true, height/2-50, height/2);
-        srlDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        rvDevice.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            int lastVisibleItem;
             @Override
-            public void onRefresh() {
-                startScan();
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == devAdapter.getItemCount()-1) {
+                    startScan();
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if(layoutManager != null)
+                    lastVisibleItem = layoutManager.findLastVisibleItemPosition();
             }
         });
 
@@ -136,14 +146,13 @@ public class ScanActivity extends AppCompatActivity {
         scannedDevInfos.clear();
         devAdapter.notifyDataSetChanged();
         BleScanner.stopScan(bleScanCallback);
-        srlDevice.setRefreshing(true);
+        pbScan.setVisibility(View.VISIBLE);
         BleScanner.startScan(SCAN_FILTER, bleScanCallback);
 
         mHandle.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(srlDevice.isRefreshing())
-                    srlDevice.setRefreshing(false);
+                pbScan.setVisibility(View.GONE);
 
                 BleScanner.stopScan(bleScanCallback);
             }
@@ -190,8 +199,7 @@ public class ScanActivity extends AppCompatActivity {
 
         mHandle.removeCallbacksAndMessages(null);
 
-        if(srlDevice.isRefreshing())
-            srlDevice.setRefreshing(false);
+        pbScan.setVisibility(View.GONE);
 
         BleScanner.stopScan(bleScanCallback);
     }
@@ -199,7 +207,7 @@ public class ScanActivity extends AppCompatActivity {
     public void registerDevice(final BleDeviceDetailInfo detailInfo) {
         // 先停止扫描
         BleScanner.stopScan(bleScanCallback);
-        srlDevice.setRefreshing(false);
+        pbScan.setVisibility(View.GONE);
 
         AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(serviceUUID != null) {

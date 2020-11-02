@@ -61,19 +61,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <ImageButton
                     android:id="@+id/ib_phone_login"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="35dp"
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
                     android:background="@color/white"
-                    android:src="@mipmap/ic_user"/>
+                    android:src="@mipmap/ic_user" />
                 <TextView
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:text="@string/phone_login"/>
+                    android:text="手机验证码登录"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

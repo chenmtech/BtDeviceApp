@@ -20,27 +20,17 @@
         android:layout_height="1dp"
         android:background="@color/divider"/>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/srl_device"
+    <ProgressBar
+        android:id="@+id/pb_scan_device"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-        <android.support.v7.widget.RecyclerView
-            android:id = "@+id/rv_device"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </android.support.v4.widget.SwipeRefreshLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider"/>
-
-    <TextView
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_margin="4dp"
-        android:text="@string/refresh_when_drag_down"/>
+        style="@android:style/Widget.ProgressBar.Small"
+        android:visibility="visible"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id = "@+id/rv_device"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </LinearLayout>
