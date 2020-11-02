@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
+    android:background="@color/secondary"
     android:orientation="vertical">
     <View
         android:layout_width="match_parent"
@@ -75,6 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:layout_marginTop="6sp"
                 android:orientation="horizontal">
                 <TextView
                     android:id="@+id/time"
@@ -94,6 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:layout_marginBottom="6sp"
                 android:orientation="horizontal">
                 <TextView
                     android:layout_width="wrap_content"
@@ -114,8 +117,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
             android:layout_margin="6dp"
-            android:background="@color/primary"
-            android:src="@mipmap/ic_refresh_24px"/>
+            android:background="@color/secondary"
+            android:src="@mipmap/ic_refresh_32px" />
     </FrameLayout>
 
 
