@@ -50,11 +50,7 @@ public class RecordSearchLayout extends LinearLayout {
             public void onClick(View v) {
                 if(explorerActivity != null) {
                     String noteFilterString = etNoteFilter.getText().toString();
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.set(Calendar.YEAR, year);
-                    calendar.set(Calendar.MONTH, month);
-                    calendar.set(Calendar.DAY_OF_MONTH, day);
-                    explorerActivity.setSearchCondition(noteFilterString, calendar.getTimeInMillis());
+                    explorerActivity.setSearchCondition(noteFilterString, getSearchTime());
                 }
             }
         });
@@ -112,5 +108,13 @@ public class RecordSearchLayout extends LinearLayout {
                         RecordSearchLayout.this.day = dayOfMonth;
                     }
                 });
+    }
+
+    public long getSearchTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month);
+        calendar.set(Calendar.DAY_OF_MONTH, day);
+        return calendar.getTimeInMillis();
     }
 }

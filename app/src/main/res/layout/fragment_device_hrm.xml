@@ -90,7 +90,7 @@
             android:layout_gravity="end|top"
             android:layout_margin="5dp"
             android:drawableTop="@mipmap/ic_ecg_24px"
-            android:text="@string/ecg_switch_off"
+            android:text="模式切换"
             android:textSize="10sp"
             android:textColor="@color/white"
             android:visibility="gone"

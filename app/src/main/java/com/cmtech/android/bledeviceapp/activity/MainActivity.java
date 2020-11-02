@@ -628,7 +628,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         }
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.delete_device).setMessage(R.string.wont_delete_info_by_device);
+        builder.setTitle(R.string.delete_device).setMessage("删除设备不会删除该设备产生的记录。确定删除设备吗？");
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -641,12 +641,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                     }
                 }
             }
-        }).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        }).show();
+        }).setNegativeButton(R.string.cancel, null).show();
     }
 
     // 修改设备注册信息 

@@ -225,14 +225,14 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         ecgView.stopShow();
                         fragAdapter.removeFragment(ecgRecFrag);
                         pager.setCurrentItem(fragAdapter.getCount()-1);
-                        tvSwitchMode.setText(R.string.ecg_switch_off);
+                        //tvSwitchMode.setText(R.string.ecg_switch_off);
                         tvSwitchMode.setTextColor(Color.BLACK);
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
                                 getResources().getDrawable(R.mipmap.ic_hr_24px, null), null, null);
                     } else {
                         ecgView.setup(sampleRate, value1mV, zeroLocation);
                         fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
-                        tvSwitchMode.setText(R.string.ecg_switch_on);
+                        //tvSwitchMode.setText(R.string.ecg_switch_on);
                         tvSwitchMode.setTextColor(Color.WHITE);
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
                                 getResources().getDrawable(R.mipmap.ic_ecg_24px, null), null, null);

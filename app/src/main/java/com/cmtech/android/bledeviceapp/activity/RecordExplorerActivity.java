@@ -188,7 +188,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         recordAdapter.unselected();
         updateRecordView();
 
-        updateTime = new Date().getTime();
+        updateTime = searchLayout.getSearchTime();
         updateRecordList(updateTime);
     }
 
