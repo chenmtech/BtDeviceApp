@@ -114,6 +114,15 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         }
     }
 
+    public String getCreatorNameAndNote() {
+        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
+        if(account == null)
+            return creatorId;
+        else {
+            return account.getName() + "(" + account.getNote() + ")";
+        }
+    }
+
     public String getNote() {
         return note;
     }

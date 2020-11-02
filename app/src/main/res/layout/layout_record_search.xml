@@ -4,45 +4,64 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     android:gravity="center_vertical"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:baselineAligned="false">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="选择日期："/>
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tv_start_date"
-        android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="从"/>
+
+        <TextView
+            android:id="@+id/tv_start_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:text="0000-00-00"
+            android:background="@color/secondary"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始"/>
+
+        <EditText
+            android:id="@+id/et_note_filter_string"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="6dp"
+            android:textSize="14sp"
+            android:singleLine="true"
+            android:hint="输入备注包含的内容"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        android:text="0000-00-00"
-        android:background="@color/secondary"/>
+        android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/et_note_filter_string"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_margin="6dp"
-        android:textSize="14sp"
-        android:singleLine="true"
-        android:hint="输入备注内容"/>
+        <Button
+            android:id="@+id/btn_reset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/minWidth0DpButtonStyle"
+            android:text="重置"/>
 
-    <Button
-        android:id="@+id/btn_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/minWidth0DpButtonStyle"
-        android:text="搜索"/>
-
-    <Button
-        android:id="@+id/btn_reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/minWidth0DpButtonStyle"
-        android:text="重置"/>
-
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/minWidth0DpButtonStyle"
+            android:text="搜索"/>
+    </LinearLayout>
 </LinearLayout>

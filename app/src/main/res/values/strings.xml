@@ -43,7 +43,7 @@
     <string name="recording">记录中</string>
     <string name="temperature_of_body">体温</string>
     <string name="modify_account_info">修改用户信息</string>
-    <string name="account_name">用户名称:</string>
+    <string name="account_name">用户昵称:</string>
     <string name="account_portrait">用户头像:</string>
     <string name="hr_voice_speech">心率语音播报:</string>
     <string name="enable">开启</string>

@@ -80,6 +80,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
         if(getSupportActionBar() != null)
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+        searchLayout = findViewById(R.id.layout_record_search);
+        searchLayout.setExplorerActivity(this);
+
         // init record type spinner
         Spinner typeSpinner = findViewById(R.id.spinner_record_type);
         List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
@@ -118,7 +121,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
-                    updateRecordList(updateTime);
+                    updateRecordList();
                 }
             }
 
@@ -131,9 +134,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     lastVisibleItem = layoutManager.findLastVisibleItemPosition();
             }
         });
-
-        searchLayout = findViewById(R.id.layout_record_search);
-        searchLayout.setExplorerActivity(this);
 
         tvNoRecord = findViewById(R.id.tv_no_record);
         tvNoRecord.setText(R.string.no_record);
@@ -180,54 +180,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         ViseLog.e("RecordExplorerActivity onDestroy");
     }
 
-    private void setRecordType(final RecordType type) {
-        if(this.recordType == type) return;
-        this.recordType = type;
-
-        allRecords.clear();
-        recordAdapter.unselected();
-        updateRecordView();
-
-        updateTime = searchLayout.getSearchTime();
-        updateRecordList(updateTime);
-    }
-
-    public void setSearchCondition(String noteFilterStr, long fromTime) {
-        this.noteFilterStr = noteFilterStr.trim();
-        updateTime = fromTime;
-
-        allRecords.clear();
-        recordAdapter.unselected();
-        updateRecordView();
-
-        updateRecordList(updateTime);
-    }
-
-    private void updateRecordList(final long fromTime) {
-        BasicRecord record = RecordFactory.create(recordType, DEFAULT_RECORD_VER, INVALID_TIME, null, MyApplication.getAccount());
-        if(record == null) {
-            ViseLog.e("The record type is not supported.");
-            return;
-        }
-
-        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, noteFilterStr, updateTime, new ICodeCallback() {
-            @Override
-            public void onFinish(int code) {
-                if(code == RETURN_CODE_WEB_FAILURE) {
-                    Toast.makeText(RecordExplorerActivity.this, "网络错误，只能加载本地记录。", Toast.LENGTH_SHORT).show();
-                }
-
-                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), updateTime, noteFilterStr, DEFAULT_DOWNLOAD_RECORD_NUM);
-
-                if(records == null) {
-                    Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
-                } else {
-                    updateTime = records.get(records.size() - 1).getCreateTime();
-                    allRecords.addAll(records);
-                    updateRecordView();
-                }
-            }
-        });
+    public void searchRecords(String noteFilterStr, long updateTime) {
+        searchRecords(recordType, noteFilterStr, updateTime);
     }
 
     public void openRecord(BasicRecord record) {
@@ -273,6 +227,50 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     updateRecordView();
                 } else {
                     Toast.makeText(RecordExplorerActivity.this, "上传记录出错。", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void setRecordType(final RecordType recordType) {
+        if(recordType == null) return;
+        searchRecords(recordType, searchLayout.getSearchString(), searchLayout.getSearchTime());
+    }
+
+    private void searchRecords(RecordType recordType, String noteFilterStr, long updateTime) {
+        this.recordType = recordType;
+        this.noteFilterStr = noteFilterStr.trim();
+        this.updateTime = updateTime;
+
+        allRecords.clear();
+        recordAdapter.unselected();
+        updateRecordView();
+
+        updateRecordList();
+    }
+
+    private void updateRecordList() {
+        BasicRecord record = RecordFactory.create(recordType, DEFAULT_RECORD_VER, INVALID_TIME, null, MyApplication.getAccount());
+        if(record == null) {
+            ViseLog.e("The record type is not supported.");
+            return;
+        }
+
+        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, noteFilterStr, updateTime, new ICodeCallback() {
+            @Override
+            public void onFinish(int code) {
+                if(code == RETURN_CODE_WEB_FAILURE) {
+                    Toast.makeText(RecordExplorerActivity.this, "网络错误，只能加载本地记录。", Toast.LENGTH_SHORT).show();
+                }
+
+                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), updateTime, noteFilterStr, DEFAULT_DOWNLOAD_RECORD_NUM);
+
+                if(records == null) {
+                    Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
+                } else {
+                    updateTime = records.get(records.size() - 1).getCreateTime();
+                    allRecords.addAll(records);
+                    updateRecordView();
                 }
             }
         });

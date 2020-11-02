@@ -49,8 +49,7 @@ public class RecordSearchLayout extends LinearLayout {
             @Override
             public void onClick(View v) {
                 if(explorerActivity != null) {
-                    String noteFilterString = etNoteFilter.getText().toString();
-                    explorerActivity.setSearchCondition(noteFilterString, getSearchTime());
+                    explorerActivity.searchRecords(getSearchString(), getSearchTime());
                 }
             }
         });
@@ -66,7 +65,7 @@ public class RecordSearchLayout extends LinearLayout {
                     month = calendar.get(Calendar.MONTH);
                     day = calendar.get(Calendar.DAY_OF_MONTH);
                     tvStartDate.setText(year+"-"+ (month + 1) +"-"+day);
-                    explorerActivity.setSearchCondition("", calendar.getTimeInMillis());
+                    explorerActivity.searchRecords("", calendar.getTimeInMillis());
                 }
             }
         });
@@ -116,5 +115,9 @@ public class RecordSearchLayout extends LinearLayout {
         calendar.set(Calendar.MONTH, month);
         calendar.set(Calendar.DAY_OF_MONTH, day);
         return calendar.getTimeInMillis();
+    }
+
+    public String getSearchString() {
+        return etNoteFilter.getText().toString();
     }
 }
