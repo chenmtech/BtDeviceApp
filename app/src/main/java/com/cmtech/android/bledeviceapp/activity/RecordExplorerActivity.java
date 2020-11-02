@@ -11,24 +11,23 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.view.layout.RecordSearchLayout;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -64,11 +63,11 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private RecordListAdapter recordAdapter; // Adapter
     private RecyclerView recordView; // RecycleView
     private TextView tvNoRecord; // no record
-    private EditText etNoteFilter; // note string filter
+    private RecordSearchLayout searchLayout;
 
     private RecordType recordType = null; // record type in record list
     private String noteFilterStr = ""; // record note filter string
-    private long updateTime; // update time in record list
+    private long updateTime = new Date().getTime(); // update time in record list
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,16 +132,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
             }
         });
 
-
-        etNoteFilter = findViewById(R.id.et_note_filter_string);
-        etNoteFilter.setVisibility(View.GONE);
-        etNoteFilter.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                setNoteFilterStr(etNoteFilter.getText().toString().trim());
-                return false;
-            }
-        });
+        searchLayout = findViewById(R.id.layout_record_search);
+        searchLayout.setExplorerActivity(this);
 
         tvNoRecord = findViewById(R.id.tv_no_record);
         tvNoRecord.setText(R.string.no_record);
@@ -162,10 +153,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         } else if(id == R.id.search_record) {
-            if(etNoteFilter.getVisibility() == View.VISIBLE)
-                etNoteFilter.setVisibility(View.GONE);
+            if(searchLayout.getVisibility() == View.VISIBLE)
+                searchLayout.setVisibility(View.GONE);
             else
-                etNoteFilter.setVisibility(View.VISIBLE);
+                searchLayout.setVisibility(View.VISIBLE);
         }
         return true;
     }
@@ -201,33 +192,32 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateRecordList(updateTime);
     }
 
-    private void setNoteFilterStr(String noteFilterStr) {
-        if(this.noteFilterStr.equalsIgnoreCase(noteFilterStr)) return;
-        this.noteFilterStr = noteFilterStr;
+    public void setSearchCondition(String noteFilterStr, long fromTime) {
+        this.noteFilterStr = noteFilterStr.trim();
+        updateTime = fromTime;
 
         allRecords.clear();
         recordAdapter.unselected();
         updateRecordView();
 
-        updateTime = new Date().getTime();
         updateRecordList(updateTime);
     }
 
-    private void updateRecordList(final long from) {
+    private void updateRecordList(final long fromTime) {
         BasicRecord record = RecordFactory.create(recordType, DEFAULT_RECORD_VER, INVALID_TIME, null, MyApplication.getAccount());
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
         }
 
-        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, noteFilterStr, from, new ICodeCallback() {
+        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, noteFilterStr, updateTime, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code == RETURN_CODE_WEB_FAILURE) {
                     Toast.makeText(RecordExplorerActivity.this, "网络错误，只能加载本地记录。", Toast.LENGTH_SHORT).show();
                 }
 
-                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), from, noteFilterStr, DEFAULT_DOWNLOAD_RECORD_NUM);
+                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), updateTime, noteFilterStr, DEFAULT_DOWNLOAD_RECORD_NUM);
 
                 if(records == null) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();

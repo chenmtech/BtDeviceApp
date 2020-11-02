@@ -24,15 +24,10 @@
         android:layout_height="1dp"
         android:background="@color/divider"/>
 
-    <EditText
-        android:id="@+id/et_note_filter_string"
+    <com.cmtech.android.bledeviceapp.view.layout.RecordSearchLayout
+        android:id="@+id/layout_record_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:textSize="14sp"
-        android:imeOptions="actionSearch"
-        android:singleLine="true"
-        android:hint="输入要搜索的备注内容"
         android:visibility="gone"/>
 
     <View
