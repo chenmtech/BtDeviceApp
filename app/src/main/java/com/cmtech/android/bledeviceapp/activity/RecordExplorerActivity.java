@@ -22,7 +22,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
@@ -87,7 +86,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
         for (RecordType type : SUPPORT_RECORD_TYPES) {
             Map<String, Object> item = new HashMap<String, Object>();
-            item.put("icon", type.getImgId());
+            item.put("icon", type.getIconId());
             item.put("name", type.getName());
             items.add(item);
         }

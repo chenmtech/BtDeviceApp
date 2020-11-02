@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:src="@mipmap/ic_all_record"/>
+                android:src="@mipmap/ic_all_type_record_24px"/>
 
         </LinearLayout>
 

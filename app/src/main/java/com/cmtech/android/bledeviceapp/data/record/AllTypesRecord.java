@@ -16,8 +16,8 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.ALL;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class AllTypeRecord extends BasicRecord {
-    private AllTypeRecord(long createTime, String devAddress, Account creator) {
-        super(ALL, DEFAULT_RECORD_VER, createTime, devAddress, creator);
+public class AllTypesRecord extends BasicRecord {
+    private AllTypesRecord(String ver, long createTime, String devAddress, Account creator) {
+        super(ALL, ver, createTime, devAddress, creator);
     }
 }

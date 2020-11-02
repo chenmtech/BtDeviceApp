@@ -22,7 +22,7 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
  * Version:        1.0
  */
 public enum RecordType {
-    ALL(0, R.string.all_record, R.mipmap.ic_all_record, AllTypeRecord.class, null),
+    ALL(0, R.string.all_record, R.mipmap.ic_all_type_record_24px, AllTypesRecord.class, null),
     ECG(1, R.string.ecg_record, R.mipmap.ic_ecg_24px, BleEcgRecord.class, EcgRecordActivity.class),
     HR(2, R.string.hr_record, R.mipmap.ic_hr_24px, BleHrRecord.class, HrRecordActivity.class),
     THERMO(3, R.string.thermo_record, R.mipmap.ic_thermo_24px, BleThermoRecord.class, ThermoRecordActivity.class),
@@ -31,14 +31,14 @@ public enum RecordType {
 
     private final String name;
     private final int code;
-    private final int imgId;
+    private final int iconId;
     private final Class<? extends BasicRecord> recordClass;
     private final Class<? extends Activity> actClass;
 
     RecordType(int code, int nameId, int imgId, Class<? extends BasicRecord> recordClass, Class<? extends Activity> actClass) {
         this.name = MyApplication.getStr(nameId);
         this.code = code;
-        this.imgId = imgId;
+        this.iconId = imgId;
         this.recordClass = recordClass;
         this.actClass = actClass;
     }
@@ -69,8 +69,8 @@ public enum RecordType {
         return code;
     }
 
-    public int getImgId() {
-        return imgId;
+    public int getIconId() {
+        return iconId;
     }
 
     public Class<? extends BasicRecord> getRecordClass() {

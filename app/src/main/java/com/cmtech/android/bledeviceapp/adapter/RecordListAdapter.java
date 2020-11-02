@@ -143,7 +143,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             Glide.with(activity).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
         }
 
-        holder.ivRecordType.setImageResource(RecordType.fromCode(record.getTypeCode()).getImgId());
+        holder.ivRecordType.setImageResource(RecordType.fromCode(record.getTypeCode()).getIconId());
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
 
