@@ -145,6 +145,6 @@
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
     <string name="privacy_policy">同意康明智联</string>
-    <string name="service_agreement"><a href="http://203.195.137.198:8080/serviceagree.txt">《服务协议》</a></string>
-    <string name="privacy_policy_http"><a href="http://www.mob.com/about/policy">《隐私政策》</a></string>
+    <string name="user_agreement"><a href="http://203.195.137.198:8080/useragreement.html">《服务协议》</a></string>
+    <string name="privacy_policy_http"><a href="http://203.195.137.198:8080/privacy.html">《隐私政策》</a></string>
 </resources>

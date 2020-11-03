@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             boolean haveInstallPermission = getPackageManager().canRequestPackageInstalls();
             if (!haveInstallPermission) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("开启安装应用权限").setMessage("应用升级需要您打开未知来源权限，请去设置中开启权限。");
+                builder.setTitle("开启安装应用权限").setMessage("为了实现本应用的自动升级功能，需要您打开“安装未知应用”权限，我们承诺在任何时候，不会安装其他任何第三方应用。");
                 builder.setCancelable(false);
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override

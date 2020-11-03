@@ -16,31 +16,33 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="从"/>
+            android:layout_margin="6dp"
+            android:text="开始\n日期"/>
 
         <TextView
             android:id="@+id/tv_start_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
             android:textSize="20sp"
             android:textColor="@color/black"
-            android:text="0000-00-00"
-            android:background="@color/secondary"/>
+            android:text="0000-00-00"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="开始"/>
+            android:layout_margin="6dp"
+            android:text="备注\n包含"/>
 
         <EditText
             android:id="@+id/et_note_filter_string"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_margin="6dp"
+            android:layout_marginEnd="6dp"
             android:textSize="14sp"
             android:singleLine="true"
-            android:hint="输入备注包含的内容"/>
+            android:hint="输入搜索的内容"/>
     </LinearLayout>
 
     <LinearLayout

@@ -27,6 +27,7 @@ import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.util.KeyBoardUtil;
 import com.cmtech.android.bledeviceapp.view.layout.RecordSearchLayout;
 import com.vise.log.ViseLog;
 
@@ -250,6 +251,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordList() {
+        KeyBoardUtil.closeKeybord(this);
+
         BasicRecord record = RecordFactory.create(recordType, DEFAULT_RECORD_VER, INVALID_TIME, null, MyApplication.getAccount());
         if(record == null) {
             ViseLog.e("The record type is not supported.");
