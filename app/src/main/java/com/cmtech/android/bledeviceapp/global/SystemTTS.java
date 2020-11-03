@@ -33,6 +33,7 @@ public class SystemTTS extends UtteranceProgressListener implements ITextSpeakab
         speak(mContext.getResources().getString(strId));
     }
 
+    @Override
     public void speak(String playText) {
         textToSpeech = new TextToSpeech(mContext, new TextToSpeech.OnInitListener() {
             @Override
@@ -52,6 +53,7 @@ public class SystemTTS extends UtteranceProgressListener implements ITextSpeakab
         });
     }
 
+    @Override
     public void stopSpeak() {
         if (textToSpeech != null && textToSpeech.isSpeaking()) {
             textToSpeech.stop();

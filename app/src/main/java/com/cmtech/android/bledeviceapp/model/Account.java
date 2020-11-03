@@ -54,9 +54,6 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
 
-    public Account() {
-    }
-
     public Account(String platName, String platId) {
         this.platName = platName;
         this.platId = platId;
@@ -79,8 +76,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
     public String getName() {
         if("".equals(name)) {
-            String tmp = platId.substring(platId.length()/4, platId.length()*3/4);
-            return platId.replaceFirst(tmp, "*");
+            String plat = platName+platId;
+            String platFirst4 = plat.substring(0, 4);
+            String platLast4 = plat.substring(plat.length()-4, plat.length());
+            return platFirst4 + "*" + platLast4;
         }
         return name;
     }
@@ -146,7 +145,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         }
     }
 
-    public void signupOrLogin(Context context, ICodeCallback callback) {
+    public void signUpOrLogin(Context context, ICodeCallback callback) {
         new AccountAsyncTask(context, null, CMD_SIGNUP_OR_LOGIN, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -177,7 +176,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        new AccountAsyncTask(context, "请稍等...", AccountAsyncTask.CMD_UPLOAD, new IWebResponseCallback() {
+        new AccountAsyncTask(context, "正在上传账户信息，请稍等...", AccountAsyncTask.CMD_UPLOAD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 callback.onFinish(response.getCode());
@@ -187,7 +186,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
 
     @Override
     public void download(Context context, ICodeCallback callback) {
-        download(context, "请稍等...", callback);
+        download(context, "正在下载账户信息，请稍等...", callback);
     }
 
     public void download(Context context, String showString, ICodeCallback callback) {
@@ -207,12 +206,12 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
 
     @Override
     public void delete(Context context, ICodeCallback callback) {
-
+        throw new IllegalStateException();
     }
 
     @Override
     public void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
-
+        throw new IllegalStateException();
     }
 
     @NonNull

@@ -34,7 +34,7 @@ public class AccountManager {
         return account;
     }
 
-    // login account in local client
+    // account login in local client
     public void localLogin(String platName, String platId, String name, String icon) {
         Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
         if(account == null) {
@@ -49,7 +49,7 @@ public class AccountManager {
     public void webLogin(final Context context) {
         if(!isLocalLogin()) return;
 
-        account.signupOrLogin(context, code -> {
+        account.signUpOrLogin(context, code -> {
             if(code != RETURN_CODE_SUCCESS) {
                 runOnUiThread(() -> Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show());
             }

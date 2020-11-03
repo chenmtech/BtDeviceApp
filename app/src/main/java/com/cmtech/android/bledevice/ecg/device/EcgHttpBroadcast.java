@@ -64,7 +64,8 @@ public class EcgHttpBroadcast {
     public static class Receiver extends Account {
         private boolean isReceiving;
 
-        Receiver() {
+        Receiver(String platName, String platId) {
+            super(platName, platId);
             isReceiving = false;
         }
         public boolean isReceiving() {
@@ -348,9 +349,9 @@ public class EcgHttpBroadcast {
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
             for (int i = 0; i < jsonArray.length(); i++) {
-                Receiver receiver = new Receiver();
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 String huaweiId = jsonObject.getString("open_id");
+                Receiver receiver = new Receiver("HW", huaweiId);
                 String name = jsonObject.getString("name");
                 String displayName = jsonObject.getString("displayName");
                 String description = jsonObject.getString("description");
