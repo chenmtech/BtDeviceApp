@@ -34,21 +34,20 @@ public class AccountManager {
         return account;
     }
 
-    // login account
+    // login account in local client
     public void localLogin(String platName, String platId, String name, String icon) {
         Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
         if(account == null) {
-            account = new Account(platName, platId, name, "", icon);
-        } else {
-            account.setName(name);
-            account.setIcon(icon);
+            account = new Account(platName, platId);
         }
+        account.setName(name);
+        account.setIcon(icon);
         account.save();
         this.account = account;
     }
 
     public void webLogin(final Context context) {
-        if(!isLogin()) return;
+        if(!isLocalLogin()) return;
 
         account.signupOrLogin(context, code -> {
             if(code != RETURN_CODE_SUCCESS) {
@@ -58,18 +57,18 @@ public class AccountManager {
     }
 
     // logout account
-    public void logout(boolean isRemoved) {
-        if(!isLogin()) return;
+    public void localLogout(boolean remove) {
+        if(!isLocalLogin()) return;
 
-        if(isRemoved) {
-            account.logout();
+        if(remove) {
+            account.remove();
         }
 
         account = null;
     }
 
     // is a valid account login
-    public boolean isLogin() {
+    public boolean isLocalLogin() {
         return account != null;
     }
 }

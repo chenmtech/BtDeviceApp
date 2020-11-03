@@ -22,7 +22,7 @@ import java.util.Locale;
  * Version:        1.0
  */
 public class SystemTTS extends UtteranceProgressListener implements ITextSpeakable {
-    private Context mContext;
+    private final Context mContext;
     private TextToSpeech textToSpeech;
 
     SystemTTS(Context context) {

@@ -57,12 +57,9 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     public Account() {
     }
 
-    public Account(String platName, String platId, String name, String note, String icon) {
+    public Account(String platName, String platId) {
         this.platName = platName;
         this.platId = platId;
-        this.name = name;
-        this.note = note;
-        this.icon = icon;
     }
 
     public Account(Account account) {
@@ -158,7 +155,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         });
     }
 
-    public void logout() {
+    public void remove() {
         if(platName.equals(QQ_PLAT_NAME)) {
             Platform plat = ShareSDK.getPlatform(QQ.NAME);
             plat.removeAccount(true);

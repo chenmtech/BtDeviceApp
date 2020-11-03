@@ -71,7 +71,7 @@ import java.util.Objects;
 import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.KM_STORE_URI;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_STORE_URI;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_LOGIN_PLATFORM;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
@@ -102,11 +102,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ViseLog.e("MainActivity onCreate.");
+        //ViseLog.e("MainActivity onCreate.");
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!MyApplication.getAccountManager().isLogin()) {
+        if(!MyApplication.getAccountManager().isLocalLogin()) {
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -285,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                         return true;
                     case R.id.nav_open_store: // open KM store
                         intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(KM_STORE_URI));
+                        intent.setData(Uri.parse(KMIC_STORE_URI));
                         startActivity(intent);
                         return true;
                     case R.id.nav_about_us: // open KM store
@@ -673,7 +673,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             return;
         }
 
-        MyApplication.getAccountManager().logout(true);
+        MyApplication.getAccountManager().localLogout(true);
 
         final Intent intent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

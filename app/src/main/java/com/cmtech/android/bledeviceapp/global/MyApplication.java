@@ -44,7 +44,7 @@ public class MyApplication extends Application {
         LitePal.getDatabase();
 
         // init MobSDK
-        MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
+        MobSDK.init(getApplicationContext());
 
         // init ViseLog
         ViseLog.getLogConfig()

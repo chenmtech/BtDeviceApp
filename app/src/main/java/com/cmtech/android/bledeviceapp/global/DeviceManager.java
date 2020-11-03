@@ -59,14 +59,13 @@ public class DeviceManager {
         return device;
     }
 
-    // find a device using info
+    // find a device using info in DEVICE_LIST
     public IDevice findDevice(DeviceCommonInfo info) {
-        return (info == null) ? null : findDevice(info.getAddress());
+        return (info == null || TextUtils.isEmpty(info.getAddress())) ? null : findDevice(info.getAddress());
     }
 
-    // find a device using address
+    // find a device using address in DEVICE_LIST
     public IDevice findDevice(String address) {
-        if(TextUtils.isEmpty(address)) return null;
         for(IDevice device : DEVICE_LIST) {
             if(address.equalsIgnoreCase(device.getAddress())) {
                 return device;

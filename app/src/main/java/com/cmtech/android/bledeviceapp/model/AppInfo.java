@@ -119,7 +119,7 @@ public class AppInfo implements Serializable, IJsonable, IWebOperation {
 
     }
 
-    public void downloadAndInstallApkFile(Context context) {
+    public void downloadApkFileThenInstall(Context context) {
         if(TextUtils.isEmpty(url)) return;
 
         ProgressDialog pBar = new ProgressDialog(context);

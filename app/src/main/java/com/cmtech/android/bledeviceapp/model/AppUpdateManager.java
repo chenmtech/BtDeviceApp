@@ -18,7 +18,7 @@ public class AppUpdateManager {
     public void retrieveUpdateInfo(Context context) {
         updateInfo.download(context, (code) -> {
             if(code == RETURN_CODE_SUCCESS) {
-                if(isNeedUpdate())
+                if(needUpdate())
                     updateApp(context);
             }
         });
@@ -40,10 +40,10 @@ public class AppUpdateManager {
     }
 
     private void downloadApk(Context context) {
-        updateInfo.downloadAndInstallApkFile(context);
+        updateInfo.downloadApkFileThenInstall(context);
     }
 
-    private boolean isNeedUpdate() {
+    private boolean needUpdate() {
         int currentVerCode = APKVersionCodeUtils.getVersionCode();
         return currentVerCode < updateInfo.getVerCode();
     }

@@ -17,7 +17,7 @@ import java.util.Objects;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.KMURL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
@@ -44,7 +44,7 @@ public class KMWebServiceUtil {
         data.put("cmd", "download");
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestGet(KMURL + APP_UPDATE_INFO_SERVLET_URL, data)) {
+        try(Response response = HttpUtils.requestGet(KMIC_URL + APP_UPDATE_INFO_SERVLET_URL, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -60,7 +60,7 @@ public class KMWebServiceUtil {
         data.put("cmd", "signUp");
         data.put("platName", platName);
         data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data, callback);
+        HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data, callback);
     }
 
     public static void login(String platName, String platId, Callback callback) {
@@ -68,7 +68,7 @@ public class KMWebServiceUtil {
         data.put("cmd", "login");
         data.put("platName", platName);
         data.put("platId", platId);
-        HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data, callback);
+        HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data, callback);
     }
 
     public static WebResponse signUporLogin(Account account) {
@@ -78,7 +78,7 @@ public class KMWebServiceUtil {
         data.put("platId", account.getPlatId());
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestGet(KMURL + ACCOUNT_SERVLET_URL, data)) {
+        try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -98,7 +98,7 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
 
-        try(Response response = HttpUtils.requestPost(KMURL + ACCOUNT_SERVLET_URL, json)) {
+        try(Response response = HttpUtils.requestPost(KMIC_URL + ACCOUNT_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -120,7 +120,7 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
 
-        try(Response response = HttpUtils.requestPost(KMURL + ACCOUNT_SERVLET_URL, json)) {
+        try(Response response = HttpUtils.requestPost(KMIC_URL + ACCOUNT_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -139,7 +139,7 @@ public class KMWebServiceUtil {
         data.put("ver", ver);
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestGet(KMURL + RECORD_SERVLET_URL, data)) {
+        try(Response response = HttpUtils.requestGet(KMIC_URL + RECORD_SERVLET_URL, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -163,7 +163,7 @@ public class KMWebServiceUtil {
         }
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -190,7 +190,7 @@ public class KMWebServiceUtil {
         }
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -218,7 +218,7 @@ public class KMWebServiceUtil {
         }
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -247,7 +247,7 @@ public class KMWebServiceUtil {
         }
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -274,7 +274,7 @@ public class KMWebServiceUtil {
         }
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
@@ -300,7 +300,7 @@ public class KMWebServiceUtil {
         }
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMURL + RECORD_SERVLET_URL, json)) {
+        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));

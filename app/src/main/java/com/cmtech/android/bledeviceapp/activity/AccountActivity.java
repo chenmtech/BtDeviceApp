@@ -54,7 +54,7 @@ public class AccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
 
-        if(!MyApplication.getAccountManager().isLogin())  {
+        if(!MyApplication.getAccountManager().isLocalLogin())  {
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             setResult(RESULT_CANCELED);
             finish();

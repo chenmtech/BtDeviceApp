@@ -26,9 +26,9 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     private static final String TAG = CrashHandler.class.getSimpleName();
     private static final String SINGLE_RETURN = "\n";
     private static final String SINGLE_LINE = "--------------------------------";
-    private Context mContext;
-    private Thread.UncaughtExceptionHandler mDefaultHandler;
-    private StringBuffer mErrorLogBuffer = new StringBuffer();
+    private final Context mContext;
+    private final Thread.UncaughtExceptionHandler mDefaultHandler;
+    private final StringBuffer mErrorLogBuffer = new StringBuffer();
 
     CrashHandler(Context context) {
         mContext = context;

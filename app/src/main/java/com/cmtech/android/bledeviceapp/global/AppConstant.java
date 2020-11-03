@@ -44,7 +44,7 @@ public class AppConstant {
     public static final File DIR_IMAGE = MyApplication.getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES); // image file directory
     public static final File DIR_CACHE = MyApplication.getContext().getExternalCacheDir(); // file cache directory
     public static final int SPLASH_ACTIVITY_COUNT_DOWN_SECOND = 3; // count down second in splash activity
-    public static final String KM_STORE_URI = "https://decathlon.tmall.com/shop/view_shop.htm?spm=a21bo.2017.201863-1.d2.6dd211d9AzJgBt&user_number_id=352469034&pvid=067004f4-d493-413a-a4f7-003e62637549&pos=2&brandId=44506&acm=03014.1003.1.765824&scm=1007.13143.56636.100200300000000";
+    public static final String KMIC_STORE_URI = "https://decathlon.tmall.com/shop/view_shop.htm?spm=a21bo.2017.201863-1.d2.6dd211d9AzJgBt&user_number_id=352469034&pvid=067004f4-d493-413a-a4f7-003e62637549&pos=2&brandId=44506&acm=03014.1003.1.765824&scm=1007.13143.56636.100200300000000";
     public static final List<DeviceType> SUPPORT_DEVICE_TYPES = new ArrayList<DeviceType>(){
         {
             add(HrmFactory.HRM_DEVICE_TYPE);
@@ -71,6 +71,6 @@ public class AppConstant {
     }; // supported login platform
 
     //public static final String KMURL = "http://192.168.0.102:8080/BtDeviceWebApp/";
-    public static final String KMURL = "http://203.195.137.198:8080/BtDeviceWebApp/";
+    public static final String KMIC_URL = "http://203.195.137.198:8080/BtDeviceWebApp/";
 
 }

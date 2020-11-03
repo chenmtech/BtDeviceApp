@@ -193,7 +193,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             String devAddress = json.getString("devAddress");
                             String creatorPlat = json.getString("creatorPlat");
                             String creatorId = json.getString("creatorId");
-                            BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, new Account(creatorPlat, creatorId, "", "", ""));
+                            BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, new Account(creatorPlat, creatorId));
                             if (record != null) {
                                 record.basicRecordFromJson(json);
                                 record.setNeedUpload(false);
