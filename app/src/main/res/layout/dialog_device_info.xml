@@ -82,21 +82,21 @@
         android:orientation="horizontal">
         <Button
             android:id="@+id/btn_cancel"
-            android:layout_height="wrap_content"
+            style="@style/button_circle_blue_style"
+            android:layout_width="0dp"
             android:layout_weight="1"
-            style="@style/minWidth0DpButtonStyle"
             android:text="@string/cancel"/>
         <Button
             android:id="@+id/btn_set_default"
-            android:layout_height="wrap_content"
+            style="@style/button_circle_blue_style"
+            android:layout_width="0dp"
             android:layout_weight="1"
-            style="@style/minWidth0DpButtonStyle"
             android:text="@string/restore_default"/>
         <Button
             android:id="@+id/btn_ok"
-            android:layout_height="wrap_content"
+            style="@style/button_circle_blue_style"
+            android:layout_width="0dp"
             android:layout_weight="1"
-            style="@style/minWidth0DpButtonStyle"
             android:text="@string/ok"/>
     </LinearLayout>
 

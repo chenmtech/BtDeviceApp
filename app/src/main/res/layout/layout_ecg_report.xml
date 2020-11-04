@@ -23,20 +23,18 @@
 
         <Button
             android:id="@+id/btn_request_report"
+            style="@style/button_circle_blue_style"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@color/primary"
             android:text="申请报告"/>
 
         <Button
             android:id="@+id/btn_get_report"
+            style="@style/button_circle_blue_style"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/btn_request_report"
+            android:layout_toStartOf="@id/btn_request_report"
             android:layout_centerVertical="true"
-            android:background="@color/primary"
             android:text="获取报告"/>
     </RelativeLayout>
 

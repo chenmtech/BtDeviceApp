@@ -144,10 +144,9 @@
 
             <Button
                 android:id="@+id/btn_ok"
+                style="@style/button_circle_blue_style"
                 android:layout_width="100dp"
-                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                style="@style/minWidth0DpButtonStyle"
                 android:text="@string/ok"/>
 
         </LinearLayout>

@@ -52,18 +52,16 @@
 
         <Button
             android:id="@+id/btn_reset"
+            style="@style/button_circle_blue_style"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/minWidth0DpButtonStyle"
             android:text="重置"/>
 
         <Button
             android:id="@+id/btn_search"
+            style="@style/button_circle_blue_style"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/minWidth0DpButtonStyle"
             android:text="搜索"/>
     </LinearLayout>
 </LinearLayout>

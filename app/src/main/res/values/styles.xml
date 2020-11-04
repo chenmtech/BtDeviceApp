@@ -15,27 +15,6 @@
         <item name="android:textColor">@color/accent</item>
     </style>
 
-    <style name="OnePixelActivityStyle">
-        <!-- 背景设置为透明 -->
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <!-- 是否有边框 -->
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <!-- 是否浮动在界面上 -->
-        <item name="android:windowIsFloating">true</item>
-        <!-- 是否透明 -->
-        <item name="android:windowIsTranslucent">true</item>
-        <!-- 窗体上面是否有遮盖 -->
-        <item name="android:windowContentOverlay">@null</item>
-        <!-- 背景是否变暗 -->
-        <item name="android:backgroundDimEnabled">false</item>
-        <!-- 为窗体的Enter和Exit设置动画 -->
-        <item name="android:windowAnimationStyle">@null</item>
-        <!-- 是否禁止窗体显示前显示的View -->
-        <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowNoDisplay">false</item>
-    </style>
-
     <!-- Main Toolbar上Title的文本风格 -->
     <style name="MainToolbarSubTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textSize">12sp</item>
@@ -73,11 +52,13 @@
         <item name="android:actionMenuTextColor">@color/primary_dark</item>
     </style>
 
-
-    <!-- 没有最小宽度的Button -->
-    <style name="minWidth0DpButtonStyle" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:minWidth">0dp</item>
+    <style name="button_circle_blue_style">
+        <item name="android:background">@drawable/button_circle_blue_background</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="minWidth">0dp</item>
+        <item name="minHeight">0dp</item>
+        <item name="android:layout_height">34dp</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

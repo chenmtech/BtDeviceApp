@@ -89,7 +89,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="*备注信息将会显示在您输出的记录报告中。"
-        android:textSize="12sp"/>
+        android:textSize="12sp"
+        android:textColor="@color/red"/>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -98,24 +99,18 @@
         android:layout_margin="20dp">
         <Button
             android:id="@+id/btn_userinfo_cancel"
+            style="@style/button_circle_blue_style"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_margin="10sp"
-            android:background="@color/accent"
             android:text="@string/cancel"
-            android:textSize="18sp"
-            android:textColor="@color/white"/>
+            android:textSize="18sp"/>
 
         <Button
             android:id="@+id/btn_account_info_ok"
+            style="@style/button_circle_blue_style"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_margin="10sp"
-            android:background="@color/accent"
             android:text="@string/ok"
-            android:textSize="18sp"
-            android:textColor="@color/white"/>
+            android:textSize="18sp"/>
     </LinearLayout>
 </LinearLayout>

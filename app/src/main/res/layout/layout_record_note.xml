@@ -36,8 +36,8 @@
 
     <Button
         android:id="@+id/btn_edit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/minWidth0DpButtonStyle"
+        style="@style/button_circle_blue_style"
+        android:layout_width="200dp"
+        android:layout_gravity="center_horizontal"
         android:text="修改"/>
 </LinearLayout>

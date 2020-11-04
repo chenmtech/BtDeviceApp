@@ -131,8 +131,8 @@
             android:text="秒"/>
         <Button
             android:id="@+id/btn_set_interval"
+            style="@style/button_circle_blue_style"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="设置"/>
     </LinearLayout>
 </RelativeLayout>
