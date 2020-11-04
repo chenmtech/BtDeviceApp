@@ -1,9 +1,6 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.DialogInterface;
@@ -23,7 +20,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
@@ -109,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             notifyService = ((NotificationService.NotificationServiceBinder)iBinder).getService();
             // 成功绑定后初始化UI，否则请求退出
             if(notifyService != null) {
+                MyApplication.getDeviceManager().addCommonListenerForAllDevices(notifyService);
+
                 initializeUI();
 
                 // 为已经打开的设备创建并打开Fragment
@@ -235,14 +233,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             boolean haveInstallPermission = getPackageManager().canRequestPackageInstalls();
             if (!haveInstallPermission) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("开启安装应用权限").setMessage("为了实现本应用的自动升级功能，需要您打开“安装未知应用”权限，我们承诺在任何时候，不会安装其他任何第三方应用。");
+                builder.setTitle("开启安装应用权限").setMessage("自动升级本应用程序需要您打开“安装未知应用”权限。我们承诺未经您允许，不会安装任何第三方应用。");
                 builder.setCancelable(false);
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            startInstallPermissionSettingActivity();
-                        }
+                        startInstallPermissionSettingActivity();
                     }
                 }).setNegativeButton("", null).show();
                 return;
@@ -378,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                         if(device != null) {
                             if(info.save()) {
                                 updateDeviceList();
-                                //device.addCommonListener(notificationService);
+                                device.addCommonListener(notifyService);
                             } else {
                                 Toast.makeText(MainActivity.this, R.string.add_device_failure, Toast.LENGTH_SHORT).show();
                                 MyApplication.getDeviceManager().deleteDevice(device);
@@ -559,7 +555,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     @Override
     public void onNotificationInfoUpdated(IDevice device) {
-        //第一步：获取状态通知栏管理：
+/*        //第一步：获取状态通知栏管理：
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification notification = null;
         //第二步：实例化通知栏构造器NotificationCompat.Builder：
@@ -580,7 +576,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             notification = notificationBuilder.build();
         }
         //第三步：对Builder进行配置：
-        manager.notify(2, notification);
+        manager.notify(2, notification);*/
     }
 
     // Fragment更新

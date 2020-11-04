@@ -77,8 +77,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
     }
 
     private void sendNotification(String notifyContent) {
-        ViseLog.e("receive a notification.");
-
+        //ViseLog.e("receive a notification.");
         notifyBuilder.setContentText(notifyContent);
         Notification notification = notifyBuilder.build();
         startForeground(NOTIFY_ID, notification);
@@ -95,7 +94,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
 
     @Override
     public void onConnectStateUpdated(IDevice device) {
-
+        sendNotification(getDeviceSimpleName(device) + device.getConnectState().getDescription());
     }
 
     @Override
@@ -105,7 +104,7 @@ public class NotificationService extends Service implements IDevice.OnCommonDevi
 
     @Override
     public void onNotificationInfoUpdated(IDevice device) {
-
+        sendNotification(getDeviceSimpleName(device) + device.getNotificationInfo());
     }
 
     public class NotificationServiceBinder extends Binder {
