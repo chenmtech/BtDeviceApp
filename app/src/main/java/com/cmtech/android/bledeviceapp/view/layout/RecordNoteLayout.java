@@ -37,7 +37,7 @@ public class RecordNoteLayout extends LinearLayout {
                         }
                         etNote.setEnabled(false);
                         etNote.clearFocus();
-                        btnEdit.setText("编辑");
+                        btnEdit.setText("修改");
                     } else {
                         etNote.setEnabled(true);
                         etNote.requestFocus();

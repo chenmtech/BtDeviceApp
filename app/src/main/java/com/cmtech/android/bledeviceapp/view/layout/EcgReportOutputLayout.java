@@ -18,6 +18,7 @@ import com.cmtech.android.bledeviceapp.R;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -43,6 +44,7 @@ public class EcgReportOutputLayout extends LinearLayout {
     private final TextView tvRecordTime;
     private final TextView tvReportVer;
     private final TextView tvReportTime;
+    private final TextView tvReportPrintTime;
     private final TextView tvContent;
     private final TextView tvAveHr;
     private final TextView tvNote;
@@ -57,6 +59,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         tvContent = view.findViewById(R.id.tv_report_content);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
         tvReportTime = view.findViewById(R.id.tv_report_time);
+        tvReportPrintTime = view.findViewById(R.id.tv_report_print_time);
         tvNote = view.findViewById(R.id.tv_note);
         tvAveHr= view.findViewById(R.id.tv_report_ave_hr);
         ECG_VIEWS[0] = view.findViewById(R.id.roll_ecg_view1);
@@ -85,6 +88,7 @@ public class EcgReportOutputLayout extends LinearLayout {
             tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
         }
 
+        tvReportPrintTime.setText(dateFmt.format(new Date().getTime()));
         tvNote.setText(record.getNote());
 
         new DrawEcgViewAsyncTask(getContext(), showText, callback).execute(record);
