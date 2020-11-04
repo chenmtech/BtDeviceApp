@@ -44,12 +44,11 @@
         android:orientation="horizontal">
         <EditText
             android:id="@+id/tv_report_content"
+            style="@style/edittext_circle_gray_style"
             android:layout_width="0dp"
             android:layout_height="80dp"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:layout_margin="6dp"
-            android:background="@drawable/edit_background"
             android:ems="10"
             android:gravity="start|top"
             android:inputType="textMultiLine"

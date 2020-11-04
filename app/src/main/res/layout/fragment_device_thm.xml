@@ -94,6 +94,7 @@
             android:text="地点："/>
         <EditText
             android:id="@+id/et_sens_loc"
+            android:gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="室内"
@@ -123,6 +124,7 @@
             android:text="测量间隔："/>
         <EditText
             android:id="@+id/et_measure_interval"
+            android:gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView

@@ -35,6 +35,7 @@
 
         <EditText
             android:id="@+id/et_account_name"
+            style="@style/edittext_circle_gray_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -75,6 +76,7 @@
             android:text="@string/note"/>
         <EditText
             android:id="@+id/et_account_note"
+            style="@style/edittext_circle_gray_style"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

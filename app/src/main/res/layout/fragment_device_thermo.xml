@@ -103,6 +103,7 @@
                     android:text="测量位置："/>
                 <EditText
                     android:id="@+id/et_sens_loc"
+                    android:gravity="center_vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
@@ -117,6 +118,7 @@
                     android:text="测量间隔："/>
                 <EditText
                     android:id="@+id/et_meas_interval"
+                    android:gravity="center_vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
             </LinearLayout>

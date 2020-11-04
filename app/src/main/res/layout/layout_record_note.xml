@@ -23,12 +23,12 @@
 
         <EditText
             android:id="@+id/et_note"
+            style="@style/edittext_circle_gray_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="start|top"
-            android:minLines="3"
-            android:background="@drawable/edit_background"
+            android:minLines="2"
             android:inputType="textMultiLine"
             android:enabled="false"
             android:autofillHints="" />

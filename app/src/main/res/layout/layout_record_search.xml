@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="6dp"
             android:textSize="20sp"
-            android:textColor="@color/black"
+            android:textColor="@color/orange"
             android:text="0000-00-00"/>
 
         <TextView
@@ -36,10 +36,10 @@
 
         <EditText
             android:id="@+id/et_note_filter_string"
+            style="@style/edittext_circle_gray_style"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="6dp"
             android:textSize="14sp"
             android:singleLine="true"
             android:hint="输入搜索的内容"/>

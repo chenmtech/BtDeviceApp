@@ -105,11 +105,13 @@
             android:id="@+id/tv_output_report"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:layout_margin="6dp"
-            android:drawableTop="@mipmap/ic_output_report_32px"
-            android:text="输出PDF"
-            android:textSize="12sp"
-            android:textColor="@color/white"/>
+            android:drawableStart="@mipmap/ic_output_report_32px"
+            android:text="PDF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/accent"/>
 
     </FrameLayout>
 
