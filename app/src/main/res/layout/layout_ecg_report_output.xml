@@ -12,7 +12,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:text="康明心电图报告"
-        android:textSize="50sp"
+        android:textSize="@dimen/biggest_font"
         android:textColor="@color/secondary"/>
     
     <LinearLayout
@@ -23,14 +23,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="检查人："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_record_person"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="  "
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
     <LinearLayout
@@ -41,14 +41,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="记录时间："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_record_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="  "
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
     <View
@@ -404,7 +404,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="平均心率："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_report_ave_hr"
@@ -413,13 +413,13 @@
             android:gravity="center_horizontal"
             android:minEms="3"
             android:text="    "
-            android:textSize="30sp"/>
+            android:textSize="@dimen/bigger_font"/>
         
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="次/分钟"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
     <LinearLayout
@@ -430,7 +430,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="检测结果："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_report_content"
@@ -438,7 +438,7 @@
             android:layout_height="wrap_content"
             android:minLines="3"
             android:text="暂无"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
     <TextView
@@ -447,7 +447,7 @@
         android:layout_marginTop="6dp"
         android:layout_marginBottom="6dp"
         android:text="*以上结论不能作为临床诊断依据。如有心脏不适，请及时就医。"
-        android:textSize="10sp"
+        android:textSize="@dimen/smallest_font"
         android:textColor="@color/red"/>
 
     <LinearLayout
@@ -459,7 +459,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="检测时间："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_report_time"
@@ -467,7 +467,7 @@
             android:layout_height="wrap_content"
             android:minEms="10"
             android:text="  "
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
     <LinearLayout
@@ -479,7 +479,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="检测版本："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_report_ver"
@@ -487,7 +487,7 @@
             android:layout_height="wrap_content"
             android:minEms="10"
             android:text="   "
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
     <LinearLayout
@@ -499,7 +499,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="报告打印时间："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_report_print_time"
@@ -507,7 +507,7 @@
             android:layout_height="wrap_content"
             android:minEms="10"
             android:text="  "
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
     <LinearLayout
@@ -519,13 +519,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="备注："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minLines="3"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 </LinearLayout>

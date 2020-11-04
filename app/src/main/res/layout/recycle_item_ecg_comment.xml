@@ -14,7 +14,7 @@
             android:layout_centerVertical="true"
             android:text="匿名"
             android:textAppearance="@style/PersonTextAppearance"
-            android:textSize="14sp"
+            android:textSize="@dimen/small_font"
             android:layout_margin="2dp"
             android:maxLength="10"/>
 
@@ -24,7 +24,7 @@
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/tv_comment_creator"
             android:text="的留言"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:text="修改于："
                 android:textColor="@color/secondary_text"
-                android:textSize="12sp"/>
+                android:textSize="@dimen/smallest_font"/>
 
             <TextView
                 android:id="@+id/tv_comment_modify_time"
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/EcgCommentTextAppearance"
                 android:text="未知"
-                android:textSize="12sp"
+                android:textSize="@dimen/smallest_font"
                 android:textColor="#000"/>
         </LinearLayout>
     </RelativeLayout>
@@ -61,7 +61,7 @@
             android:layout_weight="1"
             android:gravity="top"
             android:textAppearance="@style/EcgCommentTextAppearance"
-            android:textSize="16sp"
+            android:textSize="@dimen/normal_font"
             android:minLines="2"
             android:focusableInTouchMode="false"/>
 

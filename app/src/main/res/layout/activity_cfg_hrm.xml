@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="@string/hr_voice_speech"
-                android:textSize="18sp"
+                android:textSize="@dimen/normal_font"
                 android:textColor="@color/black"/>
 
             <CheckBox
@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/enable"
-                android:textSize="20sp"/>
+                android:textSize="@dimen/big_font"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -61,7 +61,7 @@
                     android:layout_marginEnd="10dp"
                     android:text="@string/minute_per_time"
                     android:textColor="@color/black"
-                    android:textSize="18sp"/>
+                    android:textSize="@dimen/normal_font"/>
 
             </LinearLayout>
 
@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="@string/hr_abnormal_alarm"
-                android:textSize="18sp"
+                android:textSize="@dimen/normal_font"
                 android:textColor="@color/black"/>
 
             <CheckBox
@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/enable"
-                android:textSize="20sp"/>
+                android:textSize="@dimen/big_font"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -107,7 +107,7 @@
                         android:layout_gravity="center_vertical"
                         android:gravity="center_horizontal"
                         android:text="@string/low_limit"
-                        android:textSize="12sp"/>
+                        android:textSize="@dimen/smallest_font"/>
 
                     <NumberPicker
                         android:id="@+id/np_hr_low"
@@ -131,7 +131,7 @@
                         android:layout_gravity="center_vertical"
                         android:gravity="center_horizontal"
                         android:text="@string/high_limit"
-                        android:textSize="12sp"/>
+                        android:textSize="@dimen/smallest_font"/>
                     <NumberPicker
                         android:id="@+id/np_hr_high"
                         android:layout_width="wrap_content"

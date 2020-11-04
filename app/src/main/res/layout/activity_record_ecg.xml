@@ -46,7 +46,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal|bottom"
                         android:textColor="#fff"
-                        android:textSize="16sp"/>
+                        android:textSize="@dimen/normal_font"/>
                 </FrameLayout>
 
                 <LinearLayout
@@ -81,7 +81,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginEnd="6dp"
                         android:textColor="@color/primary_text"
-                        android:textSize="12sp"/>
+                        android:textSize="@dimen/smallest_font"/>
                 </LinearLayout>
 
                 <com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout
@@ -109,12 +109,10 @@
             android:layout_margin="6dp"
             android:drawableStart="@mipmap/ic_output_report_32px"
             android:text="PDF"
-            android:textSize="14sp"
+            android:textSize="@dimen/small_font"
             android:textStyle="bold"
-            android:textColor="@color/accent"/>
-
+            android:textColor="@color/orange"/>
     </FrameLayout>
-
 
     <com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout
         android:id="@+id/layout_ecg_report_output"

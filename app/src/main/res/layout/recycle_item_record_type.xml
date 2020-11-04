@@ -21,6 +21,6 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
         android:text="@string/all_record"
-        android:textSize="18sp"/>
+        android:textSize="@dimen/normal_font"/>
 
 </LinearLayout>

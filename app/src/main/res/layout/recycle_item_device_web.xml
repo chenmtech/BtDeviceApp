@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:textColor="@color/primary_text"
-            android:textSize="20sp"
+            android:textSize="@dimen/big_font"
             android:text="未知设备名"/>
 
         <TextView
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:text="关闭"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
 
         <TextView
             android:id="@+id/tv_device_macaddress"
@@ -59,6 +59,6 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:text="设备Mac地址"
-            android:textSize="12sp"/>
+            android:textSize="@dimen/smallest_font"/>
     </LinearLayout>
 </LinearLayout>

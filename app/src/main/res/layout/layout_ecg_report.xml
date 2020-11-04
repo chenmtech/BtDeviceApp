@@ -19,7 +19,7 @@
             android:layout_margin="4dp"
             android:layout_centerVertical="true"
             android:text="报告："
-            android:textSize="18sp"/>
+            android:textSize="@dimen/normal_font"/>
 
         <Button
             android:id="@+id/btn_request_report"

@@ -11,44 +11,44 @@
 
     <!-- Main Toolbar上Title的文本风格 -->
     <style name="MainToolbarTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">@dimen/big_font</item>
         <item name="android:textColor">@color/accent</item>
     </style>
 
     <!-- Main Toolbar上Title的文本风格 -->
     <style name="MainToolbarSubTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">@dimen/smallest_font</item>
         <item name="android:textColor">@color/secondary_text</item>
     </style>
 
     <!-- Main Tablayout的文本风格 -->
     <style name="MainTabLayoutTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/normal_font</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 
     <!-- Controller Tablayout的文本风格 -->
     <style name="ControllerTabLayoutTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">@dimen/smallest_font</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 
     <!-- Ecg Comment的文本风格 -->
     <style name="EcgCommentTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/normal_font</item>
         <item name="android:textColor">@color/primary_text</item>
     </style>
 
     <!-- Ecg Comment的文本风格 -->
     <style name="PersonTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">@dimen/big_font</item>
         <item name="android:textColor">@color/accent</item>
     </style>
 
 
     <!-- 侧边栏中菜单的文本风格 -->
     <style name="navigationDrawerStyle">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/normal_font</item>
         <item name="android:actionMenuTextColor">@color/primary_dark</item>
     </style>
 

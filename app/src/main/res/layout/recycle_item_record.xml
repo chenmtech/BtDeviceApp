@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/anonymous"
-            android:textSize="12sp"
+            android:textSize="@dimen/smallest_font"
             android:textColor="@color/secondary_text"
             android:maxLength="12"/>
     </LinearLayout>
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/record_time"
                 android:textColor="@color/primary_text"
-                android:textSize="18sp"/>
+                android:textSize="@dimen/normal_font"/>
 
             <ImageView
                 android:id="@+id/iv_record_type"
@@ -66,7 +66,7 @@
             android:layout_margin="4dp"
             android:text="@string/device_address"
             android:textColor="@color/gray"
-            android:textSize="12sp"/>
+            android:textSize="@dimen/smallest_font"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -77,7 +77,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/note"
-                android:textSize="14sp"/>
+                android:textSize="@dimen/small_font"/>
 
             <TextView
                 android:id="@+id/tv_time_length"
@@ -85,7 +85,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/null_content"
                 android:textColor="@color/black"
-                android:textSize="14sp"
+                android:textSize="@dimen/small_font"
                 android:maxLines="1"
                 android:maxEms="10"
                 android:ellipsize="end"/>

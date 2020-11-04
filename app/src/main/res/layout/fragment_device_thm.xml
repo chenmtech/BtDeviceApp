@@ -20,14 +20,14 @@
             android:layout_height="wrap_content"
             android:text="00"
             android:textColor="@color/red"
-            android:textSize="60sp" />
+            android:textSize="@dimen/biggest_font" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="℃/"
             android:textColor="@color/gray"
-            android:textSize="40sp" />
+            android:textSize="@dimen/biggest_font" />
 
         <TextView
             android:id="@+id/tv_humid_data"
@@ -35,14 +35,14 @@
             android:layout_height="wrap_content"
             android:text="00"
             android:textColor="@color/blue"
-            android:textSize="60sp" />
+            android:textSize="@dimen/biggest_font" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="%RH"
             android:textColor="@color/gray"
-            android:textSize="40sp" />
+            android:textSize="@dimen/biggest_font" />
 
     </LinearLayout>
 
@@ -57,7 +57,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textSize="30sp"
+            android:textSize="@dimen/bigger_font"
             android:textColor="@color/black"
             android:text="00"/>
 
@@ -70,13 +70,13 @@
             android:layout_toStartOf="@id/tv_heat_index"
             android:text="体感："
             android:textColor="@color/black"
-            android:textSize="24sp" />
+            android:textSize="@dimen/bigger_font" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/tv_heat_index"
-            android:textSize="30sp"
+            android:textSize="@dimen/bigger_font"
             android:textColor="@color/secondary_text"
             android:text="℃"/>
 

@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:textColor="#f00"
-                android:textSize="14sp" />
+                android:textSize="@dimen/small_font" />
         </LinearLayout>
 
     </RelativeLayout>
@@ -54,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="用户事件："
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_ecg_marker"

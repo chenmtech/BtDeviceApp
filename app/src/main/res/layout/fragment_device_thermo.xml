@@ -32,7 +32,7 @@
                 android:id="@+id/tv_highest_temp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="60sp"
+                android:textSize="@dimen/biggest_font"
                 android:textColor="#ff0000"
                 android:text="00.00"/>
 
@@ -44,7 +44,7 @@
                 android:layout_alignParentTop="true"
                 android:text="℃"
                 android:textColor="#ff0000"
-                android:textSize="40sp" />
+                android:textSize="@dimen/biggest_font" />
 
         </RelativeLayout>
 
@@ -55,7 +55,7 @@
             android:layout_below="@id/layout_highest_temp"
             android:layout_centerHorizontal="true"
             android:gravity="center_vertical"
-            android:textSize="30sp"
+            android:textSize="@dimen/bigger_font"
             android:textColor="@color/accent"
             android:text="正常"
             android:visibility="gone"/>
@@ -74,7 +74,7 @@
                 android:drawableStart="@mipmap/ic_thermo_48px"
                 android:text="00.00"
                 android:textColor="@color/secondary_text"
-                android:textSize="30sp" />
+                android:textSize="@dimen/bigger_font" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -83,7 +83,7 @@
                 android:layout_toEndOf="@id/tv_current_temp"
                 android:text="℃"
                 android:textColor="@color/secondary_text"
-                android:textSize="30sp" />
+                android:textSize="@dimen/bigger_font" />
 
         </RelativeLayout>
 

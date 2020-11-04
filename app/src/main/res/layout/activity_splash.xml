@@ -31,6 +31,6 @@
         android:gravity="center_horizontal"
         android:text="@string/welcome_word"
         android:textColor="@color/accent"
-        android:textSize="20sp" />
+        android:textSize="@dimen/big_font" />
 
 </RelativeLayout>

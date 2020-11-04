@@ -30,7 +30,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:textColor="@color/primary_text"
-                android:textSize="20sp"
+                android:textSize="@dimen/big_font"
                 android:text="@string/unknown"/>
 
             <TextView
@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:text="@string/device_address"
-                android:textSize="12sp"/>
+                android:textSize="@dimen/smallest_font"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -50,5 +50,5 @@
         android:layout_gravity="end|center_vertical"
         android:layout_margin="4dp"
         android:text="@string/closed"
-        android:textSize="14sp" />
+        android:textSize="@dimen/small_font" />
 </LinearLayout>

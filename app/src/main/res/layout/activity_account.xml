@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="end"
-            android:textSize="18sp"
+            android:textSize="@dimen/normal_font"
             android:text="@string/account_name"/>
 
         <EditText
@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="end"
-            android:textSize="18sp"
+            android:textSize="@dimen/normal_font"
             android:text="@string/account_portrait"/>
         <com.cmtech.android.bledeviceapp.view.RoundImageView
             android:id="@+id/iv_account_image"
@@ -72,7 +72,7 @@
             android:layout_width="100dp"
             android:layout_height="match_parent"
             android:gravity="center_vertical|end"
-            android:textSize="18sp"
+            android:textSize="@dimen/normal_font"
             android:text="@string/note"/>
         <EditText
             android:id="@+id/et_account_note"
@@ -91,7 +91,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="*备注信息将会显示在您输出的记录报告中。"
-        android:textSize="12sp"
+        android:textSize="@dimen/smallest_font"
         android:textColor="@color/red"/>
 
     <LinearLayout
@@ -105,7 +105,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="@string/cancel"
-            android:textSize="18sp"/>
+            android:textSize="@dimen/normal_font"/>
 
         <Button
             android:id="@+id/btn_account_info_ok"
@@ -113,6 +113,6 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:text="@string/ok"
-            android:textSize="18sp"/>
+            android:textSize="@dimen/normal_font"/>
     </LinearLayout>
 </LinearLayout>

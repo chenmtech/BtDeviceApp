@@ -21,7 +21,7 @@
         android:layout_centerHorizontal="true"
         android:text="@string/anonymous"
         android:textColor="@color/secondary_text"
-        android:textSize="16sp"
+        android:textSize="@dimen/normal_font"
         android:maxLength="12"/>
 
     <ImageButton

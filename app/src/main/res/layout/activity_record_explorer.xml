@@ -50,7 +50,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/no_record"
-            android:textSize="18sp"
+            android:textSize="@dimen/normal_font"
             android:visibility="visible" />
     </FrameLayout>
 </LinearLayout>

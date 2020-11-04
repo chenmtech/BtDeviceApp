@@ -13,7 +13,7 @@
             android:layout_height="wrap_content"
             android:text="更新时间:"
             android:textColor="@color/black"
-            android:textSize="16sp"/>
+            android:textSize="@dimen/normal_font"/>
 
         <TextView
             android:id="@+id/tv_modify_time"
@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:text="未知"
             android:textColor="@color/black"
-            android:textSize="16sp"/>
+            android:textSize="@dimen/normal_font"/>
     </LinearLayout>
 
     <LinearLayout
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:text="记录人:"
             android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
 
         <TextView
             android:id="@+id/tv_creator"
@@ -43,14 +43,14 @@
             android:maxLength="10"
             android:text="匿名"
             android:textAppearance="@style/PersonTextAppearance"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="记录时间:"
             android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
 
         <TextView
             android:id="@+id/tv_create_time"
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:text="未知"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
     </LinearLayout>
 
     <LinearLayout
@@ -70,7 +70,7 @@
             android:layout_height="wrap_content"
             android:text="记录信号长:"
             android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
 
         <TextView
             android:id="@+id/tv_signal_length"
@@ -79,14 +79,14 @@
             android:layout_marginEnd="10dp"
             android:text="未知"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="记录心跳次数:"
             android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
 
         <TextView
             android:id="@+id/tv_time_length"
@@ -94,7 +94,7 @@
             android:layout_height="wrap_content"
             android:text="0"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/small_font"/>
     </LinearLayout>
 
     <View

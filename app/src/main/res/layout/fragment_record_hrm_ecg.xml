@@ -21,13 +21,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ellipsis"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/second"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
     <TextView
@@ -37,5 +37,5 @@
         android:layout_below="@id/ib_record"
         android:layout_centerHorizontal="true"
         android:text="@string/start_record"
-        android:textSize="20sp"/>
+        android:textSize="@dimen/big_font"/>
 </RelativeLayout>

@@ -31,7 +31,7 @@
                     android:layout_margin="2dp"
                     android:drawableStart="@mipmap/ic_hr_48px"
                     android:text="@string/ellipsis"
-                    android:textSize="56sp"
+                    android:textSize="@dimen/biggest_font"
                     android:textColor="@color/secondary_text"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -39,7 +39,7 @@
                     android:layout_centerHorizontal="true"
                     android:layout_below="@id/tv_hr_in_hr_mode"
                     android:text="@string/BPM"
-                    android:textSize="20sp"/>
+                    android:textSize="@dimen/big_font"/>
             </RelativeLayout>
 
         </FrameLayout>
@@ -67,7 +67,7 @@
                 android:layout_margin="2dp"
                 android:drawableStart="@mipmap/ic_hr_48px"
                 android:text="@string/ellipsis"
-                android:textSize="30sp"
+                android:textSize="@dimen/bigger_font"
                 android:textColor="@color/primary"/>
 
             <TextView
@@ -77,7 +77,7 @@
                 android:layout_gravity="bottom|end"
                 android:layout_margin="2dp"
                 android:text="@string/pause_show"
-                android:textSize="20sp"
+                android:textSize="@dimen/big_font"
                 android:textColor="@color/primary"
                 android:visibility="gone"/>
 
@@ -91,7 +91,7 @@
             android:layout_margin="5dp"
             android:drawableTop="@mipmap/ic_ecg_24px"
             android:text="模式切换"
-            android:textSize="10sp"
+            android:textSize="@dimen/smallest_font"
             android:textColor="@color/white"
             android:visibility="gone"
             tools:ignore="SmallSp" />

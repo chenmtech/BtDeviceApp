@@ -12,7 +12,7 @@
         android:layout_gravity="center_vertical"
         android:gravity="center_horizontal"
         android:ems="1"
-        android:textSize="12sp"/>
+        android:textSize="@dimen/smallest_font"/>
 
     <com.cmtech.android.bledeviceapp.view.MyLineChart
         android:id="@+id/line_chart"

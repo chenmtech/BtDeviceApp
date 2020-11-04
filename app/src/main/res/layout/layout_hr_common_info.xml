@@ -22,21 +22,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/max_hr"
-                android:textSize="12sp"/>
+                android:textSize="@dimen/smallest_font"/>
 
             <TextView
                 android:id="@+id/tv_hr_max_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ellipsis"
-                android:textSize="25sp"
+                android:textSize="@dimen/big_font"
                 android:textColor="@color/primary_text"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/BPM"
-                android:textSize="12sp"/>
+                android:textSize="@dimen/smallest_font"/>
         </LinearLayout>
 
         <LinearLayout
@@ -49,21 +49,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/average_hr"
-                android:textSize="12sp"/>
+                android:textSize="@dimen/smallest_font"/>
 
             <TextView
                 android:id="@+id/tv_hr_ave_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ellipsis"
-                android:textSize="25sp"
+                android:textSize="@dimen/big_font"
                 android:textColor="@color/primary_text"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/BPM"
-                android:textSize="12sp"
+                android:textSize="@dimen/smallest_font"
                 android:layout_marginEnd="10dp"/>
         </LinearLayout>
     </LinearLayout>
@@ -77,21 +77,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="心率变异性(SDNN)："
-            android:textSize="12sp"/>
+            android:textSize="@dimen/smallest_font"/>
 
         <TextView
             android:id="@+id/tv_hrv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ellipsis"
-            android:textSize="25sp"
+            android:textSize="@dimen/big_font"
             android:textColor="@color/primary_text"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="毫秒(正常范围：30-90)"
-            android:textSize="12sp"
+            android:textSize="@dimen/smallest_font"
             android:layout_marginEnd="10dp"/>
 
     </LinearLayout>
