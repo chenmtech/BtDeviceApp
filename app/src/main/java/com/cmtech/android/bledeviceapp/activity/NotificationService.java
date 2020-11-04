@@ -27,7 +27,7 @@ import com.vise.log.ViseLog;
  * Version:        1.0
  */
 
-public class NotificationService extends Service {
+public class NotificationService extends Service implements IDevice.OnCommonDeviceListener{
     private static final String TAG = "NotifyService";
     private static final int NOTIFY_ID = 1;
     private final NotificationServiceBinder binder = new NotificationServiceBinder();
@@ -91,6 +91,21 @@ public class NotificationService extends Service {
 
         stopForeground(true);
         stopSelf();
+    }
+
+    @Override
+    public void onConnectStateUpdated(IDevice device) {
+
+    }
+
+    @Override
+    public void onBatteryLevelUpdated(IDevice device) {
+
+    }
+
+    @Override
+    public void onNotificationInfoUpdated(IDevice device) {
+
     }
 
     public class NotificationServiceBinder extends Binder {

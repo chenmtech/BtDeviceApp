@@ -5,14 +5,17 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -98,6 +101,42 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 账户头像控件
     private ImageButton ibChangeAccount; // 切换账户控件
+    private NotificationService notifyService;
+
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            notifyService = ((NotificationService.NotificationServiceBinder)iBinder).getService();
+            // 成功绑定后初始化UI，否则请求退出
+            if(notifyService != null) {
+                initializeUI();
+
+                // 为已经打开的设备创建并打开Fragment
+                List<IDevice> openedDevices = MyApplication.getDeviceManager().getOpenedDevice();
+                for(IDevice device : openedDevices) {
+                    if(device.getConnectState() != CLOSED) {
+                        createAndOpenFragment(device);
+                    }
+                }
+            } else {
+                finish();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            if(notifyService != null) {
+                Intent intent = new Intent(MainActivity.this, NotificationService.class);
+                stopService(intent);
+                notifyService = null;
+            }
+            finish();
+        }
+    };
+
+    public NotificationService getNotificationService() {
+        return notifyService;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,16 +159,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         } else {
             startService(serviceIntent);
         }
-
-        initializeUI();
-
-        // 为已经打开的设备创建并打开Fragment
-        List<IDevice> openedDevices = MyApplication.getDeviceManager().getOpenedDevice();
-        for(IDevice device : openedDevices) {
-            if(device.getConnectState() != CLOSED) {
-                createAndOpenFragment(device);
-            }
-        }
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
 
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
