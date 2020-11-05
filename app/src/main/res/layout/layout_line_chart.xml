@@ -15,7 +15,7 @@
         android:textSize="@dimen/smallest_font"/>
 
     <com.cmtech.android.bledeviceapp.view.MyLineChart
-        android:id="@+id/line_chart"
+        android:id="@+id/hr_line_chart"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

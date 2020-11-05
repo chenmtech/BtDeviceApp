@@ -69,7 +69,7 @@ public abstract class DeviceFragment extends Fragment{
         // 更新状态
         updateState();
 
-        // 注册通用监听器
+        // 注册MainAcitivty为设备的通用监听器
         MainActivity activity = (MainActivity) getActivity();
         if(activity != null) {
             device.addCommonListener(activity);

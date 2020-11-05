@@ -77,7 +77,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
         noteLayout.setRecord(record);
         noteLayout.updateView();
         
-        lineChart = findViewById(R.id.line_chart);
+        lineChart = findViewById(R.id.hr_line_chart);
         lineChart.setXAxisValueFormatter(2);
         lineChart.showFloatLineChart(record.getTemp(), getResources().getString(R.string.thermo_linechart), Color.BLUE);
 

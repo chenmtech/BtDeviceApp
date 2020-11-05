@@ -36,7 +36,7 @@ public class HrRecordFragment extends Fragment {
     public static final int TITLE_ID = R.string.hr_record;
     private TextView tvHrAve; // average heart rate value
     private TextView tvHrMax; // max heart rate value
-    private MyLineChart lineChart; // heart rate line chart
+    private MyLineChart hrLineChart; // heart rate line chart
     private ImageButton ibStart, ibStop;
 
     @Nullable
@@ -52,9 +52,9 @@ public class HrRecordFragment extends Fragment {
 
         tvHrMax = view.findViewById(R.id.tv_hr_max_value);
         tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
-        lineChart = view.findViewById(R.id.line_chart);
-        lineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
-        updateHrInfo(new ArrayList<Short>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
+        hrLineChart = view.findViewById(R.id.hr_line_chart);
+        hrLineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
+        updateHrInfo(new ArrayList<>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
 
         TextView tvYUnit = view.findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.BPM);
@@ -82,15 +82,17 @@ public class HrRecordFragment extends Fragment {
             tvHrMax.setText(R.string.ellipsis);
         else
             tvHrMax.setText(String.valueOf(hrMax));
+
         if(hrAve <= 0)
             tvHrAve.setText(R.string.ellipsis);
         else
             tvHrAve.setText(String.valueOf(hrAve));
-        lineChart.showShortLineChart(hrList, getResources().getString(R.string.hr_linechart), Color.BLUE);
+
+        hrLineChart.showShortLineChart(hrList, getResources().getString(R.string.hr_linechart), Color.BLUE);
     }
 
-    public void updateHrRecordStatus(boolean isRecord) {
-        if(isRecord) {
+    public void updateRecordStatus(boolean record) {
+        if(record) {
             ibStart.setVisibility(View.INVISIBLE);
             ibStop.setVisibility(View.VISIBLE);
         } else {

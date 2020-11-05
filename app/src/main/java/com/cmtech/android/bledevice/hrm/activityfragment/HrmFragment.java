@@ -50,6 +50,7 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
  * Version:        1.0
  */
 public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWaveViewListener {
+    private static final int RC_CONFIG = 1;
     private HrmDevice device; // device
 
     private ScanEcgView ecgView; // EcgView
@@ -66,7 +67,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
     private final EcgRecordFragment ecgRecFrag = new EcgRecordFragment(); // ecg record fragment
 
-    private boolean isEcgOn = false;
+    //private boolean isEcgOn = false;
 
     public HrmFragment() {
         super();
@@ -137,7 +138,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 1) { // cfg return
+        if(requestCode == RC_CONFIG) { // cfg return
             if(resultCode == RESULT_OK) {
                 HrmCfg cfg = (HrmCfg) data.getSerializableExtra("hr_cfg");
                 device.updateConfig(cfg);
@@ -165,17 +166,15 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
         Intent intent = new Intent(getActivity(), HrmCfgActivity.class);
         intent.putExtra("hr_cfg", cfg);
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, RC_CONFIG);
     }
 
     @Override
     public void onHRUpdated(final BleHeartRateData hrData) {
-        if(hrData != null && getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
+        if(hrData != null) {
+            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    //debugFrag.updateHrMeas(hrData.toString());
-
                     int bpm = hrData.getBpm();
                     if(device.inHrMode()) {
                         tvHrInHrMode.setText(String.valueOf(bpm));
@@ -213,43 +212,34 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int value1mV, final float zeroLocation, final boolean inHrMode) {
-        if(getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    tvSwitchMode.setVisibility(View.VISIBLE);
-                    if(inHrMode) {
-                        flInHrMode.setVisibility(View.VISIBLE);
-                        flInEcgMode.setVisibility(View.GONE);
-                        ecgView.stopShow();
-                        fragAdapter.removeFragment(ecgRecFrag);
-                        pager.setCurrentItem(fragAdapter.getCount()-1);
-                        //tvSwitchMode.setText(R.string.ecg_switch_off);
-                        tvSwitchMode.setTextColor(Color.BLACK);
-                        tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
-                                getResources().getDrawable(R.mipmap.ic_hr_24px, null), null, null);
-                    } else {
-                        ecgView.setup(sampleRate, value1mV, zeroLocation);
-                        fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
-                        //tvSwitchMode.setText(R.string.ecg_switch_on);
-                        tvSwitchMode.setTextColor(Color.WHITE);
-                        tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
-                                getResources().getDrawable(R.mipmap.ic_ecg_24px, null), null, null);
-                    }
+    public void onFragmentUpdated(final int sampleRate, final int caliValue, final float zeroLocation, final boolean inHrMode) {
+        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvSwitchMode.setVisibility(View.VISIBLE);
+                if(inHrMode) {
+                    flInHrMode.setVisibility(View.VISIBLE);
+                    flInEcgMode.setVisibility(View.GONE);
+                    ecgView.stopShow();
+                    fragAdapter.removeFragment(ecgRecFrag);
+                    pager.setCurrentItem(fragAdapter.getCount()-1);
+                    tvSwitchMode.setTextColor(Color.BLACK);
+                    tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
+                            getResources().getDrawable(R.mipmap.ic_hr_24px, null), null, null);
+                } else {
+                    ecgView.setup(sampleRate, caliValue, zeroLocation);
+                    fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
+                    tvSwitchMode.setTextColor(Color.WHITE);
+                    tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
+                            getResources().getDrawable(R.mipmap.ic_ecg_24px, null), null, null);
                 }
-            });
-        }
+            }
+        });
     }
 
     @Override
     public void onHrRecordStatusUpdated(boolean record) {
-        hrRecFrag.updateHrRecordStatus(record);
-    }
-
-    @Override
-    public void onEcgSignalShowed(final int ecgSignal) {
-        ecgView.addData(ecgSignal);
+        hrRecFrag.updateRecordStatus(record);
     }
 
     @Override
@@ -258,10 +248,14 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onEcgOnStatusUpdated(final boolean ecgOn) {
-        if(getActivity() == null) return;
+    public void onEcgSignalShowed(final int ecgSignal) {
+        ecgView.addData(ecgSignal);
+    }
 
-        getActivity().runOnUiThread(new Runnable() {
+
+    @Override
+    public void onEcgOnStatusUpdated(final boolean ecgOn) {
+        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (ecgOn) {
@@ -296,22 +290,22 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     public void onDestroy() {
         super.onDestroy();
 
-        if(device != null)
-            device.removeListener();
-
         if(ecgView != null)
             ecgView.stopShow();
+
+        if(device != null)
+            device.removeListener();
     }
 
-    public void setHrRecord(boolean isRecord) {
+    public void setHrRecord(boolean record) {
         if(device != null) {
-            device.setHrRecord(isRecord);
+            device.setHrRecord(record);
         }
     }
 
-    public void setEcgRecord(boolean isRecord) {
+    public void setEcgRecord(boolean record) {
         if(device != null) {
-            device.setEcgRecord(isRecord);
+            device.setEcgRecord(record);
         }
     }
 

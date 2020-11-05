@@ -75,7 +75,7 @@ public class HrRecordActivity extends AppCompatActivity {
         noteLayout.setRecord(record);
         noteLayout.updateView();
 
-        hrLineChart = findViewById(R.id.line_chart);
+        hrLineChart = findViewById(R.id.hr_line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
         hrLineChart.showShortLineChart(record.getHrList(), getResources().getString(R.string.hr_linechart), Color.BLUE);
 

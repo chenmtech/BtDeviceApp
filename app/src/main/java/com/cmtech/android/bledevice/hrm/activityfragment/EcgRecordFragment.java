@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -30,7 +31,7 @@ public class EcgRecordFragment extends Fragment {
     public static final int TITLE_ID = R.string.ecg_record;
 
     ImageButton ibRecord;
-    TextView tvTimeLength;
+    EditText etTimeLength;
     TextView tvRecordStatus;
 
     boolean isRecord = false;
@@ -55,27 +56,27 @@ public class EcgRecordFragment extends Fragment {
             }
         });
 
-        tvTimeLength = view.findViewById(R.id.tv_time_length);
+        etTimeLength = view.findViewById(R.id.et_time_length);
 
         tvRecordStatus = view.findViewById(R.id.tv_record_status);
     }
 
-    public void updateRecordStatus(boolean isRecord) {
-        if(isRecord) {
+    public void updateRecordStatus(boolean record) {
+        if(record) {
             ibRecord.setImageResource(R.mipmap.ic_stop_32px);
             tvRecordStatus.setText(R.string.recording);
         } else {
             ibRecord.setImageResource(R.mipmap.ic_start_32px);
             tvRecordStatus.setText(R.string.start_record);
         }
-        this.isRecord = isRecord;
+        this.isRecord = record;
     }
 
     public void setEcgRecordTime(final int second) {
         Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tvTimeLength.setText(String.valueOf(second));
+                etTimeLength.setText(String.valueOf(30-second));
             }
         });
     }

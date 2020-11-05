@@ -45,7 +45,7 @@ public class ThermoRecordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        lineChart = view.findViewById(R.id.line_chart);
+        lineChart = view.findViewById(R.id.hr_line_chart);
         lineChart.setXAxisValueFormatter(2);
         lineChart.showFloatLineChart(new ArrayList<Float>(), getResources().getString(R.string.thermo_linechart), Color.BLUE);
 
