@@ -19,15 +19,15 @@
             android:layout_margin="6dp"
             android:text="开始\n日期"/>
 
-        <TextView
-            android:id="@+id/tv_start_date"
+        <EditText
+            android:id="@+id/et_start_date"
+            style="@style/edittext_circle_gray_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
-            android:background="@color/primary_dark"
             android:textSize="@dimen/big_font"
-            android:textColor="@color/orange"
-            android:text="0000-00-00"/>
+            android:text="0000-00-00"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
             android:layout_weight="1"
             android:textSize="@dimen/small_font"
             android:singleLine="true"
-            android:hint="输入搜索的内容"/>
+            android:hint="输入备注包含内容"/>
     </LinearLayout>
 
     <LinearLayout

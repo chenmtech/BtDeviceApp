@@ -116,13 +116,24 @@ public class RecordExplorerActivity extends AppCompatActivity {
         recordAdapter = new RecordListAdapter(this, allRecords);
         recordView.setAdapter(recordAdapter);
         recordView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            int lastVisibleItem;
+            //用来标记是否正在向上滑动
+            private boolean isSlidingUpward = false;
+
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                // 当不滑动时
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    //获取最后一个完全显示的itemPosition
+                    int lastItemPosition = manager.findLastCompletelyVisibleItemPosition();
+                    int itemCount = recordAdapter.getItemCount();
 
-                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
-                    updateRecordList();
+                    // 判断是否滑动到了最后一个item，并且是向上滑动
+                    if (lastItemPosition == (itemCount - 1) && isSlidingUpward) {
+                        //加载更多
+                        updateRecordList();
+                    }
                 }
             }
 
@@ -130,9 +141,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if(layoutManager != null)
-                    lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                // 大于0表示正在向上滑动，小于等于0表示停止或向下滑动
+                isSlidingUpward = dy > 0;
             }
         });
 

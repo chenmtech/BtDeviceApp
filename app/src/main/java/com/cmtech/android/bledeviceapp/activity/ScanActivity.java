@@ -116,13 +116,25 @@ public class ScanActivity extends AppCompatActivity {
         devAdapter = new ScanAdapter(scannedDevInfos, registeredDevAddrs, this);
         rvDevice.setAdapter(devAdapter);
         rvDevice.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            int lastVisibleItem;
+            //用来标记是否正在向下滑动
+            private boolean isSlidingDownward = false;
+
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                // 当不滑动时
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    //获取第一个完全显示的itemPosition
+                    int firstItemPosition = manager.findFirstCompletelyVisibleItemPosition();
 
-                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == devAdapter.getItemCount()-1) {
-                    startScan();
+                    ViseLog.e(firstItemPosition + " " + isSlidingDownward);
+
+                    // 判断是否滑动到了第一个item，并且是向下滑动
+                    if (firstItemPosition == 0 && isSlidingDownward) {
+                        //重新扫描
+                        startScan();
+                    }
                 }
             }
 
@@ -130,9 +142,8 @@ public class ScanActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if(layoutManager != null)
-                    lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                // 小于0表示向下滑动
+                isSlidingDownward = dy <= 0;
             }
         });
 
