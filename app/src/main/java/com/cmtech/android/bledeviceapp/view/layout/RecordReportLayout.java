@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,8 +33,8 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 public class RecordReportLayout extends LinearLayout {
     private BleEcgRecord record;
 
-    private final TextView tvAveHr;
-    private final TextView tvContent;
+    private final EditText etAveHr;
+    private final EditText etContent;
     private final TextView tvTime;
     private final TextView tvReportVer;
 
@@ -41,8 +42,8 @@ public class RecordReportLayout extends LinearLayout {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_record_report, this);
 
-        tvAveHr = view.findViewById(R.id.tv_report_ave_hr);
-        tvContent = view.findViewById(R.id.tv_report_content);
+        etAveHr = view.findViewById(R.id.et_report_ave_hr);
+        etContent = view.findViewById(R.id.et_report_content);
         tvTime = view.findViewById(R.id.tv_report_time);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
 
@@ -74,8 +75,8 @@ public class RecordReportLayout extends LinearLayout {
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             tvTime.setText(dateFmt.format(time));
-            tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
-            tvContent.setText(record.getReport().getContent());
+            etAveHr.setText(String.valueOf(record.getReport().getAveHr()));
+            etContent.setText(record.getReport().getContent());
             tvReportVer.setText(record.getReport().getVer());
         } else {
 

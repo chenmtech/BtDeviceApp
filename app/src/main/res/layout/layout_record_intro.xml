@@ -62,7 +62,6 @@
                 android:textSize="@dimen/big_font"/>
         </LinearLayout>
 
-
         <TextView
             android:id="@+id/tv_device_address"
             android:layout_width="match_parent"

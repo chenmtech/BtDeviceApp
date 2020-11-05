@@ -3,12 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    android:background="@color/secondary"
     android:orientation="vertical">
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_margin="6dp"
         android:background="@color/primary_dark"/>
 
     <FrameLayout
@@ -23,6 +21,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical"
                 android:layout_marginStart="10dp"
                 android:orientation="horizontal">
                 <TextView
@@ -31,14 +30,16 @@
                     android:text="平均心率："
                     android:textSize="@dimen/big_font"/>
 
-                <TextView
-                    android:id="@+id/tv_report_ave_hr"
+                <EditText
+                    android:id="@+id/et_report_ave_hr"
+                    style="@style/edittext_circle_gray_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
                     android:minEms="1"
                     android:text=" "
-                    android:textSize="@dimen/bigger_font"/>
+                    android:textSize="@dimen/big_font"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -49,7 +50,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:gravity="center_vertical"
                 android:layout_marginStart="10dp"
                 android:orientation="horizontal">
                 <TextView
@@ -58,13 +59,16 @@
                     android:text="检测结果："
                     android:textSize="@dimen/big_font"/>
 
-                <TextView
-                    android:id="@+id/tv_report_content"
+                <EditText
+                    android:id="@+id/et_report_content"
+                    style="@style/edittext_circle_gray_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minLines="1"
                     android:text="暂无"
-                    android:textSize="@dimen/big_font"/>
+                    android:textSize="@dimen/big_font"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"/>
             </LinearLayout>
 
             <TextView
@@ -100,7 +104,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_marginBottom="6dp"
                 android:layout_marginEnd="6dp"
                 android:orientation="horizontal">
                 <TextView
@@ -122,9 +125,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
             android:layout_margin="6dp"
-            android:background="@color/secondary"
+            android:background="@color/white"
             android:src="@mipmap/ic_refresh_32px" />
     </FrameLayout>
-
 
 </LinearLayout>
