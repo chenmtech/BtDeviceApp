@@ -14,7 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
@@ -51,7 +51,7 @@ public class ScanActivity extends AppCompatActivity {
 
     private final List<BleDeviceDetailInfo> scannedDevInfos = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
     private List<String> registeredDevAddrs = new ArrayList<>(); // 已注册的设备mac地址列表
-    private ProgressBar pbScan;
+    private LinearLayout llSearchProgress;
     private ScanAdapter devAdapter;
     private RecyclerView rvDevice;
     private Handler mHandle = new Handler(Looper.getMainLooper());
@@ -77,7 +77,7 @@ public class ScanActivity extends AppCompatActivity {
 
                 case CODE_BLE_CLOSED:
                     Toast.makeText(ScanActivity.this, R.string.scan_failed_bt_closed, Toast.LENGTH_SHORT).show();
-                    pbScan.setVisibility(View.GONE);
+                    llSearchProgress.setVisibility(View.GONE);
                     BleScanner.stopScan(this);
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivity(intent);
@@ -85,7 +85,7 @@ public class ScanActivity extends AppCompatActivity {
 
                 case CODE_BLE_INNER_ERROR:
                     Toast.makeText(ScanActivity.this, R.string.scan_failed_ble_inner_error, Toast.LENGTH_SHORT).show();
-                    pbScan.setVisibility(View.GONE);
+                    llSearchProgress.setVisibility(View.GONE);
                     BleScanner.stopScan(this);
                     break;
             }
@@ -107,7 +107,7 @@ public class ScanActivity extends AppCompatActivity {
             registeredDevAddrs = (List<String>) intent.getSerializableExtra("device_address_list");
         }
 
-        pbScan = findViewById(R.id.pb_scan_device);
+        llSearchProgress = findViewById(R.id.ll_search_progress);
 
         // 初始化扫描设备列表
         rvDevice = findViewById(R.id.rv_device);
@@ -157,13 +157,13 @@ public class ScanActivity extends AppCompatActivity {
         scannedDevInfos.clear();
         devAdapter.notifyDataSetChanged();
         BleScanner.stopScan(bleScanCallback);
-        pbScan.setVisibility(View.VISIBLE);
+        llSearchProgress.setVisibility(View.VISIBLE);
         BleScanner.startScan(SCAN_FILTER, bleScanCallback);
 
         mHandle.postDelayed(new Runnable() {
             @Override
             public void run() {
-                pbScan.setVisibility(View.GONE);
+                llSearchProgress.setVisibility(View.GONE);
 
                 BleScanner.stopScan(bleScanCallback);
             }
@@ -210,7 +210,7 @@ public class ScanActivity extends AppCompatActivity {
 
         mHandle.removeCallbacksAndMessages(null);
 
-        pbScan.setVisibility(View.GONE);
+        llSearchProgress.setVisibility(View.GONE);
 
         BleScanner.stopScan(bleScanCallback);
     }
@@ -218,7 +218,7 @@ public class ScanActivity extends AppCompatActivity {
     public void registerDevice(final BleDeviceDetailInfo detailInfo) {
         // 先停止扫描
         BleScanner.stopScan(bleScanCallback);
-        pbScan.setVisibility(View.GONE);
+        llSearchProgress.setVisibility(View.GONE);
 
         AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(serviceUUID != null) {

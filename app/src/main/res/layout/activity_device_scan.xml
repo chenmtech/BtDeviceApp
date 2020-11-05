@@ -20,13 +20,28 @@
         android:layout_height="1dp"
         android:background="@color/divider"/>
 
-    <ProgressBar
-        android:id="@+id/pb_scan_device"
+    <LinearLayout
+        android:id="@+id/ll_search_progress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        style="@android:style/Widget.ProgressBar.Small"
-        android:visibility="visible"/>
+        android:gravity="center"
+        android:layout_margin="10dp"
+        android:orientation="horizontal"
+        android:visibility="visible">
+        <ProgressBar
+            android:id="@+id/pb_scan_device"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            style="@android:style/Widget.Holo.ProgressBar"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="扫描设备中..."
+            android:textSize="@dimen/big_font"/>
+
+    </LinearLayout>
+
 
     <android.support.v7.widget.RecyclerView
         android:id = "@+id/rv_device"
