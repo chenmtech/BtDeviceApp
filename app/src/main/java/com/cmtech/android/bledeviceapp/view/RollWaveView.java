@@ -24,7 +24,7 @@ import java.util.List;
 public abstract class RollWaveView extends WaveView {
     protected int dataNumInView; // View上一屏包含的数据点数
 
-    protected List<Integer> viewData = new FixSizeLinkedList<>(1); //要显示数据缓冲
+    protected final FixSizeLinkedList<Integer> viewData = new FixSizeLinkedList<>(1); //要显示数据缓冲
 
     protected OnRollWaveViewListener listener;
 
@@ -69,17 +69,23 @@ public abstract class RollWaveView extends WaveView {
 
     public void setDataNumInView(int viewWidth, int pixelPerData) {
         dataNumInView = viewWidth/pixelPerData+1;
-        viewData = new FixSizeLinkedList<>(dataNumInView);
+        synchronized (viewData) {
+            viewData.setCapacity(dataNumInView);
+        }
     }
 
     public void clearData() {
-        viewData.clear();
+        synchronized (viewData) {
+            viewData.clear();
+        }
     }
 
     // 添加数据
     @Override
     public void addData(final int datum, boolean show) {
-        viewData.add(datum);
+        synchronized (viewData) {
+            viewData.add(datum);
+        }
         if(show) {
             showView();
         }
@@ -87,8 +93,10 @@ public abstract class RollWaveView extends WaveView {
 
     // 添加数据
     @Override
-    public synchronized void addData(List<Integer> data, boolean show) {
-        viewData.addAll(data);
+    public void addData(List<Integer> data, boolean show) {
+        synchronized (viewData) {
+            viewData.addAll(data);
+        }
         if(show) {
             showView();
         }
@@ -104,20 +112,22 @@ public abstract class RollWaveView extends WaveView {
 
     private void drawDataOnCanvas(Canvas canvas)
     {
-        if(viewData.size() <= 1) {
-            return;
-        }
-
-        int beginPos =  dataNumInView - viewData.size();
-
-        preX = initX + pixelPerData * beginPos;
-        preY = initY - Math.round(viewData.get(0)/ valuePerPixel);
         Path path = new Path();
-        path.moveTo(preX, preY);
-        for(int i = 1; i < viewData.size(); i++) {
-            preX += pixelPerData;
-            preY = initY - Math.round(viewData.get(i)/ valuePerPixel);
-            path.lineTo(preX, preY);
+        synchronized (viewData) {
+            if (viewData.size() <= 1) {
+                return;
+            }
+
+            int beginPos = dataNumInView - viewData.size();
+
+            preX = initX + pixelPerData * beginPos;
+            preY = initY - Math.round(viewData.get(0) / valuePerPixel);
+            path.moveTo(preX, preY);
+            for (int i = 1; i < viewData.size(); i++) {
+                preX += pixelPerData;
+                preY = initY - Math.round(viewData.get(i) / valuePerPixel);
+                path.lineTo(preX, preY);
+            }
         }
 
         canvas.drawPath(path, wavePaint);

@@ -30,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center_horizontal"
+            android:gravity="center"
             android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
@@ -38,13 +38,13 @@
                 android:text="@string/max_hr"
                 android:textSize="@dimen/smallest_font"/>
 
-            <TextView
-                android:id="@+id/tv_hr_max_value"
+            <EditText
+                android:id="@+id/et_hr_max_value"
+                style="@style/edittext_circle_gray_no_focusable_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ellipsis"
-                android:textSize="@dimen/big_font"
-                android:textColor="@color/primary_text"/>
+                android:textSize="@dimen/big_font"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center_horizontal"
+            android:gravity="center"
             android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
@@ -75,13 +75,13 @@
                 android:text="@string/average_hr"
                 android:textSize="@dimen/smallest_font"/>
 
-            <TextView
-                android:id="@+id/tv_hr_ave_value"
+            <EditText
+                android:id="@+id/et_hr_ave_value"
+                style="@style/edittext_circle_gray_no_focusable_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/ellipsis"
-                android:textSize="@dimen/big_font"
-                android:textColor="@color/primary_text"/>
+                android:textSize="@dimen/big_font"/>
 
             <TextView
                 android:layout_width="wrap_content"

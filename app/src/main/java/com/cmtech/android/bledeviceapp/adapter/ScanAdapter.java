@@ -68,7 +68,7 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
                     if(!isRegistered(detailInfo)) {
                         activity.registerDevice(detailInfo);
                     } else {
-                        Toast.makeText(activity, R.string.added, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, "该设备已添加到应用中，您可以直接使用。", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -95,7 +95,13 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
         if(uuidBytes != null) {
             type = DeviceType.getFromUuid(HexUtil.encodeHexStr(uuidBytes));
         }
-        holder.type.setText((type == null) ? activity.getString(R.string.unknown) : type.getDefaultName());
+
+        if(type == null) {
+            holder.type.setText("不支持");
+        } else {
+            holder.type.setText(type.getDefaultName());
+            holder.view.setBackgroundResource(R.color.secondary);
+        }
         holder.address.setText(detailInfo.getAddress());
         holder.name.setText(detailInfo.getName());
         boolean status = isRegistered(detailInfo);

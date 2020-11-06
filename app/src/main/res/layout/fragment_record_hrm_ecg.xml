@@ -26,13 +26,11 @@
 
         <EditText
             android:id="@+id/et_time_length"
-            style="@style/edittext_circle_gray_style"
+            style="@style/edittext_circle_gray_no_focusable_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ellipsis"
-            android:textSize="@dimen/bigger_font"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
+            android:textSize="@dimen/bigger_font"/>
 
         <TextView
             android:layout_width="wrap_content"

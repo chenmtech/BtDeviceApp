@@ -32,14 +32,12 @@
 
                 <EditText
                     android:id="@+id/et_report_ave_hr"
-                    style="@style/edittext_circle_gray_style"
+                    style="@style/edittext_circle_gray_no_focusable_style"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minEms="1"
                     android:text=" "
-                    android:textSize="@dimen/bigger_font"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"/>
+                    android:textSize="@dimen/bigger_font"/>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -61,14 +59,12 @@
 
                 <EditText
                     android:id="@+id/et_report_content"
-                    style="@style/edittext_circle_gray_style"
+                    style="@style/edittext_circle_gray_no_focusable_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minLines="1"
                     android:text="暂无"
-                    android:textSize="@dimen/big_font"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"/>
+                    android:textSize="@dimen/big_font"/>
             </LinearLayout>
 
             <TextView

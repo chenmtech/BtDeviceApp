@@ -42,8 +42,6 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_LOGIN_P
  */
 
 public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.ViewHolder>{
-    private static final int SELECT_COLOR = R.color.accent;
-    private static final int UNSELECT_COLOR = R.color.primary_dark;
     private static final int INVALID_POS = -1;
 
     private final RecordExplorerActivity activity;
@@ -119,9 +117,13 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             public void onClick(View v) {
                 if(FastClickUtil.isFastClick()) return;
                 BasicRecord record = records.get(holder.getAdapterPosition());
-                if(record == null || record.noSignal()) {
-                    Toast.makeText(activity, R.string.record_damage, Toast.LENGTH_SHORT).show();
+                if(record == null) {
+                    Toast.makeText(activity, "记录已损坏。", Toast.LENGTH_SHORT).show();
                     return;
+                }
+                if(record.noSignal()) {
+                    record = LitePal.find(record.getClass(), record.getId(), true);
+                    records.set(holder.getAdapterPosition(), record);
                 }
                 activity.uploadRecord(record);
             }
@@ -162,9 +164,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         }
 
         if(position == this.position) {
-            holder.selectIndicate.setBackgroundResource(SELECT_COLOR);
+            holder.selectIndicate.setBackground(activity.getDrawable(R.drawable.select_indication));
         } else {
-            holder.selectIndicate.setBackgroundResource(UNSELECT_COLOR);
+            holder.selectIndicate.setBackground(activity.getDrawable(R.drawable.unselect_indication));
         }
     }
 

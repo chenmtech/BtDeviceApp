@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -34,8 +35,8 @@ import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILT
  */
 public class HrRecordFragment extends Fragment {
     public static final int TITLE_ID = R.string.hr_record;
-    private TextView tvHrAve; // average heart rate value
-    private TextView tvHrMax; // max heart rate value
+    private EditText etHrAve; // average heart rate value
+    private EditText etHrMax; // max heart rate value
     private MyLineChart hrLineChart; // heart rate line chart
     private ImageButton ibStart, ibStop;
 
@@ -50,8 +51,8 @@ public class HrRecordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvHrMax = view.findViewById(R.id.tv_hr_max_value);
-        tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
+        etHrMax = view.findViewById(R.id.et_hr_max_value);
+        etHrAve = view.findViewById(R.id.et_hr_ave_value);
         hrLineChart = view.findViewById(R.id.hr_line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
         updateHrInfo(new ArrayList<>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
@@ -79,14 +80,14 @@ public class HrRecordFragment extends Fragment {
 
     public void updateHrInfo(List<Short> hrList, short hrMax, short hrAve) {
         if(hrMax <= 0)
-            tvHrMax.setText(R.string.ellipsis);
+            etHrMax.setText(R.string.ellipsis);
         else
-            tvHrMax.setText(String.valueOf(hrMax));
+            etHrMax.setText(String.valueOf(hrMax));
 
         if(hrAve <= 0)
-            tvHrAve.setText(R.string.ellipsis);
+            etHrAve.setText(R.string.ellipsis);
         else
-            tvHrAve.setText(String.valueOf(hrAve));
+            etHrAve.setText(String.valueOf(hrAve));
 
         hrLineChart.showShortLineChart(hrList, getResources().getString(R.string.hr_linechart), Color.BLUE);
     }

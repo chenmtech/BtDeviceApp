@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_update_24px"
-                android:background="@color/white"/>
+                android:background="@color/background_transparent"/>
         </LinearLayout>
 
 

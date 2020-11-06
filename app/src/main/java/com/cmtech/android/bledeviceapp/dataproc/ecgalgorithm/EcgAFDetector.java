@@ -27,11 +27,11 @@ public class EcgAFDetector implements IEcgAlgorithm{
         int aveHr = ecgProc.getAverageHr();
         String strHrResult;
         if(aveHr > LIMIT_HR_TOO_HIGH)
-            strHrResult = "心动过速";
+            strHrResult = "心动过速。";
         else if(aveHr < LIMIT_HR_TOO_LOW)
-            strHrResult = "心动过缓";
+            strHrResult = "心动过缓。";
         else
-            strHrResult = "无心动过速或过缓。";
+            strHrResult = "心率正常。";
 
         List<Double> RR = ecgProc.getRRIntervalInMs();
         MyAFEvidence afEvi = MyAFEvidence.getInstance();

@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -58,8 +59,8 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     private EcgCommentAdapter commentAdapter; // 留言Adapter
     private RecyclerView rvComments; // 留言RecycleView
 
-    private TextView tvAverageHr; // 平均心率
-    private TextView tvMaxHr; // 最大心率
+    private EditText etAverageHr; // 平均心率
+    private EditText etMaxHr; // 最大心率
     private EcgHrLineChart hrLineChart; // 心率折线图
     private EcgHrHistogramChart hrHistChart; // 心率直方图
 
@@ -134,8 +135,8 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         hrLineChart = findViewById(R.id.hr_line_chart);
-        tvAverageHr = findViewById(R.id.tv_hr_ave_value);
-        tvMaxHr = findViewById(R.id.tv_hr_max_value);
+        etAverageHr = findViewById(R.id.et_hr_ave_value);
+        etMaxHr = findViewById(R.id.et_hr_max_value);
 
         initialize();
     }
@@ -179,8 +180,8 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             rvComments.smoothScrollToPosition(0);*/
 
         HrStatisticsInfo hrStatisticsInfo = new HrStatisticsInfo(record.getHrList(), HR_FILTER_SECOND);
-        tvAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
-        tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
+        etAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
+        etMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
         hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);
         hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
 

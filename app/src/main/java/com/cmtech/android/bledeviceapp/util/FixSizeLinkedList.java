@@ -2,7 +2,6 @@ package com.cmtech.android.bledeviceapp.util;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -17,7 +16,7 @@ import java.util.List;
  * Version:        1.0
  */
 public class FixSizeLinkedList<T> extends LinkedList<T> {
-    private final int capacity;
+    private int capacity;
 
     public FixSizeLinkedList(int capacity) {
         super();
@@ -41,6 +40,11 @@ public class FixSizeLinkedList<T> extends LinkedList<T> {
         }
 
         return result;
+    }
+
+    public void setCapacity(int capacity) {
+        clear();
+        this.capacity = capacity;
     }
 }
 

@@ -27,7 +27,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
-                    android:background="@color/white"
+                    android:background="@color/background_transparent"
                     android:src="@mipmap/ic_qq" />
 
                 <TextView
@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
-                    android:background="@color/white"
+                    android:background="@color/background_transparent"
                     android:src="@mipmap/ic_wechat"/>
                 <TextView
                     android:layout_width="100dp"
@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
-                    android:background="@color/white"
+                    android:background="@color/background_transparent"
                     android:src="@mipmap/ic_user" />
                 <TextView
                     android:layout_width="100dp"

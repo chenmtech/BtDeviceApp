@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.hrm.activityfragment;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
@@ -26,9 +27,9 @@ public class HrRecordActivity extends AppCompatActivity {
     private RecordIntroductionLayout introLayout;
     private RecordNoteLayout noteLayout;
 
-    private TextView tvMaxHr; // max HR
-    private TextView tvAveHr; // average HR
-    private TextView tvHrv; // HRV value
+    private EditText etMaxHr; // max HR
+    private EditText etAveHr; // average HR
+    private EditText etHrv; // HRV value
     private MyLineChart hrLineChart; // HR line chart
     private HrHistogramChart hrHistChart; // HR histogram chart
 
@@ -83,15 +84,15 @@ public class HrRecordActivity extends AppCompatActivity {
         tvYUnit.setText(R.string.BPM);
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
-        tvAveHr = findViewById(R.id.tv_hr_ave_value);
-        tvMaxHr = findViewById(R.id.tv_hr_max_value);
-        tvHrv = findViewById(R.id.tv_hrv);
+        etAveHr = findViewById(R.id.et_hr_ave_value);
+        etMaxHr = findViewById(R.id.et_hr_max_value);
+        etHrv = findViewById(R.id.et_hrv);
 
-        tvAveHr.setText(String.valueOf(record.getHrAve()));
-        tvMaxHr.setText(String.valueOf(record.getHrMax()));
+        etAveHr.setText(String.valueOf(record.getHrAve()));
+        etMaxHr.setText(String.valueOf(record.getHrMax()));
 
         List<Short> hrListMs = record.getHrListInMS();
-        tvHrv.setText(String.valueOf((short)MathUtil.shortStd(hrListMs)));
+        etHrv.setText(String.valueOf((short)MathUtil.shortStd(hrListMs)));
 
         hrHistChart.update(record.getHrHistogram());
     }

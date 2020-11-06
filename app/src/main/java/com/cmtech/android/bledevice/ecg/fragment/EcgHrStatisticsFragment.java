@@ -8,7 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecg.view.EcgHrLineChart;
@@ -28,8 +28,8 @@ import com.cmtech.android.bledeviceapp.R;
  */
 public class EcgHrStatisticsFragment extends Fragment {
     public static final String TITLE = "心率统计";
-    private TextView tvAverageHr; // 平均心率
-    private TextView tvMaxHr; // 最大心率
+    private EditText etAverageHr; // 平均心率
+    private EditText etMaxHr; // 最大心率
     private EcgHrLineChart hrLineChart;
 
     @Nullable
@@ -44,16 +44,16 @@ public class EcgHrStatisticsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvMaxHr = view.findViewById(R.id.tv_hr_max_value);
-        tvMaxHr.setText("0");
-        tvAverageHr = view.findViewById(R.id.tv_hr_ave_value);
-        tvAverageHr.setText("0");
+        etMaxHr = view.findViewById(R.id.et_hr_max_value);
+        etMaxHr.setText("0");
+        etAverageHr = view.findViewById(R.id.et_hr_ave_value);
+        etAverageHr.setText("0");
         hrLineChart = view.findViewById(R.id.hr_line_chart);
     }
 
     public void updateHrInfo(HrStatisticsInfo hrInfoObject) {
-        tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
-        tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
+        etAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
+        etMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
         hrLineChart.showLineChart(hrInfoObject.getFilteredHrList(), "心率变化图", Color.BLUE);
     }
 }
