@@ -9,7 +9,7 @@
         android:layout_centerInParent="true"
         android:layout_margin="20dp"
         android:src="@mipmap/ic_start_32px"
-        android:background="@android:color/transparent"/>
+        android:background="@color/background_transparent"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/ellipsis"
-            android:textSize="@dimen/big_font"
+            android:textSize="@dimen/bigger_font"
             android:focusable="false"
             android:focusableInTouchMode="false"/>
 

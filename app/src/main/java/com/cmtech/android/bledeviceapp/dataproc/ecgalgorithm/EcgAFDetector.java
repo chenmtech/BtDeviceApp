@@ -10,7 +10,10 @@ import java.util.List;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence.NON_AF;
 
 public class EcgAFDetector implements IEcgAlgorithm{
-    private final static String VER = "0.1.2";
+    private static final int LIMIT_HR_TOO_LOW = 50;
+    private static final int LIMIT_HR_TOO_HIGH = 100;
+    private final static String VER = "0.1.3";
+
 
     @Override
     public String getVer() {
@@ -22,7 +25,13 @@ public class EcgAFDetector implements IEcgAlgorithm{
         EcgProcessor ecgProc = new EcgProcessor();
         ecgProc.process(record.getEcgData(), record.getSampleRate());
         int aveHr = ecgProc.getAverageHr();
-        //ViseLog.e("aveHr:" + aveHr);
+        String strHrResult;
+        if(aveHr > LIMIT_HR_TOO_HIGH)
+            strHrResult = "心动过速";
+        else if(aveHr < LIMIT_HR_TOO_LOW)
+            strHrResult = "心动过缓";
+        else
+            strHrResult = "无心动过速或过缓。";
 
         List<Double> RR = ecgProc.getRRIntervalInMs();
         MyAFEvidence afEvi = MyAFEvidence.getInstance();
@@ -35,16 +44,17 @@ public class EcgAFDetector implements IEcgAlgorithm{
         if(classify == MyAFEvidence.AF) {
             builder.append("提示房颤风险。");
         } else if(classify == NON_AF){
-            builder.append("未发现房颤。");
+            builder.append("未发现房颤风险。");
         } else {
             builder.append("无法判断是否有房颤风险。");
         }
         builder.append("(房颤风险值：").append(afe).append(")");
+        String strAFEResult = builder.toString();
 
         EcgReport report = new EcgReport();
         report.setVer(VER);
         report.setReportTime(new Date().getTime());
-        report.setContent(builder.toString());
+        report.setContent(strHrResult + strAFEResult);
         report.setStatus(EcgReport.DONE);
         report.setAveHr(aveHr);
         return report;

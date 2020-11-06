@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content"
                     android:minEms="1"
                     android:text=" "
-                    android:textSize="@dimen/big_font"
+                    android:textSize="@dimen/bigger_font"
                     android:focusable="false"
                     android:focusableInTouchMode="false"/>
 
@@ -125,7 +125,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
             android:layout_margin="6dp"
-            android:background="@android:color/transparent"
+            android:background="@color/background_transparent"
             android:src="@mipmap/ic_refresh_32px" />
     </FrameLayout>
 

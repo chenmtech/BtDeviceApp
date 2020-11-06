@@ -15,6 +15,7 @@
     <color name="ecg_view_grid">#f00</color>
     <color name="ecg_view_wave">#ff0</color>
     <color name="edit_text_color">@color/orange</color>
+    <color name="background_transparent">@android:color/transparent</color>
 
 
 

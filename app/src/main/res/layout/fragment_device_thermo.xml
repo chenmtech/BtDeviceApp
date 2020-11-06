@@ -19,7 +19,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_margin="5dp"
-            android:background="@android:color/transparent"
+            android:background="@color/background_transparent"
             android:src="@mipmap/ic_restart_32px" />
 
         <RelativeLayout

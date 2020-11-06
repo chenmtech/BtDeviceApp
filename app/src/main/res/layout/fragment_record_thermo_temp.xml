@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@mipmap/ic_start_32px"
-            android:background="@android:color/transparent"/>
+            android:background="@color/background_transparent"/>
     </FrameLayout>
 
     <ImageButton
@@ -28,7 +28,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_margin="10dp"
         android:src="@mipmap/ic_stop_32px"
-        android:background="@android:color/transparent"
+        android:background="@color/background_transparent"
         android:visibility="invisible"/>
 
 </LinearLayout>
