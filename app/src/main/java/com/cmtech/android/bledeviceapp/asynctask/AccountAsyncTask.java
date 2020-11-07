@@ -27,7 +27,8 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
     public static final int CMD_UPLOAD = 1; // upload user info command
     public static final int CMD_DOWNLOAD = 2; // download user info command
-    public static final int CMD_SIGNUP_OR_LOGIN = 3; // sign up or login on the web
+    public static final int CMD_SIGNUP = 3; // sign up or login on the web
+    public static final int CMD_LOGIN = 4;
 
     private final ProgressDialog progressDialog;
     private final int cmd;
@@ -70,8 +71,12 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
                 response = KMWebServiceUtil.downloadAccountInfo(account);
                 break;
 
-            case CMD_SIGNUP_OR_LOGIN:
-                response = KMWebServiceUtil.signUporLogin(account);
+            case CMD_SIGNUP:
+                response = KMWebServiceUtil.signUp(account);
+                break;
+
+            case CMD_LOGIN:
+                response = KMWebServiceUtil.login(account);
                 break;
 
             default:

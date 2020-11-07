@@ -12,71 +12,60 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:gravity="center_horizontal"
+                android:text="用户名：" />
 
-                <ImageButton
-                    android:id="@+id/ib_qq_login"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"
-                    android:background="@color/background_transparent"
-                    android:src="@mipmap/ic_qq" />
-
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="QQ登录" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/et_user_name"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <ImageButton
-                    android:id="@+id/ib_wechat_login"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"
-                    android:background="@color/background_transparent"
-                    android:src="@mipmap/ic_wechat"/>
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="微信登录"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <ImageButton
-                    android:id="@+id/ib_phone_login"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"
-                    android:background="@color/background_transparent"
-                    android:src="@mipmap/ic_user" />
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="手机验证码登录"/>
-            </LinearLayout>
+                style="@style/edittext_circle_gray_style"/>
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="密码：" />
+
+            <EditText
+                android:id="@+id/et_password"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                style="@style/edittext_circle_gray_style"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btn_signup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/button_circle_blue_style"
+                android:text="注册"/>
+
+            <Button
+                android:id="@+id/btn_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/button_circle_blue_style"
+                android:text="登录"/>
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout

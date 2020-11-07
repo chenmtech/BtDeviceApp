@@ -84,7 +84,7 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //Account account = MyApplication.getAccount();
-                account.setName(etName.getText().toString());
+                account.setNickName(etName.getText().toString());
 
                 String icon = account.getIcon();
                 if(!cacheImageFile.equals(icon)) {
@@ -103,7 +103,7 @@ public class AccountActivity extends AppCompatActivity {
                             ivImage.setDrawingCacheEnabled(true);
                             Bitmap bitmap = ivImage.getDrawingCache();
                             bitmap = BitmapUtil.scaleImageTo(bitmap, 100, 100);
-                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getPlatName()+account.getPlatId() + ".jpg");
+                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserName()+account.getPassword() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
@@ -143,7 +143,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        etName.setText(account.getName());
+        etName.setText(account.getNickName());
 
         cacheImageFile = account.getIcon();
         if(TextUtils.isEmpty(cacheImageFile)) {

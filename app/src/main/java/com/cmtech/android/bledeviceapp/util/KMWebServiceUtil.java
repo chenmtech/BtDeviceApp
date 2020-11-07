@@ -55,23 +55,42 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static void signUp(String platName, String platId, Callback callback) {
+    public static WebResponse signUp(Account account) {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "signUp");
-        data.put("platName", platName);
-        data.put("platId", platId);
-        HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data, callback);
+        data.put("userName", account.getUserName());
+        data.put("password", account.getPassword());
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return wResp;
     }
 
-    public static void login(String platName, String platId, Callback callback) {
+    public static WebResponse login(Account account) {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "login");
-        data.put("platName", platName);
-        data.put("platId", platId);
-        HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data, callback);
+        data.put("userName", account.getUserName());
+        data.put("password", account.getPassword());
+
+        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {
+            String respBody = Objects.requireNonNull(response.body()).string();
+            JSONObject rtn = new JSONObject(respBody);
+            wResp.setCode(rtn.getInt("code"));
+            wResp.setContent(rtn.getInt("id"));
+        } catch (JSONException | IOException e) {
+            e.printStackTrace();
+        }
+        return wResp;
     }
 
-    public static WebResponse signUporLogin(Account account) {
+    /*public static WebResponse signUporLogin(Account account) {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "signUporLogin");
         data.put("platName", account.getPlatName());
@@ -86,7 +105,7 @@ public class KMWebServiceUtil {
             e.printStackTrace();
         }
         return wResp;
-    }
+    }*/
 
     public static WebResponse uploadAccountInfo(Account account) {
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
@@ -113,8 +132,7 @@ public class KMWebServiceUtil {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "download");
-            json.put("platName", account.getPlatName());
-            json.put("platId", account.getPlatId());
+            json.put("id", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
@@ -150,13 +168,12 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static WebResponse uploadRecord(String platName, String platId, BasicRecord record) {
+    public static WebResponse uploadRecord(int accountId, BasicRecord record) {
         JSONObject json;
         try {
             json = record.toJson();
             json.put("cmd", "upload");
-            json.put("platName", platName);
-            json.put("platId", platId);
+            json.put("accountId", accountId);
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
@@ -174,12 +191,11 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static WebResponse downloadRecord(String platName, String platId, BasicRecord record) {
+    public static WebResponse downloadRecord(int accountId, BasicRecord record) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "download");
-            json.put("platName", platName);
-            json.put("platId", platId);
+            json.put("accountId", accountId);
             json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
@@ -202,12 +218,11 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static WebResponse deleteRecord(String platName, String platId, BasicRecord record) {
+    public static WebResponse deleteRecord(int accountId, BasicRecord record) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "delete");
-            json.put("platName", platName);
-            json.put("platId", platId);
+            json.put("accountId", accountId);
             json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
@@ -229,14 +244,12 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static WebResponse downloadRecordList(String platName, String platId, BasicRecord record, long fromTime, int num, String noteSearchStr) {
+    public static WebResponse downloadRecordList(int accountId, BasicRecord record, long fromTime, int num, String noteSearchStr) {
         JSONObject json = new JSONObject();
         try {
             json.put("cmd", "downloadList");
-            json.put("platName", platName);
-            json.put("platId", platId);
+            json.put("accountId", accountId);
             json.put("recordTypeCode", record.getTypeCode());
-            json.put("creatorPlat", record.getCreatorPlat());
             json.put("creatorId", record.getCreatorId());
             json.put("fromTime", fromTime);
             json.put("num", num);
@@ -259,14 +272,13 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static WebResponse downloadReport(String platName, String platId, BleEcgRecord record) {
+    public static WebResponse downloadReport(int accountId, BleEcgRecord record) {
         JSONObject json = new JSONObject();
         try {
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             json.put("cmd", "downloadReport");
-            json.put("platName", platName);
-            json.put("platId", platId);
+            json.put("accountId", accountId);
             ViseLog.e(json.toString());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -286,14 +298,13 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    public static WebResponse requestReport(String platName, String platId, BleEcgRecord record) {
+    public static WebResponse requestReport(int accountId, BleEcgRecord record) {
         JSONObject json = new JSONObject();
         try {
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             json.put("cmd", "requestReport");
-            json.put("platName", platName);
-            json.put("platId", platId);
+            json.put("accountId", accountId);
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);

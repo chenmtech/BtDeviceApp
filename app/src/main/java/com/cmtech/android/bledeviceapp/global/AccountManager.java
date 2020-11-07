@@ -5,6 +5,7 @@ import android.content.Context;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.litepal.LitePal;
@@ -35,23 +36,33 @@ public class AccountManager {
     }
 
     // account login in local client
-    public void localLogin(String platName, String platId, String name, String icon) {
-        Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
-        if(account == null) {
-            account = new Account(platName, platId);
+    public boolean localLogin(String userName, String password) {
+        Account account = LitePal.where("userName = ? and password = ?", userName, password).findFirst(Account.class);
+        if(account != null) {
+            this.account = account;
+            return true;
         }
-        account.setName(name);
-        account.setIcon(icon);
-        account.save();
-        this.account = account;
+        return false;
     }
 
-    public void webLogin(final Context context) {
-        if(!isLocalLogin()) return;
-
-        account.signUpOrLogin(context, code -> {
+    public void webLogin(final Context context, String showString) {
+        account.login(context, showString, code -> {
             if(code != RETURN_CODE_SUCCESS) {
                 runOnUiThread(() -> Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    public void webLogin(final Context context, String showString, ICodeCallback callback) {
+        account.login(context, showString, callback);
+    }
+
+    public static void signUp(final Context context, String userName, String password) {
+        Account.signUp(context, userName, password, code -> {
+            if(code == RETURN_CODE_SUCCESS) {
+                runOnUiThread(() -> Toast.makeText(context, "账户注册成功", Toast.LENGTH_SHORT).show());
+            } else {
+                runOnUiThread(() -> Toast.makeText(context, "账户注册失败", Toast.LENGTH_SHORT).show());
             }
         });
     }

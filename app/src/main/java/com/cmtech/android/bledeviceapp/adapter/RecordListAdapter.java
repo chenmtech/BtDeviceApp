@@ -140,7 +140,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         Account account = MyApplication.getAccount();
         if(TextUtils.isEmpty(account.getIcon())) {
             // load icon by platform name
-            holder.ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
+            holder.ivCreatorImage.setImageResource(R.mipmap.ic_user);
         } else {
             Glide.with(activity).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
         }

@@ -54,7 +54,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_READ_DATA_PACKET) {
-                EcgHttpReceiver.readDataPackets(MyApplication.getAccount().getPlatId(), getAddress(), lastDataPackId, new EcgHttpReceiver.IEcgDataPacketCallback() {
+                EcgHttpReceiver.readDataPackets(MyApplication.getAccount().getUserName(), getAddress(), lastDataPackId, new EcgHttpReceiver.IEcgDataPacketCallback() {
                     @Override
                     public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
                         if (dataPacketList != null && !dataPacketList.isEmpty()) {

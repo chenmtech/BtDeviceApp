@@ -166,7 +166,7 @@ public class DeviceManager {
 
         final boolean[] finish = new boolean[1];
 
-        EcgHttpReceiver.retrieveDeviceInfo(context, MyApplication.getAccount().getPlatId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo(context, MyApplication.getAccount().getUserName(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgDevice> deviceList) {
                 if(deviceList == null || deviceList.isEmpty()) {

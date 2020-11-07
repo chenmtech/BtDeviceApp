@@ -7,13 +7,17 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.global.AccountManager;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.PhoneAccount;
 import com.mob.MobSDK;
@@ -30,11 +34,13 @@ import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class LoginActivity extends AppCompatActivity {
-    private ImageButton qqLogin;
-    private ImageButton wxLogin;
-    private ImageButton phoneLogin;
+    private EditText etUserName;
+    private EditText etPassword;
+    private Button btnSignUp;
+    private Button btnLogin;
     private CheckBox cbGrant;
 
     @Override
@@ -48,49 +54,27 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }*/
 
-        Account phoneAccount = PhoneAccount.getAccount();
-        if(phoneAccount != null) {
-            login(PHONE_PLAT_NAME, phoneAccount.getPlatId(), phoneAccount.getName(), phoneAccount.getIcon());
-            return;
-        }
+        etUserName = findViewById(R.id.et_user_name);
+        etPassword = findViewById(R.id.et_password);
 
-        /*Platform plat = ShareSDK.getPlatform(QQ.NAME);
-        if(plat.isAuthValid()) {
-            loginUsingQQorWechat(plat);
-            return;
-        }
-        plat = ShareSDK.getPlatform(Wechat.NAME);
-        if(plat.isAuthValid()) {
-            loginUsingQQorWechat(plat);
-            return;
-        }*/
-
-        qqLogin = findViewById(R.id.ib_qq_login);
-        qqLogin.setOnClickListener(new View.OnClickListener() {
+        btnSignUp = findViewById(R.id.btn_signup);
+        btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!isPrivacyGrantChecked()) return;
-                Platform plat = ShareSDK.getPlatform(QQ.NAME);
-                loginUsingQQorWechat(plat);
+                String userName = etUserName.getText().toString().trim();
+                String password = etPassword.getText().toString().trim();
+                signUp(userName, password);
             }
         });
 
-        wxLogin = findViewById(R.id.ib_wechat_login);
-        wxLogin.setOnClickListener(new View.OnClickListener() {
+        btnLogin = findViewById(R.id.btn_login);
+        btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!isPrivacyGrantChecked()) return;
-                Platform plat = ShareSDK.getPlatform(Wechat.NAME);
-                loginUsingQQorWechat(plat);
-            }
-        });
-
-        phoneLogin = findViewById(R.id.ib_phone_login);
-        phoneLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!isPrivacyGrantChecked()) return;
-                loginUsingPhone(LoginActivity.this);
+                String userName = etUserName.getText().toString().trim();
+                String password = etPassword.getText().toString().trim();
+                login(userName, password);
             }
         });
 
@@ -105,9 +89,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean isPrivacyGrantChecked() {
         boolean granted = cbGrant.isChecked();
-        if(granted) {
-            MobSDK.submitPolicyGrantResult(granted, null);
-        } else {
+        if(!granted) {
             Toast.makeText(this, R.string.pls_check_privacy, Toast.LENGTH_SHORT).show();
         }
         return granted;
@@ -118,66 +100,31 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void loginUsingQQorWechat(Platform plat) {
-        final String platName = plat.getName();
-        ShareSDK.setActivity(LoginActivity.this);
-        if (plat.isAuthValid()) {
-            String platId = plat.getDb().getUserId();
-            String username = plat.getDb().getUserName();
-            String icon = plat.getDb().getUserIcon();
-            login(platName, platId, username, icon);
+    private void signUp(String userName, String password) {
+        AccountManager.signUp(this, userName, password);
+    }
+
+    private void login(String userName, String password) {
+        if(MyApplication.getAccountManager().localLogin(userName, password)) {
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+
+            MyApplication.getAccountManager().webLogin(this, null);
         } else {
-            //授权回调监听，监听oncomplete，onerror，oncancel三种状态
-            plat.setPlatformActionListener(new PlatformActionListener() {
+            MyApplication.getAccountManager().webLogin(this, "正在登录，请稍等...", new ICodeCallback() {
                 @Override
-                public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                    String platId = platform.getDb().getUserId();
-                    String userName = platform.getDb().getUserName();
-                    String icon = platform.getDb().getUserIcon();
-                    login(platName, platId, userName, icon);
-                }
-
-                @Override
-                public void onError(Platform platform, int i, Throwable throwable) {
-                    Toast.makeText(LoginActivity.this, MyApplication.getStr(R.string.login_failure), Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onCancel(Platform platform, int i) {
-
+                public void onFinish(int code) {
+                    if(code == RETURN_CODE_SUCCESS) {
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "账户登录失败", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
-            //单独授权，OnComplete返回的hashmap是空的
-            plat.authorize();
         }
-    }
-
-    private void loginUsingPhone(Context context) {
-        RegisterPage page = new RegisterPage();
-        page.setTempCode(null);
-        page.setRegisterCallback(new EventHandler() {
-            public void afterEvent(int event, int result, Object data) {
-                if (result == SMSSDK.RESULT_COMPLETE) {
-                    HashMap<String,Object> phoneMap = (HashMap<String, Object>) data;
-                    String country = (String) phoneMap.get("country");
-                    String phone = (String) phoneMap.get("phone");
-                    String platId = country+phone;
-                    login(PHONE_PLAT_NAME, platId, "", "");
-                } else{
-                    Toast.makeText(LoginActivity.this, MyApplication.getStr(R.string.login_failure), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        page.show(context);
-    }
-
-    private void login(String platName, String platId, String name, String icon) {
-        MyApplication.getAccountManager().localLogin(platName, platId, name, icon);
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
-
-        MyApplication.getAccountManager().webLogin(this);
     }
 
 }

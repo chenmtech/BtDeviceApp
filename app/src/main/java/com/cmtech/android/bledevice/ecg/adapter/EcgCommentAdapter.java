@@ -90,7 +90,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
             holder.etContent.setHint("请输入。");
         } else {
-            holder.tvCreatorName.setText(Html.fromHtml("<u>" + creator.getName() + "</u>"));
+            holder.tvCreatorName.setText(Html.fromHtml("<u>" + creator.getNickName() + "</u>"));
             holder.etContent.setHint("");
         }
 

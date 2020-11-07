@@ -17,22 +17,17 @@ import com.vise.utils.view.BitmapUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
-import cn.sharesdk.framework.Platform;
-import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.tencent.qq.QQ;
-import cn.sharesdk.wechat.friends.Wechat;
-
+import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_LOGIN;
+import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.QQ_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.WX_PLAT_NAME;
-import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP_OR_LOGIN;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 /**
   *
@@ -48,21 +43,24 @@ import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIG
 
 public class Account extends LitePalSupport implements Serializable, IJsonable, IWebOperation {
     private int id; // id
-    private String platName = ""; // platform name
-    private String platId = ""; // platform ID
-    private String name = ""; // name
+    private int accountId = INVALID_ID;
+    private String userName = ""; // user name
+    private String password = ""; // password
+    private String nickName = ""; // nick name
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
+    @Column(ignore = true)
+    private boolean login = false;
 
-    public Account(String platName, String platId) {
-        this.platName = platName;
-        this.platId = platId;
+    public Account(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
     }
 
     public Account(Account account) {
-        this.platName = account.platName;
-        this.platId = account.platId;
-        this.name = account.name;
+        this.userName = account.userName;
+        this.password = account.password;
+        this.nickName = account.nickName;
         this.note = account.note;
         this.icon = account.icon;
     }
@@ -70,21 +68,21 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     public int getId() {
         return id;
     }
-    public String getPlatName() { return platName;}
-    public String getPlatId() {
-        return platId;
+    public int getAccountId() {
+        return accountId;
     }
-    public String getName() {
-        if("".equals(name)) {
-            String plat = platName+platId;
-            String platFirst4 = plat.substring(0, 4);
-            String platLast4 = plat.substring(plat.length()-4, plat.length());
-            return platFirst4 + "*" + platLast4;
+    public String getUserName() { return userName;}
+    public String getPassword() {
+        return password;
+    }
+    public String getNickName() {
+        if("".equals(nickName)) {
+            return userName;
         }
-        return name;
+        return nickName;
     }
-    public void setName(String name) {
-        this.name = name;
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
     public String getNote() {
         return note;
@@ -102,7 +100,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     @Override
     public void fromJson(JSONObject json) {
         try {
-            name = json.getString("name");
+            nickName = json.getString("nickName");
             note = json.getString("note");
             String iconStr = json.getString("iconStr");
             if (!TextUtils.isEmpty(iconStr)) {
@@ -110,7 +108,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
                 if (bitmap != null) {
                     try {
                         assert DIR_IMAGE != null;
-                        File iconFile = FileUtil.getFile(DIR_IMAGE, platName + platId + ".jpg");
+                        File iconFile = FileUtil.getFile(DIR_IMAGE, userName + password + ".jpg");
                         BitmapUtil.saveBitmap(bitmap, iconFile);
                         icon = iconFile.getCanonicalPath();
                     } catch (IOException e) {
@@ -127,9 +125,9 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     public JSONObject toJson() {
         try {
             JSONObject json = new JSONObject();
-            json.put("platName", platName);
-            json.put("platId", platId);
-            json.put("name", name);
+            json.put("userName", userName);
+            json.put("password", password);
+            json.put("nickName", nickName);
             json.put("note", note);
 
             String iconStr = "";
@@ -145,17 +143,32 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         }
     }
 
-    public void signUpOrLogin(Context context, ICodeCallback callback) {
-        new AccountAsyncTask(context, null, CMD_SIGNUP_OR_LOGIN, new IWebResponseCallback() {
+    public static void signUp(Context context, String userName, String password, ICodeCallback callback) {
+        new AccountAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 callback.onFinish(response.getCode());
             }
-        });
+        }).execute(new Account(userName, password));
+    }
+
+    public void login(Context context, String showString, ICodeCallback callback) {
+        new AccountAsyncTask(context, showString, CMD_LOGIN, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                if(code == RETURN_CODE_SUCCESS) {
+                    accountId = (Integer) response.getContent();
+                    login = true;
+                    save();
+                }
+                callback.onFinish(code);
+            }
+        }).execute(this);
     }
 
     public void remove() {
-        if(platName.equals(QQ_PLAT_NAME)) {
+        /*if(platName.equals(QQ_PLAT_NAME)) {
             Platform plat = ShareSDK.getPlatform(QQ.NAME);
             plat.removeAccount(true);
         } else if(platName.equals(WX_PLAT_NAME)) {
@@ -171,7 +184,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     @Override
@@ -217,13 +230,13 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     @NonNull
     @Override
     public String toString() {
-        return "PlatName: " + getPlatName() + ",PlatId: " + getPlatId() + ",Name：" + name + ' '
+        return "UserName: " + getUserName() + ",Password: " + getPassword() + ",NickName：" + nickName + ' '
                 + ",Note：" + note + ",icon: " + icon;
     }
 
     @Override
     public int hashCode() {
-        return (platName + platId).hashCode();
+        return (userName + password).hashCode();
     }
 
     @Override
@@ -232,6 +245,6 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         if(otherObject == null) return false;
         if(!(otherObject instanceof Account)) return false;
         Account other = (Account) otherObject;
-        return (platName + platId).equals(other.platName+other.platId);
+        return (userName + password).equals(other.userName+other.password);
     }
 }

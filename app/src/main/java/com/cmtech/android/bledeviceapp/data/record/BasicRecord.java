@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -41,7 +42,7 @@ import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWN
 public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
     public static final String DEFAULT_RECORD_VER = "1.0";
     private static final String[] basicItems = {"id", "createTime", "devAddress",
-            "creatorPlat", "creatorId", "ver", "note", "recordSecond", "needUpload"};
+            "creatorId", "ver", "note", "recordSecond", "needUpload"};
 
     private int id;
     @Column(ignore = true)
@@ -49,8 +50,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     private long createTime; // create time
     private final String devAddress; // device address
     private String ver = DEFAULT_RECORD_VER; // record version
-    private final String creatorPlat; // creator plat name
-    private final String creatorId; // creator plat ID
+    private int creatorId = INVALID_ID; // creator plat ID
 
     private String note = ""; // note
     private int recordSecond = 0; // unit: s
@@ -61,8 +61,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.ver = ver;
         this.createTime = createTime;
         this.devAddress = devAddress;
-        this.creatorPlat = creator.getPlatName();
-        this.creatorId = creator.getPlatId();
+        this.creatorId = creator.getAccountId();
     }
 
     public int getId() {
@@ -97,29 +96,25 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         return devAddress;
     }
 
-    public String getCreatorPlat() {
-        return creatorPlat;
-    }
-
-    public String getCreatorId() {
+    public int getCreatorId() {
         return creatorId;
     }
 
     public String getCreatorName() {
-        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
+        Account account = LitePal.where("id = ?", ""+creatorId).findFirst(Account.class);
         if(account == null)
-            return creatorId;
+            return "匿名";
         else {
-            return account.getName();
+            return account.getUserName();
         }
     }
 
     public String getCreatorNameAndNote() {
-        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
+        Account account = LitePal.where("id = ?", ""+creatorId).findFirst(Account.class);
         if(account == null)
-            return creatorId;
+            return "匿名";
         else {
-            return account.getName() + "(" + account.getNote() + ")";
+            return account.getNickName() + "(" + account.getNote() + ")";
         }
     }
 
@@ -163,7 +158,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("recordTypeCode", type.getCode());
         json.put("createTime", createTime);
         json.put("devAddress", devAddress);
-        json.put("creatorPlat", creatorPlat);
         json.put("creatorId", creatorId);
         json.put("ver", ver);
         json.put("note", note);
@@ -266,7 +260,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @NonNull
     @Override
     public String toString() {
-        return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + recordSecond + "-" + needUpload;
+        return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + note + "-" + recordSecond + "-" + needUpload;
     }
 
     @Override
@@ -302,11 +296,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             if (recordClass != null) {
                 if(TextUtils.isEmpty(noteFilterStr)) {
                     records.addAll(LitePal.select(basicItems)
-                            .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime)
+                            .where("creatorId = ? and createTime < ?", ""+creator.getAccountId(), ""+fromTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
                     records.addAll(LitePal.select(basicItems)
-                            .where("creatorPlat = ? and creatorId = ? and createTime < ? and note like ?", creator.getPlatName(), creator.getPlatId(), "" + fromTime, "%"+noteFilterStr+"%")
+                            .where("creatorId = ? and createTime < ? and note like ?", ""+creator.getAccountId(), ""+fromTime, "%"+noteFilterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }

@@ -216,14 +216,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         initMainLayout();
 
         // download account info
-        MyApplication.getAccount().download(this, null, new ICodeCallback() {
+/*        MyApplication.getAccount().download(this, null, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     updateNavigationHeader();
                 }
             }
-        });
+        });*/
 
         checkAppUpdateInfo();
     }
@@ -712,7 +712,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();
         } else {
-            String name = account.getName();
+            String name = account.getNickName();
             if(TextUtils.isEmpty(name)) {
                 tvAccountName.setText(R.string.anonymous);
             } else {
@@ -720,7 +720,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             }
 
             if(TextUtils.isEmpty(account.getIcon())) {
-                ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
+                ivAccountImage.setImageResource(R.mipmap.ic_user);
             } else {
                 Glide.with(this).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
             }

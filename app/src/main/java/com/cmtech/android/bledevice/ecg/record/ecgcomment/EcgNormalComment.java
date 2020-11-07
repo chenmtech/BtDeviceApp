@@ -109,7 +109,7 @@ public class EcgNormalComment extends EcgComment {
 
     @Override
     public String toString() {
-        return getCreator().getName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
+        return getCreator().getNickName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
     }
 
     @Override

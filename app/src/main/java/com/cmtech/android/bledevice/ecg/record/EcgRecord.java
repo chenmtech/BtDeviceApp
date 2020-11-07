@@ -275,7 +275,7 @@ public class EcgRecord extends LitePalSupport implements ISignalRecord {
         return creator;
     }
     public String getCreatorName() {
-        return getCreator().getName();
+        return getCreator().getNickName();
     }
     public long getCreateTime() {
         return createTime;

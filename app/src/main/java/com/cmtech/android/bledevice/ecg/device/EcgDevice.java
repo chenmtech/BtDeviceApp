@@ -517,7 +517,7 @@ public class EcgDevice extends AbstractEcgDevice {
         }
 
         if (broadcast == null) {
-            broadcast = new EcgHttpBroadcast(MyApplication.getAccount().getPlatId(),
+            broadcast = new EcgHttpBroadcast(MyApplication.getAccount().getUserName(),
                     EcgMonitorUtil.deleteColon(getAddress()),
                     getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getLeadType().getCode());
             broadcast.setListener(listener);

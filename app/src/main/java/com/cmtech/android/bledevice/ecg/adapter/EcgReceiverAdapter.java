@@ -62,11 +62,11 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
     @Override
     public void onBindViewHolder(EcgReceiverAdapter.ViewHolder holder, final int position) {
         EcgHttpBroadcast.Receiver receiver = receivers.get(position);
-        if(TextUtils.isEmpty(receiver.getName())) {
+        if(TextUtils.isEmpty(receiver.getNickName())) {
             holder.cbReceiver.setText("匿名");
         }
         else {
-            holder.cbReceiver.setText(receiver.getName());
+            holder.cbReceiver.setText(receiver.getNickName());
         }
 
         if(TextUtils.isEmpty(receiver.getNote())) {

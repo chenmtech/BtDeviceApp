@@ -106,7 +106,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         if(account.equals(creator)) {
             holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
-            holder.tvCreator.setText(Html.fromHtml("<u>" + creator.getName() + "</u>"));
+            holder.tvCreator.setText(Html.fromHtml("<u>" + creator.getNickName() + "</u>"));
         }
 
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());

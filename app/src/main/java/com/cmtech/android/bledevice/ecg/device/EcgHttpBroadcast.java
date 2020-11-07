@@ -222,7 +222,7 @@ public class EcgHttpBroadcast {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
-        data.put(TYPE_RECEIVER_ID, receiver.getPlatId());
+        data.put(TYPE_RECEIVER_ID, receiver.getUserName());
 
         HttpUtils.requestGet(upload_url, data, new Callback() {
             @Override
@@ -259,7 +259,7 @@ public class EcgHttpBroadcast {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
-        data.put(TYPE_RECEIVER_ID, receiver.getPlatId());
+        data.put(TYPE_RECEIVER_ID, receiver.getUserName());
 
         HttpUtils.requestGet(upload_url, data, new Callback() {
             @Override
@@ -356,7 +356,7 @@ public class EcgHttpBroadcast {
                 String displayName = jsonObject.getString("displayName");
                 String description = jsonObject.getString("description");
                 //receiver.setPlatId(huaweiId);
-                if(name.equals("null")) receiver.setName(displayName); else receiver.setName(name);
+                if(name.equals("null")) receiver.setNickName(displayName); else receiver.setNickName(name);
                 if(description.equals("null")) receiver.setNote(""); else receiver.setNote(description);
                 receivers.add(receiver);
             }

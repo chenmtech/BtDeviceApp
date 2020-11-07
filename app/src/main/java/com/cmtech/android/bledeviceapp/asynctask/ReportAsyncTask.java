@@ -43,10 +43,10 @@ public class ReportAsyncTask extends AsyncTask<BleEcgRecord, Void, WebResponse> 
 
         switch (cmd) {
             case CMD_REQUEST_REPORT:
-                response = KMWebServiceUtil.requestReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record);
+                response = KMWebServiceUtil.requestReport(MyApplication.getAccount().getAccountId(), record);
                 break;
             case CMD_DOWNLOAD_REPORT:
-                response = KMWebServiceUtil.downloadReport(MyApplication.getAccount().getPlatName(), MyApplication.getAccount().getPlatId(), record);
+                response = KMWebServiceUtil.downloadReport(MyApplication.getAccount().getAccountId(), record);
                 break;
             default:
                 break;

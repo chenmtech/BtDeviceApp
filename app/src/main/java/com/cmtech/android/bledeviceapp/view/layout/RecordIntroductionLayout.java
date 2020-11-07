@@ -71,7 +71,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
         if(account != null) {
             if (TextUtils.isEmpty(account.getIcon())) {
                 // load icon by platform name
-                ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
+                ivCreatorImage.setImageResource(R.mipmap.ic_user);
             } else {
                 Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
             }
