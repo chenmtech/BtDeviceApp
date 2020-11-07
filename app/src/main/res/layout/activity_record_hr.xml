@@ -18,10 +18,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="visible">
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:background="@color/primary_dark"/>
 
             <include layout="@layout/layout_hr_common_info"
                 android:layout_width="match_parent"
