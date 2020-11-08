@@ -12,11 +12,13 @@ import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
@@ -28,6 +30,7 @@ import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_LOG
 import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
 
 /**
   *
@@ -43,12 +46,12 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 public class Account extends LitePalSupport implements Serializable, IJsonable, IWebOperation {
     private int id; // id
-    private int accountId = INVALID_ID;
     private String userName = ""; // user name
     private String password = ""; // password
     private String nickName = ""; // nick name
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
+    private int accountId = INVALID_ID;
     @Column(ignore = true)
     private boolean webLogin = false;
 
@@ -125,6 +128,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     public JSONObject toJson() {
         try {
             JSONObject json = new JSONObject();
+            json.put("ver", "1.0");
             json.put("userName", userName);
             json.put("password", password);
             json.put("nickName", nickName);
@@ -147,12 +151,8 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         new AccountAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                if(code == RETURN_CODE_SUCCESS) {
-                    accountId = (Integer) response.getContent();
-                    save();
-                }
-                callback.onFinish(code);
+                callback.onFinish(response.getCode());
+
             }
         }).execute(new Account(userName, password));
     }
@@ -161,22 +161,22 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         new AccountAsyncTask(context, showString, CMD_LOGIN, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                webLogin = (response.getCode() == RETURN_CODE_SUCCESS);
-                callback.onFinish(response.getCode());
+                int code = response.getCode();
+                if(code == RETURN_CODE_SUCCESS) {
+                    accountId = (Integer) response.getContent();
+                    ViseLog.e("accountId=" + accountId);
+                    if(accountId != INVALID_ID) {
+                        webLogin = true;
+                        save();
+                    }
+                }
+                callback.onFinish(code);
             }
         }).execute(this);
     }
 
     public void remove() {
-        /*if(platName.equals(QQ_PLAT_NAME)) {
-            Platform plat = ShareSDK.getPlatform(QQ.NAME);
-            plat.removeAccount(true);
-        } else if(platName.equals(WX_PLAT_NAME)) {
-            Platform plat = ShareSDK.getPlatform(Wechat.NAME);
-            plat.removeAccount(true);
-        } else if(platName.equals(PHONE_PLAT_NAME)) {
-            PhoneAccount.removeAccount();
-        }
+        LitePal.deleteAll("Account", "accountId = ?", ""+accountId);
 
         if(!TextUtils.isEmpty(icon)) {
             try {
@@ -184,7 +184,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }*/
+        }
     }
 
     @Override
@@ -230,7 +230,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     @NonNull
     @Override
     public String toString() {
-        return "UserName: " + getUserName() + ",Password: " + getPassword() + ",NickName：" + nickName + ' '
+        return "AccountId: " + accountId + ",UserName: " + getUserName() + ",Password: " + getPassword() + ",NickName：" + nickName + ' '
                 + ",Note：" + note + ",icon: " + icon;
     }
 

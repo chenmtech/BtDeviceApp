@@ -143,8 +143,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!MyApplication.getAccountManager().isLocalLogin()) {
-            Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
+        if(!MyApplication.getAccountManager().isValid()) {
+            Toast.makeText(this, "账户无效。", Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -216,14 +216,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         initMainLayout();
 
         // download account info
-/*        MyApplication.getAccount().download(this, null, new ICodeCallback() {
+        MyApplication.getAccount().download(this, null, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     updateNavigationHeader();
                 }
             }
-        });*/
+        });
 
         checkAppUpdateInfo();
     }

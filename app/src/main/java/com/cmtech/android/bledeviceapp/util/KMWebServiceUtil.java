@@ -112,6 +112,7 @@ public class KMWebServiceUtil {
         JSONObject json = account.toJson();
         try {
             json.put("cmd", "upload");
+            json.put("id", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
@@ -121,6 +122,7 @@ public class KMWebServiceUtil {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
+            ViseLog.e("upload account code:" + wResp.getCode());
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }

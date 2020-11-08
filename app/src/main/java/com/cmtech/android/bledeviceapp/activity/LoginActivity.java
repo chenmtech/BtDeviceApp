@@ -48,11 +48,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        /*if(true) {
-            //loginUsingPhone(this);
-            login(PHONE_PLAT_NAME, "8615019187404", "", "");
+        if(MyApplication.getAccountManager().localLogin()) {
+            startMainActivity();
             return;
-        }*/
+        }
 
         etUserName = findViewById(R.id.et_user_name);
         etPassword = findViewById(R.id.et_password);
@@ -97,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
+        finish();
     }
 
     private void signUp(String userName, String password) {
@@ -105,26 +104,22 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String userName, String password) {
-        if(MyApplication.getAccountManager().localLogin(userName, password)) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-
-            MyApplication.getAccountManager().webLogin(this, null);
-        } else {
-            MyApplication.getAccountManager().webLogin(userName, password, this, "正在登录，请稍等...", new ICodeCallback() {
-                @Override
-                public void onFinish(int code) {
-                    if(code == RETURN_CODE_SUCCESS) {
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(LoginActivity.this, "账户登录失败", Toast.LENGTH_SHORT).show();
-                    }
+        MyApplication.getAccountManager().login(userName, password, this, "正在登录，请稍等...", new ICodeCallback() {
+            @Override
+            public void onFinish(int code) {
+                if(MyApplication.getAccountManager().isValid()) {
+                    startMainActivity();
+                } else {
+                    Toast.makeText(LoginActivity.this, "账户登录失败", Toast.LENGTH_SHORT).show();
                 }
-            });
-        }
+            }
+        });
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
 }

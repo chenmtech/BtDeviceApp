@@ -7,9 +7,11 @@ import android.widget.Toast;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
@@ -36,31 +38,30 @@ public class AccountManager {
     }
 
     // account login in local client
-    public boolean localLogin(String userName, String password) {
-        Account account = LitePal.where("userName = ? and password = ?", userName, password).findFirst(Account.class);
-        if(account != null) {
-            this.account = account;
-            return true;
-        }
-        return false;
+    public boolean localLogin() {
+        Account account = LitePal.findFirst(Account.class);
+        //ViseLog.e(account);
+        if(account == null) return false;
+        this.account = account;
+        return account.getAccountId() != INVALID_ID;
     }
 
-    public void webLogin(final Context context, String showString) {
+/*    public void login(final Context context, String showString) {
         if(account == null) return;
         account.login(context, showString, code -> {
             if(code != RETURN_CODE_SUCCESS) {
                 runOnUiThread(() -> Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show());
             }
         });
-    }
+    }*/
 
-    public void webLogin(String userName, String password, final Context context, String showString, ICodeCallback callback) {
-        Account account = new Account(userName, password);
-        account.login(context, showString, code -> {
-            if(code == RETURN_CODE_SUCCESS) {
-                this.account = account;
-                callback.onFinish(code);
+    public void login(String userName, String password, final Context context, String showString, ICodeCallback callback) {
+        Account acnt = new Account(userName, password);
+        acnt.login(context, showString, code -> {
+            if(code == RETURN_CODE_SUCCESS && acnt.getAccountId() != INVALID_ID) {
+                this.account = acnt;
             }
+            callback.onFinish(code);
         });
     }
 
@@ -77,17 +78,14 @@ public class AccountManager {
 
     // logout account
     public void localLogout(boolean remove) {
-        if(!isLocalLogin()) return;
-
-        if(remove) {
+        if(account != null && remove) {
             account.remove();
+            account = null;
         }
-
-        account = null;
     }
 
     // is a valid account login
-    public boolean isLocalLogin() {
-        return account != null;
+    public boolean isValid() {
+        return account != null && (account.getAccountId() != INVALID_ID);
     }
 }
