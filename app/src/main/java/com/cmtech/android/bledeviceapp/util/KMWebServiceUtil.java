@@ -56,6 +56,8 @@ public class KMWebServiceUtil {
     }
 
     public static WebResponse signUp(Account account) {
+        ViseLog.e("kmwebserviceutil signup");
+        ViseLog.e(account);
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "signUp");
         data.put("userName", account.getUserName());
@@ -64,10 +66,12 @@ public class KMWebServiceUtil {
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
         try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
+            ViseLog.e(respBody);
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
         } catch (JSONException | IOException e) {
             e.printStackTrace();
+            ViseLog.e("wrong:" + e);
         }
         return wResp;
     }
@@ -122,7 +126,7 @@ public class KMWebServiceUtil {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
-            ViseLog.e("upload account code:" + wResp.getCode());
+            //ViseLog.e("upload account code:" + wResp.getCode());
         } catch (JSONException | IOException e) {
             e.printStackTrace();
         }

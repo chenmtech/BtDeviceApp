@@ -25,6 +25,29 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp">
         <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="end"
+            android:textSize="@dimen/normal_font"
+            android:text="用户名："/>
+
+        <EditText
+            android:id="@+id/et_account_user_name"
+            style="@style/edittext_circle_gray_no_focusable_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:maxLength="12"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+        <TextView
             android:labelFor="@id/et_account_name"
             android:layout_width="100dp"
             android:layout_height="wrap_content"

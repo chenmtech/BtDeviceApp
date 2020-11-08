@@ -68,6 +68,7 @@ public class AccountManager {
     public void signUp(final Context context, String userName, String password) {
         Account account = new Account(userName, password);
         account.signUp(context, code -> {
+            ViseLog.e("code:"+code);
             if(code == RETURN_CODE_SUCCESS) {
                 runOnUiThread(() -> Toast.makeText(context, "账户注册成功", Toast.LENGTH_SHORT).show());
             } else {

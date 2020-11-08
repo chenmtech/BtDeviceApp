@@ -42,6 +42,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
  */
 
 public class AccountActivity extends AppCompatActivity {
+    private EditText etUserName;
     private EditText etName;
     private ImageView ivImage;
     private EditText etNote;
@@ -66,6 +67,7 @@ public class AccountActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_set_account_info);
         setSupportActionBar(toolbar);
 
+        etUserName = findViewById(R.id.et_account_user_name);
         etName = findViewById(R.id.et_account_name);
         ivImage = findViewById(R.id.iv_account_image);
         etNote = findViewById(R.id.et_account_note);
@@ -121,7 +123,7 @@ public class AccountActivity extends AppCompatActivity {
                 account.upload(AccountActivity.this, new ICodeCallback() {
                     @Override
                     public void onFinish(int code) {
-                        String str = (code == RETURN_CODE_SUCCESS) ? "账户信息已上传。" : "更新账户信息错误。";
+                        String str = (code == RETURN_CODE_SUCCESS) ? "账户信息已更新。" : "更新账户信息错误。";
                         Toast.makeText(AccountActivity.this, str, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent();
                         setResult(RESULT_OK, intent);
@@ -143,6 +145,8 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
+        etUserName.setText(account.getUserName());
+
         etName.setText(account.getNickName());
 
         cacheImageFile = account.getIcon();

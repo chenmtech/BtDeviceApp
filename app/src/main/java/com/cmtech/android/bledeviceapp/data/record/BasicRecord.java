@@ -106,7 +106,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         if(account == null)
             return "匿名";
         else {
-            return account.getNickName();
+            return account.getNickNameOrUserName();
         }
     }
 
@@ -115,7 +115,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         if(account == null)
             return "匿名";
         else {
-            return account.getNickName() + "(" + account.getNote() + ")";
+            return account.getNickNameOrUserName() + "(" + account.getNote() + ")";
         }
     }
 
@@ -294,7 +294,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         for(RecordType t : types) {
             Class<? extends BasicRecord> recordClass = t.getRecordClass();
             if (recordClass != null) {
-                ViseLog.e(recordClass);
+                //ViseLog.e(recordClass);
                 if(TextUtils.isEmpty(noteFilterStr)) {
                     records.addAll(LitePal.select(basicItems)
                             .where("creatorId = ? and createTime < ?", ""+creator.getAccountId(), ""+fromTime)
@@ -304,7 +304,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             .where("creatorId = ? and createTime < ? and note like ?", ""+creator.getAccountId(), ""+fromTime, "%"+noteFilterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
-                ViseLog.e(records);
+                //ViseLog.e(records);
             }
         }
         if(records.isEmpty()) return null;

@@ -79,6 +79,9 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         return password;
     }
     public String getNickName() {
+        return nickName;
+    }
+    public String getNickNameOrUserName() {
         if("".equals(nickName)) {
             return userName;
         }
@@ -148,13 +151,13 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     public void signUp(Context context, ICodeCallback callback) {
+        ViseLog.e("account signup");
         new AccountAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 callback.onFinish(response.getCode());
-
             }
-        }).execute(new Account(userName, password));
+        }).execute(this);
     }
 
     public void login(Context context, String showString, ICodeCallback callback) {

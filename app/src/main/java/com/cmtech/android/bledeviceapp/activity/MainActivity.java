@@ -221,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     updateNavigationHeader();
+                    //ViseLog.e("download account info");
                 }
             }
         });
@@ -704,6 +705,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         final Intent intent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+        MyApplication.killProcess();
     }
 
     private void updateNavigationHeader() {
@@ -712,12 +714,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();
         } else {
-            String name = account.getNickName();
-            if(TextUtils.isEmpty(name)) {
-                tvAccountName.setText(R.string.anonymous);
-            } else {
-                tvAccountName.setText(name);
-            }
+            String name = account.getNickNameOrUserName();
+            tvAccountName.setText(name);
 
             if(TextUtils.isEmpty(account.getIcon())) {
                 ivAccountImage.setImageResource(R.mipmap.ic_user);
