@@ -46,6 +46,7 @@ public class AccountManager {
     }
 
     public void webLogin(final Context context, String showString) {
+        if(account == null) return;
         account.login(context, showString, code -> {
             if(code != RETURN_CODE_SUCCESS) {
                 runOnUiThread(() -> Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show());
@@ -53,12 +54,19 @@ public class AccountManager {
         });
     }
 
-    public void webLogin(final Context context, String showString, ICodeCallback callback) {
-        account.login(context, showString, callback);
+    public void webLogin(String userName, String password, final Context context, String showString, ICodeCallback callback) {
+        Account account = new Account(userName, password);
+        account.login(context, showString, code -> {
+            if(code == RETURN_CODE_SUCCESS) {
+                this.account = account;
+                callback.onFinish(code);
+            }
+        });
     }
 
-    public static void signUp(final Context context, String userName, String password) {
-        Account.signUp(context, userName, password, code -> {
+    public void signUp(final Context context, String userName, String password) {
+        Account account = new Account(userName, password);
+        account.signUp(context, code -> {
             if(code == RETURN_CODE_SUCCESS) {
                 runOnUiThread(() -> Toast.makeText(context, "账户注册成功", Toast.LENGTH_SHORT).show());
             } else {

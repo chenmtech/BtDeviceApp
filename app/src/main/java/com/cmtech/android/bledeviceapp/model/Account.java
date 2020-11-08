@@ -50,7 +50,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
     @Column(ignore = true)
-    private boolean login = false;
+    private boolean webLogin = false;
 
     public Account(String userName, String password) {
         this.userName = userName;
@@ -143,11 +143,16 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         }
     }
 
-    public static void signUp(Context context, String userName, String password, ICodeCallback callback) {
+    public void signUp(Context context, ICodeCallback callback) {
         new AccountAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode());
+                int code = response.getCode();
+                if(code == RETURN_CODE_SUCCESS) {
+                    accountId = (Integer) response.getContent();
+                    save();
+                }
+                callback.onFinish(code);
             }
         }).execute(new Account(userName, password));
     }
@@ -156,13 +161,8 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         new AccountAsyncTask(context, showString, CMD_LOGIN, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                if(code == RETURN_CODE_SUCCESS) {
-                    accountId = (Integer) response.getContent();
-                    login = true;
-                    save();
-                }
-                callback.onFinish(code);
+                webLogin = (response.getCode() == RETURN_CODE_SUCCESS);
+                callback.onFinish(response.getCode());
             }
         }).execute(this);
     }

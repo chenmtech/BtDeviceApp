@@ -101,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signUp(String userName, String password) {
-        AccountManager.signUp(this, userName, password);
+        MyApplication.getAccountManager().signUp(this, userName, password);
     }
 
     private void login(String userName, String password) {
@@ -112,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
 
             MyApplication.getAccountManager().webLogin(this, null);
         } else {
-            MyApplication.getAccountManager().webLogin(this, "正在登录，请稍等...", new ICodeCallback() {
+            MyApplication.getAccountManager().webLogin(userName, password, this, "正在登录，请稍等...", new ICodeCallback() {
                 @Override
                 public void onFinish(int code) {
                     if(code == RETURN_CODE_SUCCESS) {
