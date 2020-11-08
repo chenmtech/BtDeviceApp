@@ -46,8 +46,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Column(ignore = true)
     private int pos = 0; // current position to the ecgData
 
-    private BleEcgRecord(String ver, long createTime, String devAddress, Account creator) {
-        super(ECG, ver, createTime, devAddress, creator);
+    private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
+        super(ECG, ver, createTime, devAddress, creatorId);
     }
 
     @Override

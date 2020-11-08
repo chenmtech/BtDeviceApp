@@ -26,8 +26,6 @@ import org.litepal.LitePal;
 
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_LOGIN_PLATFORM;
-
 
 /**
   *
@@ -136,7 +134,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         BasicRecord record = records.get(position);
         if(record == null) return;
 
-        holder.tvCreatorName.setText(record.getCreatorName());
+        holder.tvCreatorName.setText(record.getCreatorNickName());
         Account account = MyApplication.getAccount();
         if(TextUtils.isEmpty(account.getIcon())) {
             // load icon by platform name

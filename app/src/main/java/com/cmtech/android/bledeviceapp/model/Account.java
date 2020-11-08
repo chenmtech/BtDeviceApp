@@ -164,7 +164,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
                 int code = response.getCode();
                 if(code == RETURN_CODE_SUCCESS) {
                     accountId = (Integer) response.getContent();
-                    ViseLog.e("accountId=" + accountId);
+                    //ViseLog.e("accountId=" + accountId);
                     if(accountId != INVALID_ID) {
                         webLogin = true;
                         save();

@@ -11,6 +11,7 @@ import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
+import com.vise.log.ViseLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,12 +57,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     private int recordSecond = 0; // unit: s
     private boolean needUpload = true; // need uploaded
 
-    BasicRecord(RecordType type, String ver, long createTime, String devAddress, Account creator) {
+    BasicRecord(RecordType type, String ver, long createTime, String devAddress, int creatorId) {
         this.type = type;
         this.ver = ver;
         this.createTime = createTime;
         this.devAddress = devAddress;
-        this.creatorId = creator.getAccountId();
+        this.creatorId = creatorId;
     }
 
     public int getId() {
@@ -100,17 +101,17 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         return creatorId;
     }
 
-    public String getCreatorName() {
-        Account account = LitePal.where("id = ?", ""+creatorId).findFirst(Account.class);
+    public String getCreatorNickName() {
+        Account account = LitePal.where("accountId = ?", ""+creatorId).findFirst(Account.class);
         if(account == null)
             return "匿名";
         else {
-            return account.getUserName();
+            return account.getNickName();
         }
     }
 
-    public String getCreatorNameAndNote() {
-        Account account = LitePal.where("id = ?", ""+creatorId).findFirst(Account.class);
+    public String getCreatorNickNameAndNote() {
+        Account account = LitePal.where("accountId = ?", ""+creatorId).findFirst(Account.class);
         if(account == null)
             return "匿名";
         else {
@@ -185,9 +186,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             String ver = json.getString("ver");
                             long createTime = json.getLong("createTime");
                             String devAddress = json.getString("devAddress");
-                            String creatorPlat = json.getString("creatorPlat");
-                            String creatorId = json.getString("creatorId");
-                            BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, new Account(creatorPlat, creatorId));
+                            int creatorId = json.getInt("creatorId");
+                            BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, creatorId);
                             if (record != null) {
                                 record.basicRecordFromJson(json);
                                 record.setNeedUpload(false);
@@ -294,6 +294,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         for(RecordType t : types) {
             Class<? extends BasicRecord> recordClass = t.getRecordClass();
             if (recordClass != null) {
+                ViseLog.e(recordClass);
                 if(TextUtils.isEmpty(noteFilterStr)) {
                     records.addAll(LitePal.select(basicItems)
                             .where("creatorId = ? and createTime < ?", ""+creator.getAccountId(), ""+fromTime)
@@ -303,6 +304,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             .where("creatorId = ? and createTime < ? and note like ?", ""+creator.getAccountId(), ""+fromTime, "%"+noteFilterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
+                ViseLog.e(records);
             }
         }
         if(records.isEmpty()) return null;

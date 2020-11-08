@@ -143,7 +143,7 @@ public class ThermoDevice extends AbstractDevice {
         if(this.isRecord == isRecord) return;
 
         if(isRecord) {
-            record = (BleThermoRecord) RecordFactory.create(RecordType.THERMO, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            record = (BleThermoRecord) RecordFactory.create(RecordType.THERMO, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
             Toast.makeText(MyApplication.getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
         } else {
             if(record != null) {

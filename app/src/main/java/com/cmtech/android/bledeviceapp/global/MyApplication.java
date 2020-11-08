@@ -20,6 +20,8 @@ import org.litepal.LitePal;
 
 import java.util.List;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+
 /**
  * MyApplication
  * Created by bme on 2018/2/19.
@@ -123,6 +125,12 @@ public class MyApplication extends Application {
 
     public static Account getAccount() {
         return instance.accountManager.getAccount();
+    }
+
+    public static int getAccountId() {
+        Account account = instance.accountManager.getAccount();
+        if(account == null) return INVALID_ID;
+        else return account.getAccountId();
     }
 
     public static void killProcess() {

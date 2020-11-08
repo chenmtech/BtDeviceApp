@@ -37,8 +37,8 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     @Column(ignore = true)
     private int pos = 0;
 
-    private BleEegRecord(String ver, long createTime, String devAddress, Account creator) {
-        super(EEG, ver, createTime, devAddress, creator);
+    private BleEegRecord(String ver, long createTime, String devAddress, int creatorId) {
+        super(EEG, ver, createTime, devAddress, creatorId);
     }
 
     @Override

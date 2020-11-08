@@ -263,7 +263,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private void updateRecordList() {
         KeyBoardUtil.closeKeybord(this);
 
-        BasicRecord record = RecordFactory.create(recordType, DEFAULT_RECORD_VER, INVALID_TIME, null, MyApplication.getAccount());
+        BasicRecord record = RecordFactory.create(recordType, DEFAULT_RECORD_VER, INVALID_TIME, null, MyApplication.getAccountId());
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;

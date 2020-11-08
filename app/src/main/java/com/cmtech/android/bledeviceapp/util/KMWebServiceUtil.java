@@ -267,6 +267,7 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.get("records"));
+            ViseLog.e(rtn);
         } catch (JSONException | IOException e) {
             e.printStackTrace();
             wResp.setCode(RETURN_CODE_DATA_ERR);

@@ -199,7 +199,7 @@ public class EegDevice extends AbstractDevice {
 
         isEegRecord = isRecord;
         if(isRecord) {
-            eegRecord = (BleEegRecord) RecordFactory.create(EEG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccount());
+            eegRecord = (BleEegRecord) RecordFactory.create(EEG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
             if(eegRecord != null) {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);

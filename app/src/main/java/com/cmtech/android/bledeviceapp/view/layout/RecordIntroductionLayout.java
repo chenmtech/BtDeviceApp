@@ -19,8 +19,6 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_LOGIN_PLATFORM;
-
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.view
@@ -66,7 +64,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
     public void updateView() {
         if(record == null) return;
 
-        tvCreatorName.setText(record.getCreatorName());
+        tvCreatorName.setText(record.getCreatorNickName());
         Account account = MyApplication.getAccount();
         if(account != null) {
             if (TextUtils.isEmpty(account.getIcon())) {
