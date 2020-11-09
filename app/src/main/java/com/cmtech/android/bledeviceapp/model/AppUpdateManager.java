@@ -3,8 +3,10 @@ package com.cmtech.android.bledeviceapp.model;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
+import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
@@ -20,6 +22,8 @@ public class AppUpdateManager {
             if(code == RETURN_CODE_SUCCESS) {
                 if(needUpdate())
                     updateApp(context);
+            } else {
+                Toast.makeText(context, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
             }
         });
     }

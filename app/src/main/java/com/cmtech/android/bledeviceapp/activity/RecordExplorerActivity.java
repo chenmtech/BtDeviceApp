@@ -28,6 +28,7 @@ import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.KeyBoardUtil;
+import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.layout.RecordSearchLayout;
 import com.vise.log.ViseLog;
 
@@ -41,7 +42,6 @@ import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RE
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 /**
   *
@@ -179,7 +179,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK) {
                 recordAdapter.notifySelectedItemChanged();
             } else {
-                Toast.makeText(this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "无法下载记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -237,7 +237,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 if (code == RETURN_CODE_SUCCESS) {
                     updateRecordView();
                 } else {
-                    Toast.makeText(RecordExplorerActivity.this, "上传记录出错。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -272,8 +272,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, noteFilterStr, updateTime, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
-                if(code == RETURN_CODE_WEB_FAILURE) {
-                    Toast.makeText(RecordExplorerActivity.this, "网络错误，只能加载本地记录。", Toast.LENGTH_SHORT).show();
+                if(code != RETURN_CODE_SUCCESS) {
+                    Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
                 }
 
                 List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), updateTime, noteFilterStr, DEFAULT_DOWNLOAD_RECORD_NUM);

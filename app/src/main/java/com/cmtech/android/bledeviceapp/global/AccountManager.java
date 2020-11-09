@@ -4,16 +4,15 @@ package com.cmtech.android.bledeviceapp.global;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
   *
@@ -70,9 +69,9 @@ public class AccountManager {
         account.signUp(context, code -> {
             ViseLog.e("code:"+code);
             if(code == RETURN_CODE_SUCCESS) {
-                runOnUiThread(() -> Toast.makeText(context, "账户注册成功", Toast.LENGTH_SHORT).show());
+                Toast.makeText(context, "账户注册成功", Toast.LENGTH_SHORT).show();
             } else {
-                runOnUiThread(() -> Toast.makeText(context, "账户注册失败", Toast.LENGTH_SHORT).show());
+                Toast.makeText(context, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
             }
         });
     }

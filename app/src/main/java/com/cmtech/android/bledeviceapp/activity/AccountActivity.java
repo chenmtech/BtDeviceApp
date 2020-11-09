@@ -27,6 +27,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -123,11 +124,13 @@ public class AccountActivity extends AppCompatActivity {
                 account.upload(AccountActivity.this, new ICodeCallback() {
                     @Override
                     public void onFinish(int code) {
-                        String str = (code == RETURN_CODE_SUCCESS) ? "账户信息已更新。" : "更新账户信息错误。";
-                        Toast.makeText(AccountActivity.this, str, Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent();
-                        setResult(RESULT_OK, intent);
-                        finish();
+                        if(code == RETURN_CODE_SUCCESS) {
+                            Toast.makeText(AccountActivity.this, "账户信息已更新。", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent();
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        } else
+                            Toast.makeText(AccountActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -204,7 +207,7 @@ public class AccountActivity extends AppCompatActivity {
                 if (code == RETURN_CODE_SUCCESS) {
                     updateUI();
                 } else {
-                    Toast.makeText(AccountActivity.this, "下载账户信息错误。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AccountActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

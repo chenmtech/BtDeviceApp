@@ -15,9 +15,12 @@ import android.widget.Toast;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText etUserName;
@@ -98,10 +101,14 @@ public class LoginActivity extends AppCompatActivity {
         MyApplication.getAccountManager().login(userName, password, this, "正在登录，请稍等...", new ICodeCallback() {
             @Override
             public void onFinish(int code) {
-                if (MyApplication.getAccountManager().isValid()) {
-                    startMainActivity();
+                if(code == RETURN_CODE_SUCCESS) {
+                    if (MyApplication.getAccountManager().isValid()) {
+                        startMainActivity();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "用户名或密码错误，请重新输入。", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(LoginActivity.this, "账户登录失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import okhttp3.Callback;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
@@ -49,7 +48,10 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.getJSONObject("appUpdateInfo"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return wResp;
@@ -69,9 +71,11 @@ public class KMWebServiceUtil {
             ViseLog.e(respBody);
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
-            ViseLog.e("wrong:" + e);
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return wResp;
     }
@@ -88,7 +92,10 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.getInt("id"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return wResp;
@@ -127,7 +134,10 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             //ViseLog.e("upload account code:" + wResp.getCode());
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return wResp;
@@ -149,7 +159,10 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.get("account"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return wResp;
@@ -168,7 +181,10 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.getInt("id"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
+            e.printStackTrace();
+            wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return wResp;
@@ -190,9 +206,11 @@ public class KMWebServiceUtil {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return wResp;
     }
@@ -217,9 +235,11 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.get("record"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return wResp;
     }
@@ -243,9 +263,11 @@ public class KMWebServiceUtil {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return wResp;
     }
@@ -272,9 +294,11 @@ public class KMWebServiceUtil {
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.get("records"));
             ViseLog.e(rtn);
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return wResp;
     }
@@ -298,9 +322,11 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.getJSONObject("reportResult"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return wResp;
     }
@@ -323,9 +349,11 @@ public class KMWebServiceUtil {
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
             wResp.setContent(rtn.getJSONObject("reportResult"));
-        } catch (JSONException | IOException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
             wResp.setCode(RETURN_CODE_DATA_ERR);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return wResp;
     }

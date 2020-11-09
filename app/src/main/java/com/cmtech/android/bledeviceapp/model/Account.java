@@ -76,7 +76,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
     public String getUserName() { return userName;}
     public String getPassword() {
-        ViseLog.e(MD5Utils.getMD5Code(password));
+        //ViseLog.e(MD5Utils.getMD5Code(password));
         return MD5Utils.getMD5Code(password);
     }
     public String getNickName() {
