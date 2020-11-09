@@ -291,11 +291,13 @@ public class KMWebServiceUtil {
         try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
+            //ViseLog.e(rtn);
             wResp.setCode(rtn.getInt("code"));
-            wResp.setContent(rtn.get("records"));
-            ViseLog.e(rtn);
+            if(rtn.has("records"))
+                wResp.setContent(rtn.get("records"));
         } catch (JSONException e) {
             e.printStackTrace();
+            //ViseLog.e("json error:" + e);
             wResp.setCode(RETURN_CODE_DATA_ERR);
         } catch (IOException e) {
             e.printStackTrace();
