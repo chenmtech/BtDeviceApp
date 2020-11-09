@@ -75,7 +75,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         if(record == null) return;
 
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        tvRecordPerson.setText(record.getCreatorNickNameAndNote());
+        tvRecordPerson.setText(record.getCreatorNickName());
         long endTime = record.getCreateTime();
         long beginTime = endTime-record.getRecordSecond()*1000;
         tvRecordTime.setText(String.format("从%s 到%s", dateFmt.format(beginTime), dateFmt.format(endTime)));

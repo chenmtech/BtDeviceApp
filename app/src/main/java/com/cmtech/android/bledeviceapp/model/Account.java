@@ -12,6 +12,7 @@ import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
+import com.cmtech.android.bledeviceapp.util.MD5Utils;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
@@ -30,7 +31,6 @@ import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_LOG
 import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.PHONE_PLAT_NAME;
 
 /**
   *
@@ -76,7 +76,8 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
     public String getUserName() { return userName;}
     public String getPassword() {
-        return password;
+        ViseLog.e(MD5Utils.getMD5Code(password));
+        return MD5Utils.getMD5Code(password);
     }
     public String getNickName() {
         return nickName;
@@ -114,7 +115,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
                 if (bitmap != null) {
                     try {
                         assert DIR_IMAGE != null;
-                        File iconFile = FileUtil.getFile(DIR_IMAGE, userName + password + ".jpg");
+                        File iconFile = FileUtil.getFile(DIR_IMAGE, userName + ".jpg");
                         BitmapUtil.saveBitmap(bitmap, iconFile);
                         icon = iconFile.getCanonicalPath();
                     } catch (IOException e) {
@@ -132,8 +133,8 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         try {
             JSONObject json = new JSONObject();
             json.put("ver", "1.0");
-            json.put("userName", userName);
-            json.put("password", password);
+            //json.put("userName", userName);
+            json.put("password", getPassword());
             json.put("nickName", nickName);
             json.put("note", note);
 
@@ -233,7 +234,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     @NonNull
     @Override
     public String toString() {
-        return "AccountId: " + accountId + ",UserName: " + getUserName() + ",Password: " + getPassword() + ",NickName：" + nickName + ' '
+        return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
                 + ",Note：" + note + ",icon: " + icon;
     }
 

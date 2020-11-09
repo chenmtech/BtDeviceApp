@@ -120,7 +120,7 @@
     <string name="delete_record">删除记录</string>
     <string name="really_wanna_delete_record">删除后将无法恢复，确定删除吗？</string>
     <string name="logout_account">退出账户</string>
-    <string name="really_logout_account">该账户的非云端记录可能会丢失。确定退出吗？</string>
+    <string name="really_logout_account">该账户下未上传记录可能会丢失。确定退出吗？</string>
     <string name="battery">电量</string>
     <string name="refresh_when_drag_down">下拉刷新</string>
     <string name="download">下载</string>

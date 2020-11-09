@@ -105,7 +105,7 @@ public class AccountActivity extends AppCompatActivity {
                             ivImage.setDrawingCacheEnabled(true);
                             Bitmap bitmap = ivImage.getDrawingCache();
                             bitmap = BitmapUtil.scaleImageTo(bitmap, 100, 100);
-                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserName()+account.getPassword() + ".jpg");
+                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserName() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();

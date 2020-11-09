@@ -31,7 +31,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -71,7 +71,6 @@ import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_STORE_URI;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_LOGIN_PLATFORM;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
@@ -96,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 账户头像控件
-    private ImageButton ibChangeAccount; // 切换账户控件
+    private Button btnChangeAccount; // 切换账户控件
     private NotificationService notifyService;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -269,21 +268,16 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             }
         });
 
-        ibChangeAccount = headerView.findViewById(R.id.ib_change_account);
-        ibChangeAccount.setOnClickListener(new View.OnClickListener() {
+        btnChangeAccount = headerView.findViewById(R.id.btn_change_account);
+        btnChangeAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle(R.string.logout_account)
+                builder.setTitle("切换账户")
                         .setMessage(R.string.really_logout_account)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 changeAccount();
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-
                             }
                         }).show();
             }
