@@ -75,7 +75,7 @@
                 android:layout_weight="1"
                 style="@style/edittext_circle_gray_style"/>
 
-            <TextView
+            <Button
                 android:id="@+id/tv_get_qr_code"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
