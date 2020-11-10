@@ -50,7 +50,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 style="@style/edittext_circle_gray_style"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:maxLength="15"/>
         </LinearLayout>
 
         <LinearLayout
@@ -73,7 +74,8 @@
                 android:layout_weight="2"
                 style="@style/edittext_circle_gray_style"
                 android:inputType="textPassword"
-                android:hint="字母或数字5-10位"/>
+                android:hint="字母或数字5-10位"
+                android:maxLength="15"/>
         </LinearLayout>
 
         <LinearLayout
@@ -95,7 +97,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 style="@style/edittext_circle_gray_style"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:maxLength="6"/>
 
             <Button
                 android:id="@+id/btn_get_qr_code"

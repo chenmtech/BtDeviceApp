@@ -28,7 +28,8 @@
             android:inputType="textMultiLine"
             android:enabled="false"
             android:autofillHints=""
-            android:textColor="@color/accent"/>
+            android:textColor="@color/accent"
+            android:maxLength="255"/>
 
         <Button
             android:id="@+id/btn_edit"
