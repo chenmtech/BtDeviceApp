@@ -18,9 +18,8 @@ import org.litepal.LitePal;
 
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 public class HrRecordActivity extends AppCompatActivity {
     private BleHrRecord record;
@@ -44,17 +43,6 @@ public class HrRecordActivity extends AppCompatActivity {
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
-        }
-
-        if(record.noSignal()) {
-            record.download(this, code -> {
-                if (code == RETURN_CODE_SUCCESS) {
-                    initUI();
-                } else {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                }
-            });
         } else {
             record.createHistogramFromHrHist();
             initUI();

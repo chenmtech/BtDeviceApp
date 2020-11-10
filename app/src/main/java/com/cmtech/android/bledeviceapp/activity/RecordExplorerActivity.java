@@ -179,7 +179,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK) {
                 recordAdapter.notifySelectedItemChanged();
             } else {
-                Toast.makeText(this, "无法下载记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "打开记录错误。", Toast.LENGTH_SHORT).show();
             }
         }
     }

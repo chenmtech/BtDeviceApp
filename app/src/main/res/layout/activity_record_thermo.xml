@@ -28,6 +28,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="300dp"/>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"/>
+
             <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
                 android:id="@+id/layout_record_note"
                 android:layout_width="match_parent"

@@ -8,11 +8,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
@@ -35,8 +34,8 @@ public class RecordReportLayout extends LinearLayout {
 
     private final EditText etAveHr;
     private final EditText etContent;
-    private final TextView tvTime;
-    private final TextView tvReportVer;
+    private final EditText etTime;
+    private final EditText etReportVer;
 
     public RecordReportLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -44,8 +43,8 @@ public class RecordReportLayout extends LinearLayout {
 
         etAveHr = view.findViewById(R.id.et_report_ave_hr);
         etContent = view.findViewById(R.id.et_report_content);
-        tvTime = view.findViewById(R.id.tv_report_time);
-        tvReportVer = view.findViewById(R.id.tv_report_ver);
+        etTime = view.findViewById(R.id.et_report_time);
+        etReportVer = view.findViewById(R.id.et_report_ver);
 
         ImageButton ibRefresh = view.findViewById(R.id.ib_request_report);
         ibRefresh.setOnClickListener(new View.OnClickListener() {
@@ -74,10 +73,10 @@ public class RecordReportLayout extends LinearLayout {
         long time = record.getReport().getReportTime();
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-            tvTime.setText(dateFmt.format(time));
+            etTime.setText(dateFmt.format(time));
             etAveHr.setText(String.valueOf(record.getReport().getAveHr()));
             etContent.setText(record.getReport().getContent());
-            tvReportVer.setText(record.getReport().getVer());
+            etReportVer.setText(record.getReport().getVer());
         } else {
 
         }

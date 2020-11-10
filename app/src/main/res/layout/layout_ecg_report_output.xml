@@ -438,22 +438,12 @@
             android:layout_height="wrap_content"
             android:minLines="3"
             android:text="暂无"
-            android:textSize="@dimen/big_font"/>
+            android:textSize="@dimen/bigger_font"/>
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:text="*以上结论不能作为临床诊断依据。如有心脏不适，请及时就医。"
-        android:textSize="@dimen/smallest_font"
-        android:textColor="@color/red"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
@@ -473,7 +463,6 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
@@ -487,6 +476,35 @@
             android:layout_height="wrap_content"
             android:minEms="10"
             android:text="   "
+            android:textSize="@dimen/big_font"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:text="*以上结论不能作为临床诊断依据。如有心脏不适，请及时就医。"
+        android:textSize="@dimen/smallest_font"
+        android:textColor="@color/red"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="备注："
+            android:textSize="@dimen/big_font"/>
+
+        <TextView
+            android:id="@+id/tv_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="3"
             android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
@@ -507,25 +525,6 @@
             android:layout_height="wrap_content"
             android:minEms="10"
             android:text="  "
-            android:textSize="@dimen/big_font"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="备注："
-            android:textSize="@dimen/big_font"/>
-
-        <TextView
-            android:id="@+id/tv_note"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minLines="3"
             android:textSize="@dimen/big_font"/>
     </LinearLayout>
 </LinearLayout>

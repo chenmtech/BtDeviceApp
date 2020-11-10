@@ -39,9 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
     private BleEcgRecord record; // record
@@ -68,17 +67,6 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
-        }
-
-        if(record.noSignal()) {
-            record.download(this, code -> {
-                if (code == RETURN_CODE_SUCCESS) {
-                    initUI();
-                } else {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                }
-            });
         } else {
             initUI();
         }

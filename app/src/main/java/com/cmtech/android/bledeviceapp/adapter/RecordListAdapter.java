@@ -27,6 +27,8 @@ import org.litepal.LitePal;
 
 import java.util.List;
 
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+
 
 /**
   *
@@ -97,7 +99,21 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                     notifyItemChanged(prePos);
                 }
                 notifyItemChanged(position);
-                activity.openRecord(records.get(position));
+
+                BasicRecord record = records.get(position);
+                record = LitePal.find(record.getClass(), record.getId(), true);
+                records.set(position, record);
+                if(record.noSignal()) {
+                    record.download(activity, code -> {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            activity.openRecord(records.get(position));
+                        } else {
+                            Toast.makeText(activity, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    activity.openRecord(records.get(position));
+                }
             }
         });
 

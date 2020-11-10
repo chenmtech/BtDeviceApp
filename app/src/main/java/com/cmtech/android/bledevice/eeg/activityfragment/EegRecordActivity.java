@@ -18,7 +18,6 @@ import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class EegRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
     private BleEegRecord record;
@@ -42,17 +41,6 @@ public class EegRecordActivity extends AppCompatActivity implements OnRollWaveVi
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
-        }
-
-        if(record.noSignal()) {
-            record.download(this, code -> {
-                if (code == RETURN_CODE_SUCCESS) {
-                    initUI();
-                } else {
-                    setResult(RESULT_CANCELED);
-                    finish();
-                }
-            });
         } else {
             initUI();
         }
