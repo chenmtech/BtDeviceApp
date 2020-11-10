@@ -13,6 +13,27 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <com.cmtech.android.bledeviceapp.view.RoundImageView
+                android:id="@+id/iv_account_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_kang"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textSize="@dimen/bigger_font"
+                android:text="康明智联"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -73,15 +94,17 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                style="@style/edittext_circle_gray_style"/>
+                style="@style/edittext_circle_gray_style"
+                android:inputType="number"/>
 
             <Button
                 android:id="@+id/btn_get_qr_code"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center_horizontal"
-                android:text="获取验证码"/>
+                android:gravity="center"
+                android:text="获取验证码"
+                android:background="@color/background_transparent"/>
         </LinearLayout>
 
         <LinearLayout

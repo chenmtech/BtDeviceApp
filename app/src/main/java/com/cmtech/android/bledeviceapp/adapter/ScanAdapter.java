@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
@@ -18,6 +19,8 @@ import com.cmtech.android.bledeviceapp.activity.ScanActivity;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.util.List;
+
+import static android.util.TypedValue.COMPLEX_UNIT_PX;
 
 
 /**
@@ -100,7 +103,6 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
             holder.type.setText("不支持");
         } else {
             holder.type.setText(type.getDefaultName());
-            holder.view.setBackgroundResource(R.color.secondary);
         }
         holder.address.setText(detailInfo.getAddress());
         holder.name.setText(detailInfo.getName());
@@ -110,8 +112,15 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
             holder.status.setText(R.string.added);
             paint.setFlags(paint.getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            holder.status.setText(R.string.not_added);
-            paint.setFlags(paint.getFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+            if(type == null) {
+                holder.status.setText(R.string.not_added);
+                paint.setFlags(paint.getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                holder.status.setText("可添加");
+                holder.status.setTextColor(ContextCompat.getColor(activity, R.color.orange));
+                holder.status.setTextSize(COMPLEX_UNIT_PX, activity.getResources().getDimensionPixelSize(R.dimen.big_font));
+                paint.setFlags(paint.getFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+            }
         }
     }
 

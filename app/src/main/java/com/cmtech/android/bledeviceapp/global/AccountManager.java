@@ -2,12 +2,9 @@ package com.cmtech.android.bledeviceapp.global;
 
 
 import android.content.Context;
-import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
-import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
@@ -53,16 +50,9 @@ public class AccountManager {
         });
     }
 
-    public void signUp(final Context context, String userName, String password) {
+    public void signUp(final Context context, String userName, String password, ICodeCallback callback) {
         Account account = new Account(userName, password);
-        account.signUp(context, code -> {
-            ViseLog.e("code:"+code);
-            if(code == RETURN_CODE_SUCCESS) {
-                Toast.makeText(context, "账户注册成功", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
-            }
-        });
+        account.signUp(context, callback);
     }
 
     // logout account

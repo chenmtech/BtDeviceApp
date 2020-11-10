@@ -5,13 +5,8 @@
     android:layout_gravity="center_vertical"
     android:gravity="center_vertical"
     android:padding="6dp"
-    android:orientation="horizontal">
-
-    <View
-        android:id="@+id/view_select_indicate"
-        android:layout_width="10dp"
-        android:layout_height="match_parent"
-        android:background="@drawable/unselect_indication"/>
+    android:orientation="horizontal"
+    android:background="@color/primary">
 
     <LinearLayout
         android:id="@+id/ll_creator"

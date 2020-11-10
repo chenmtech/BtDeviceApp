@@ -98,12 +98,19 @@
             android:gravity="end"
             android:textSize="@dimen/normal_font"
             android:text="@string/account_portrait"/>
-        <com.cmtech.android.bledeviceapp.view.RoundImageView
-            android:id="@+id/iv_account_image"
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:src="@mipmap/ic_user"/>
+            android:orientation="horizontal"
+            android:layout_margin="10dp">
+            <com.cmtech.android.bledeviceapp.view.RoundImageView
+                android:id="@+id/iv_account_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@mipmap/ic_user"/>
+        </LinearLayout>
+
     </LinearLayout>
 
     <LinearLayout

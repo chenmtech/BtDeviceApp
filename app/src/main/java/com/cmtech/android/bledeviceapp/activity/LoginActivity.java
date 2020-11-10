@@ -208,7 +208,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signUp(String userName, String password) {
-        MyApplication.getAccountManager().signUp(this, userName, password);
+        MyApplication.getAccountManager().signUp(this, userName, password, new ICodeCallback() {
+            @Override
+            public void onFinish(int code) {
+                ViseLog.e("code:"+code);
+                if(code == RETURN_CODE_SUCCESS) {
+                    Toast.makeText(LoginActivity.this, "账户注册成功", Toast.LENGTH_SHORT).show();
+                    etPassword.setText("");
+                } else {
+                    Toast.makeText(LoginActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void login(String userName, String password) {

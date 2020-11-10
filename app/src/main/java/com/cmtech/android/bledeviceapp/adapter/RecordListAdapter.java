@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -49,7 +50,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     static class ViewHolder extends RecyclerView.ViewHolder {
         View view;
 
-        View selectIndicate;
         TextView tvCreatorName; //
         ImageView ivCreatorImage;
         ImageView ivRecordType;
@@ -72,7 +72,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             ivUpload = view.findViewById(R.id.iv_need_upload);
             ivDelete = view.findViewById(R.id.iv_delete);
             llRecordInfo = view.findViewById(R.id.ll_basic_info);
-            selectIndicate = view.findViewById(R.id.view_select_indicate);
         }
     }
 
@@ -162,9 +161,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         }
 
         if(position == this.position) {
-            holder.selectIndicate.setBackground(activity.getDrawable(R.drawable.select_indication));
+            holder.view.setBackgroundColor(ContextCompat.getColor(activity, R.color.secondary));
         } else {
-            holder.selectIndicate.setBackground(activity.getDrawable(R.drawable.unselect_indication));
+            holder.view.setBackgroundColor(ContextCompat.getColor(activity, R.color.primary));
         }
     }
 
