@@ -1,10 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.TargetApi;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -165,7 +162,8 @@ public class AccountActivity extends AppCompatActivity {
                                     return;
                                 }
 
-                                changeAccount();
+                                MyApplication.getAccountManager().localLogout();
+                                restart();
                             }
                         }).show();
             }
@@ -292,15 +290,8 @@ public class AccountActivity extends AppCompatActivity {
         return path;
     }
 
-    // change account
-    private void changeAccount() {
-        MyApplication.getAccountManager().localLogout(true);
-
-        restart(this);
-    }
-
-    public void restart(Context context) {
-        final Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getApplicationContext().getPackageName());
+    private void restart() {
+        final Intent intent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         MyApplication.killProcess();

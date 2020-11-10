@@ -18,7 +18,10 @@ import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_LOGIN_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
+import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_PASSWORD;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -58,8 +61,7 @@ public class KMWebServiceUtil {
     }
 
     public static WebResponse signUp(Account account) {
-        ViseLog.e("kmwebserviceutil signup");
-        ViseLog.e(account);
+        ViseLog.e("sign up: "+account);
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "signUp");
         data.put("userName", account.getUserName());
@@ -68,7 +70,7 @@ public class KMWebServiceUtil {
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
         try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
-            ViseLog.e(respBody);
+            //ViseLog.e(respBody);
             JSONObject rtn = new JSONObject(respBody);
             wResp.setCode(rtn.getInt("code"));
         } catch (JSONException e) {
@@ -83,15 +85,26 @@ public class KMWebServiceUtil {
     public static WebResponse login(Account account) {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "login");
-        data.put("userName", account.getUserName());
-        data.put("password", account.getPassword());
+
+        switch (account.getLoginWay()) {
+            case LOGIN_WAY_PASSWORD:
+                data.put("loginWay", ""+account.getLoginWay());
+                data.put("userName", account.getUserName());
+                data.put("password", account.getPassword());
+                break;
+
+            default:
+                return new WebResponse(RETURN_CODE_LOGIN_ERR, null);
+        }
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
         try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-            wResp.setContent(rtn.getInt("id"));
+            int code = rtn.getInt("code");
+            wResp.setCode(code);
+            if(code == RETURN_CODE_SUCCESS)
+                wResp.setContent(rtn.getInt("id"));
         } catch (JSONException e) {
             e.printStackTrace();
             wResp.setCode(RETURN_CODE_DATA_ERR);

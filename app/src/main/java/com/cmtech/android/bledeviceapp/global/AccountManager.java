@@ -33,37 +33,66 @@ public class AccountManager {
         return account;
     }
 
-    // account login in local client
+    /**
+     * 本地账户登录
+     * 当应用程序启动时，会先检查本地账户登录是否成功
+     * 如果可以，则允许用户继续使用app功能，保证在没有网络的情况下继续使用app一些功能
+     * 如果不可以，则要求用户必须重新进行网络登录
+     * @return true: 本地登录成功； false：本地登录失败
+     */
     public boolean localLogin() {
         account = LitePal.findFirst(Account.class);
-
         return isValid();
     }
 
+    /**
+     * 用密码进行网络登录
+     * @param userName：用户名
+     * @param password：密码
+     * @param context：上下文
+     * @param showString：登录时显示的进度提示字符串，如果为null或""，则不显示进度条，在后台登录；否则在前台登录
+     * @param callback：登录后的回调
+     */
     public void login(String userName, String password, final Context context, String showString, ICodeCallback callback) {
         Account acnt = new Account(userName, password);
+        acnt.setLoginWay(Account.LOGIN_WAY_PASSWORD);
         acnt.login(context, showString, code -> {
-            if(code == RETURN_CODE_SUCCESS && acnt.getAccountId() != INVALID_ID) {
+            if(code == RETURN_CODE_SUCCESS) {
                 this.account = acnt;
             }
             callback.onFinish(code);
         });
     }
 
+    /**
+     * 网络注册新账户
+     * 无论注册成功与否，在本地不会保存任何账户信息
+     * @param context：上下文
+     * @param userName：用户名
+     * @param password：密码
+     * @param callback：注册后回调
+     */
     public void signUp(final Context context, String userName, String password, ICodeCallback callback) {
         Account account = new Account(userName, password);
         account.signUp(context, callback);
     }
 
-    // logout account
-    public void localLogout(boolean remove) {
-        if(account != null && remove) {
+    /**
+     * 本地登出当前账号
+     * 把账号信息从本地删除，网络端不会删除
+     * 仅在切换账户时使用
+     */
+    public void localLogout() {
+        if(account != null) {
             account.remove();
             account = null;
         }
     }
 
-    // is a valid account login
+    /**
+     * 当前账户是否为有效账户
+     * @return
+     */
     public boolean isValid() {
         return account != null && (account.getAccountId() != INVALID_ID);
     }

@@ -30,7 +30,7 @@ public class WebFailureHandler {
                 break;
 
             case RETURN_CODE_LOGIN_ERR:
-                errString = "登录失败，请重新填写手机号或密码";
+                errString = "登录失败";
                 break;
 
             case RETURN_CODE_ACCOUNT_ERR:

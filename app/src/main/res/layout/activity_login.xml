@@ -124,7 +124,7 @@
                 style="@style/button_circle_blue_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="登录"/>
+                android:text="密码登录"/>
         </LinearLayout>
 
     </LinearLayout>

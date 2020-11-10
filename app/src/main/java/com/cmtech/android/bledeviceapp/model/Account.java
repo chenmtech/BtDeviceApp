@@ -13,7 +13,6 @@ import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.MD5Utils;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -45,13 +44,19 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
  */
 
 public class Account extends LitePalSupport implements Serializable, IJsonable, IWebOperation {
+    public static final int LOGIN_WAY_PASSWORD = 0;
+    public static final int LOGIN_WAY_QR_CODE = 1;
+    public static final int LOGIN_WAY_QQ = 2;
+    public static final int LOGIN_WAY_WECHAT = 3;
+
     private int id; // id
+    private int accountId = INVALID_ID;
     private String userName = ""; // user name
     private String password = ""; // password
     private String nickName = ""; // nick name
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
-    private int accountId = INVALID_ID;
+    private int loginWay = LOGIN_WAY_PASSWORD;
     @Column(ignore = true)
     private boolean webLogin = false;
 
@@ -103,6 +108,12 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     public void setIcon(String icon) {
         this.icon = icon;
     }
+    public int getLoginWay() {
+        return loginWay;
+    }
+    public void setLoginWay(int loginWay) {
+        this.loginWay = loginWay;
+    }
 
     @Override
     public void fromJson(JSONObject json) {
@@ -152,7 +163,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     public void signUp(Context context, ICodeCallback callback) {
-        ViseLog.e("account signup");
+        //ViseLog.e("account signup");
         new AccountAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {

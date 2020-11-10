@@ -68,14 +68,13 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
                         if (result == SMSSDK.RESULT_COMPLETE) {
-                            // TODO 处理验证码验证通过的结果
+                            // 验证码验证通过的结果, 启动注册
                             signUp(userName, password);
                         } else {
                             Toast.makeText(LoginActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
                             ((Throwable) data).printStackTrace();
                         }
                     }
-                    // TODO 其他接口的返回结果也类似，根据event判断当前数据属于哪个接口
                     return false;
                 }
             }).sendMessage(msg);
@@ -106,12 +105,10 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         if (MyApplication.getAccountManager().localLogin()) {
-            //ViseLog.e("login ok");
+            //ViseLog.e("local login ok");
             startMainActivity();
             return;
         }
-
-        //ViseLog.e("need login");
 
         // 注册一个事件回调，用于处理SMSSDK接口请求的结果 
         SMSSDK.registerEventHandler(eventHandler);
@@ -123,8 +120,9 @@ public class LoginActivity extends AppCompatActivity {
         btnGetVeriCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                userName = etUserName.getText().toString().trim();
+                String userName = etUserName.getText().toString().trim();
                 if(checkUserName(userName)) {
+                    LoginActivity.this.userName = userName;
                     getVeriCode(userName); // 获取验证码
                     btnGetVeriCode.setEnabled(false);
                     startCountDownTimer();
@@ -139,23 +137,18 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!isPrivacyGrantChecked()) return;
-                if(LoginActivity.this.userName == null) {
-                    Toast.makeText(LoginActivity.this, "请先验证手机号。", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 String userName = etUserName.getText().toString().trim();
-                if(!LoginActivity.this.userName.equals(userName)) {
-                    Toast.makeText(LoginActivity.this, "手机号已改变，请重新验证。", Toast.LENGTH_SHORT).show();
+                if(LoginActivity.this.userName == null || !LoginActivity.this.userName.equals(userName)) {
+                    Toast.makeText(LoginActivity.this, "请先验证手机号。", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 password = etPassword.getText().toString().trim();
                 if(checkUserName(userName) && checkPassword(password)) {
                     veriCode = etVeriCode.getText().toString().trim();
                     verify(userName, veriCode);
-                    //signUp(userName, password);
                 }
                 else {
-                    Toast.makeText(LoginActivity.this, "用户名或密码格式错误，请重新输入", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "用户名或密码格式错误", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -214,7 +207,7 @@ public class LoginActivity extends AppCompatActivity {
                 ViseLog.e("code:"+code);
                 if(code == RETURN_CODE_SUCCESS) {
                     Toast.makeText(LoginActivity.this, "账户注册成功", Toast.LENGTH_SHORT).show();
-                    etPassword.setText("");
+                    etPassword.setText(""); // 清空密码
                 } else {
                     Toast.makeText(LoginActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
                 }
@@ -226,12 +219,8 @@ public class LoginActivity extends AppCompatActivity {
         MyApplication.getAccountManager().login(userName, password, this, "正在登录，请稍等...", new ICodeCallback() {
             @Override
             public void onFinish(int code) {
-                if(code == RETURN_CODE_SUCCESS) {
-                    if (MyApplication.getAccountManager().isValid()) {
-                        startMainActivity();
-                    } else {
-                        Toast.makeText(LoginActivity.this, "手机号或密码错误，请重新输入。", Toast.LENGTH_SHORT).show();
-                    }
+                if(code == RETURN_CODE_SUCCESS && MyApplication.getAccountManager().isValid()) {
+                    startMainActivity();
                 } else {
                     Toast.makeText(LoginActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
                 }
