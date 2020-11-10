@@ -1,7 +1,11 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -10,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -56,7 +61,7 @@ public class AccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
 
-        if(!MyApplication.getAccountManager().isValid())  {
+        if (!MyApplication.getAccountManager().isValid()) {
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             setResult(RESULT_CANCELED);
             finish();
@@ -90,16 +95,16 @@ public class AccountActivity extends AppCompatActivity {
                 account.setNickName(etName.getText().toString());
 
                 String icon = account.getIcon();
-                if(!cacheImageFile.equals(icon)) {
+                if (!cacheImageFile.equals(icon)) {
                     // 把原来的图像文件删除
-                    if(!TextUtils.isEmpty(icon)) {
+                    if (!TextUtils.isEmpty(icon)) {
                         File iconFile = new File(icon);
-                        if(iconFile.exists())
+                        if (iconFile.exists())
                             iconFile.delete();
                     }
 
                     // 把当前图像保存到DIR_IMAGE
-                    if(TextUtils.isEmpty(cacheImageFile)) {
+                    if (TextUtils.isEmpty(cacheImageFile)) {
                         account.setIcon("");
                     } else {
                         try {
@@ -124,7 +129,7 @@ public class AccountActivity extends AppCompatActivity {
                 account.upload(AccountActivity.this, new ICodeCallback() {
                     @Override
                     public void onFinish(int code) {
-                        if(code == RETURN_CODE_SUCCESS) {
+                        if (code == RETURN_CODE_SUCCESS) {
                             Toast.makeText(AccountActivity.this, "账户信息已更新。", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent();
                             setResult(RESULT_OK, intent);
@@ -145,6 +150,26 @@ public class AccountActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        Button btnChangeAccount = findViewById(R.id.btn_change_account);
+        btnChangeAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(AccountActivity.this);
+                builder.setTitle("切换账户")
+                        .setMessage("退出当前账户，重新启动")
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (MyApplication.getDeviceManager().hasDeviceOpen()) {
+                                    Toast.makeText(AccountActivity.this, R.string.pls_close_device_firstly, Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                changeAccount();
+                            }
+                        }).show();
+            }
+        });
     }
 
     private void updateUI() {
@@ -153,7 +178,7 @@ public class AccountActivity extends AppCompatActivity {
         etName.setText(account.getNickName());
 
         cacheImageFile = account.getIcon();
-        if(TextUtils.isEmpty(cacheImageFile)) {
+        if (TextUtils.isEmpty(cacheImageFile)) {
             Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
         } else {
             Glide.with(this).load(cacheImageFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
@@ -230,21 +255,21 @@ public class AccountActivity extends AppCompatActivity {
     private String handleImageOnKitKat(Intent data) {
         String imagePath = null;
         Uri uri = data.getData();
-        if(uri == null) return null;
+        if (uri == null) return null;
 
-        if(DocumentsContract.isDocumentUri(this, uri)) {
+        if (DocumentsContract.isDocumentUri(this, uri)) {
             String docId = DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())) {
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
                 String id = docId.split(":")[1];
                 String selection = MediaStore.Images.Media._ID + "=" + id;
                 imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
-            } else if("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
                 Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(docId));
                 imagePath = getImagePath(contentUri, null);
             }
-        } else if("content".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             imagePath = getImagePath(uri, null);
-        } else if("file".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             imagePath = uri.getPath();
         }
         return imagePath;
@@ -258,12 +283,26 @@ public class AccountActivity extends AppCompatActivity {
     private String getImagePath(Uri uri, String selection) {
         String path = null;
         Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
-        if(cursor != null) {
-            if(cursor.moveToFirst()) {
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
                 path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             cursor.close();
         }
         return path;
+    }
+
+    // change account
+    private void changeAccount() {
+        MyApplication.getAccountManager().localLogout(true);
+
+        restart(this);
+    }
+
+    public void restart(Context context) {
+        final Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getApplicationContext().getPackageName());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        MyApplication.killProcess();
     }
 }

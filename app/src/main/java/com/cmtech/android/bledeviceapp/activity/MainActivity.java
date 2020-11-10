@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 账户头像控件
-    private Button btnChangeAccount; // 切换账户控件
     private NotificationService notifyService;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -145,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         if(!MyApplication.getAccountManager().isValid()) {
             Toast.makeText(this, "账户无效。", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
 
         ViseLog.e(MyApplication.getAccount());
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     updateNavigationHeader();
-                    //ViseLog.e("download account info");
+                    ViseLog.e("download account info");
                 }
             }
         });
@@ -265,21 +265,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AccountActivity.class);
                 startActivityForResult(intent, RC_MODIFY_ACCOUNT);
-            }
-        });
-
-        btnChangeAccount = headerView.findViewById(R.id.btn_change_account);
-        btnChangeAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("切换账户")
-                        .setMessage(R.string.really_logout_account)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                changeAccount();
-                            }
-                        }).show();
             }
         });
 
@@ -685,21 +670,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         } else {
             drawerLayout.closeDrawer(GravityCompat.START, false);
         }
-    }
-
-    // change account
-    private void changeAccount() {
-        if(MyApplication.getDeviceManager().hasDeviceOpen()) {
-            Toast.makeText(this, R.string.pls_close_device_firstly, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        MyApplication.getAccountManager().localLogout(true);
-
-        final Intent intent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        MyApplication.killProcess();
     }
 
     private void updateNavigationHeader() {

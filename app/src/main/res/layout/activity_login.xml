@@ -76,7 +76,7 @@
                 style="@style/edittext_circle_gray_style"/>
 
             <Button
-                android:id="@+id/tv_get_qr_code"
+                android:id="@+id/btn_get_qr_code"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

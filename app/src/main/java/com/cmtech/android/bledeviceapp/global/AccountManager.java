@@ -38,21 +38,10 @@ public class AccountManager {
 
     // account login in local client
     public boolean localLogin() {
-        Account account = LitePal.findFirst(Account.class);
-        //ViseLog.e(account);
-        if(account == null) return false;
-        this.account = account;
-        return account.getAccountId() != INVALID_ID;
-    }
+        account = LitePal.findFirst(Account.class);
 
-/*    public void login(final Context context, String showString) {
-        if(account == null) return;
-        account.login(context, showString, code -> {
-            if(code != RETURN_CODE_SUCCESS) {
-                runOnUiThread(() -> Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show());
-            }
-        });
-    }*/
+        return isValid();
+    }
 
     public void login(String userName, String password, final Context context, String showString, ICodeCallback callback) {
         Account acnt = new Account(userName, password);
