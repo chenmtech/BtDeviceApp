@@ -8,15 +8,14 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
-import com.cmtech.android.bledeviceapp.util.MathUtil;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.view.HrHistogramChart;
 import com.cmtech.android.bledeviceapp.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 
 import org.litepal.LitePal;
-
-import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
@@ -29,6 +28,7 @@ public class HrRecordActivity extends AppCompatActivity {
     private EditText etMaxHr; // max HR
     private EditText etAveHr; // average HR
     private EditText etHrv; // HRV value
+    private EditText etCalories;
     private MyLineChart hrLineChart; // HR line chart
     private HrHistogramChart hrHistChart; // HR histogram chart
 
@@ -75,12 +75,17 @@ public class HrRecordActivity extends AppCompatActivity {
         etAveHr = findViewById(R.id.et_hr_ave_value);
         etMaxHr = findViewById(R.id.et_hr_max_value);
         etHrv = findViewById(R.id.et_hrv);
+        etCalories = findViewById(R.id.et_burned_calories);
 
         etAveHr.setText(String.valueOf(record.getHrAve()));
         etMaxHr.setText(String.valueOf(record.getHrMax()));
 
-        List<Short> hrListMs = record.getHrListInMS();
-        etHrv.setText(String.valueOf((short)MathUtil.shortStd(hrListMs)));
+        etHrv.setText(String.valueOf(record.calculateHRVInMs()));
+        Account account = MyApplication.getAccount();
+        if(account == null || account.notSetPersonInfo())
+            etCalories.setText("请完善个人信息");
+        else
+            etCalories.setText(String.valueOf(record.calculateCalories(account)));
 
         hrHistChart.update(record.getHrHistogram());
     }

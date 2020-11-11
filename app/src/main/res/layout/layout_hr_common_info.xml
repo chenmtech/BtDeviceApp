@@ -71,29 +71,70 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="心率变异性："
-            android:textSize="@dimen/smallest_font"/>
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
-        <EditText
-            android:id="@+id/et_hrv"
-            style="@style/edittext_circle_gray_no_focusable_style"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/ellipsis"
-            android:textSize="@dimen/big_font"/>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="心率变异性：\n(正常：30-90)"
+                android:textSize="@dimen/smallest_font"/>
 
-        <TextView
-            android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/et_hrv"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/big_font"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="毫秒"
+                android:textSize="@dimen/smallest_font"
+                android:layout_marginEnd="10dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="毫秒(正常范围：30-90)"
-            android:textSize="@dimen/smallest_font"
-            android:layout_marginEnd="10dp"/>
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="燃烧\n卡路里："
+                android:textSize="@dimen/smallest_font"/>
+
+            <EditText
+                android:id="@+id/et_burned_calories"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/big_font"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="千卡"
+                android:textSize="@dimen/smallest_font"
+                android:layout_marginEnd="10dp"/>
+
+        </LinearLayout>
 
     </LinearLayout>
+
 
 </LinearLayout>

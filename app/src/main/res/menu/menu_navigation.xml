@@ -3,10 +3,6 @@
     <group
         android:id="@+id/group1"
         android:checkable="false">
-        <item
-            android:id="@+id/nav_person_info"
-            android:title="修改个人信息"
-            android:icon="@mipmap/ic_person_32px"/>
 
         <item
             android:id="@+id/nav_add_device"
@@ -23,6 +19,11 @@
             android:title="@string/open_store"
             android:icon="@mipmap/ic_store_32px"
             android:visible="false"/>
+
+        <item
+            android:id="@+id/nav_person_info"
+            android:title="完善个人信息"
+           android:icon="@mipmap/ic_person_32px"/>
 
         <item
             android:id="@+id/nav_about_us"
