@@ -36,17 +36,35 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="记录时间："
+            android:text="记录时间：从"
             android:textSize="@dimen/big_font"/>
 
         <TextView
-            android:id="@+id/tv_record_time"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_record_begin_time"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:padding="6dp"
+            android:text="  "
+            android:textSize="@dimen/big_font"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="到"
+            android:textSize="@dimen/big_font"/>
+
+        <TextView
+            android:id="@+id/tv_record_end_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:padding="6dp"
             android:text="  "
             android:textSize="@dimen/big_font"/>
     </LinearLayout>
@@ -54,8 +72,40 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_margin="6dp"
-        android:background="@color/primary_dark"/>
+        android:background="@color/divider"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="横向："/>
+
+        <TextView
+            android:id="@+id/tv_x_resolution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="秒/格   "/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="纵向："/>
+
+        <TextView
+            android:id="@+id/tv_y_resolution"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="mV/格"/>
+    </LinearLayout>
 
     <com.cmtech.android.bledeviceapp.view.ScanEcgView
         android:id="@+id/roll_ecg_view1"

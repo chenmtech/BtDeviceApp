@@ -11,7 +11,6 @@ import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
-import com.vise.log.ViseLog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -107,6 +106,21 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             return "匿名";
         else {
             return account.getNickNameOrUserName();
+        }
+    }
+
+    public String getCreatorNickNameInOutputReport() {
+        Account account = LitePal.where("accountId = ?", ""+creatorId).findFirst(Account.class);
+        if(account == null)
+            return "匿名";
+        else {
+            String nickName = account.getNickName();
+            String userName = account.getUserName();
+            if("".equals(nickName)) {
+                int length = userName.length();
+                return userName.substring(0, length/3) + "*" + userName.substring(length*2/3, length);
+            }
+            return nickName;
         }
     }
 

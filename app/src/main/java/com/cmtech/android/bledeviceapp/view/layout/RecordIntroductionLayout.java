@@ -78,7 +78,8 @@ public class RecordIntroductionLayout extends RelativeLayout {
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         tvCreateTime.setText(createTime);
 
-        tvAddress.setText(record.getDevAddress());
+        int length = record.getDevAddress().length();
+        tvAddress.setText(record.getDevAddress().substring(length-5, length));
         invalidate();
     }
 }

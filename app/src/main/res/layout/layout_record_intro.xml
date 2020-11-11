@@ -76,7 +76,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="设备地址："
+                    android:text="记录设备："
                     android:textSize="@dimen/smallest_font"/>
 
                 <TextView
@@ -84,7 +84,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="   "
-                    android:textColor="@color/gray"
                     android:textSize="@dimen/smallest_font"/>
             </LinearLayout>
 

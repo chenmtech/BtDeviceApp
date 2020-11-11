@@ -41,7 +41,10 @@ public class EcgReportOutputLayout extends LinearLayout {
 
     private BleEcgRecord record;
     private final TextView tvRecordPerson;
-    private final TextView tvRecordTime;
+    private final TextView tvRecordBeginTime;
+    private final TextView tvRecordEndTime;
+    private final TextView tvXResolution;
+    private final TextView tvYResolution;
     private final TextView tvReportVer;
     private final TextView tvReportTime;
     private final TextView tvReportPrintTime;
@@ -55,7 +58,10 @@ public class EcgReportOutputLayout extends LinearLayout {
         View view = LayoutInflater.from(context).inflate(R.layout.layout_ecg_report_output, this);
 
         tvRecordPerson = view.findViewById(R.id.tv_record_person);
-        tvRecordTime = view.findViewById(R.id.tv_record_time);
+        tvRecordBeginTime = view.findViewById(R.id.tv_record_begin_time);
+        tvRecordEndTime = view.findViewById(R.id.tv_record_end_time);
+        tvXResolution = view.findViewById(R.id.tv_x_resolution);
+        tvYResolution = view.findViewById(R.id.tv_y_resolution);
         tvContent = view.findViewById(R.id.tv_report_content);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
         tvReportTime = view.findViewById(R.id.tv_report_time);
@@ -74,21 +80,26 @@ public class EcgReportOutputLayout extends LinearLayout {
     public void outputPdf(String showText, ISimpleCallback callback) {
         if(record == null) return;
 
-        DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        tvRecordPerson.setText(record.getCreatorNickName());
+        DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd\nHH:mm:ss", Locale.getDefault());
+        tvRecordPerson.setText(record.getCreatorNickNameInOutputReport());
         long endTime = record.getCreateTime();
         long beginTime = endTime-record.getRecordSecond()*1000;
-        tvRecordTime.setText(String.format("从%s 到%s", dateFmt.format(beginTime), dateFmt.format(endTime)));
+        tvRecordBeginTime.setText(dateFmt.format(beginTime));
+        tvRecordEndTime.setText(dateFmt.format(endTime));
+
+        tvXResolution.setText(String.format(Locale.getDefault(), "%.1f", ScanEcgView.SECOND_PER_GRID*5));
+        tvYResolution.setText(String.format(Locale.getDefault(), "%.1f", ScanEcgView.MV_PER_GRID*5));
 
         long reportTime = record.getReport().getReportTime();
+        DateFormat dateFmt1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         if(reportTime > INVALID_TIME) {
             tvReportVer.setText(record.getReport().getVer());
-            tvReportTime.setText(dateFmt.format(reportTime));
+            tvReportTime.setText(dateFmt1.format(reportTime));
             tvContent.setText(record.getReport().getContent());
             tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
         }
 
-        tvReportPrintTime.setText(dateFmt.format(new Date().getTime()));
+        tvReportPrintTime.setText(dateFmt1.format(new Date().getTime()));
         tvNote.setText(record.getNote());
 
         new DrawEcgViewAsyncTask(getContext(), showText, callback).execute(record);
