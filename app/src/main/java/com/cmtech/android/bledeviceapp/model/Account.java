@@ -49,6 +49,9 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     public static final int LOGIN_WAY_QQ = 2;
     public static final int LOGIN_WAY_WECHAT = 3;
 
+    public static final int MALE = 1;
+    public static final int FEMALE = 2;
+
     private int id; // id
     private int accountId = INVALID_ID;
     private String userName = ""; // user name
@@ -57,6 +60,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
     private int loginWay = LOGIN_WAY_PASSWORD;
+    private int gender = 0;
+    private long birthday = 0;
+    private int weight = 0;
+    private int height = 0;
     @Column(ignore = true)
     private boolean webLogin = false;
 
@@ -115,6 +122,42 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         this.loginWay = loginWay;
     }
 
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
+    public long getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(long birthday) {
+        this.birthday = birthday;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public boolean notSetPersonInfo() {
+        return gender == 0;
+    }
+
     @Override
     public void fromJson(JSONObject json) {
         try {
@@ -134,6 +177,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
                     }
                 }
             }
+            gender = json.getInt("gender");
+            birthday = json.getLong("birthday");
+            weight = json.getInt("weight");
+            height = json.getInt("height");
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
@@ -155,6 +202,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
                 iconStr = BitmapUtil.bitmapToString(bitmap);
             }
             json.put("iconStr", iconStr);
+            json.put("gender", gender);
+            json.put("birthday", birthday);
+            json.put("weight", weight);
+            json.put("height", height);
             return json;
         } catch (JSONException ex) {
             ex.printStackTrace();
@@ -246,6 +297,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     @Override
     public String toString() {
         return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
+                + ",gender:" + gender + ",birthday:" + birthday + ",weight:" + weight + ",height:" + height
                 + ",Note：" + note + ",icon: " + icon;
     }
 

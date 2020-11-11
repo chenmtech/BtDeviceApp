@@ -75,6 +75,10 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.PersonInfoActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.DeviceInfoActivity"
             android:label="@string/cfg_device_basic_info"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />

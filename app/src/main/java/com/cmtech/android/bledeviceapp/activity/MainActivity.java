@@ -31,7 +31,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -279,6 +278,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
                 Intent intent;
                 switch (item.getItemId()) {
+                    case R.id.nav_person_info:
+                        intent = new Intent(MainActivity.this, PersonInfoActivity.class);
+                        startActivity(intent);
+                        return true;
                     case R.id.nav_add_device: // add device
                         List<String> addresses = MyApplication.getDeviceManager().getAddressList();
                         intent = new Intent(MainActivity.this, ScanActivity.class);
