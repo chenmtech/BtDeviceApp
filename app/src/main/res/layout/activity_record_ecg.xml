@@ -14,97 +14,78 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.v4.widget.NestedScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp">
+
+                <com.cmtech.android.bledeviceapp.view.RollEcgView
+                    android:id="@+id/roll_ecg_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    cmtech:background_color="#666"
+                    cmtech:large_grid_line_color="#f00"
+                    cmtech:small_grid_line_color="#f00"
+                    cmtech:wave_color="#ff0"
+                    cmtech:show_grid_line="true"/>
+
+                <TextView
+                    android:id="@+id/tv_current_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:textColor="#fff"
+                    android:textSize="@dimen/normal_font"/>
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible">
+                android:layout_margin="4dp">
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginEnd="6dp">
-
-                    <com.cmtech.android.bledeviceapp.view.RollEcgView
-                        android:id="@+id/roll_ecg_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        cmtech:background_color="#666"
-                        cmtech:large_grid_line_color="#f00"
-                        cmtech:small_grid_line_color="#f00"
-                        cmtech:wave_color="#ff0"
-                        cmtech:show_grid_line="true"/>
-
-                    <TextView
-                        android:id="@+id/tv_current_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal|bottom"
-                        android:textColor="#fff"
-                        android:textSize="@dimen/normal_font"/>
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <ImageButton
+                    android:id="@+id/ib_replay_control"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="4dp">
+                    android:background="@color/primary_dark"
+                    android:layout_marginStart="5dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@mipmap/ic_play_32px"
+                    android:minHeight="0dp"
+                    android:visibility="gone"
+                    android:contentDescription="@null"/>
 
-                    <ImageButton
-                        android:id="@+id/ib_replay_control"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@color/primary_dark"
-                        android:layout_marginStart="5dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:src="@mipmap/ic_play_32px"
-                        android:minHeight="0dp"
-                        android:visibility="gone"
-                        android:contentDescription="@null"/>
+                <SeekBar
+                    android:id="@+id/sb_replay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_vertical"/>
 
-                    <SeekBar
-                        android:id="@+id/sb_replay"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_gravity="center_vertical"/>
-
-                    <TextView
-                        android:id="@+id/tv_time_length"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="6dp"
-                        android:textColor="@color/primary_text"
-                        android:textSize="@dimen/smallest_font"/>
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/divider"/>
-
-                <com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout
-                    android:id="@+id/layout_record_report"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
-                    android:id="@+id/layout_record_note"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"/>
+                <TextView
+                    android:id="@+id/tv_time_length"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="6dp"
+                    android:textColor="@color/primary_text"
+                    android:textSize="@dimen/smallest_font"/>
             </LinearLayout>
 
-        </android.support.v4.widget.NestedScrollView>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/divider"/>
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_output_report"
@@ -113,11 +94,39 @@
             android:gravity="center_vertical"
             android:layout_margin="6dp"
             android:drawableStart="@mipmap/ic_output_report_32px"
-            android:text="PDF"
+            android:text="打印PDF"
             android:textSize="@dimen/small_font"
             android:textStyle="bold"
-            android:textColor="@color/white"/>
+            android:textColor="@color/orange"/>
     </FrameLayout>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+
+            <com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout
+                android:id="@+id/layout_record_report"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
+                android:id="@+id/layout_record_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="300dp"/>
+        </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 
     <com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout
         android:id="@+id/layout_ecg_report_output"

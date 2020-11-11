@@ -9,6 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <include layout="@layout/layout_line_chart"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"/>
+
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -29,15 +38,6 @@
                 android:layout_height="1dp"
                 android:background="@color/primary_dark"/>
 
-            <include layout="@layout/layout_line_chart"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_margin="20dp"
-                android:background="@color/primary_dark"/>
 
             <include layout="@layout/layout_hr_hist_chart"
                 android:layout_width="match_parent"

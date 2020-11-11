@@ -10,6 +10,71 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp">
+
+        <com.cmtech.android.bledeviceapp.view.RollEegView
+            android:id="@+id/roll_eeg_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            cmtech:background_color="#666"
+            cmtech:large_grid_line_color="#f00"
+            cmtech:small_grid_line_color="#f00"
+            cmtech:wave_color="#ff0"
+            cmtech:show_grid_line="true"/>
+
+        <TextView
+            android:id="@+id/tv_current_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:text="00:00:00"
+            android:textColor="#fff"
+            android:textSize="@dimen/normal_font"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp">
+
+        <ImageButton
+            android:id="@+id/ib_replay_control"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/primary_dark"
+            android:layout_marginStart="5dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@mipmap/ic_play_32px"
+            android:minHeight="0dp"
+            android:visibility="gone"
+            android:contentDescription="@null"/>
+
+        <SeekBar
+            android:id="@+id/sb_replay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"/>
+
+        <TextView
+            android:id="@+id/tv_total_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="6dp"
+            android:text="00:00:00"
+            android:textColor="@color/primary_text"
+            android:textSize="@dimen/smallest_font"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"/>
+
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -19,84 +84,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="visible">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="脑电图："
-                android:textColor="@color/secondary"/>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:layout_marginStart="6dp"
-                android:layout_marginEnd="6dp">
-
-                <com.cmtech.android.bledeviceapp.view.RollEegView
-                    android:id="@+id/roll_eeg_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    cmtech:background_color="#666"
-                    cmtech:large_grid_line_color="#f00"
-                    cmtech:small_grid_line_color="#f00"
-                    cmtech:wave_color="#ff0"
-                    cmtech:show_grid_line="true"/>
-
-                <TextView
-                    android:id="@+id/tv_current_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|bottom"
-                    android:text="00:00:00"
-                    android:textColor="#fff"
-                    android:textSize="@dimen/normal_font"/>
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp">
-
-                <ImageButton
-                    android:id="@+id/ib_replay_control"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/primary_dark"
-                    android:layout_marginStart="5dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:src="@mipmap/ic_play_32px"
-                    android:minHeight="0dp"
-                    android:visibility="gone"
-                    android:contentDescription="@null"/>
-
-                <SeekBar
-                    android:id="@+id/sb_replay"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"/>
-
-                <TextView
-                    android:id="@+id/tv_total_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="6dp"
-                    android:text="00:00:00"
-                    android:textColor="@color/primary_text"
-                    android:textSize="@dimen/smallest_font"/>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/divider"/>
 
             <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
                 android:id="@+id/layout_record_note"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"/>
-
 
             <View
                 android:layout_width="match_parent"

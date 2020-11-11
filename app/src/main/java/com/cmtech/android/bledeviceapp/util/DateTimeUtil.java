@@ -100,7 +100,7 @@ public class DateTimeUtil {
         if(timeStamp >= yesterdayBeforeStartMilis) {
             return "前天";
         }
-        return  new SimpleDateFormat("MM-dd", Locale.CHINA).format(timeStamp);
+        return  new SimpleDateFormat("yy-MM-dd", Locale.CHINA).format(timeStamp);
     }
 
     private static String unitFormat(int i) {
