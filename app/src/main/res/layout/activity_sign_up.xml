@@ -82,15 +82,46 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="验证码：" />
+
+            <EditText
+                android:id="@+id/et_qr_code"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                style="@style/edittext_circle_gray_style"
+                android:inputType="number"
+                android:maxLength="6"/>
 
             <Button
-                android:id="@+id/btn_login"
+                android:id="@+id/btn_get_qr_code"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="获取验证码"
+                android:background="@color/background_transparent"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btn_signup"
                 style="@style/button_circle_blue_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="登录"/>
+                android:text="注册"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -101,14 +132,35 @@
         android:layout_alignParentBottom="true"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
-        <Button
-            android:id="@+id/btn_signup"
+        <CheckBox
+            android:id="@+id/cb_privacy_grant"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/background_transparent"
-            android:text="注册新账户"
-            android:textColor="@color/edit_text_color"/>
+            android:gravity="center_vertical"
+            android:layout_marginBottom="5dp"
+            android:checked="false"
+            android:textSize="15dp"
+            android:text="@string/privacy_policy"/>
 
+        <TextView
+            android:id="@+id/tv_agreement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="@string/user_agreement"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="和"/>
+
+        <TextView
+            android:id="@+id/tv_privacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="@string/privacy_policy_http"/>
     </LinearLayout>
 
 </RelativeLayout>
