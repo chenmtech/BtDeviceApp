@@ -44,7 +44,7 @@ public class AccountManager {
      */
     public boolean localLogin() {
         account = LitePal.findFirst(Account.class);
-        return isValid();
+        return isValid() && account.canLocalLogin();
     }
 
     /**

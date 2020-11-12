@@ -19,7 +19,6 @@ import com.vise.utils.view.BitmapUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
-import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.File;
@@ -65,27 +64,18 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     private long birthday = 0;
     private int weight = 0;
     private int height = 0;
-    @Column(ignore = true)
-    private boolean webLogin = false;
+
+    private boolean canLocalLogin = false;
 
     private Account(String userName, String password) {
         this.userName = userName;
-        this.password = password;
+        this.password = MD5Utils.getMD5Code(password);
         loginWay = LOGIN_WAY_PASSWORD;
     }
 
     private Account(String userName) {
         this.userName = userName;
         loginWay = LOGIN_WAY_QR_CODE;
-    }
-
-    public Account(Account account) {
-        this.userName = account.userName;
-        this.loginWay = account.getLoginWay();
-        this.password = account.password;
-        this.nickName = account.nickName;
-        this.note = account.note;
-        this.icon = account.icon;
     }
 
     public int getId() {
@@ -96,8 +86,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
     public String getUserName() { return userName;}
     public String getPassword() {
-        //ViseLog.e(MD5Utils.getMD5Code(password));
-        return MD5Utils.getMD5Code(password);
+        return password;
     }
     public String getNickName() {
         return nickName;
@@ -128,6 +117,9 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
     public void setLoginWay(int loginWay) {
         this.loginWay = loginWay;
+    }
+    public boolean canLocalLogin() {
+        return canLocalLogin;
     }
 
     public int getGender() {
@@ -200,7 +192,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
             JSONObject json = new JSONObject();
             json.put("ver", "1.0");
             //json.put("userName", userName);
-            json.put("password", getPassword());
+            json.put("password", password);
             json.put("nickName", nickName);
             json.put("note", note);
 
@@ -240,7 +232,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
                     accountId = (Integer) response.getContent();
                     //ViseLog.e("accountId=" + accountId);
                     if(accountId != INVALID_ID) {
-                        webLogin = true;
+                        canLocalLogin = true;
                         save();
                     }
                 }
@@ -311,7 +303,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
 
     @Override
     public int hashCode() {
-        return (userName + password).hashCode();
+        return userName.hashCode();
     }
 
     @Override
@@ -320,7 +312,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         if(otherObject == null) return false;
         if(!(otherObject instanceof Account)) return false;
         Account other = (Account) otherObject;
-        return (userName + password).equals(other.userName+other.password);
+        return userName.equals(other.userName);
     }
 
     public static class Builder {
