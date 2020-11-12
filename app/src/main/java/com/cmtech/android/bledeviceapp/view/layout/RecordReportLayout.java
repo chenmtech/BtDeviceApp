@@ -6,7 +6,6 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -46,25 +45,22 @@ public class RecordReportLayout extends LinearLayout {
         etTime = view.findViewById(R.id.et_report_time);
         etReportVer = view.findViewById(R.id.et_report_ver);
 
-        ImageButton ibRefresh = view.findViewById(R.id.ib_request_report);
-        ibRefresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(record != null) {
-                    if(MyApplication.getEcgAlgorithm().getVer().compareTo(record.getReport().getVer()) > 0) {
-                        record.requestDiagnose();
-                        updateView();
-                        Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getContext(), "当前报告已是最新版本的。", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
     }
 
     public void setRecord(BleEcgRecord record) {
         this.record = record;
+    }
+
+    public void updateReport() {
+        if(record != null) {
+            if(MyApplication.getEcgAlgorithm().getVer().compareTo(record.getReport().getVer()) > 0) {
+                record.requestDiagnose();
+                updateView();
+                Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "当前报告是最新版本。", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     public void updateView() {

@@ -69,10 +69,7 @@
             android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider"/>
+    <include layout="@layout/divider_line"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -440,11 +437,7 @@
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_margin="6dp"
-        android:background="@color/primary_dark"/>
+    <include layout="@layout/divider_line"/>
 
     <LinearLayout
         android:layout_width="match_parent"

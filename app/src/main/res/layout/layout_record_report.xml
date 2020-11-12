@@ -5,127 +5,112 @@
     android:layout_margin="4dp"
     android:orientation="vertical">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginStart="10dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="平均心率："
-                    android:textSize="@dimen/big_font"/>
+                android:text="平均心率："
+                android:textSize="@dimen/big_font"/>
 
-                <EditText
-                    android:id="@+id/et_report_ave_hr"
-                    style="@style/edittext_circle_gray_no_focusable_style"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:minEms="1"
-                    android:text=" "
-                    android:textSize="@dimen/bigger_font"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="次/分钟"
-                    android:textSize="@dimen/big_font"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
+            <EditText
+                android:id="@+id/et_report_ave_hr"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginStart="10dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="检测结果："
-                    android:textSize="@dimen/big_font"/>
-
-                <EditText
-                    android:id="@+id/et_report_content"
-                    style="@style/edittext_circle_gray_no_focusable_style"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minLines="1"
-                    android:text="暂无"
-                    android:textSize="@dimen/big_font"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginStart="10dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="检测时间："/>
-
-                <EditText
-                    android:id="@+id/et_report_time"
-                    style="@style/edittext_circle_gray_no_focusable_style"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="  "/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginStart="10dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="检测版本："/>
-
-                <EditText
-                    android:id="@+id/et_report_ver"
-                    style="@style/edittext_circle_gray_no_focusable_style"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="   "/>
-            </LinearLayout>
+                android:minEms="1"
+                android:text=" "
+                android:textSize="@dimen/bigger_font"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="*以上结论不能作为临床诊断依据。如有心脏不适，请及时就医。"
-                android:textSize="@dimen/smallest_font"
-                android:textColor="@color/red"/>
+                android:text="次/分钟"
+                android:textSize="@dimen/big_font"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="检测结果："
+                android:textSize="@dimen/big_font"/>
+
+            <EditText
+                android:id="@+id/et_report_content"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="1"
+                android:text="暂无"
+                android:textSize="@dimen/big_font"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="检测时间："/>
+
+            <EditText
+                android:id="@+id/et_report_time"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:text="  "/>
 
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/ib_request_report"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|top"
-            android:layout_margin="6dp"
-            android:background="@color/background_transparent"
-            android:src="@mipmap/ic_refresh_32px" />
-    </FrameLayout>
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="检测版本："/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/primary_dark"/>
+            <EditText
+                android:id="@+id/et_report_ver"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:text="   "/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="*以上结论不能作为临床诊断依据。如有心脏不适，请及时就医。"
+            android:textSize="@dimen/smallest_font"
+            android:textColor="@color/red"/>
+
+    </LinearLayout>
+
+    <include layout="@layout/divider_line"/>
 
 </LinearLayout>

@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="20dp">
 
             <com.cmtech.android.bledeviceapp.view.RoundImageView
@@ -28,6 +28,7 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:textSize="@dimen/bigger_font"
+                android:textColor="@color/secondary"
                 android:text="康明智联"/>
         </LinearLayout>
 
@@ -120,7 +121,7 @@
                 style="@style/button_circle_blue_style"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="注册"/>
+                android:text="注册新账户"/>
 
             <Button
                 android:id="@+id/btn_login"

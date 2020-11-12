@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -126,8 +127,13 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             }
         });
 
-        TextView tvOutputReport = findViewById(R.id.tv_output_report);
-        tvOutputReport.setOnClickListener(view -> {
+        Button btnUpdateReport = findViewById(R.id.btn_request_report);
+        btnUpdateReport.setOnClickListener(view -> {
+            reportLayout.updateReport();
+        });
+
+        Button btnOutputReport = findViewById(R.id.btn_output_report);
+        btnOutputReport.setOnClickListener(view -> {
             if(ecgView.isShowing())
                 ecgView.stopShow();
             outputPdf();

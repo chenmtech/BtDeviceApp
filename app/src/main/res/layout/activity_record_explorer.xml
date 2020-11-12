@@ -19,10 +19,7 @@
             android:layout_height="wrap_content" />
     </android.support.v7.widget.Toolbar>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider"/>
+    <include layout="@layout/divider_line"/>
 
     <com.cmtech.android.bledeviceapp.view.layout.RecordSearchLayout
         android:id="@+id/layout_record_search"
@@ -30,10 +27,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider"/>
+    <include layout="@layout/divider_line"/>
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -112,10 +112,7 @@
         app:tabTextAppearance="@style/ControllerTabLayoutTextAppearance"
         android:background="@color/primary"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/primary_dark"/>
+    <include layout="@layout/divider_line"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/hrm_control_panel_viewpager"

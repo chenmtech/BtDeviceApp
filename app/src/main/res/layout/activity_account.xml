@@ -14,10 +14,7 @@
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider"/>
+    <include layout="@layout/divider_line"/>
 
     <LinearLayout
         android:orientation="horizontal"

@@ -117,7 +117,7 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
                 paint.setFlags(paint.getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             } else {
                 holder.status.setText("可添加");
-                holder.status.setTextColor(ContextCompat.getColor(activity, R.color.orange));
+                holder.status.setTextColor(ContextCompat.getColor(activity, R.color.edit_text_color));
                 holder.status.setTextSize(COMPLEX_UNIT_PX, activity.getResources().getDimensionPixelSize(R.dimen.big_font));
                 paint.setFlags(paint.getFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
             }
