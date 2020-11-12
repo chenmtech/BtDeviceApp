@@ -11,6 +11,15 @@
         android:src="@mipmap/ic_start_32px"
         android:background="@color/background_transparent"/>
 
+    <TextView
+        android:id="@+id/tv_record_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ib_record"
+        android:layout_centerHorizontal="true"
+        android:text="@string/start_record"
+        android:textSize="@dimen/big_font"/>
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -21,7 +30,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="30秒倒计时"
+            android:text="30秒倒计时："
             android:textSize="@dimen/big_font"/>
 
         <EditText
@@ -39,12 +48,4 @@
             android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_record_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/ib_record"
-        android:layout_centerHorizontal="true"
-        android:text="@string/start_record"
-        android:textSize="@dimen/big_font"/>
 </RelativeLayout>

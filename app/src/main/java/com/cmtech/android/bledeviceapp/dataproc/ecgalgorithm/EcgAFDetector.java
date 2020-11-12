@@ -7,6 +7,7 @@ import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEviden
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence.NON_AF;
 
 public class EcgAFDetector implements IEcgAlgorithm{
@@ -26,7 +27,9 @@ public class EcgAFDetector implements IEcgAlgorithm{
         ecgProc.process(record.getEcgData(), record.getSampleRate());
         int aveHr = ecgProc.getAverageHr();
         String strHrResult;
-        if(aveHr > LIMIT_HR_TOO_HIGH)
+        if(aveHr == INVALID_HR) {
+            strHrResult = "";
+        } else if(aveHr > LIMIT_HR_TOO_HIGH)
             strHrResult = "心动过速。";
         else if(aveHr < LIMIT_HR_TOO_LOW)
             strHrResult = "心动过缓。";

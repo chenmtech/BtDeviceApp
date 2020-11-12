@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.INVALID_HR;
+
 public class EcgProcessor {
 	private static final int NUM_BEFORE_R = 99;
 	private static final int NUM_AFTER_R = 150;
@@ -62,7 +64,7 @@ public class EcgProcessor {
 
 	public int getAverageHr() {
 	    List<Double> RR = getRRIntervalInMs();
-	    if(RR == null) return 0;
+	    if(RR == null) return INVALID_HR;
         double aveRR = MathUtil.doubleAve(RR);
         return (int)(60000/aveRR);
     }

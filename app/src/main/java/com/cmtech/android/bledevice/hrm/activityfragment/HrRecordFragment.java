@@ -1,10 +1,12 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +40,9 @@ public class HrRecordFragment extends Fragment {
     private EditText etHrAve; // average heart rate value
     private EditText etHrMax; // max heart rate value
     private MyLineChart hrLineChart; // heart rate line chart
-    private ImageButton ibStart, ibStop;
+    private ImageButton ibRecordCtrl;
+    private TextView tvRecordStatus;
+    private boolean recording = false;
 
     @Nullable
     @Override
@@ -60,20 +64,13 @@ public class HrRecordFragment extends Fragment {
         TextView tvYUnit = view.findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.BPM);
 
-        ibStart = view.findViewById(R.id.ib_record_start);
-        ibStart.setOnClickListener(new View.OnClickListener() {
+        tvRecordStatus = view.findViewById(R.id.tv_record_status);
+        ibRecordCtrl = view.findViewById(R.id.ib_record_control);
+        ibRecordCtrl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 assert getParentFragment() != null;
-                ((HrmFragment)getParentFragment()).setHrRecord(true);
-            }
-        });
-        ibStop = view.findViewById(R.id.ib_record_stop);
-        ibStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                assert getParentFragment() != null;
-                ((HrmFragment)getParentFragment()).setHrRecord(false);
+                ((HrmFragment)getParentFragment()).setHrRecord(!recording);
             }
         });
     }
@@ -93,12 +90,15 @@ public class HrRecordFragment extends Fragment {
     }
 
     public void updateRecordStatus(boolean record) {
+        Drawable drawable;
         if(record) {
-            ibStart.setVisibility(View.INVISIBLE);
-            ibStop.setVisibility(View.VISIBLE);
+            drawable = ContextCompat.getDrawable(getContext(), R.mipmap.ic_stop_32px);
+            tvRecordStatus.setText("停止记录");
         } else {
-            ibStart.setVisibility(View.VISIBLE);
-            ibStop.setVisibility(View.INVISIBLE);
+            drawable = ContextCompat.getDrawable(getContext(), R.mipmap.ic_start_32px);
+            tvRecordStatus.setText("开始记录");
         }
+        ibRecordCtrl.setImageDrawable(drawable);
+        recording = record;
     }
 }

@@ -4,22 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-        <include layout="@layout/layout_line_chart"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-        <ImageButton
-            android:id="@+id/ib_record_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@mipmap/ic_start_32px"
-            android:background="@color/background_transparent"/>
-    </FrameLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,15 +37,28 @@
                 android:textSize="@dimen/smallest_font"/>
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/ib_record_stop"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:src="@mipmap/ic_stop_32px"
-            android:background="@color/background_transparent"
-            android:visibility="invisible"/>
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="10dp">
+
+            <ImageButton
+                android:id="@+id/ib_record_control"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_start_32px"
+                android:background="@color/background_transparent"/>
+
+            <TextView
+                android:id="@+id/tv_record_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="开始记录"
+                android:textSize="@dimen/smallest_font"/>
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="0dp"
@@ -92,5 +89,12 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <include layout="@layout/divider_line"/>
+
+    <include layout="@layout/layout_line_chart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 
 </LinearLayout>
