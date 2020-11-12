@@ -28,7 +28,7 @@
         <item
             android:id="@+id/nav_about_us"
             android:title="@string/about_km"
-            android:icon="@mipmap/ic_person_32px"
+            android:icon="@mipmap/ic_about_us_32px"
             android:visible="true"/>
 
         <item

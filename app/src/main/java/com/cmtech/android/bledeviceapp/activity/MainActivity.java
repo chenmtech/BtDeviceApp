@@ -19,13 +19,14 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -44,9 +45,8 @@ import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
+import com.cmtech.android.bledeviceapp.adapter.LocalDeviceAdapter;
 import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
-import com.cmtech.android.bledeviceapp.fragment.LocalDevicesFragment;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -62,7 +62,6 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,7 +83,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private final static int RC_MODIFY_ACCOUNT = 3;
     private final static int RC_OPEN_INSTALL_PERMISSION = 4;
 
-    private LocalDevicesFragment localDevicesFragment;
+    //private LocalDevicesFragment localDevicesFragment;
+    private LocalDeviceAdapter localDeviceAdapter;
+    private RecyclerView rvDevices;
     //WebDevicesFragment webDevicesFragment;
     private DeviceTabFragManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager tbManager; // 工具条管理器
@@ -172,18 +173,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         tbManager = new MainToolbarManager(this, toolbar, tvBattery);
 
         // init device control panel
-        ViewPager pager = findViewById(R.id.vp_device_panel);
-        TabLayout layout = findViewById(R.id.tl_device_panel);
-        localDevicesFragment = new LocalDevicesFragment();
-        //webDevicesFragment = new WebDevicesFragment();
-        List<Fragment> fragmentList = new ArrayList<>();
-        fragmentList.add(localDevicesFragment);
-        List<String> titleList = new ArrayList<>();
-        titleList.add(getString(LocalDevicesFragment.TITLE_ID));
-        CtrlPanelAdapter fragAdapter = new CtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
-        pager.setAdapter(fragAdapter);
-        pager.setOffscreenPageLimit(1);
-        layout.setupWithViewPager(pager);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        rvDevices = findViewById(R.id.rv_device_list);
+        rvDevices.setLayoutManager(layoutManager);
+        rvDevices.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        localDeviceAdapter = new LocalDeviceAdapter(this);
+        rvDevices.setAdapter(localDeviceAdapter);
 
         // init navigation view
         initNavigation();
@@ -404,8 +399,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     private void updateDeviceList() {
-        localDevicesFragment.update();
-        //webDevicesFragment.update();
+        if(localDeviceAdapter != null)
+            localDeviceAdapter.update();
     }
 
     @Override
