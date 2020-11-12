@@ -378,6 +378,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                         Drawable drawable;
                         if(TextUtils.isEmpty(device.getIcon())) {
                             drawable = ContextCompat.getDrawable(this, Objects.requireNonNull(DeviceType.getFromUuid(device.getUuid())).getDefaultIcon());
+                            ViseLog.e("device icon is empty");
                         } else {
                             drawable = new BitmapDrawable(getResources(), device.getIcon());
                         }

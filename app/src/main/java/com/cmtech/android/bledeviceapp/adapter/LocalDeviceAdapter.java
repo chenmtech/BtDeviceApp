@@ -19,6 +19,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,6 +110,7 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
         IDevice device = deviceList.get(position);
 
         String imagePath = device.getIcon();
+        ViseLog.e("device icon:" + imagePath);
         if(!TextUtils.isEmpty(imagePath)) {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);

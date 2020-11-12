@@ -21,13 +21,12 @@ import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrm.model.HrmCfg;
 import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledevice.hrm.model.OnHrmListener;
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
+import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
-import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -157,7 +156,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     @Override
     public void onStop() {
         super.onStop();
-        ViseLog.e("onStop");
+        //ViseLog.e("onStop");
     }
 
     @Override
