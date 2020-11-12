@@ -54,12 +54,13 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
 
     private int id; // id
     private int accountId = INVALID_ID;
-    private String userName = ""; // user name
+    private String userName = ""; // user name, like phone number
+    private int loginWay;
     private String password = ""; // password
     private String nickName = ""; // nick name
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
-    private int loginWay = LOGIN_WAY_PASSWORD;
+
     private int gender = 0;
     private long birthday = 0;
     private int weight = 0;
@@ -67,13 +68,20 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     @Column(ignore = true)
     private boolean webLogin = false;
 
-    public Account(String userName, String password) {
+    private Account(String userName, String password) {
         this.userName = userName;
         this.password = password;
+        loginWay = LOGIN_WAY_PASSWORD;
+    }
+
+    private Account(String userName) {
+        this.userName = userName;
+        loginWay = LOGIN_WAY_QR_CODE;
     }
 
     public Account(Account account) {
         this.userName = account.userName;
+        this.loginWay = account.getLoginWay();
         this.password = account.password;
         this.nickName = account.nickName;
         this.note = account.note;
@@ -313,5 +321,49 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         if(!(otherObject instanceof Account)) return false;
         Account other = (Account) otherObject;
         return (userName + password).equals(other.userName+other.password);
+    }
+
+    public static class Builder {
+        private String userName = ""; // user name, like phone number
+        private int loginWay = LOGIN_WAY_PASSWORD;
+        private String password = ""; // password
+
+        public Builder() {
+
+        }
+
+        public Builder setLoginWay(int loginWay) {
+            this.loginWay = loginWay;
+            return this;
+        }
+
+        public Builder setUserName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder setPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Account build() {
+            switch (loginWay) {
+                case LOGIN_WAY_PASSWORD:
+                    if(TextUtils.isEmpty(userName) || TextUtils.isEmpty(password)) {
+                        return null;
+                    }
+                    return new Account(userName, password);
+
+                case LOGIN_WAY_QR_CODE:
+                    if(TextUtils.isEmpty(userName)) {
+                        return null;
+                    }
+                    return new Account(userName);
+
+                default:
+                    return null;
+            }
+        }
     }
 }

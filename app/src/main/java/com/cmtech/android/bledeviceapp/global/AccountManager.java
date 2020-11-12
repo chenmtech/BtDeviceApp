@@ -10,6 +10,8 @@ import org.litepal.LitePal;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_PASSWORD;
+import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_QR_CODE;
 
 /**
   *
@@ -54,8 +56,30 @@ public class AccountManager {
      * @param callback：登录后的回调
      */
     public void login(String userName, String password, final Context context, String showString, ICodeCallback callback) {
-        Account acnt = new Account(userName, password);
-        acnt.setLoginWay(Account.LOGIN_WAY_PASSWORD);
+        Account.Builder builder = new Account.Builder();
+        builder.setUserName(userName).setPassword(password).setLoginWay(LOGIN_WAY_PASSWORD);
+        Account acnt = builder.build();
+        acnt.setLoginWay(LOGIN_WAY_PASSWORD);
+        acnt.login(context, showString, code -> {
+            if(code == RETURN_CODE_SUCCESS) {
+                this.account = acnt;
+            }
+            callback.onFinish(code);
+        });
+    }
+
+    /**
+     * 用手机验证码进行网络登录
+     * @param userName：用户名
+     * @param context：上下文
+     * @param showString：登录时显示的进度提示字符串，如果为null或""，则不显示进度条，在后台登录；否则在前台登录
+     * @param callback：登录后的回调
+     */
+    public void login(String userName, final Context context, String showString, ICodeCallback callback) {
+        Account.Builder builder = new Account.Builder();
+        builder.setUserName(userName).setLoginWay(LOGIN_WAY_QR_CODE);
+        Account acnt = builder.build();
+        acnt.setLoginWay(LOGIN_WAY_PASSWORD);
         acnt.login(context, showString, code -> {
             if(code == RETURN_CODE_SUCCESS) {
                 this.account = acnt;
@@ -73,7 +97,9 @@ public class AccountManager {
      * @param callback：注册后回调
      */
     public void signUp(final Context context, String userName, String password, ICodeCallback callback) {
-        Account account = new Account(userName, password);
+        Account.Builder builder = new Account.Builder();
+        builder.setUserName(userName).setPassword(password).setLoginWay(LOGIN_WAY_PASSWORD);
+        Account account = builder.build();
         account.signUp(context, callback);
     }
 

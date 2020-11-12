@@ -22,6 +22,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_PASSWORD;
+import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_QR_CODE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -91,6 +92,11 @@ public class KMWebServiceUtil {
                 data.put("loginWay", ""+account.getLoginWay());
                 data.put("userName", account.getUserName());
                 data.put("password", account.getPassword());
+                break;
+
+            case LOGIN_WAY_QR_CODE:
+                data.put("loginWay", ""+account.getLoginWay());
+                data.put("userName", account.getUserName());
                 break;
 
             default:
