@@ -7,8 +7,8 @@ import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEviden
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEvidence.MyAFEvidence.NON_AF;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 public class EcgAFDetector implements IEcgAlgorithm{
     private static final int LIMIT_HR_TOO_LOW = 50;

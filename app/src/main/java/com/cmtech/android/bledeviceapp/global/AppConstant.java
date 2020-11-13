@@ -3,14 +3,12 @@ package com.cmtech.android.bledeviceapp.global;
 import android.os.Environment;
 
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledevice.ecg.device.EcgFactory;
-import com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory;
 import com.cmtech.android.bledevice.eeg.model.EegFactory;
 import com.cmtech.android.bledevice.hrm.model.HrmFactory;
-import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
 import com.cmtech.android.bledevice.thm.model.ThmFactory;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.io.File;
@@ -36,6 +34,7 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.THERMO;
 
 public class AppConstant {
     public static final int INVALID_ID = -1;
+    public static final int INVALID_HR = 0;
     public static final String MY_BASE_UUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8"; // my base UUID
     public static final String STANDARD_BLE_UUID = "0000XXXX-0000-1000-8000-00805F9B34FB"; // standard BLE UUID
     public static final UUID CCC_UUID = UuidUtil.stringToUUID("2902", STANDARD_BLE_UUID); // client characteristic config UUID
@@ -50,8 +49,6 @@ public class AppConstant {
             add(HrmFactory.HRM_DEVICE_TYPE);
             add(ThermoFactory.THERMO_DEVICE_TYPE);
             add(ThmFactory.THM_DEVICE_TYPE);
-            add(EcgFactory.ECG_DEVICE_TYPE);
-            add(WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE);
             add(EegFactory.EEG_DEVICE_TYPE);
         }
     }; // supported device types

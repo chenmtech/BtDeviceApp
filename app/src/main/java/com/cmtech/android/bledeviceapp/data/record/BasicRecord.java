@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
@@ -101,19 +102,19 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public String getCreatorNickName() {
-        Account account = LitePal.where("accountId = ?", ""+creatorId).findFirst(Account.class);
-        if(account == null)
-            return "匿名";
-        else {
+        Account account = MyApplication.getAccount();
+        if(account == null || account.getAccountId() != creatorId) {
+            return  "匿名";
+        } else {
             return account.getNickNameOrUserName();
         }
     }
 
     public String getCreatorNickNameInOutputReport() {
-        Account account = LitePal.where("accountId = ?", ""+creatorId).findFirst(Account.class);
-        if(account == null)
-            return "匿名";
-        else {
+        Account account = MyApplication.getAccount();
+        if(account == null || account.getAccountId() != creatorId) {
+            return  "匿名";
+        } else {
             String nickName = account.getNickName();
             String userName = account.getUserName();
             if("".equals(nickName)) {
@@ -121,15 +122,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                 return userName.substring(0, length/3) + "*" + userName.substring(length*2/3, length);
             }
             return nickName;
-        }
-    }
-
-    public String getCreatorNickNameAndNote() {
-        Account account = LitePal.where("accountId = ?", ""+creatorId).findFirst(Account.class);
-        if(account == null)
-            return "匿名";
-        else {
-            return account.getNickNameOrUserName() + "(" + account.getNote() + ")";
         }
     }
 

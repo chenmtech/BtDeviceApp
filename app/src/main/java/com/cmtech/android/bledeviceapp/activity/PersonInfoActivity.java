@@ -84,15 +84,9 @@ public class PersonInfoActivity extends AppCompatActivity {
                 } else if(checkId == R.id.rb_female) {
                     gender = 2;
                 }
-                account.setGender(gender);
 
                 Date date = new Date(dpBirthday.getYear(), dpBirthday.getMonth(), dpBirthday.getDayOfMonth());
-                account.setBirthday(date.getTime());
-
-                account.setWeight(weight);
-                account.setHeight(height);
-
-                account.save();
+                account.setPersonInfo(gender, date.getTime(), weight, height);
 
                 account.upload(PersonInfoActivity.this, new ICodeCallback() {
                     @Override

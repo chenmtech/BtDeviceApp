@@ -5,11 +5,9 @@ import android.content.Context;
 
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-
-import org.litepal.LitePal;
+import com.vise.log.ViseLog;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_PASSWORD;
 import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_QR_CODE;
 
@@ -29,6 +27,7 @@ public class AccountManager {
     private Account account; // account
 
     AccountManager() {
+        account = Account.readFromSharedPreference();
     }
 
     public Account getAccount() {
@@ -43,7 +42,7 @@ public class AccountManager {
      * @return true: 本地登录成功； false：本地登录失败
      */
     public boolean localLogin() {
-        account = LitePal.findFirst(Account.class);
+        ViseLog.e(account);
         return isValid() && account.canLocalLogin();
     }
 
@@ -56,16 +55,10 @@ public class AccountManager {
      * @param callback：登录后的回调
      */
     public void login(String userName, String password, final Context context, String showString, ICodeCallback callback) {
-        Account.Builder builder = new Account.Builder();
-        builder.setUserName(userName).setPassword(password).setLoginWay(LOGIN_WAY_PASSWORD);
-        Account acnt = builder.build();
-        acnt.setLoginWay(LOGIN_WAY_PASSWORD);
-        acnt.login(context, showString, code -> {
-            if(code == RETURN_CODE_SUCCESS) {
-                this.account = acnt;
-            }
-            callback.onFinish(code);
-        });
+        account.setUserName(userName);
+        account.setPassword(password);
+        account.setLoginWay(LOGIN_WAY_PASSWORD);
+        account.login(context, showString, callback);
     }
 
     /**
@@ -76,16 +69,9 @@ public class AccountManager {
      * @param callback：登录后的回调
      */
     public void login(String userName, final Context context, String showString, ICodeCallback callback) {
-        Account.Builder builder = new Account.Builder();
-        builder.setUserName(userName).setLoginWay(LOGIN_WAY_QR_CODE);
-        Account acnt = builder.build();
-        acnt.setLoginWay(LOGIN_WAY_PASSWORD);
-        acnt.login(context, showString, code -> {
-            if(code == RETURN_CODE_SUCCESS) {
-                this.account = acnt;
-            }
-            callback.onFinish(code);
-        });
+        account.setUserName(userName);
+        account.setLoginWay(LOGIN_WAY_QR_CODE);
+        account.login(context, showString, callback);
     }
 
     /**
@@ -97,9 +83,8 @@ public class AccountManager {
      * @param callback：注册后回调
      */
     public void signUp(final Context context, String userName, String password, ICodeCallback callback) {
-        Account.Builder builder = new Account.Builder();
-        builder.setUserName(userName).setPassword(password).setLoginWay(LOGIN_WAY_PASSWORD);
-        Account account = builder.build();
+        account.setUserName(userName);
+        account.setPassword(password);
         account.signUp(context, callback);
     }
 

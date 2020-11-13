@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.INVALID_HR;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 public class EcgProcessor {
 	private static final int NUM_BEFORE_R = 99;

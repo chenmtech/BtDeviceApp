@@ -121,7 +121,6 @@ public class AccountActivity extends AppCompatActivity {
                 }
 
                 account.setNote(etNote.getText().toString());
-                account.save();
 
                 account.upload(AccountActivity.this, new ICodeCallback() {
                     @Override

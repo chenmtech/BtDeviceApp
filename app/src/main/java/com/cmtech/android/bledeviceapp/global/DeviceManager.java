@@ -1,16 +1,11 @@
 package com.cmtech.android.bledeviceapp.global;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.WebDeviceCommonInfo;
-import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
-import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
-import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -152,59 +147,5 @@ public class DeviceManager {
             }
         }
         return false;
-    }
-
-    public void updateWebDevices(Context context) {
-        // 获取网络广播设备列表
-        final List<IDevice> currentWebDevices = getWebDeviceList();
-
-        for(IDevice device : currentWebDevices) {
-            if(device.getConnectState() == CLOSED) {
-                DEVICE_LIST.remove(device);
-            }
-        }
-
-        final boolean[] finish = new boolean[1];
-
-        EcgHttpReceiver.retrieveDeviceInfo(context, MyApplication.getAccount().getUserName(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
-            @Override
-            public void onReceived(List<WebEcgDevice> deviceList) {
-                if(deviceList == null || deviceList.isEmpty()) {
-                    finish[0] = true;
-                    return;
-                }
-
-                final int[] update = new int[]{deviceList.size()};
-                for(WebEcgDevice device : deviceList) {
-                    final WebDeviceCommonInfo registerInfo = (WebDeviceCommonInfo)device.getCommonInfo();
-                    UserUtil.getUserInfo(registerInfo.getBroadcastId(), new UserUtil.IGetUserInfoCallback() {
-                        @Override
-                        public void onReceived(String userId, final String name, String description, Bitmap image) {
-                            if(!TextUtils.isEmpty(name))
-                                registerInfo.setBroadcastName(name);
-                            update[0]--;
-                        }
-                    });
-                }
-
-                while(update[0] > 0) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                finish[0] = true;
-            }
-        });
-
-        while (!finish[0]) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
@@ -8,18 +9,18 @@ import android.text.TextUtils;
 import android.util.Base64;
 
 import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.MD5Utils;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.LitePal;
-import org.litepal.crud.LitePalSupport;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +43,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
   * Version:        1.0
  */
 
-public class Account extends LitePalSupport implements Serializable, IJsonable, IWebOperation {
+public class Account implements Serializable, IJsonable, IWebOperation {
     public static final int LOGIN_WAY_PASSWORD = 0;
     public static final int LOGIN_WAY_QR_CODE = 1;
     public static final int LOGIN_WAY_QQ = 2;
@@ -51,10 +52,9 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     public static final int MALE = 1;
     public static final int FEMALE = 2;
 
-    private int id; // id
     private int accountId = INVALID_ID;
     private String userName = ""; // user name, like phone number
-    private int loginWay;
+    private int loginWay = LOGIN_WAY_PASSWORD;
     private String password = ""; // password
     private String nickName = ""; // nick name
     private String note = ""; // note
@@ -67,6 +67,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
 
     private boolean canLocalLogin = false;
 
+    private Account() {
+
+    }
+
     private Account(String userName, String password) {
         this.userName = userName;
         this.password = MD5Utils.getMD5Code(password);
@@ -78,15 +82,33 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         loginWay = LOGIN_WAY_QR_CODE;
     }
 
-    public int getId() {
-        return id;
-    }
     public int getAccountId() {
         return accountId;
     }
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("accountId", accountId);
+        editor.commit();
+    }
     public String getUserName() { return userName;}
+    public void setUserName(String userName) {
+        this.userName = userName;
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("userName", userName);
+        editor.commit();
+    }
     public String getPassword() {
         return password;
+    }
+    public void setPassword(String password) {
+        this.password = MD5Utils.getMD5Code(password);
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("password", this.password);
+        editor.commit();
     }
     public String getNickName() {
         return nickName;
@@ -99,59 +121,80 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
     public void setNickName(String nickName) {
         this.nickName = nickName;
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("nickName", nickName);
+        editor.commit();
     }
     public String getNote() {
         return note;
     }
     public void setNote(String note) {
         this.note = note;
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("note", note);
+        editor.commit();
     }
     public String getIcon() {
         return icon;
     }
     public void setIcon(String icon) {
         this.icon = icon;
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("icon", icon);
+        editor.commit();
     }
     public int getLoginWay() {
         return loginWay;
     }
     public void setLoginWay(int loginWay) {
         this.loginWay = loginWay;
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("loginWay", loginWay);
+        editor.commit();
     }
     public boolean canLocalLogin() {
         return canLocalLogin;
+    }
+    public void setCanLocalLogin(boolean canLocalLogin) {
+        this.canLocalLogin = canLocalLogin;
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("canLocalLogin", canLocalLogin);
+        editor.commit();
     }
 
     public int getGender() {
         return gender;
     }
 
-    public void setGender(int gender) {
-        this.gender = gender;
-    }
-
     public long getBirthday() {
         return birthday;
-    }
-
-    public void setBirthday(long birthday) {
-        this.birthday = birthday;
     }
 
     public int getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
-
     public int getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setPersonInfo(int gender, long birthday, int weight, int height) {
+        this.gender = gender;
+        this.birthday = birthday;
+        this.weight = weight;
         this.height = height;
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("gender", gender);
+        editor.putLong("birthday", birthday);
+        editor.putInt("weight", weight);
+        editor.putInt("height", height);
+        editor.commit();
     }
 
     public boolean notSetPersonInfo() {
@@ -229,11 +272,11 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
                 if(code == RETURN_CODE_SUCCESS) {
-                    accountId = (Integer) response.getContent();
+                    setAccountId((Integer) response.getContent());
                     //ViseLog.e("accountId=" + accountId);
                     if(accountId != INVALID_ID) {
-                        canLocalLogin = true;
-                        save();
+                        setCanLocalLogin(true);
+                        ViseLog.e(Account.this);
                     }
                 }
                 callback.onFinish(code);
@@ -242,7 +285,10 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     }
 
     public void remove() {
-        LitePal.deleteAll("Account", "accountId = ?", ""+accountId);
+        SharedPreferences preferences = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.commit();
 
         if(!TextUtils.isEmpty(icon)) {
             try {
@@ -276,7 +322,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
                 if (code == RETURN_CODE_SUCCESS) {
                     JSONObject json = (JSONObject) response.getContent();
                     fromJson(json);
-                    save();
+                    writeToSharedPreference();
                 }
                 callback.onFinish(code);
             }
@@ -298,7 +344,7 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
     public String toString() {
         return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
                 + ",gender:" + gender + ",birthday:" + birthday + ",weight:" + weight + ",height:" + height
-                + ",Note：" + note + ",icon: " + icon;
+                + ",Note：" + note + ",icon: " + icon +",canLocalLogin:" + canLocalLogin;
     }
 
     @Override
@@ -315,47 +361,39 @@ public class Account extends LitePalSupport implements Serializable, IJsonable, 
         return userName.equals(other.userName);
     }
 
-    public static class Builder {
-        private String userName = ""; // user name, like phone number
-        private int loginWay = LOGIN_WAY_PASSWORD;
-        private String password = ""; // password
+    public static Account readFromSharedPreference() {
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", 0);
+        Account account = new Account();
+        account.accountId = settings.getInt("accountId", INVALID_ID);
+        account.userName = settings.getString("userName", "");
+        account.password = settings.getString("password", "");
+        account.loginWay = settings.getInt("loginWay", LOGIN_WAY_PASSWORD);
+        account.nickName = settings.getString("nickName", "");
+        account.note = settings.getString("note", "");
+        account.icon = settings.getString("icon", "");
+        account.gender = settings.getInt("gender", 0);
+        account.birthday = settings.getLong("birthday", 0);
+        account.weight = settings.getInt("weight", 0);
+        account.height = settings.getInt("height", 0);
+        account.canLocalLogin = settings.getBoolean("canLocalLogin", false);
+        return account;
+    }
 
-        public Builder() {
-
-        }
-
-        public Builder setLoginWay(int loginWay) {
-            this.loginWay = loginWay;
-            return this;
-        }
-
-        public Builder setUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder setPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Account build() {
-            switch (loginWay) {
-                case LOGIN_WAY_PASSWORD:
-                    if(TextUtils.isEmpty(userName) || TextUtils.isEmpty(password)) {
-                        return null;
-                    }
-                    return new Account(userName, password);
-
-                case LOGIN_WAY_QR_CODE:
-                    if(TextUtils.isEmpty(userName)) {
-                        return null;
-                    }
-                    return new Account(userName);
-
-                default:
-                    return null;
-            }
-        }
+    public void writeToSharedPreference() {
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("accountId", accountId);
+        editor.putString("userName", userName);
+        editor.putString("password", password);
+        editor.putInt("loginWay", loginWay);
+        editor.putString("nickName", nickName);
+        editor.putString("note", note);
+        editor.putString("icon", icon);
+        editor.putInt("gender", gender);
+        editor.putLong("birthday", birthday);
+        editor.putInt("weight", weight);
+        editor.putInt("height", height);
+        editor.putBoolean("canLocalLogin", canLocalLogin);
+        editor.commit();
     }
 }
