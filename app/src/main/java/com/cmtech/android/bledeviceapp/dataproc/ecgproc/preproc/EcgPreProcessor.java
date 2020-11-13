@@ -8,6 +8,7 @@ import com.cmtech.dsp.filter.design.FIRDesigner;
 import com.cmtech.dsp.filter.design.FilterType;
 import com.cmtech.dsp.filter.design.NotchDesigner;
 import com.cmtech.dsp.filter.design.WinType;
+import com.vise.log.ViseLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -100,9 +101,11 @@ public class EcgPreProcessor {
 		if(qrsAndRRInterval == null || qrsAndRRInterval.isEmpty()) {
 		    return;
         }
+        ViseLog.e(qrsAndRRInterval);
 		
 		// 检测R波和每次心跳开始位置
 		Map<String, Object> rPosAndBeatBegin = getRWaveAndBeatBeginPos(ecgData, qrsAndRRInterval);
+        ViseLog.e(rPosAndBeatBegin);
 
 		// 对ECG分割为单次心跳数据，并归一化
 		List<Long> beatBegin = (List<Long>)rPosAndBeatBegin.get("BeatBegin");

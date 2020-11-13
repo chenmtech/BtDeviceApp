@@ -6,6 +6,7 @@ import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.dsp.filter.FIRFilter;
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.structure.StructType;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,6 +90,11 @@ public class RWaveDetecter {
 		for(int i = 1; i < rrInterval.size()-1; i++) {
 			beatBegin.add(rPos.get(i-1) - Math.round(rrInterval.get(i)*2.0/5));
 		}
+
+		if(beatBegin.get(0) < 0) {
+            beatBegin.remove(0);
+            rPos.remove(0);
+        }
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("RPos", rPos);
