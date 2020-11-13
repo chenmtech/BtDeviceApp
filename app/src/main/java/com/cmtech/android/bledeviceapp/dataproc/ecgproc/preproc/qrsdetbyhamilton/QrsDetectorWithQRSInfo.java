@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.qrsdetbyhamilton;
+package com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.qrsdetbyhamilton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class QrsDetectorWithQRSInfo extends QrsDetector {
 		return qrsPositions;
 	}
 
-	public List<Integer> getRrIntervals() {
+	public List<Integer> getRRIntervals() {
 		return rrIntervals;
 	}
 	

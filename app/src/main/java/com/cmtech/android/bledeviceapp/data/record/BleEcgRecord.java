@@ -4,14 +4,13 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
-import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.IEcgAlgorithm;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.data.report.EcgReport;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgArrhythmiaDetector;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 
 import org.json.JSONException;
@@ -152,7 +151,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public void requestDiagnose() {
-        IEcgAlgorithm algorithm = MyApplication.getEcgAlgorithm();
+        IEcgArrhythmiaDetector algorithm = new MyEcgArrhythmiaDetector();
         EcgReport rtnReport = algorithm.process(this);
         report.setVer(rtnReport.getVer());
         report.setReportTime(rtnReport.getReportTime());

@@ -1,6 +1,6 @@
-package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm;
+package com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc;
 
-import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.qrsdetbyhamilton.QrsDetectorWithQRSInfo;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.qrsdetbyhamilton.QrsDetectorWithQRSInfo;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.dsp.filter.FIRFilter;
 import com.cmtech.dsp.filter.IIRFilter;
@@ -15,30 +15,31 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
-public class EcgProcessor {
+public class EcgPreProcessor {
 	private static final int NUM_BEFORE_R = 99;
 	private static final int NUM_AFTER_R = 150;
 
-	private Map<String, Object> result = new HashMap<>();
-	private List<List<Float>> segEcgData;
+	private int sampleRate;
+	private Map<String, Object> processResult = new HashMap<>();
 	
-	public EcgProcessor() {
+	public EcgPreProcessor() {
 	}
 	
-	public Map<String, Object> getResult() {
-		return result;
+	public Map<String, Object> getProcessResult() {
+		return processResult;
 	}
 	
 	public JSONObject getResultJson() {
 	    try {
-            if (result.isEmpty()) return null;
+            if (processResult.isEmpty()) return null;
             JSONObject json = new JSONObject();
-            for (Entry<String, Object> ent : result.entrySet()) {
+            for (Entry<String, Object> ent : processResult.entrySet()) {
                 json.put(ent.getKey(), ent.getValue());
             }
             return json;
@@ -50,23 +51,22 @@ public class EcgProcessor {
 	
 	@SuppressWarnings("unchecked")
 	public List<Double> getRRIntervalInMs() {
-		if(result.isEmpty()) return null;
-		List<Long> RPos = (List<Long>) result.get("RPos");
-		int sampleRate = (int) result.get("SampleRate");
-		List<Double> RR = new ArrayList<>();
+		if(processResult.isEmpty()) return null;
+		List<Long> RPos = (List<Long>) processResult.get("RPos");
+		int sampleRate = (int) processResult.get("SampleRate");
+		List<Double> RRList = new ArrayList<>();
         for(int i = 1; i < RPos.size(); i++) {
-        	double R1 = RPos.get(i-1)*1000.0/sampleRate;
-        	double R2 = RPos.get(i)*1000.0/sampleRate;
-        	RR.add(R2-R1);
+            double rr = (RPos.get(i)-RPos.get(i-1))*1000.0/sampleRate;
+        	RRList.add(rr);
         }
-        return RR;
+        return RRList;
 	}
 
 	public int getAverageHr() {
 	    List<Double> RR = getRRIntervalInMs();
 	    if(RR == null) return INVALID_HR;
         double aveRR = MathUtil.doubleAve(RR);
-        return (int)(60000/aveRR);
+        return (int)Math.round(60000/aveRR);
     }
 
     public double getHrStdInMs() {
@@ -77,52 +77,57 @@ public class EcgProcessor {
 
 	@SuppressWarnings("unchecked")
 	public void process(List<Short> ecgData, int sampleRate) {
+	    processResult.clear();
+
 		if(ecgData == null || ecgData.isEmpty()) {
 			return;
 		}
+
+		this.sampleRate = sampleRate;
 		
-		// do filtering
+		// 滤波
 		//IIRFilter dcBlocker = DCBlockDesigner.design(1, sampleRate);
-		IIRFilter notch50 = designNotch(50, sampleRate);
-		FIRFilter lpFilter = designLpFilter(sampleRate);
+		IIRFilter notch50 = designNotch(50);
+		FIRFilter lpFilter = designLpFilter();
 		List<Short> afterFilter = new ArrayList<Short>();
 		for(Short d : ecgData) {
 			afterFilter.add((short)Math.round(lpFilter.filter(notch50.filter(d))));
 		}
 		ecgData = afterFilter;
 		
-		// detect the QRS waves and RR interval
-		Map<String, Object> qrsAndRRInterval = getQrsPosAndRRInterval(ecgData, sampleRate);
-		if(qrsAndRRInterval == null) {
+		// 检测QRS波和RR间隔
+		Map<String, Object> qrsAndRRInterval = getQrsPosAndRRInterval(ecgData);
+		if(qrsAndRRInterval == null || qrsAndRRInterval.isEmpty()) {
 		    return;
         }
 		
-		// detect the R wave position and the begin pos of each beat
-		Map<String, Object> rPosAndBeatBegin = getRPosAndBeatBegin(ecgData, qrsAndRRInterval);
+		// 检测R波和每次心跳开始位置
+		Map<String, Object> rPosAndBeatBegin = getRWaveAndBeatBeginPos(ecgData, qrsAndRRInterval);
 
-		// normalize the Ecg data per beat
+		// 对ECG分割为单次心跳数据，并归一化
 		List<Long> beatBegin = (List<Long>)rPosAndBeatBegin.get("BeatBegin");
 		List<Float> normalizedEcgData = normalizeEcgData(ecgData, beatBegin);
-		
-		// cut the ecg data into the segments
 		List<Long> rPos =  (List<Long>)rPosAndBeatBegin.get("RPos");
-		segEcgData = getSegEcgData(normalizedEcgData, rPos, beatBegin);
-		
-		result = rPosAndBeatBegin;
-		result.put("QrsPos", qrsAndRRInterval.get("QrsPos"));
-		result.put("EcgData", ecgData);
-		result.put("SegEcgData", segEcgData);
-		result.put("SampleRate", sampleRate);
+        List<List<Float>> segEcgData = segmentEcgData(normalizedEcgData, rPos, beatBegin);
+
+		// 打包处理结果
+		processResult = rPosAndBeatBegin;
+		processResult.put("QrsPos", qrsAndRRInterval.get("QrsPos"));
+		processResult.put("EcgData", ecgData);
+		processResult.put("SegEcgData", segEcgData);
+		processResult.put("SampleRate", sampleRate);
 	}	
 	
 	public String getSegEcgDataString() {
+		if(processResult.isEmpty()) return "";
+        List<List<Float>> segEcgData = (List<List<Float>>) processResult.get("SegEcgData");
 		if(segEcgData == null || segEcgData.isEmpty()) return "";
 		
 		StringBuilder builder = new StringBuilder();
 		
 		for(List<Float> seg : segEcgData) {
 			for(Float d : seg) {
-				builder.append(String.format("%.3f", d));
+				builder.append(String.format(Locale.getDefault(), "%.3f", d));
 				builder.append(' ');
 			}
 			builder.append("\r\n");
@@ -130,7 +135,7 @@ public class EcgProcessor {
 		return builder.toString();
 	}
 	
-	private List<List<Float>> getSegEcgData(List<Float> normalizedEcgData, List<Long> rPos, List<Long> beatBeginPos) {
+	private static List<List<Float>> segmentEcgData(List<Float> normalizedEcgData, List<Long> rPos, List<Long> beatBeginPos) {
 		List<List<Float>> segEcgData = new ArrayList<>();
 		
 		for(int i = 0; i < beatBeginPos.size()-1; i++) {
@@ -170,20 +175,20 @@ public class EcgProcessor {
 		return segEcgData;
 	}
 	
-	private Map<String, Object> getQrsPosAndRRInterval(List<Short> ecgData, int sampleRate) {
-		QrsDetectorWithQRSInfo detector = new QrsDetectorWithQRSInfo(sampleRate);
+	private Map<String, Object> getQrsPosAndRRInterval(List<Short> ecgData) {
+		QrsDetectorWithQRSInfo qrsDetector = new QrsDetectorWithQRSInfo(sampleRate);
 		int n = 0;
 		for(Short datum : ecgData) {
-			detector.outputRRInterval((int)datum);
+			qrsDetector.outputRRInterval((int)datum);
 			n++;
-			if(detector.firstPeakFound()) break;
+			if(qrsDetector.firstPeakFound()) break;
 		}
 		for(Short datum : ecgData) {
-			detector.outputRRInterval((int)datum);
+			qrsDetector.outputRRInterval((int)datum);
 		}
 		
-		List<Long> qrsPos = detector.getQrsPositions();
-		List<Integer> rrInterval = detector.getRrIntervals();
+		List<Long> qrsPos = qrsDetector.getQrsPositions();
+		List<Integer> rrInterval = qrsDetector.getRRIntervals();
 
 		if(qrsPos.size() < 6)
 		    return null;
@@ -203,11 +208,11 @@ public class EcgProcessor {
 		return map;
 	}
 	
-	private static Map<String, Object> getRPosAndBeatBegin(List<Short> ecgData, Map<String, Object> qrsAndRRInterval) {
-		return RWaveDetecter.findRPosAndBeatBegin(ecgData, qrsAndRRInterval);
+	private static Map<String, Object> getRWaveAndBeatBeginPos(List<Short> ecgData, Map<String, Object> qrsAndRRInterval) {
+		return RWaveDetecter.findRWaveAndBeatBeginPos(ecgData, qrsAndRRInterval);
 	}
 	
-	private List<Float> normalizeEcgData(List<Short> ecgData, List<Long> beatBeginPos) {
+	private static List<Float> normalizeEcgData(List<Short> ecgData, List<Long> beatBeginPos) {
 		List<Float> normalized = new ArrayList<>();
 		
 		for(Short d : ecgData) {
@@ -236,21 +241,19 @@ public class EcgProcessor {
 		return normalized;
 	}
 
-	private FIRFilter designLpFilter(int sampleRate) {
+	private FIRFilter designLpFilter() {
 		double[] wp = {2*Math.PI*65/sampleRate};
 		double[] ws = {2*Math.PI*85/sampleRate};
 		double Rp = 1;
 		double As = 50;
 		FilterType fType = FilterType.LOWPASS;
 		WinType wType = WinType.HAMMING;
-		
-		FIRFilter filter = FIRDesigner.design(wp, ws, Rp, As, fType, wType);
-		return filter;
+
+        return FIRDesigner.design(wp, ws, Rp, As, fType, wType);
 	}
 	
-	private IIRFilter designNotch(int f0, int sampleRate) {
-		IIRFilter filter = NotchDesigner.design(f0, 2, sampleRate);
-		return filter;
+	private static IIRFilter designNotch(int f0) {
+        return NotchDesigner.design(f0, 2);
 	}
 	
 }

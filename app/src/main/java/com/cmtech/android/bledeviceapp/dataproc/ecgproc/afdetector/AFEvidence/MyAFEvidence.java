@@ -1,8 +1,10 @@
-package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.afdetector.AFEvidence;
+package com.cmtech.android.bledeviceapp.dataproc.ecgproc.afdetector.AFEvidence;
+
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.afdetector.IAFDetector;
 
 import java.util.List;
 
-public class MyAFEvidence {
+public class MyAFEvidence implements IAFDetector {
 	private static final int MIN_MS = -600;
 	private static final int MAX_MS = 600;
 	private static final int BIN_SIZE = 40;
@@ -10,9 +12,6 @@ public class MyAFEvidence {
 
 	private static final int THRESHOLD = 10;
 
-	public static final int NON_AF = 0;
-    public static final int AF = 1;
-    public static final int UNDETERMIN = 2;
 
 	private int classifyResult = UNDETERMIN;
 	private int afe = 0;
@@ -20,23 +19,10 @@ public class MyAFEvidence {
     private int OriginCount = 0;
     private final MyHistogram hist;
 
-    private static MyAFEvidence instance;
-
-    private MyAFEvidence() {
+    public MyAFEvidence() {
         hist = new MyHistogram();
     }
 
-    public static MyAFEvidence getInstance(){
-        if(instance == null){
-            synchronized (MyAFEvidence.class){
-                if(instance == null){
-                    instance = new MyAFEvidence();
-                }
-            }
-        }
-        return instance;
-    }
-	
 	public void process(List<Double> RR) {
         if(RR == null || RR.size() < 10) {
             afe = 0;
@@ -60,6 +46,7 @@ public class MyAFEvidence {
         return afe;
     }
 
+    @Override
 	public int getClassifyResult() {
         return classifyResult;
     }

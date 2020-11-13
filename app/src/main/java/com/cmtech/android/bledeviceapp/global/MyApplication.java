@@ -8,8 +8,6 @@ import android.util.Log;
 
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
-import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.EcgAFDetector;
-import com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.IEcgAlgorithm;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AppUpdateManager;
 import com.mob.MobSDK;
@@ -146,9 +144,6 @@ public class MyApplication extends Application {
         return (instance.startedActivityCount == 0);
     }
 
-    public static IEcgAlgorithm getEcgAlgorithm() {
-        return new EcgAFDetector();
-    }
 
     // 初始化DeviceManager
     private void initDeviceManager() {

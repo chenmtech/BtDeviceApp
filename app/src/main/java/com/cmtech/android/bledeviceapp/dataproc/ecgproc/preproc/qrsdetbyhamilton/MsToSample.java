@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm.qrsdetbyhamilton;
+package com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.qrsdetbyhamilton;
 
 public class MsToSample {
 	private MsToSample() {

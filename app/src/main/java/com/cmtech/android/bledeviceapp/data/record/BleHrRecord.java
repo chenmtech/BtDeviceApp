@@ -2,9 +2,9 @@ package com.cmtech.android.bledeviceapp.data.record;
 
 import android.support.annotation.NonNull;
 
+import com.cmtech.android.bledeviceapp.dataproc.hrproc.HRProcessor;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
-import com.cmtech.android.bledeviceapp.util.MathUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,9 +12,6 @@ import org.litepal.annotation.Column;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
@@ -97,15 +94,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
     }
 
     public short calculateHRVInMs() {
-        return (short) MathUtil.shortStd(getHrListInMS());
-    }
-
-    private List<Short> getHrListInMS() {
-        List<Short> hrListMs = new ArrayList<>();
-        for(Short d : hrList) {
-            hrListMs.add((short)(60000/d));
-        }
-        return hrListMs;
+        return HRProcessor.calculateHRVInMs(hrList);
     }
 
     public int calculateCalories(Account account) {
@@ -113,15 +102,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
             throw new IllegalStateException();
         }
 
-        int age = new GregorianCalendar().get(Calendar.YEAR)-new Date(account.getBirthday()).getYear();
-        int burned = 0;
-        if(account.getGender() == Account.MALE) {
-            burned = (int)( ( (-55.0969 + (0.6309*hrAve) + (0.1988*account.getWeight()) + (0.2017*age) )/4.184 )*getRecordSecond()/60 );
-            //ViseLog.e(new GregorianCalendar().get(Calendar.YEAR)+ " "+ new Date(account.getBirthday()).getYear() + " " +age+" "+hrAve+ " "+ account.getWeight() + " " + getRecordSecond());
-        } else {
-            burned = (int)( ((-20.4022 + (0.4472*hrAve) - (0.1263*account.getWeight()) + (0.074*age))/4.184)*getRecordSecond()/60 );
-        }
-        return burned;
+        return HRProcessor.calculateCalories(hrAve, getRecordSecond(), account);
     }
 
     public short getHrMax() {

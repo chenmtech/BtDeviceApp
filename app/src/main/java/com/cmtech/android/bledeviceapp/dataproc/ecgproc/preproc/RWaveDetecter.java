@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.dataproc.ecgalgorithm;
+package com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc;
 
 import android.util.Pair;
 
@@ -19,7 +19,7 @@ public class RWaveDetecter {
 	private static final int QRS_HALF_WIDTH = QRS_WIDTH/2;
 	
 	@SuppressWarnings("unchecked")
-	public static Map<String, Object> findRPosAndBeatBegin(List<Short> ecgData, Map<String, Object> qrsAndRRInterval) {
+	public static Map<String, Object> findRWaveAndBeatBeginPos(List<Short> ecgData, Map<String, Object> qrsAndRRInterval) {
 		List<Long> qrsPos = (List<Long>) qrsAndRRInterval.get("QrsPos");
 		List<Integer> rrInterval = (List<Integer>) qrsAndRRInterval.get("RRInterval");
 		
