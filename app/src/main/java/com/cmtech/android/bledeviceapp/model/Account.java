@@ -60,26 +60,14 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
 
+    private boolean canLocalLogin = false;
+
     private int gender = 0;
     private long birthday = 0;
     private int weight = 0;
     private int height = 0;
 
-    private boolean canLocalLogin = false;
-
     private Account() {
-
-    }
-
-    private Account(String userName, String password) {
-        this.userName = userName;
-        this.password = MD5Utils.getMD5Code(password);
-        loginWay = LOGIN_WAY_PASSWORD;
-    }
-
-    private Account(String userName) {
-        this.userName = userName;
-        loginWay = LOGIN_WAY_QR_CODE;
     }
 
     public int getAccountId() {
