@@ -60,7 +60,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
 
-    private boolean canLocalLogin = false;
+    private boolean needWebLogin = true;
 
     private int gender = 0;
     private long birthday = 0;
@@ -144,14 +144,14 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         editor.putInt("loginWay", loginWay);
         editor.commit();
     }
-    public boolean canLocalLogin() {
-        return canLocalLogin;
+    public boolean isNeedWebLogin() {
+        return needWebLogin;
     }
-    public void setCanLocalLogin(boolean canLocalLogin) {
-        this.canLocalLogin = canLocalLogin;
+    public void setNeedWebLogin(boolean needWebLogin) {
+        this.needWebLogin = needWebLogin;
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean("canLocalLogin", canLocalLogin);
+        editor.putBoolean("needWebLogin", needWebLogin);
         editor.commit();
     }
 
@@ -212,6 +212,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             birthday = json.getLong("birthday");
             weight = json.getInt("weight");
             height = json.getInt("height");
+            needWebLogin = json.getBoolean("needWebLogin");
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
@@ -263,7 +264,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                     setAccountId((Integer) response.getContent());
                     //ViseLog.e("accountId=" + accountId);
                     if(accountId != INVALID_ID) {
-                        setCanLocalLogin(true);
+                        setNeedWebLogin(false);
                         ViseLog.e(Account.this);
                     }
                 }
@@ -332,7 +333,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     public String toString() {
         return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
                 + ",gender:" + gender + ",birthday:" + birthday + ",weight:" + weight + ",height:" + height
-                + ",Note：" + note + ",icon: " + icon +",canLocalLogin:" + canLocalLogin;
+                + ",Note：" + note + ",icon: " + icon +",needWebLogin:" + needWebLogin;
     }
 
     @Override
@@ -363,7 +364,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         account.birthday = settings.getLong("birthday", 0);
         account.weight = settings.getInt("weight", 0);
         account.height = settings.getInt("height", 0);
-        account.canLocalLogin = settings.getBoolean("canLocalLogin", false);
+        account.needWebLogin = settings.getBoolean("needWebLogin", true);
         return account;
     }
 
@@ -381,7 +382,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         editor.putLong("birthday", birthday);
         editor.putInt("weight", weight);
         editor.putInt("height", height);
-        editor.putBoolean("canLocalLogin", canLocalLogin);
+        editor.putBoolean("needWebLogin", needWebLogin);
         editor.commit();
     }
 }

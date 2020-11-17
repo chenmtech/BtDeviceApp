@@ -43,7 +43,7 @@ public class AccountManager {
      */
     public boolean localLogin() {
         ViseLog.e(account);
-        return isValid() && account.canLocalLogin();
+        return isValid() && !account.isNeedWebLogin();
     }
 
     /**
