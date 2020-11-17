@@ -226,7 +226,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         }
                     });
                 }
-            }).setNegativeButton(R.string.cancel, null).show();
+            }).show();
         }
     }
 

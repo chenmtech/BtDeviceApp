@@ -96,7 +96,6 @@ public class RecordSearchLayout extends LinearLayout {
         dialog.setView(dialogView);
         dialog.show();
         //初始化日期监听事件
-        Calendar calendar = Calendar.getInstance();
         datePicker.init(year, month, day,
                 new DatePicker.OnDateChangedListener() {
                     @Override

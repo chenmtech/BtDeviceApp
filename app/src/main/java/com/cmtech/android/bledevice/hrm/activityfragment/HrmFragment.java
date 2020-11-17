@@ -112,7 +112,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                             public void onClick(DialogInterface dialog, int id) {
                                 device.setMode(!device.inHrMode());
                             }
-                        }).setNegativeButton(R.string.cancel, null).show();
+                        }).show();
             }
         });
 

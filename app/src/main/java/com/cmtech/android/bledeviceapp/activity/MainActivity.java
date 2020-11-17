@@ -227,14 +227,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             boolean haveInstallPermission = getPackageManager().canRequestPackageInstalls();
             if (!haveInstallPermission) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("开启安装应用权限").setMessage("自动升级本应用程序需要您打开“安装未知应用”权限。我们承诺未经您允许，不会安装任何第三方应用。");
+                builder.setTitle("开启安装应用权限").setMessage("请打开“安装未知应用”权限，以方便升级本应用。");
                 builder.setCancelable(false);
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         startInstallPermissionSettingActivity();
                     }
-                }).setNegativeButton("", null).show();
+                }).show();
                 return;
             }
         }
@@ -307,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                                     finish();
                                 }
                             });
-                            builder.setNegativeButton(R.string.cancel, null);
                             builder.show();
                         } else {
                             finish();
@@ -426,34 +425,20 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        DeviceFragment fragment;
         switch (item.getItemId()) {
             case android.R.id.home:
                 switchDrawer(true);
                 break;
 
             case R.id.toolbar_config:
-                fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
+                DeviceFragment fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.openConfigureActivity();
                 }
                 break;
 
             case R.id.toolbar_close:
-                fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
-                if(fragment != null) {
-                    closeFragment(fragment);
-                } else {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle(R.string.exit_app);
-                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    });
-                    builder.show();
-                }
+                onBackPressed();
                 break;
         }
         return true;
@@ -478,12 +463,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
     @Override
     public void onBackPressed() {
-        if(MyApplication.getDeviceManager().hasDeviceOpen()) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle(R.string.exit_app);
-            builder.setMessage(R.string.pls_close_device_firstly);
-            builder.setPositiveButton(R.string.ok, null);
-            builder.show();
+        DeviceFragment fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
+        if(fragment != null) {
+            closeFragment(fragment);
         } else {
             final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle(R.string.exit_app);
@@ -646,7 +628,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                     }
                 }
             }
-        }).setNegativeButton(R.string.cancel, null).show();
+        }).show();
     }
 
     // 修改设备注册信息 

@@ -98,7 +98,7 @@ public abstract class DeviceFragment extends Fragment{
     public void close() {
         if(device != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle(R.string.close_device)
+            builder.setTitle(R.string.close_device).setMessage("是否关闭当前设备？")
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             device.close();
@@ -107,8 +107,7 @@ public abstract class DeviceFragment extends Fragment{
                                 ((MainActivity) getActivity()).removeFragment(DeviceFragment.this);
                             }
                         }
-                    })
-                    .setNegativeButton(R.string.cancel, null).show();
+                    }).show();
 
         }
     }
