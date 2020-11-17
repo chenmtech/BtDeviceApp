@@ -92,7 +92,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                     @Override
                     public void onFinish(int code) {
                         if (code == RETURN_CODE_SUCCESS) {
-                            Toast.makeText(PersonInfoActivity.this, "账户信息已更新。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PersonInfoActivity.this, "个人信息已更新。", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent();
                             setResult(RESULT_OK, intent);
                             finish();
