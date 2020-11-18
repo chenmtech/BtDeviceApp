@@ -30,11 +30,11 @@ public class WebFailureHandler {
                 break;
 
             case RETURN_CODE_LOGIN_ERR:
-                errString = "登录失败";
+                errString = "手机号或密码错误，登录失败";
                 break;
 
             case RETURN_CODE_ACCOUNT_ERR:
-                errString = "账户异常";
+                errString = "账户信息错误";
                 break;
 
             case RETURN_CODE_UPDATE_ERR:

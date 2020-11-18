@@ -31,14 +31,14 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 
 public class SignUpActivity extends AppCompatActivity {
     private static final String CHINA_PHONE_NUMBER = "86";
-    private static final int MSG_WAIT_SECOND = 1;
+    private static final int MSG_COUNT_DOWN_SECOND = 1;
     private EditText etUserName;
     private EditText etPassword;
     private Button btnSignUp;
     private Button btnGetVeriCode;
     private CheckBox cbGrant;
 
-    private String userName; // 用户名，即手机号
+    private String userNameVerified; // 被验证的用户名，即手机号
     private String password; // 密码
     private String veriCode; // 验证码
     private Thread countDownThread; // 倒计时线程
@@ -67,7 +67,7 @@ public class SignUpActivity extends AppCompatActivity {
                     } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // 验证码验证通过的结果, 启动注册
-                            signUp(userName, password);
+                            signUp(userNameVerified, password);
                         } else {
                             Toast.makeText(SignUpActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
                             ((Throwable) data).printStackTrace();
@@ -79,10 +79,10 @@ public class SignUpActivity extends AppCompatActivity {
         }
     };
 
-    private final Handler waitASecondHandler = new Handler(new Handler.Callback() {
+    private final Handler countDownHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if(msg.what == MSG_WAIT_SECOND) {
+            if(msg.what == MSG_COUNT_DOWN_SECOND) {
                 int nSecond = msg.arg1;
 
                 if(nSecond != 0)
@@ -114,8 +114,8 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String userName = etUserName.getText().toString().trim();
                 if(checkUserName(userName)) {
-                    SignUpActivity.this.userName = userName;
-                    getVeriCode(userName); // 获取验证码
+                    SignUpActivity.this.userNameVerified = userName;
+                    SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, userName); // 获取验证码
                     btnGetVeriCode.setEnabled(false);
                     startCountDownTimer();
                 } else
@@ -130,14 +130,14 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!isPrivacyGrantChecked()) return;
                 String userName = etUserName.getText().toString().trim();
-                if(SignUpActivity.this.userName == null || !SignUpActivity.this.userName.equals(userName)) {
-                    Toast.makeText(SignUpActivity.this, "请先验证手机号。", Toast.LENGTH_SHORT).show();
+                if(SignUpActivity.this.userNameVerified == null || !SignUpActivity.this.userNameVerified.equals(userName)) {
+                    Toast.makeText(SignUpActivity.this, "请先获取手机号验证码。", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 password = etPassword.getText().toString().trim();
                 if(checkUserName(userName) && checkPassword(password)) {
                     veriCode = etVeriCode.getText().toString().trim();
-                    verify(userName, veriCode);
+                    SMSSDK.submitVerificationCode(CHINA_PHONE_NUMBER, userName, veriCode); // 提交验证码进行验证
                 }
                 else {
                     Toast.makeText(SignUpActivity.this, "用户名或密码格式错误", Toast.LENGTH_SHORT).show();
@@ -185,7 +185,7 @@ public class SignUpActivity extends AppCompatActivity {
                 ViseLog.e("code:"+code);
                 if(code == RETURN_CODE_SUCCESS) {
                     Toast.makeText(SignUpActivity.this, "账户注册成功", Toast.LENGTH_SHORT).show();
-                    etPassword.setText(""); // 清空密码
+                    etPassword.setText(""); // 清空显示的密码
                     finish();
                 } else {
                     Toast.makeText(SignUpActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
@@ -208,18 +208,6 @@ public class SignUpActivity extends AppCompatActivity {
         return m.find();
     }
 
-    // 获取验证码
-    private static void getVeriCode(final String phone) {
-        // 请求验证码，其中country表示国家代码，如“86”；phone表示手机号码，如“13800138000”
-        SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, phone);
-    }
-
-    // 提交验证
-    private static void verify(final String phone, final String veriCode) {
-        // 提交验证码，其中的code表示验证码，如“1357”
-        SMSSDK.submitVerificationCode(CHINA_PHONE_NUMBER, phone, veriCode);
-    }
-
     private void startCountDownTimer() {
         countDownThread = new Thread(new Runnable() {
             @Override
@@ -228,7 +216,7 @@ public class SignUpActivity extends AppCompatActivity {
                 try {
                     while (--nSecond >= 0) {
                         Thread.sleep(1000);
-                        Message.obtain(waitASecondHandler, MSG_WAIT_SECOND, nSecond, 0).sendToTarget();
+                        Message.obtain(countDownHandler, MSG_COUNT_DOWN_SECOND, nSecond, 0).sendToTarget();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();

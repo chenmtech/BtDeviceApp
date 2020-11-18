@@ -21,8 +21,6 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_LOGIN_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
-import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_PASSWORD;
-import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_QR_CODE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -87,21 +85,8 @@ public class KMWebServiceUtil {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "login");
 
-        switch (account.getLoginWay()) {
-            case LOGIN_WAY_PASSWORD:
-                data.put("loginWay", ""+account.getLoginWay());
-                data.put("userName", account.getUserName());
-                data.put("password", account.getPassword());
-                break;
-
-            case LOGIN_WAY_QR_CODE:
-                data.put("loginWay", ""+account.getLoginWay());
-                data.put("userName", account.getUserName());
-                break;
-
-            default:
-                return new WebResponse(RETURN_CODE_LOGIN_ERR, null);
-        }
+        data.put("userName", account.getUserName());
+        data.put("password", account.getPassword());
 
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
         try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {

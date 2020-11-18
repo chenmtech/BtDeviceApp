@@ -5,11 +5,10 @@ import android.content.Context;
 
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.util.MD5Utils;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_PASSWORD;
-import static com.cmtech.android.bledeviceapp.model.Account.LOGIN_WAY_QR_CODE;
 
 /**
   *
@@ -56,21 +55,8 @@ public class AccountManager {
      */
     public void login(String userName, String password, final Context context, String showString, ICodeCallback callback) {
         account.setUserName(userName);
+        password = MD5Utils.getMD5Code(password); // 做MD5加密
         account.setPassword(password);
-        account.setLoginWay(LOGIN_WAY_PASSWORD);
-        account.login(context, showString, callback);
-    }
-
-    /**
-     * 用手机验证码进行网络登录
-     * @param userName：用户名
-     * @param context：上下文
-     * @param showString：登录时显示的进度提示字符串，如果为null或""，则不显示进度条，在后台登录；否则在前台登录
-     * @param callback：登录后的回调
-     */
-    public void login(String userName, final Context context, String showString, ICodeCallback callback) {
-        account.setUserName(userName);
-        account.setLoginWay(LOGIN_WAY_QR_CODE);
         account.login(context, showString, callback);
     }
 
@@ -84,6 +70,7 @@ public class AccountManager {
      */
     public void signUp(final Context context, String userName, String password, ICodeCallback callback) {
         account.setUserName(userName);
+        password = MD5Utils.getMD5Code(password); // 做MD5加密
         account.setPassword(password);
         account.signUp(context, callback);
     }

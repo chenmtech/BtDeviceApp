@@ -44,17 +44,11 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
  */
 
 public class Account implements Serializable, IJsonable, IWebOperation {
-    public static final int LOGIN_WAY_PASSWORD = 0;
-    public static final int LOGIN_WAY_QR_CODE = 1;
-    public static final int LOGIN_WAY_QQ = 2;
-    public static final int LOGIN_WAY_WECHAT = 3;
-
     public static final int MALE = 1;
     public static final int FEMALE = 2;
 
     private int accountId = INVALID_ID;
     private String userName = ""; // user name, like phone number
-    private int loginWay = LOGIN_WAY_PASSWORD;
     private String password = ""; // password
     private String nickName = ""; // nick name
     private String note = ""; // note
@@ -92,7 +86,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return password;
     }
     public void setPassword(String password) {
-        this.password = MD5Utils.getMD5Code(password);
+        this.password = password;
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("password", this.password);
@@ -132,16 +126,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("icon", icon);
-        editor.commit();
-    }
-    public int getLoginWay() {
-        return loginWay;
-    }
-    public void setLoginWay(int loginWay) {
-        this.loginWay = loginWay;
-        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt("loginWay", loginWay);
         editor.commit();
     }
     public boolean isNeedWebLogin() {
@@ -356,7 +340,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         account.accountId = settings.getInt("accountId", INVALID_ID);
         account.userName = settings.getString("userName", "");
         account.password = settings.getString("password", "");
-        account.loginWay = settings.getInt("loginWay", LOGIN_WAY_PASSWORD);
         account.nickName = settings.getString("nickName", "");
         account.note = settings.getString("note", "");
         account.icon = settings.getString("icon", "");
@@ -374,7 +357,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         editor.putInt("accountId", accountId);
         editor.putString("userName", userName);
         editor.putString("password", password);
-        editor.putInt("loginWay", loginWay);
         editor.putString("nickName", nickName);
         editor.putString("note", note);
         editor.putString("icon", icon);
