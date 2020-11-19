@@ -12,6 +12,7 @@ import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
+import com.cmtech.android.bledeviceapp.util.AESUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -155,7 +156,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public void basicRecordFromJson(JSONObject json) throws JSONException{
-        note = json.getString("note");
+        note = AESUtil.decode(json.getString("note"));
         recordSecond = json.getInt("recordSecond");
     }
 
@@ -167,7 +168,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("devAddress", devAddress);
         json.put("creatorId", creatorId);
         json.put("ver", ver);
-        json.put("note", note);
+        json.put("note", AESUtil.encode(note));
         json.put("recordSecond", recordSecond);
         return json;
     }

@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -14,6 +13,8 @@ import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
+import com.cmtech.android.bledeviceapp.util.AESUtil;
+import com.vise.utils.cipher.BASE64;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -170,11 +171,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     @Override
     public void fromJson(JSONObject json) {
         try {
-            nickName = json.getString("nickName");
-            note = json.getString("note");
+            nickName = AESUtil.decode(json.getString("nickName"));
+            note = AESUtil.decode(json.getString("note"));
             String iconStr = json.getString("iconStr");
             if (!TextUtils.isEmpty(iconStr)) {
-                Bitmap bitmap = BitmapUtil.byteToBitmap(Base64.decode(iconStr, Base64.DEFAULT));
+                Bitmap bitmap = BitmapUtil.byteToBitmap(BASE64.decode(iconStr));
                 if (bitmap != null) {
                     try {
                         assert DIR_IMAGE != null;
@@ -202,8 +203,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             json.put("ver", "1.0");
             //json.put("userName", userName);
             json.put("password", password);
-            json.put("nickName", nickName);
-            json.put("note", note);
+            json.put("nickName", AESUtil.encode(nickName));
+            json.put("note", AESUtil.encode(note));
 
             String iconStr = "";
             if(!TextUtils.isEmpty(icon)) {

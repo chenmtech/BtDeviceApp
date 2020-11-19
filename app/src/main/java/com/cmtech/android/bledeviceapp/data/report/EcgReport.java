@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.data.report;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
+import com.cmtech.android.bledeviceapp.util.AESUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,7 +83,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         if(json.has("reportVer"))
             ver = json.getString("reportVer");
         reportTime = json.getLong("reportTime");
-        content = json.getString("content");
+        content = AESUtil.decode(json.getString("content"));
         status = json.getInt("status");
         if(json.has("aveHr"))
             aveHr = json.getInt("aveHr");
@@ -93,7 +94,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         JSONObject json = new JSONObject();
         json.put("reportVer", ver);
         json.put("reportTime", reportTime);
-        json.put("content", content);
+        json.put("content", AESUtil.encode(content));
         json.put("status", status);
         json.put("aveHr", aveHr);
         return json;

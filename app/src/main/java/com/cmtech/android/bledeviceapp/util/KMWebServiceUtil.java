@@ -77,6 +77,7 @@ public class KMWebServiceUtil {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
+        ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
@@ -173,7 +174,7 @@ public class KMWebServiceUtil {
             json.put("num", num);
             json.put("noteSearchStr", noteSearchStr);
         } catch (JSONException e) {
-            e.printStackTrace();
+            ViseLog.e(e);
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
@@ -251,13 +252,14 @@ public class KMWebServiceUtil {
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
         try(Response response = HttpUtils.requestPost(url, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
+            ViseLog.e(respBody);
             JSONObject returnJson = new JSONObject(respBody);
             int code = returnJson.getInt("code");
             Object content = (returnJson.has("content")) ? returnJson.get("content") : null;
             wResp.setCode(code);
             wResp.setContent(content);
         } catch (JSONException e) {
-            e.printStackTrace();
+            ViseLog.e("processPostRequest:" + e);
             wResp.setCode(RETURN_CODE_DATA_ERR);
         } catch (IOException e) {
             e.printStackTrace();
