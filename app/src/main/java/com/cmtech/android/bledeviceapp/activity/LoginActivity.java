@@ -22,8 +22,9 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 public class LoginActivity extends AppCompatActivity {
     private EditText etUserName;
     private EditText etPassword;
-    private Button btnSignUp;
     private Button btnLogin;
+    private Button btnSignUp;
+    private Button btnForgetPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,15 @@ public class LoginActivity extends AppCompatActivity {
                 else {
                     Toast.makeText(LoginActivity.this, "用户名或密码格式错误，请重新输入", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        btnForgetPassword = findViewById(R.id.btn_forget_password);
+        btnForgetPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, ChangePasswordActivity.class);
+                startActivity(intent);
             }
         });
     }

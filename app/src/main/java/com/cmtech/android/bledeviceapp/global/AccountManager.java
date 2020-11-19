@@ -72,6 +72,12 @@ public class AccountManager {
         account.signUp(context, callback);
     }
 
+    public void changePassword(final Context context, String userName, String password, ICodeCallback callback) {
+        account.setUserName(userName);
+        account.setPassword(password);
+        account.changePassword(context, callback);
+    }
+
     /**
      * 本地登出当前账号
      * 把账号信息从本地删除，网络端不会删除

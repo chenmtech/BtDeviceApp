@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -71,7 +72,7 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
                     if(!isRegistered(detailInfo)) {
                         activity.registerDevice(detailInfo);
                     } else {
-                        Toast.makeText(activity, "该设备已添加到应用中，您可以直接使用。", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, "该设备已添加，可以直接使用。", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -104,24 +105,32 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
         } else {
             holder.type.setText(type.getDefaultName());
         }
+
         holder.address.setText(detailInfo.getAddress());
         holder.name.setText(detailInfo.getName());
+
         boolean status = isRegistered(detailInfo);
-        TextPaint paint = holder.status.getPaint();
         if(status) {
             holder.status.setText(R.string.added);
-            paint.setFlags(paint.getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             if(type == null) {
                 holder.status.setText(R.string.not_added);
-                paint.setFlags(paint.getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             } else {
                 holder.status.setText("可添加");
-                holder.status.setTextColor(ContextCompat.getColor(activity, R.color.edit_text_color));
-                holder.status.setTextSize(COMPLEX_UNIT_PX, activity.getResources().getDimensionPixelSize(R.dimen.big_font));
-                paint.setFlags(paint.getFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
             }
         }
+
+        int color;
+        if(type == null) {
+            color = Color.BLACK;
+        } else {
+            color = Color.RED;
+        }
+
+        holder.type.setTextColor(color);
+        holder.address.setTextColor(color);
+        holder.name.setTextColor(color);
+        holder.status.setTextColor(color);
     }
 
     @Override

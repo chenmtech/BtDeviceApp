@@ -29,6 +29,7 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
     public static final int CMD_DOWNLOAD = 2; // download user info command
     public static final int CMD_SIGNUP = 3; // sign up or login on the web
     public static final int CMD_LOGIN = 4;
+    public static final int CMD_CHANGE_PASSWORD = 5;
 
     private final ProgressDialog progressDialog;
     private final int cmd;
@@ -77,6 +78,10 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
 
             case CMD_LOGIN:
                 response = KMWebServiceUtil.login(account);
+                break;
+
+            case CMD_CHANGE_PASSWORD:
+                response = KMWebServiceUtil.changePassword(account);
                 break;
 
             default:

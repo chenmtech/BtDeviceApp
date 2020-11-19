@@ -51,17 +51,25 @@ public class KMWebServiceUtil {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "signUp");
         data.put("userName", account.getUserName());
-        data.put("password", account.getPassword());
+        data.put("password", MD5Utils.getMD5Code(account.getPassword()));
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
     }
 
     public static WebResponse login(Account account) {
-        //ViseLog.e("account web login");
+        //ViseLog.e("login: " + account);
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "login");
-
         data.put("userName", account.getUserName());
-        data.put("password", account.getPassword());
+        data.put("password", MD5Utils.getMD5Code(account.getPassword()));
+        return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
+    }
+
+    public static WebResponse changePassword(Account account) {
+        //ViseLog.e("change password: "+account);
+        Map<String, String> data = new HashMap<>();
+        data.put("cmd", "changePassword");
+        data.put("userName", account.getUserName());
+        data.put("password", MD5Utils.getMD5Code(account.getPassword()));
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
     }
 

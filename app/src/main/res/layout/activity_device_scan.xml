@@ -38,7 +38,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="扫描设备中..."
+                android:text="正在扫描..."
                 android:textSize="@dimen/big_font"
                 android:textColor="@color/accent"/>
         </LinearLayout>

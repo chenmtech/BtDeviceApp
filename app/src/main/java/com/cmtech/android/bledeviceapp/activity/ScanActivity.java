@@ -54,7 +54,7 @@ public class ScanActivity extends AppCompatActivity {
     private LinearLayout llSearchProgress;
     private ScanAdapter devAdapter;
     private RecyclerView rvDevice;
-    private Handler mHandle = new Handler(Looper.getMainLooper());
+    private final Handler mHandle = new Handler(Looper.getMainLooper());
 
     // 扫描回调
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
@@ -164,7 +164,6 @@ public class ScanActivity extends AppCompatActivity {
             @Override
             public void run() {
                 llSearchProgress.setVisibility(View.GONE);
-
                 BleScanner.stopScan(bleScanCallback);
             }
         }, SCAN_DURATION);

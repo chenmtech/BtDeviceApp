@@ -198,8 +198,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         try {
             JSONObject json = new JSONObject();
             json.put("ver", "1.0");
-            //json.put("userName", userName);
-            json.put("password", password);
             json.put("nickName", nickName);
             json.put("note", note);
 
@@ -254,6 +252,16 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                     }
                 }
                 callback.onFinish(code);
+            }
+        }).execute(this);
+    }
+
+    public void changePassword(Context context, ICodeCallback callback) {
+        //ViseLog.e("change password");
+        new AccountAsyncTask(context, "正在修改密码，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                callback.onFinish(response.getCode());
             }
         }).execute(this);
     }
@@ -319,7 +327,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     public String toString() {
         return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
                 + ",gender:" + gender + ",birthday:" + birthday + ",weight:" + weight + ",height:" + height
-                + ",Note：" + note + ",icon: " + icon +",needWebLogin:" + needWebLogin;
+                + ",Note：" + note + ",icon: " + icon + ",needWebLogin:" + needWebLogin;
     }
 
     @Override
