@@ -83,7 +83,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         if(json.has("reportVer"))
             ver = json.getString("reportVer");
         reportTime = json.getLong("reportTime");
-        content = AESUtil.decode(json.getString("content"));
+        content = json.getString("content");
         status = json.getInt("status");
         if(json.has("aveHr"))
             aveHr = json.getInt("aveHr");
@@ -94,7 +94,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
         JSONObject json = new JSONObject();
         json.put("reportVer", ver);
         json.put("reportTime", reportTime);
-        json.put("content", AESUtil.encode(content));
+        json.put("content", content);
         json.put("status", status);
         json.put("aveHr", aveHr);
         return json;

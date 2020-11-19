@@ -156,7 +156,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public void basicRecordFromJson(JSONObject json) throws JSONException{
-        note = AESUtil.decode(json.getString("note"));
+        note = json.getString("note");
         recordSecond = json.getInt("recordSecond");
     }
 
@@ -168,7 +168,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("devAddress", devAddress);
         json.put("creatorId", creatorId);
         json.put("ver", ver);
-        json.put("note", AESUtil.encode(note));
+        json.put("note", note);
         json.put("recordSecond", recordSecond);
         return json;
     }

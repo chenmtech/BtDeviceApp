@@ -13,7 +13,6 @@ import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.cmtech.android.bledeviceapp.util.AESUtil;
 import com.vise.utils.cipher.BASE64;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
@@ -52,13 +51,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     private String nickName = ""; // nick name
     private String note = ""; // note
     private String icon = ""; // icon file path in local disk
-
-    private boolean needWebLogin = true;
-
     private int gender = 0;
     private long birthday = 0;
     private int weight = 0;
     private int height = 0;
+    private boolean needWebLogin = true;
 
     private Account() {
     }
@@ -171,8 +168,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     @Override
     public void fromJson(JSONObject json) {
         try {
-            nickName = AESUtil.decode(json.getString("nickName"));
-            note = AESUtil.decode(json.getString("note"));
+            nickName = json.getString("nickName");
+            note = json.getString("note");
             String iconStr = json.getString("iconStr");
             if (!TextUtils.isEmpty(iconStr)) {
                 Bitmap bitmap = BitmapUtil.byteToBitmap(BASE64.decode(iconStr));
@@ -203,8 +200,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             json.put("ver", "1.0");
             //json.put("userName", userName);
             json.put("password", password);
-            json.put("nickName", AESUtil.encode(nickName));
-            json.put("note", AESUtil.encode(note));
+            json.put("nickName", nickName);
+            json.put("note", note);
 
             String iconStr = "";
             if(!TextUtils.isEmpty(icon)) {
