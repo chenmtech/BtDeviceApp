@@ -231,10 +231,10 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
                 if (code == RETURN_CODE_SUCCESS) {
-                    JSONObject json = (JSONObject) response.getContent();
-                    if(json != null) {
+                    JSONObject content = (JSONObject) response.getContent();
+                    if(content != null) {
                         try {
-                            fromJson(json);
+                            fromJson(content);
                             save();
                         } catch (JSONException e) {
                             e.printStackTrace();

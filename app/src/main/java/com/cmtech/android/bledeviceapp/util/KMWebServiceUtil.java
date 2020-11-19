@@ -18,7 +18,6 @@ import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_LOGIN_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
@@ -45,20 +44,6 @@ public class KMWebServiceUtil {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "download");
         return processGetRequest(KMIC_URL + APP_UPDATE_INFO_SERVLET_URL, data);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestGet(KMIC_URL + APP_UPDATE_INFO_SERVLET_URL, data)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-            wResp.setContent(rtn.get("appUpdateInfo"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse signUp(Account account) {
@@ -68,45 +53,16 @@ public class KMWebServiceUtil {
         data.put("userName", account.getUserName());
         data.put("password", account.getPassword());
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            //ViseLog.e(respBody);
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse login(Account account) {
+        //ViseLog.e("account web login");
         Map<String, String> data = new HashMap<>();
         data.put("cmd", "login");
 
         data.put("userName", account.getUserName());
         data.put("password", account.getPassword());
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestGet(KMIC_URL + ACCOUNT_SERVLET_URL, data)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            int code = rtn.getInt("code");
-            wResp.setCode(code);
-            if(code == RETURN_CODE_SUCCESS)
-                wResp.setContent(rtn.getInt("id"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse uploadAccountInfo(Account account) {
@@ -122,20 +78,6 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMIC_URL + ACCOUNT_SERVLET_URL, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-            //ViseLog.e("upload account code:" + wResp.getCode());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse downloadAccountInfo(Account account) {
@@ -150,21 +92,8 @@ public class KMWebServiceUtil {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
+        //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMIC_URL + ACCOUNT_SERVLET_URL, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-            wResp.setContent(rtn.get("account"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse queryRecordId(int recordTypeCode, long createTime, String devAddress, String ver) {
@@ -174,20 +103,6 @@ public class KMWebServiceUtil {
         data.put("devAddress", devAddress);
         data.put("ver", ver);
         return processGetRequest(KMIC_URL + RECORD_SERVLET_URL, data);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestGet(KMIC_URL + RECORD_SERVLET_URL, data)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-            wResp.setContent(rtn.getInt("id"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse uploadRecord(Account account, BasicRecord record) {
@@ -204,19 +119,6 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse downloadRecord(Account account, BasicRecord record) {
@@ -236,20 +138,6 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-            wResp.setContent(rtn.get("record"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse deleteRecord(Account account, BasicRecord record) {
@@ -269,19 +157,6 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse downloadRecordList(Account account, BasicRecord record, long fromTime, int num, String noteSearchStr) {
@@ -302,23 +177,6 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            //ViseLog.e(rtn);
-            wResp.setCode(rtn.getInt("code"));
-            if(rtn.has("records"))
-                wResp.setContent(rtn.get("records"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            //ViseLog.e("json error:" + e);
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse downloadReport(Account account, BleEcgRecord record) {
@@ -337,20 +195,6 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-            wResp.setContent(rtn.getJSONObject("reportResult"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     public static WebResponse requestReport(Account account, BleEcgRecord record) {
@@ -368,35 +212,25 @@ public class KMWebServiceUtil {
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
-
-/*        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(KMIC_URL + RECORD_SERVLET_URL, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject rtn = new JSONObject(respBody);
-            wResp.setCode(rtn.getInt("code"));
-            wResp.setContent(rtn.getJSONObject("reportResult"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return wResp;*/
     }
 
     // 账户登录
     private static WebResponse accountWebLogin(Account account) {
         if(account == null) return new WebResponse(RETURN_CODE_DATA_ERR, null);
         if(account.isNeedWebLogin()) {
-            return KMWebServiceUtil.login(account);
+            WebResponse response = KMWebServiceUtil.login(account);
+            if(response.getCode() == RETURN_CODE_SUCCESS) {
+                account.setNeedWebLogin(false);
+            }
+            return response;
         } else
             return new WebResponse(RETURN_CODE_SUCCESS, null);
     }
 
-    // 处理POST请求
-    private static WebResponse processPostRequest(String url, JSONObject json) {
+    // 处理GET请求
+    private static WebResponse processGetRequest(String url, Map<String, String> data) {
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestPost(url, json)) {
+        try(Response response = HttpUtils.requestGet(url, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject returnJson = new JSONObject(respBody);
             int code = returnJson.getInt("code");
@@ -412,10 +246,10 @@ public class KMWebServiceUtil {
         return wResp;
     }
 
-    // 处理GET请求
-    private static WebResponse processGetRequest(String url, Map<String, String> data) {
+    // 处理POST请求
+    private static WebResponse processPostRequest(String url, JSONObject json) {
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
-        try(Response response = HttpUtils.requestGet(url, data)) {
+        try(Response response = HttpUtils.requestPost(url, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
             JSONObject returnJson = new JSONObject(respBody);
             int code = returnJson.getInt("code");

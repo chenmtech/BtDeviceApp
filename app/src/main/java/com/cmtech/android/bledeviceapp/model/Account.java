@@ -14,8 +14,6 @@ import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.cmtech.android.bledeviceapp.util.MD5Utils;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -133,10 +131,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
     public void setNeedWebLogin(boolean needWebLogin) {
         this.needWebLogin = needWebLogin;
-        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean("needWebLogin", needWebLogin);
-        editor.commit();
     }
 
     public int getGender() {
@@ -196,7 +190,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             birthday = json.getLong("birthday");
             weight = json.getInt("weight");
             height = json.getInt("height");
-            needWebLogin = json.getBoolean("needWebLogin");
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
@@ -244,12 +237,22 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
+                JSONObject content = (JSONObject) response.getContent();
                 if(code == RETURN_CODE_SUCCESS) {
-                    setAccountId((Integer) response.getContent());
-                    //ViseLog.e("accountId=" + accountId);
-                    if(accountId != INVALID_ID) {
-                        setNeedWebLogin(false);
-                        ViseLog.e(Account.this);
+                    if(content == null)
+                        code = RETURN_CODE_DATA_ERR;
+                    else {
+                        try {
+                            setAccountId(content.getInt("id"));
+                            //ViseLog.e("accountId=" + accountId);
+                            if (accountId != INVALID_ID) {
+                                setNeedWebLogin(false);
+                                //ViseLog.e(Account.this);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            code = RETURN_CODE_DATA_ERR;
+                        }
                     }
                 }
                 callback.onFinish(code);
@@ -291,10 +294,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         new AccountAsyncTask(context, showString, AccountAsyncTask.CMD_DOWNLOAD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
+                //ViseLog.e(response);
                 int code = response.getCode();
+                JSONObject content = (JSONObject) response.getContent();
                 if (code == RETURN_CODE_SUCCESS) {
-                    JSONObject json = (JSONObject) response.getContent();
-                    fromJson(json);
+                    fromJson(content);
                     writeToSharedPreference();
                 }
                 callback.onFinish(code);
@@ -347,7 +351,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         account.birthday = settings.getLong("birthday", 0);
         account.weight = settings.getInt("weight", 0);
         account.height = settings.getInt("height", 0);
-        account.needWebLogin = settings.getBoolean("needWebLogin", true);
         return account;
     }
 
@@ -364,7 +367,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         editor.putLong("birthday", birthday);
         editor.putInt("weight", weight);
         editor.putInt("height", height);
-        editor.putBoolean("needWebLogin", needWebLogin);
         editor.commit();
     }
 }

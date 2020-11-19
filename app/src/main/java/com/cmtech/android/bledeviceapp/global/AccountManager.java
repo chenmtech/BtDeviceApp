@@ -5,7 +5,6 @@ import android.content.Context;
 
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.MD5Utils;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
@@ -42,7 +41,7 @@ public class AccountManager {
      */
     public boolean localLogin() {
         ViseLog.e(account);
-        return isValid() && !account.isNeedWebLogin();
+        return isValid();
     }
 
     /**
@@ -55,7 +54,6 @@ public class AccountManager {
      */
     public void login(String userName, String password, final Context context, String showString, ICodeCallback callback) {
         account.setUserName(userName);
-        password = MD5Utils.getMD5Code(password); // 做MD5加密
         account.setPassword(password);
         account.login(context, showString, callback);
     }
@@ -70,7 +68,6 @@ public class AccountManager {
      */
     public void signUp(final Context context, String userName, String password, ICodeCallback callback) {
         account.setUserName(userName);
-        password = MD5Utils.getMD5Code(password); // 做MD5加密
         account.setPassword(password);
         account.signUp(context, callback);
     }

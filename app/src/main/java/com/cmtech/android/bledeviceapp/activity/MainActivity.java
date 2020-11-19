@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     updateNavigationHeader();
-                    ViseLog.e("download account info");
+                    //ViseLog.e("download account info");
                 }
             }
         });
