@@ -82,17 +82,17 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
 
             // UPLOAD
             case CMD_UPLOAD_RECORD:
-                response = KMWebServiceUtil.uploadRecord(MyApplication.getAccount().getAccountId(), record);
+                response = KMWebServiceUtil.uploadRecord(MyApplication.getAccount(), record);
                 break;
 
             // DOWNLOAD
             case CMD_DOWNLOAD_RECORD:
-                response = KMWebServiceUtil.downloadRecord(MyApplication.getAccount().getAccountId(), record);
+                response = KMWebServiceUtil.downloadRecord(MyApplication.getAccount(), record);
                 break;
 
             // DELETE
             case CMD_DELETE_RECORD:
-                response = KMWebServiceUtil.deleteRecord(MyApplication.getAccount().getAccountId(), record);
+                response = KMWebServiceUtil.deleteRecord(MyApplication.getAccount(), record);
                 break;
 
             // DOWNLOAD RECORD LIST
@@ -112,7 +112,7 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
                     noteSearchStr = (String) params[1];
                     fromTime = (Long) params[2];
                 }
-                response = KMWebServiceUtil.downloadRecordList(MyApplication.getAccount().getAccountId(), record, fromTime, downloadNum, noteSearchStr);
+                response = KMWebServiceUtil.downloadRecordList(MyApplication.getAccount(), record, fromTime, downloadNum, noteSearchStr);
                 break;
 
             default:
