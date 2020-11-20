@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.util;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_ACCOUNT_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_CHANGE_PASSWORD;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DELETE_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DOWNLOAD_ERR;
@@ -57,7 +58,12 @@ public class WebFailureHandler {
                 errString = "数据读取异常";
                 break;
 
+            case RETURN_CODE_CHANGE_PASSWORD:
+                errString = "修改密码错误";
+                break;
+
             default:
+                errString = "未知错误";
                 break;
         }
         ViseLog.e("error code: " + rtnCode);

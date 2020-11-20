@@ -26,6 +26,7 @@ public interface IWebOperation {
     int RETURN_CODE_DOWNLOAD_ERR = 8;
     int RETURN_CODE_DELETE_ERR = 9;
     int RETURN_CODE_DATA_ERR = 10;
+    int RETURN_CODE_CHANGE_PASSWORD = 11;
     void upload(Context context, ICodeCallback callback); // upload a new record or update the record info
     void download(Context context, ICodeCallback callback); // download the info
     void delete(Context context, ICodeCallback callback); // delete the record

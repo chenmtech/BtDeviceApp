@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
+import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_CHANGE_PASSWORD;
 import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_LOGIN;
 import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
@@ -258,7 +259,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     public void changePassword(Context context, ICodeCallback callback) {
         //ViseLog.e("change password");
-        new AccountAsyncTask(context, "正在修改密码，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
+        new AccountAsyncTask(context, "正在修改密码，请稍等...", CMD_CHANGE_PASSWORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 callback.onFinish(response.getCode());

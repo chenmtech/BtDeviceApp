@@ -6,12 +6,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
@@ -37,7 +34,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private Button btnChangePassword;
     private Button btnGetVeriCode;
 
-    private String userNameVerified; // 被验证的用户名，即手机号
+    private String userNameVerifing; // 等待验证的用户名
+    private String userNameVerified; // 已验证的用户名，即手机号
     private String password; // 密码
     private String veriCode; // 验证码
     private Thread countDownThread; // 倒计时线程
@@ -59,6 +57,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达
+                            ChangePasswordActivity.this.userNameVerified = userNameVerifing;
                             Toast.makeText(ChangePasswordActivity.this, "验证码已发出，请稍等。", Toast.LENGTH_SHORT).show();
                         } else {
                             ((Throwable) data).printStackTrace();
@@ -111,10 +110,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
         btnGetVeriCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String userName = etUserName.getText().toString().trim();
-                if(checkUserName(userName)) {
-                    ChangePasswordActivity.this.userNameVerified = userName;
-                    SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, userName); // 获取验证码
+                userNameVerifing = etUserName.getText().toString().trim();
+                if(checkUserName(userNameVerifing)) {
+                    SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, userNameVerifing); // 获取验证码
                     btnGetVeriCode.setEnabled(false);
                     startCountDownTimer();
                 } else

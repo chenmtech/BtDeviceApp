@@ -38,6 +38,7 @@ public class SignUpActivity extends AppCompatActivity {
     private Button btnGetVeriCode;
     private CheckBox cbGrant;
 
+    private String userNameVerifing;
     private String userNameVerified; // 被验证的用户名，即手机号
     private String password; // 密码
     private String veriCode; // 验证码
@@ -60,6 +61,7 @@ public class SignUpActivity extends AppCompatActivity {
                     if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达
+                            SignUpActivity.this.userNameVerified = userNameVerifing;
                             Toast.makeText(SignUpActivity.this, "验证码已发出，请稍等。", Toast.LENGTH_SHORT).show();
                         } else {
                             ((Throwable) data).printStackTrace();
@@ -112,10 +114,9 @@ public class SignUpActivity extends AppCompatActivity {
         btnGetVeriCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String userName = etUserName.getText().toString().trim();
-                if(checkUserName(userName)) {
-                    SignUpActivity.this.userNameVerified = userName;
-                    SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, userName); // 获取验证码
+                userNameVerifing = etUserName.getText().toString().trim();
+                if(checkUserName(userNameVerifing)) {
+                    SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, userNameVerifing); // 获取验证码
                     btnGetVeriCode.setEnabled(false);
                     startCountDownTimer();
                 } else
