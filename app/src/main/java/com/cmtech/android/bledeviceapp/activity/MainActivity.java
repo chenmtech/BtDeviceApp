@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
         // 确定账户已经登录
         if(!MyApplication.getAccountManager().isValid()) {
-            Toast.makeText(this, "账户无效。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "无效账户", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }

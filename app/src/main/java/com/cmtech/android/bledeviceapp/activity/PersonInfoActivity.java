@@ -45,7 +45,7 @@ public class PersonInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_person_info);
 
         if (!MyApplication.getAccountManager().isValid()) {
-            Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "无效账户", Toast.LENGTH_SHORT).show();
             setResult(RESULT_CANCELED);
             finish();
         }
