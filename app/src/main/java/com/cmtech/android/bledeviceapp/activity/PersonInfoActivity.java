@@ -1,29 +1,33 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.model.Account.FEMALE;
-import static com.cmtech.android.bledeviceapp.model.Account.MALE;
 
 /**
  *  AccountActivity: 账户设置Activity
@@ -32,10 +36,11 @@ import static com.cmtech.android.bledeviceapp.model.Account.MALE;
 
 public class PersonInfoActivity extends AppCompatActivity {
     private EditText etUserName;
-    private RadioGroup rgGender;
-    private DatePicker dpBirthday;
-    private EditText etWeight;
-    private EditText etHeight;
+
+    private ViewPager pager;
+    private CtrlPanelAdapter fragAdapter;
+    private final PersonInfoFragment personInfoFrag = new PersonInfoFragment();
+    private final AccountInfoFragment accountInfoFrag = new AccountInfoFragment();
 
     private Account account;
 
@@ -57,36 +62,23 @@ public class PersonInfoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         etUserName = findViewById(R.id.et_account_user_name);
-        rgGender = findViewById(R.id.rg_gender);
-        dpBirthday = findViewById(R.id.dp_birthday);
-        etWeight = findViewById(R.id.et_weight);
-        etHeight = findViewById(R.id.et_height);
+        etUserName.setText(account.getUserName());
 
-        updateUI();
+        pager = findViewById(R.id.person_info_control_panel_viewpager);
+        TabLayout layout = findViewById(R.id.person_info_control_panel_tab);
+        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(accountInfoFrag, personInfoFrag));
+        List<String> titleList = new ArrayList<>(Arrays.asList(AccountInfoFragment.TITLE, PersonInfoFragment.TITLE));
+        fragAdapter = new CtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
+        pager.setAdapter(fragAdapter);
+        pager.setOffscreenPageLimit(2);
+        layout.setupWithViewPager(pager);
 
         Button btnOk = findViewById(R.id.btn_person_info_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int weight;
-                int height;
-                try{
-                    weight = Integer.parseInt(etWeight.getText().toString().trim());
-                    height = Integer.parseInt(etHeight.getText().toString().trim());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(PersonInfoActivity.this, "数据格式错误，请重新输入", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                int gender = 0;
-                int checkId = rgGender.getCheckedRadioButtonId();
-                if(checkId == R.id.rb_male) {
-                    gender = 1;
-                } else if(checkId == R.id.rb_female) {
-                    gender = 2;
-                }
-
-                Date date = new Date(dpBirthday.getYear(), dpBirthday.getMonth(), dpBirthday.getDayOfMonth());
-                account.setPersonInfo(gender, date.getTime(), weight, height);
+                accountInfoFrag.processOKButton();
+                personInfoFrag.processOKButton();
 
                 account.upload(PersonInfoActivity.this, new ICodeCallback() {
                     @Override
@@ -112,26 +104,32 @@ public class PersonInfoActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        Button btnChangeAccount = findViewById(R.id.btn_change_account);
+        btnChangeAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(PersonInfoActivity.this);
+                builder.setTitle("切换账户")
+                        .setMessage("退出当前账户，重新启动")
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (MyApplication.getDeviceManager().hasDeviceOpen()) {
+                                    Toast.makeText(PersonInfoActivity.this, R.string.pls_close_device_firstly, Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                MyApplication.getAccountManager().localLogout();
+                                restart();
+                            }
+                        }).show();
+            }
+        });
     }
 
     private void updateUI() {
-        etUserName.setText(account.getUserName());
-        int gender = account.getGender();
-        if(gender == MALE)
-            rgGender.check(R.id.rb_male);
-        else if(gender == FEMALE)
-            rgGender.check(R.id.rb_female);
-        else rgGender.clearCheck();
-
-        Date date;
-        if(account.getBirthday() <= 0) {
-            date = new Date(1990,0,1);
-        } else {
-            date = new Date(account.getBirthday());
-        }
-        dpBirthday.init(date.getYear(), date.getMonth(), date.getDate(), null);
-        etWeight.setText(""+account.getWeight());
-        etHeight.setText(""+account.getHeight());
+        accountInfoFrag.updateUI();
+        personInfoFrag.updateUI();
     }
 
     @Override
@@ -173,5 +171,12 @@ public class PersonInfoActivity extends AppCompatActivity {
         Intent intent = new Intent();
         setResult(RESULT_CANCELED, intent);
         finish();
+    }
+
+    private void restart() {
+        final Intent intent = getPackageManager().getLaunchIntentForPackage(getApplicationContext().getPackageName());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        MyApplication.killProcess();
     }
 }

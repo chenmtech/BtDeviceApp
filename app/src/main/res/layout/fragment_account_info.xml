@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context = "com.cmtech.android.bledeviceapp.activity.AccountInfoFragment">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+        <TextView
+            android:labelFor="@id/et_account_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:textSize="@dimen/normal_font"
+            android:text="@string/account_name"/>
+
+        <EditText
+            android:id="@+id/et_account_name"
+            style="@style/edittext_circle_gray_style"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:maxLength="10"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="*昵称会显示在您输出的记录报告中。"
+        android:textSize="@dimen/smallest_font"
+        android:textColor="@color/red"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:textSize="@dimen/normal_font"
+            android:text="@string/account_portrait"/>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="horizontal"
+            android:layout_margin="10dp">
+            <com.cmtech.android.bledeviceapp.view.RoundImageView
+                android:id="@+id/iv_account_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@mipmap/ic_user"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="10dp">
+        <TextView
+            android:labelFor="@id/et_account_note"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|end"
+            android:textSize="@dimen/normal_font"
+            android:text="@string/note"/>
+        <EditText
+            android:id="@+id/et_account_note"
+            style="@style/edittext_circle_gray_style"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:inputType="textMultiLine"
+            android:maxLength="50"/>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:textSize="@dimen/normal_font"
+            android:text="性别："/>
+
+        <RadioGroup
+            android:id="@+id/rg_gender"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/rb_male"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="男"/>
+
+            <RadioButton
+                android:id="@+id/rb_female"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="女"/>
+
+        </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="10dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|end"
+            android:textSize="@dimen/normal_font"
+            android:text="出生日期："/>
+
+        <DatePicker
+            android:id="@+id/dp_birthday"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:datePickerMode="spinner"
+            android:calendarViewShown="false" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="10dp">
+        <TextView
+            android:labelFor="@id/et_weight"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|end"
+            android:textSize="@dimen/normal_font"
+            android:text="体重："/>
+        <EditText
+            android:id="@+id/et_weight"
+            style="@style/edittext_circle_gray_style"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:maxLength="10"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/normal_font"
+            android:text="公斤(KG)"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:padding="10dp">
+        <TextView
+            android:labelFor="@id/et_height"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical|end"
+            android:textSize="@dimen/normal_font"
+            android:text="身高："/>
+        <EditText
+            android:id="@+id/et_height"
+            style="@style/edittext_circle_gray_style"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:maxLength="10"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/normal_font"
+            android:text="厘米"/>
+    </LinearLayout>
+
+</LinearLayout>

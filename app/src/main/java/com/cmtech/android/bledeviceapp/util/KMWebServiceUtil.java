@@ -260,7 +260,7 @@ public class KMWebServiceUtil {
         WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
         try(Response response = HttpUtils.requestPost(url, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
-            ViseLog.e(respBody);
+            //ViseLog.e(respBody);
             JSONObject returnJson = new JSONObject(respBody);
             int code = returnJson.getInt("code");
             Object content = (returnJson.has("content")) ? returnJson.get("content") : null;

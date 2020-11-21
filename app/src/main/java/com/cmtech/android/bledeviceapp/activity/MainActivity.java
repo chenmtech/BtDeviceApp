@@ -254,13 +254,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         View headerView = navView.getHeaderView(0);
         tvAccountName = headerView.findViewById(R.id.tv_account_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
-        ivAccountImage.setOnClickListener(new View.OnClickListener() {
+        /*ivAccountImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, AccountActivity.class);
                 startActivityForResult(intent, RC_MODIFY_ACCOUNT);
             }
-        });
+        });*/
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @SuppressLint("RestrictedApi")
@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 switch (item.getItemId()) {
                     case R.id.nav_person_info:
                         intent = new Intent(MainActivity.this, PersonInfoActivity.class);
-                        startActivity(intent);
+                        startActivityForResult(intent, RC_MODIFY_ACCOUNT);
                         return true;
                     case R.id.nav_add_device: // add device
                         List<String> addresses = MyApplication.getDeviceManager().getAddressList();
