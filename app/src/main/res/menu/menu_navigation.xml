@@ -22,7 +22,7 @@
 
         <item
             android:id="@+id/nav_person_info"
-            android:title="修改个人信息"
+            android:title="修改账户信息"
            android:icon="@mipmap/ic_person_32px"/>
 
         <item

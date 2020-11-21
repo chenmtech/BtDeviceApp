@@ -40,7 +40,7 @@ public class AppUpdateManager {
             public void onClick(DialogInterface dialogInterface, int i) {
                 downloadApk(context);
             }
-        }).setNegativeButton("取消", null).show();
+        }).show();
     }
 
     private void downloadApk(Context context) {
