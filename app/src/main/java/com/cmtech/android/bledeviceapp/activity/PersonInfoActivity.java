@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
+import com.cmtech.android.bledeviceapp.fragment.AccountInfoFragment;
+import com.cmtech.android.bledeviceapp.fragment.PersonInfoFragment;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -30,7 +32,7 @@ import java.util.List;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
- *  AccountActivity: 账户设置Activity
+ *  PersonInfoActivity: 账户及个人信息Activity
  *  Created by bme on 2018/10/27.
  */
 
@@ -84,7 +86,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                     @Override
                     public void onFinish(int code) {
                         if (code == RETURN_CODE_SUCCESS) {
-                            Toast.makeText(PersonInfoActivity.this, "个人信息已更新。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PersonInfoActivity.this, "账户信息已更新。", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent();
                             setResult(RESULT_OK, intent);
                             finish();

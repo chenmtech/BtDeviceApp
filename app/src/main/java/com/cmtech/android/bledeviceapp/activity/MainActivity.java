@@ -183,6 +183,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         // init navigation view
         initNavigation();
         updateNavigationHeader();
+        tbManager.setNavIcon(MyApplication.getAccount().getIcon());
 
         // set FAB，FloatingActionButton
         fabConnect = findViewById(R.id.fab_connect);
@@ -214,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     updateNavigationHeader();
+                    tbManager.setNavIcon(MyApplication.getAccount().getIcon());
                     //ViseLog.e("download account info");
                 }
             }
@@ -388,6 +390,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             case RC_MODIFY_ACCOUNT:
                 if(resultCode == RESULT_OK) {
                     updateNavigationHeader();
+                    tbManager.setNavIcon(MyApplication.getAccount().getIcon());
                 }
                 break;
 

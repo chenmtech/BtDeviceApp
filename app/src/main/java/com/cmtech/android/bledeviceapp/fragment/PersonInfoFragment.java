@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.activity;
+package com.cmtech.android.bledeviceapp.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +42,8 @@ public class PersonInfoFragment extends Fragment {
     public static final String TITLE = "个人信息";
 
     private RadioGroup rgGender;
+    private RadioButton rbMale;
+    private RadioButton rbFemale;
     private DatePicker dpBirthday;
     private EditText etWeight;
     private EditText etHeight;
@@ -61,6 +64,8 @@ public class PersonInfoFragment extends Fragment {
         account = MyApplication.getAccount();
 
         rgGender = view.findViewById(R.id.rg_gender);
+        rbMale = view.findViewById(R.id.rb_male);
+        rbFemale = view.findViewById(R.id.rb_female);
         dpBirthday = view.findViewById(R.id.dp_birthday);
         etWeight = view.findViewById(R.id.et_weight);
         etHeight = view.findViewById(R.id.et_height);
@@ -70,11 +75,11 @@ public class PersonInfoFragment extends Fragment {
 
     public void updateUI() {
         int gender = account.getGender();
+        rgGender.clearCheck();
         if(gender == MALE)
-            rgGender.check(R.id.rb_male);
+            rbMale.setChecked(true);
         else if(gender == FEMALE)
-            rgGender.check(R.id.rb_female);
-        else rgGender.clearCheck();
+            rbFemale.setChecked(true);
 
         Date date;
         if(account.getBirthday() <= 0) {
@@ -100,9 +105,9 @@ public class PersonInfoFragment extends Fragment {
         int gender = 0;
         int checkId = rgGender.getCheckedRadioButtonId();
         if(checkId == R.id.rb_male) {
-            gender = 1;
+            gender = MALE;
         } else if(checkId == R.id.rb_female) {
-            gender = 2;
+            gender = FEMALE;
         }
 
         Date date = new Date(dpBirthday.getYear(), dpBirthday.getMonth(), dpBirthday.getDayOfMonth());

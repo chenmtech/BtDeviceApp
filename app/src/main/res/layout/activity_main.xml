@@ -20,7 +20,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Light"
-            toolbar:navigationIcon="@mipmap/ic_menu"
+            toolbar:navigationIcon="@mipmap/ic_user_32px"
             app:titleTextAppearance="@style/MainToolbarTextAppearance"
             app:subtitleTextAppearance="@style/MainToolbarSubTextAppearance">
 

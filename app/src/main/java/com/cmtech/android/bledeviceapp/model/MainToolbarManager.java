@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.view.BitmapUtil;
 
+import java.util.Locale;
+
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 
 /**
@@ -84,7 +86,7 @@ public class MainToolbarManager {
             tvBattery.setVisibility(View.GONE);
         } else {
             tvBattery.setVisibility(View.VISIBLE);
-            tvBattery.setText(String.format("%d%%", battery));
+            tvBattery.setText(String.format(Locale.getDefault(), "%d%%", battery));
             int level = (int)(battery/25.0);
             if(level > 3) level = 3;
             drawable.setLevel(level);
@@ -96,9 +98,10 @@ public class MainToolbarManager {
     public void setNavIcon(String navIcon) {
         Drawable drawable;
         if(navIcon == null || "".equals(navIcon.trim())) {
-            drawable = ContextCompat.getDrawable(context, R.mipmap.ic_menu);
+            drawable = ContextCompat.getDrawable(context, R.mipmap.ic_user_32px);
         } else {
-            Bitmap bitmap = BitmapUtil.getSmallBitmap(navIcon, 64, 64);
+            Bitmap bmp = BitmapUtil.byteToBitmap(new BitmapUtil().compressBitmapQuikly(navIcon));
+            Bitmap bitmap = BitmapUtil.scaleImageTo(bmp, 48, 48);
             drawable = new BitmapDrawable(context.getResources(), bitmap);
         }
         toolbar.setNavigationIcon(drawable);
