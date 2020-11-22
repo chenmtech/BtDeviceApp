@@ -131,7 +131,7 @@ public class ScanActivity extends AppCompatActivity {
                     ViseLog.e(firstItemPosition + " " + isSlidingDownward);
 
                     // 判断是否滑动到了第一个item，并且是向下滑动
-                    if (firstItemPosition == 0 && isSlidingDownward) {
+                    if (firstItemPosition < 0 || (firstItemPosition == 0 && isSlidingDownward)) {
                         //重新扫描
                         startScan();
                     }

@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.util.DensityUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import java.util.Locale;
@@ -100,8 +102,8 @@ public class MainToolbarManager {
         if(navIcon == null || "".equals(navIcon.trim())) {
             drawable = ContextCompat.getDrawable(context, R.mipmap.ic_user_32px);
         } else {
-            Bitmap bmp = BitmapUtil.byteToBitmap(new BitmapUtil().compressBitmapQuikly(navIcon));
-            Bitmap bitmap = BitmapUtil.scaleImageTo(bmp, 48, 48);
+            int px = DensityUtil.dip2px(MyApplication.getContext(), 32);
+            Bitmap bitmap = BitmapUtil.getSmallBitmap(navIcon, px, px);
             drawable = new BitmapDrawable(context.getResources(), bitmap);
         }
         toolbar.setNavigationIcon(drawable);
