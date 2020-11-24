@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -26,6 +25,7 @@ import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.cmtech.android.bledeviceapp.util.MyFileUtil;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -106,7 +106,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openAlbum();
+                openAlbum1();
             }
         });
 
@@ -178,14 +178,19 @@ public class DeviceInfoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case 1:
-                String imagePath = "";
                 if(resultCode == RESULT_OK) {
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    Uri uri = data.getData();
+                    if(uri == null) return;
+
+                    String imagePath = MyFileUtil.getFilePathByUri(this, uri);
+
+                    /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         imagePath = handleImageOnKitKat(data);
                     } else {
                         imagePath = handleImageBeforeKitKat(data);
-                    }
-                    if(!"".equals(imagePath)) {
+                    }*/
+
+                    if(!TextUtils.isEmpty(imagePath)) {
                         cacheImagePath = imagePath;
                         Glide.with(MyApplication.getContext()).load(cacheImagePath).centerCrop().into(ivImage);
                     }
@@ -200,6 +205,12 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private void openAlbum() {
         Intent intent = new Intent("android.intent.action.GET_CONTENT");
         intent.setType("image/*");
+        startActivityForResult(intent, 1);
+    }
+
+    private void openAlbum1() {
+        Intent intent = new Intent(Intent.ACTION_PICK, null);
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         startActivityForResult(intent, 1);
     }
 
