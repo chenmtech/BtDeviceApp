@@ -21,7 +21,7 @@ import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledeviceapp.util.FastClickUtil;
+import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 
 import org.litepal.LitePal;
 
@@ -91,7 +91,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(FastClickUtil.isFastClick()) return;
+                if(ClickCheckUtil.isFastClick()) return;
 
                 int prePos = position;
                 position = holder.getAdapterPosition();
@@ -120,7 +120,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.ivDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(FastClickUtil.isFastClick()) return;
+                if(ClickCheckUtil.isFastClick()) return;
                 activity.deleteRecord(records.get(holder.getAdapterPosition()));
             }
         });
@@ -128,7 +128,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.ivUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(FastClickUtil.isFastClick()) return;
+                if(ClickCheckUtil.isFastClick()) return;
                 BasicRecord record = records.get(holder.getAdapterPosition());
                 if(record == null) {
                     Toast.makeText(activity, "记录已损坏。", Toast.LENGTH_SHORT).show();

@@ -56,7 +56,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
-import com.cmtech.android.bledeviceapp.util.FastClickUtil;
+import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -83,10 +83,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private final static int RC_MODIFY_ACCOUNT = 3;
     private final static int RC_OPEN_INSTALL_PERMISSION = 4;
 
-    //private LocalDevicesFragment localDevicesFragment;
     private LocalDeviceAdapter localDeviceAdapter;
     private RecyclerView rvDevices;
-    //WebDevicesFragment webDevicesFragment;
     private DeviceTabFragManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager tbManager; // 工具条管理器
     private DrawerLayout drawerLayout; // 侧滑界面
@@ -96,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 账户头像控件
     private NotificationService notifyService;
+
+    private long exitTime = 0;
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -256,19 +256,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         View headerView = navView.getHeaderView(0);
         tvAccountName = headerView.findViewById(R.id.tv_account_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
-        /*ivAccountImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-                startActivityForResult(intent, RC_MODIFY_ACCOUNT);
-            }
-        });*/
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @SuppressLint("RestrictedApi")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if(FastClickUtil.isFastClick())
+                if(ClickCheckUtil.isFastClick())
                     return true;
 
                 switchDrawer(false);
@@ -470,18 +463,22 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         if(fragment != null) {
             closeFragment(fragment);
         } else {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle(R.string.exit_app);
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    finish();
-                }
-            });
-            builder.show();
+            exitAfterTwice();
         }
     }
 
+    /**
+     * 连续点击2次退出
+     */
+    public void exitAfterTwice() {
+        if ((System.currentTimeMillis() - exitTime) > 2000) {
+            Toast.makeText(getApplicationContext(), "再按一次退出程序",
+                    Toast.LENGTH_SHORT).show();
+            exitTime = System.currentTimeMillis();
+        } else {
+            finish();
+        }
+    }
 
     // 设备状态更新
     @Override

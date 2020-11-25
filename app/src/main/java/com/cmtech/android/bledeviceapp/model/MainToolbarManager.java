@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.DensityUtil;
+import com.cmtech.android.bledeviceapp.view.CircleImageDrawable;
 import com.vise.utils.view.BitmapUtil;
 
 import java.util.Locale;
@@ -98,15 +99,15 @@ public class MainToolbarManager {
     }
 
     public void setNavIcon(String navIcon) {
-        Drawable drawable;
+        Bitmap bitmap;
         if(navIcon == null || "".equals(navIcon.trim())) {
-            drawable = ContextCompat.getDrawable(context, R.mipmap.ic_user_32px);
+            bitmap = BitmapUtil.drawableToBitmap(ContextCompat.getDrawable(context, R.mipmap.ic_user_32px));
         } else {
             int px = DensityUtil.dip2px(MyApplication.getContext(), 32);
-            Bitmap bitmap = BitmapUtil.getSmallBitmap(navIcon, px, px);
-            drawable = new BitmapDrawable(context.getResources(), bitmap);
+            bitmap = BitmapUtil.getSmallBitmap(navIcon, px, px);
         }
-        toolbar.setNavigationIcon(drawable);
+        Drawable circleDrawrable = new CircleImageDrawable(bitmap);
+        toolbar.setNavigationIcon(circleDrawrable);
     }
 
     public void updateMenuVisible(boolean[] visible) {

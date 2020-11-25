@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.util;
 
-public class FastClickUtil {
+public class ClickCheckUtil {
     private static final int DEFAULT_INTERVAL = 500;
     private static long lastClickTime;
 
