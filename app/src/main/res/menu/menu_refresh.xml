@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/scan_device"
+        android:id="@+id/item_refresh"
         android:icon="@mipmap/ic_refresh_24px"
         android:orderInCategory="0"
-        android:title="@string/scan"
+        android:title="刷新"
         app:showAsAction="always" />
 </menu>
