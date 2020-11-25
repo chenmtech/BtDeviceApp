@@ -85,7 +85,7 @@ public class KMWebServiceUtil {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
-        ViseLog.e(json);
+        //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 

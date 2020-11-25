@@ -1,13 +1,9 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import android.annotation.TargetApi;
-import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -182,16 +178,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     Uri uri = data.getData();
                     if(uri == null) return;
 
-                    String imagePath = MyFileUtil.getFilePathByUri(this, uri);
+                    cacheImagePath = MyFileUtil.getFilePathByUri(this, uri);
 
-                    /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        imagePath = handleImageOnKitKat(data);
-                    } else {
-                        imagePath = handleImageBeforeKitKat(data);
-                    }*/
-
-                    if(!TextUtils.isEmpty(imagePath)) {
-                        cacheImagePath = imagePath;
+                    if(!TextUtils.isEmpty(cacheImagePath)) {
                         Glide.with(MyApplication.getContext()).load(cacheImagePath).centerCrop().into(ivImage);
                     }
                 }
@@ -201,58 +190,10 @@ public class DeviceInfoActivity extends AppCompatActivity {
         }
     }
 
-    // 打开相册
-    private void openAlbum() {
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
-        startActivityForResult(intent, 1);
-    }
-
     private void openAlbum1() {
         Intent intent = new Intent(Intent.ACTION_PICK, null);
         intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         startActivityForResult(intent, 1);
-    }
-
-    @TargetApi(19)
-    private String handleImageOnKitKat(Intent data) {
-        String imagePath = "";
-        Uri uri = data.getData();
-        if(uri == null) return imagePath;
-        if(DocumentsContract.isDocumentUri(this, uri)) {
-            String docId = DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                String id = docId.split(":")[1];
-                String selection = MediaStore.Images.Media._ID + "=" + id;
-                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
-            } else if("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(docId));
-                imagePath = getImagePath(contentUri, null);
-            }
-
-        } else if("content".equalsIgnoreCase(uri.getScheme())) {
-            imagePath = getImagePath(uri, null);
-        } else if("file".equalsIgnoreCase(uri.getScheme())) {
-            imagePath = uri.getPath();
-        }
-        return imagePath;
-    }
-
-    private String handleImageBeforeKitKat(Intent data) {
-        Uri uri = data.getData();
-        return getImagePath(uri, null);
-    }
-
-    private String getImagePath(Uri uri, String selection) {
-        String path = "";
-        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
-        if(cursor != null) {
-            if(cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            cursor.close();
-        }
-        return path;
     }
 
     // 恢复缺省设置

@@ -83,10 +83,6 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.AccountActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".activity.PersonInfoActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />

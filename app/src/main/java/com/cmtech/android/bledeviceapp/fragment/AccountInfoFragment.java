@@ -1,14 +1,9 @@
 package com.cmtech.android.bledeviceapp.fragment;
 
-import android.annotation.TargetApi;
-import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,22 +13,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledevice.hrm.activityfragment.HrmFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.util.MyFileUtil;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
@@ -140,11 +132,10 @@ public class AccountInfoFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    cacheImageFile = handleImageOnKitKat(data);
-                } else {
-                    cacheImageFile = handleImageBeforeKitKat(data);
-                }
+                Uri uri = data.getData();
+                if(uri == null) return;
+
+                cacheImageFile = MyFileUtil.getFilePathByUri(getContext(), uri);
                 if (!TextUtils.isEmpty(cacheImageFile)) {
                     Glide.with(getContext()).load(cacheImageFile).centerCrop().into(ivImage);
                 }
@@ -152,51 +143,9 @@ public class AccountInfoFragment extends Fragment {
         }
     }
 
-
     private void openAlbum() {
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
+        Intent intent = new Intent(Intent.ACTION_PICK, null);
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         startActivityForResult(intent, 1);
-    }
-
-    @TargetApi(19)
-    private String handleImageOnKitKat(Intent data) {
-        String imagePath = null;
-        Uri uri = data.getData();
-        if (uri == null) return null;
-
-        if (DocumentsContract.isDocumentUri(getContext(), uri)) {
-            String docId = DocumentsContract.getDocumentId(uri);
-            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                String id = docId.split(":")[1];
-                String selection = MediaStore.Images.Media._ID + "=" + id;
-                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
-            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(docId));
-                imagePath = getImagePath(contentUri, null);
-            }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            imagePath = getImagePath(uri, null);
-        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            imagePath = uri.getPath();
-        }
-        return imagePath;
-    }
-
-    private String handleImageBeforeKitKat(Intent data) {
-        Uri uri = data.getData();
-        return getImagePath(uri, null);
-    }
-
-    private String getImagePath(Uri uri, String selection) {
-        String path = null;
-        Cursor cursor = getContext().getContentResolver().query(uri, null, selection, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            cursor.close();
-        }
-        return path;
     }
 }
