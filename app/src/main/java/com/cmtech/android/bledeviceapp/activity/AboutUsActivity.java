@@ -11,6 +11,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.utils.handler.HandlerUtil;
 
 public class AboutUsActivity extends AppCompatActivity {
     private WebView mWebview;
@@ -26,7 +27,6 @@ public class AboutUsActivity extends AppCompatActivity {
 
         mWebview = findViewById(R.id.wv_about_us);
 
-        mWebview.loadUrl("http://203.195.137.198/");
 
         //设置不用系统浏览器打开,直接显示在当前Webview
         mWebview.setWebViewClient(new WebViewClient() {
@@ -36,6 +36,8 @@ public class AboutUsActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        mWebview.loadUrl("http://203.195.137.198/");
 
     }
 

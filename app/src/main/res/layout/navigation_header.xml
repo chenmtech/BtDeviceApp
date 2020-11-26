@@ -1,36 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
+    android:layout_height="150dp"
+    android:gravity="center_vertical"
     android:background="@color/secondary"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
     <com.cmtech.android.bledeviceapp.view.CircleImageView
         android:id="@+id/iv_account_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_user"
-        android:layout_centerInParent="true"/>
+        android:layout_margin="10dp"
+        android:src="@mipmap/ic_user"/>
 
-    <TextView
-        android:id="@+id/tv_account_nick_name"
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/iv_account_image"
-        android:layout_centerHorizontal="true"
-        android:text=" "
-        android:textColor="@color/primary_text"
-        android:textSize="@dimen/normal_font"
-        android:maxLength="12"/>
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_user_name"
+        <TextView
+            android:id="@+id/tv_account_nick_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="昵称"
+            android:textColor="@color/primary_text"
+            android:textSize="@dimen/normal_font"
+            android:maxLength="12"/>
+
+        <TextView
+            android:id="@+id/tv_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="用户名"
+            android:textColor="@color/secondary_text"
+            android:textSize="@dimen/normal_font"
+            android:maxLength="12"/>
+
+
+    </LinearLayout>
+
+
+    <ImageButton
+        android:id="@+id/ib_modify_account_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_account_nick_name"
-        android:layout_centerHorizontal="true"
-        android:text=" "
-        android:textColor="@color/secondary_text"
-        android:textSize="@dimen/normal_font"
-        android:maxLength="12"/>
-</RelativeLayout>
+        android:layout_margin="10dp"
+        android:background="@color/background_transparent"
+        android:src="@mipmap/ic_modify_24px" />
+</LinearLayout>

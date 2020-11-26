@@ -116,15 +116,7 @@ public class AccountInfoFragment extends Fragment {
 
                 changedIconFile = MyFileUtil.getFilePathByUri(getContext(), uri);
                 if (!TextUtils.isEmpty(changedIconFile)) {
-                    int size = DensityUtil.dip2px(getContext(), 60);
-                    Bitmap bitmap = BitmapFactory.decodeFile(changedIconFile);
-
-                    ViseLog.e("" + bitmap.getWidth( ) + " " + bitmap.getHeight());
-                    if(bitmap.getWidth() > bitmap.getHeight()) {
-                        bitmap = BitmapUtil.scaleImageTo(bitmap, bitmap.getWidth()*size/bitmap.getHeight(), size);
-                    } else {
-                        bitmap = BitmapUtil.scaleImageTo(bitmap, size, bitmap.getHeight()*size/bitmap.getWidth());
-                    }
+                    Bitmap bitmap = MyBitmapUtil.scaleToDp(changedIconFile, 60);
                     File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserName() + ".jpg");
                     BitmapUtil.saveBitmap(bitmap, toFile);
                     try {

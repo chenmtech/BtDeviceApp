@@ -34,6 +34,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -57,6 +58,7 @@ import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
+import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -94,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private TextView tvAccountNickName; // 账户昵称
     private ImageView ivAccountImage; // 账户头像控件
     private TextView tvUserName;
+    private ImageButton ibModifyAccountInfo;
     private NotificationService notifyService;
 
     private long exitTime = 0;
@@ -258,6 +261,15 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         tvAccountNickName = headerView.findViewById(R.id.tv_account_nick_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
         tvUserName = headerView.findViewById(R.id.tv_user_name);
+        ibModifyAccountInfo = headerView.findViewById(R.id.ib_modify_account_info);
+
+        ibModifyAccountInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PersonInfoActivity.class);
+                startActivityForResult(intent, RC_MODIFY_ACCOUNT);
+            }
+        });
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @SuppressLint("RestrictedApi")
@@ -270,10 +282,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
 
                 Intent intent;
                 switch (item.getItemId()) {
-                    case R.id.nav_person_info:
-                        intent = new Intent(MainActivity.this, PersonInfoActivity.class);
-                        startActivityForResult(intent, RC_MODIFY_ACCOUNT);
-                        return true;
                     case R.id.nav_add_device: // add device
                         List<String> addresses = MyApplication.getDeviceManager().getAddressList();
                         intent = new Intent(MainActivity.this, ScanActivity.class);
@@ -292,22 +300,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                     case R.id.nav_about_us: // open KM store
                         intent = new Intent(MainActivity.this, AboutUsActivity.class);
                         startActivity(intent);
-                        return true;
-                    case R.id.nav_exit: // exit
-                        if(MyApplication.getDeviceManager().hasDeviceOpen()) {
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle(R.string.exit_app);
-                            builder.setMessage(R.string.pls_close_device_firstly);
-                            builder.setPositiveButton(R.string.force_exit, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    finish();
-                                }
-                            });
-                            builder.show();
-                        } else {
-                            finish();
-                        }
                         return true;
                 }
                 return false;
@@ -675,9 +667,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             if(TextUtils.isEmpty(account.getIcon())) {
                 ivAccountImage.setImageResource(R.mipmap.ic_user);
             } else {
-                Bitmap bitmap = BitmapFactory.decodeFile(account.getIcon());
+                Bitmap bitmap = MyBitmapUtil.scaleToDp(account.getIcon(), 60);
                 ivAccountImage.setImageBitmap(bitmap);
-                //Glide.with(this).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
             }
         }
     }

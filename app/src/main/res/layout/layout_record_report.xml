@@ -71,9 +71,8 @@
                 android:layout_height="wrap_content"
                 android:text="检测时间："/>
 
-            <EditText
-                android:id="@+id/et_report_time"
-                style="@style/edittext_circle_gray_no_focusable_style"
+            <TextView
+                android:id="@+id/tv_report_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="0dp"
@@ -92,9 +91,8 @@
                 android:layout_height="wrap_content"
                 android:text="检测版本："/>
 
-            <EditText
-                android:id="@+id/et_report_ver"
-                style="@style/edittext_circle_gray_no_focusable_style"
+            <TextView
+                android:id="@+id/tv_report_ver"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="0dp"

@@ -143,7 +143,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     }
 
     private void outputPdf() {
-        reportOutputLayout.outputPdf("将报告保存为PDF文件，请稍等...", () -> {
+        reportOutputLayout.outputPdf("将报告输出为PDF文件，请稍等...", () -> {
             PdfDocument doc = new PdfDocument();
             PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
                     reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)

@@ -49,6 +49,8 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     private final List<BasicRecord> records;
     private int position = INVALID_POS;
 
+    private boolean isOpeningRecord = false;
+
     static class ViewHolder extends RecyclerView.ViewHolder {
         View view;
 
@@ -91,7 +93,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(isOpeningRecord) return;
                 if(ClickCheckUtil.isFastClick()) return;
+
+                isOpeningRecord = true;
 
                 int prePos = position;
                 position = holder.getAdapterPosition();
@@ -110,9 +115,11 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                         } else {
                             Toast.makeText(activity, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
                         }
+                        isOpeningRecord = false;
                     });
                 } else {
                     activity.openRecord(records.get(position));
+                    isOpeningRecord = false;
                 }
             }
         });

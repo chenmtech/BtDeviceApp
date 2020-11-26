@@ -5,11 +5,6 @@
         android:checkable="false">
 
         <item
-            android:id="@+id/nav_person_info"
-            android:title="修改账户信息"
-            android:icon="@mipmap/ic_person_32px"/>
-
-        <item
             android:id="@+id/nav_add_device"
             android:title="@string/add_device"
             android:icon="@mipmap/ic_scan_device_32px"/>
@@ -31,10 +26,5 @@
             android:icon="@mipmap/ic_about_us_32px"
             android:visible="true"/>
 
-        <item
-            android:id="@+id/nav_exit"
-            android:title="@string/exit"
-            android:icon="@mipmap/ic_exit"
-            android:visible="false"/>
     </group>
 </menu>
