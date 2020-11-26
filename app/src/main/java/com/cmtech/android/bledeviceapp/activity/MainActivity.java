@@ -6,6 +6,8 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -37,8 +39,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
@@ -91,8 +91,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private RelativeLayout noDeviceOpenLayout; // 无设备打开时的界面
     private RelativeLayout hasDeviceOpenLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
-    private TextView tvAccountName; // 账户名称控件
+    private TextView tvAccountNickName; // 账户昵称
     private ImageView ivAccountImage; // 账户头像控件
+    private TextView tvUserName;
     private NotificationService notifyService;
 
     private long exitTime = 0;
@@ -254,8 +255,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private void initNavigation() {
         NavigationView navView = findViewById(R.id.nav_view);
         View headerView = navView.getHeaderView(0);
-        tvAccountName = headerView.findViewById(R.id.tv_account_name);
+        tvAccountNickName = headerView.findViewById(R.id.tv_account_nick_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
+        tvUserName = headerView.findViewById(R.id.tv_user_name);
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @SuppressLint("RestrictedApi")
@@ -659,13 +661,23 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             Toast.makeText(this, R.string.login_failure, Toast.LENGTH_SHORT).show();
             finish();
         } else {
-            String name = account.getNickNameOrUserName();
-            tvAccountName.setText(name);
+            String name = account.getNickName();
+            if(TextUtils.isEmpty(name)) {
+                tvAccountNickName.setVisibility(View.GONE);
+            } else {
+                tvAccountNickName.setVisibility(View.VISIBLE);
+                tvAccountNickName.setText(name);
+            }
+
+            String username = account.getUserName();
+            tvUserName.setText("@" + username);
 
             if(TextUtils.isEmpty(account.getIcon())) {
                 ivAccountImage.setImageResource(R.mipmap.ic_user);
             } else {
-                Glide.with(this).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+                Bitmap bitmap = BitmapFactory.decodeFile(account.getIcon());
+                ivAccountImage.setImageBitmap(bitmap);
+                //Glide.with(this).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
             }
         }
     }

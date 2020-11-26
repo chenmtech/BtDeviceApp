@@ -5,14 +5,9 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PixelFormat;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
-import com.vise.log.ViseLog;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -44,12 +39,13 @@ public class CircleImageDrawable extends Drawable {
         mWidth = mBitmap.getWidth();
         mHeight = mBitmap.getHeight();
         radius = Math.min(mWidth, mHeight)/2;
+        //ViseLog.e("" + bitmap.getWidth( ) + " " + bitmap.getHeight() + " " + radius);
     }
 
     @Override
     public void draw(Canvas canvas)
     {
-        canvas.drawCircle(mWidth / 2, mWidth / 2, radius, mPaint);
+        canvas.drawCircle(mWidth / 2, mHeight / 2, radius, mPaint);
     }
 
     @Override

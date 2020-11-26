@@ -23,10 +23,10 @@
             android:layout_toEndOf="@id/iv_exit"
             android:layout_centerVertical="true"
             android:orientation="vertical">
-            <com.cmtech.android.bledeviceapp.view.RoundImageView
+            <com.cmtech.android.bledeviceapp.view.CircleImageView
                 android:id="@+id/iv_creator_image"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:src="@mipmap/ic_user"/>
 

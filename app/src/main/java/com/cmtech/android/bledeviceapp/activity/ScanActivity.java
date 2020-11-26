@@ -56,6 +56,8 @@ public class ScanActivity extends AppCompatActivity {
     private RecyclerView rvDevice;
     private final Handler mHandle = new Handler(Looper.getMainLooper());
 
+    private boolean isScanning = false;
+
     // 扫描回调
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override
@@ -152,6 +154,8 @@ public class ScanActivity extends AppCompatActivity {
 
     // 开始扫描
     private void startScan() {
+        if(isScanning) return;
+
         mHandle.removeCallbacksAndMessages(null);
 
         scannedDevInfos.clear();
@@ -159,12 +163,14 @@ public class ScanActivity extends AppCompatActivity {
         BleScanner.stopScan(bleScanCallback);
         llSearchProgress.setVisibility(View.VISIBLE);
         BleScanner.startScan(SCAN_FILTER, bleScanCallback);
+        isScanning = true;
 
         mHandle.postDelayed(new Runnable() {
             @Override
             public void run() {
                 llSearchProgress.setVisibility(View.GONE);
                 BleScanner.stopScan(bleScanCallback);
+                isScanning = false;
             }
         }, SCAN_DURATION);
     }
@@ -218,6 +224,7 @@ public class ScanActivity extends AppCompatActivity {
         // 先停止扫描
         BleScanner.stopScan(bleScanCallback);
         llSearchProgress.setVisibility(View.GONE);
+        isScanning = false;
 
         AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(serviceUUID != null) {

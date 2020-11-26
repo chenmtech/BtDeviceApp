@@ -16,12 +16,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DensityUtil;
+import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 import com.cmtech.android.bledeviceapp.util.MyFileUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -51,7 +50,7 @@ public class AccountInfoFragment extends Fragment {
     private EditText etName;
     private ImageView ivImage;
     private EditText etNote;
-    private String cacheImageFile = ""; // 账户头像文件名缓存
+    private String changedIconFile = ""; // 账户头像文件名缓存
 
     private Account account;
 
@@ -85,11 +84,12 @@ public class AccountInfoFragment extends Fragment {
     public void updateUI() {
         etName.setText(account.getNickName());
 
-        cacheImageFile = account.getIcon();
-        if (TextUtils.isEmpty(cacheImageFile)) {
-            Glide.with(this).load(R.mipmap.ic_user).into(ivImage);
+        String currentIconFile = account.getIcon();
+        if (TextUtils.isEmpty(currentIconFile)) {
+            ivImage.setImageResource(R.mipmap.ic_user);
         } else {
-            Glide.with(this).load(cacheImageFile).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
+            Bitmap bitmap = MyBitmapUtil.scaleToDp(currentIconFile, 60);
+            ivImage.setImageBitmap(bitmap);
         }
 
         etNote.setText(account.getNote());
@@ -99,33 +99,9 @@ public class AccountInfoFragment extends Fragment {
         //Account account = MyApplication.getAccount();
         account.setNickName(etName.getText().toString());
 
-        String icon = account.getIcon();
-        if (!cacheImageFile.equals(icon)) {
-            // 把原来的图像文件删除
-            if (!TextUtils.isEmpty(icon)) {
-                File iconFile = new File(icon);
-                if (iconFile.exists())
-                    iconFile.delete();
-            }
-
-            // 把当前图像保存到DIR_IMAGE
-            if (TextUtils.isEmpty(cacheImageFile)) {
-                account.setIcon("");
-            } else {
-                try {
-                    ivImage.setDrawingCacheEnabled(true);
-                    Bitmap bitmap = ivImage.getDrawingCache();
-                    //bitmap = BitmapUtil.scaleImageTo(bitmap, 100, 100);
-                    File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserName() + ".jpg");
-                    BitmapUtil.saveBitmap(bitmap, toFile);
-                    ivImage.setDrawingCacheEnabled(false);
-                    String filePath = toFile.getCanonicalPath();
-                    account.setIcon(filePath);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    account.setIcon("");
-                }
-            }
+        // 把当前图像保存到DIR_IMAGE
+        if (!TextUtils.isEmpty(changedIconFile)) {
+            account.setIcon(changedIconFile);
         }
 
         account.setNote(etNote.getText().toString());
@@ -138,10 +114,10 @@ public class AccountInfoFragment extends Fragment {
                 Uri uri = data.getData();
                 if(uri == null) return;
 
-                cacheImageFile = MyFileUtil.getFilePathByUri(getContext(), uri);
-                if (!TextUtils.isEmpty(cacheImageFile)) {
+                changedIconFile = MyFileUtil.getFilePathByUri(getContext(), uri);
+                if (!TextUtils.isEmpty(changedIconFile)) {
                     int size = DensityUtil.dip2px(getContext(), 60);
-                    Bitmap bitmap = BitmapFactory.decodeFile(cacheImageFile);
+                    Bitmap bitmap = BitmapFactory.decodeFile(changedIconFile);
 
                     ViseLog.e("" + bitmap.getWidth( ) + " " + bitmap.getHeight());
                     if(bitmap.getWidth() > bitmap.getHeight()) {
@@ -149,7 +125,13 @@ public class AccountInfoFragment extends Fragment {
                     } else {
                         bitmap = BitmapUtil.scaleImageTo(bitmap, size, bitmap.getHeight()*size/bitmap.getWidth());
                     }
-                    BitmapUtil.saveBitmap(bitmap, cacheImageFile);
+                    File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserName() + ".jpg");
+                    BitmapUtil.saveBitmap(bitmap, toFile);
+                    try {
+                        changedIconFile = toFile.getCanonicalPath();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     ViseLog.e("" + bitmap.getWidth() + " " + bitmap.getHeight());
                     ivImage.setImageBitmap(bitmap);
                 }

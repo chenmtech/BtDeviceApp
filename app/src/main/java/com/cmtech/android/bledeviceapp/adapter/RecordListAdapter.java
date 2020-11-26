@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -12,16 +13,15 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
-import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
+import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 
 import org.litepal.LitePal;
 
@@ -155,7 +155,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             // load icon by platform name
             holder.ivCreatorImage.setImageResource(R.mipmap.ic_user);
         } else {
-            Glide.with(activity).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
+            Bitmap bitmap = MyBitmapUtil.scaleToDp(account.getIcon(),  32);
+            holder.ivCreatorImage.setImageBitmap(bitmap);
+            //Glide.with(activity).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
         }
 
         holder.ivRecordType.setImageResource(RecordType.fromCode(record.getTypeCode()).getIconId());

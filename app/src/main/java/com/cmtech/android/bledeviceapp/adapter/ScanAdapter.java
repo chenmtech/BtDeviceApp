@@ -1,11 +1,8 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextPaint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +17,6 @@ import com.cmtech.android.bledeviceapp.activity.ScanActivity;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.util.List;
-
-import static android.util.TypedValue.COMPLEX_UNIT_PX;
 
 
 /**
@@ -121,15 +116,11 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
         }
 
         int color;
-        if(type == null) {
-            color = Color.BLACK;
-        } else {
+        if(!status && type != null) {
             color = Color.RED;
+        } else {
+            color = Color.BLACK;
         }
-
-        holder.type.setTextColor(color);
-        holder.address.setTextColor(color);
-        holder.name.setTextColor(color);
         holder.status.setTextColor(color);
     }
 

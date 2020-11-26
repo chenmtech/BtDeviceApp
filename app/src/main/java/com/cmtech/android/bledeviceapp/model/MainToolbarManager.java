@@ -2,17 +2,16 @@ package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.util.DensityUtil;
+import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 import com.cmtech.android.bledeviceapp.view.CircleImageDrawable;
 import com.vise.utils.view.BitmapUtil;
 
@@ -100,11 +99,10 @@ public class MainToolbarManager {
 
     public void setNavIcon(String navIcon) {
         Bitmap bitmap;
-        if(navIcon == null || "".equals(navIcon.trim())) {
+        if(TextUtils.isEmpty(navIcon)) {
             bitmap = BitmapUtil.drawableToBitmap(ContextCompat.getDrawable(context, R.mipmap.ic_user_32px));
         } else {
-            int px = DensityUtil.dip2px(MyApplication.getContext(), 32);
-            bitmap = BitmapUtil.getSmallBitmap(navIcon, px, px);
+            bitmap = MyBitmapUtil.scaleToDp(navIcon, 32);
         }
         Drawable circleDrawrable = new CircleImageDrawable(bitmap);
         toolbar.setNavigationIcon(circleDrawrable);

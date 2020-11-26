@@ -32,12 +32,13 @@ public class CircleImageView extends android.support.v7.widget.AppCompatImageVie
         super.onLayout(changed, left, top, right, bottom);
         width = getWidth();
         height = getHeight();
+        //ViseLog.e(" " + width + " " + height);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-
-        if (width > 12 && height > 12) {
+        //ViseLog.e(" " + width + " " + height);
+        if (width > 12 && height  > 12) {
             path.reset();
             float radius = (width > height) ? height/2 : width/2;
             path.addCircle(width/2, height/2, radius, Path.Direction.CW);

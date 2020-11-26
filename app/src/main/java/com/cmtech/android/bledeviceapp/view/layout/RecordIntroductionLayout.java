@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.view.layout;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -11,13 +12,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -71,7 +71,9 @@ public class RecordIntroductionLayout extends RelativeLayout {
                 // load icon by platform name
                 ivCreatorImage.setImageResource(R.mipmap.ic_user);
             } else {
-                Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
+                Bitmap bitmap = MyBitmapUtil.scaleToDp(account.getIcon(), 32);
+                ivCreatorImage.setImageBitmap(bitmap);
+                //Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
             }
         }
 
