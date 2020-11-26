@@ -5,7 +5,7 @@
     android:background="@color/secondary"
     android:orientation="vertical">
 
-    <com.cmtech.android.bledeviceapp.view.RoundImageView
+    <com.cmtech.android.bledeviceapp.view.CircleImageView
         android:id="@+id/iv_account_image"
         android:layout_width="60dp"
         android:layout_height="60dp"

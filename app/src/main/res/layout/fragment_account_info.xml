@@ -54,10 +54,10 @@
             android:layout_weight="3"
             android:orientation="horizontal"
             android:layout_margin="10dp">
-            <com.cmtech.android.bledeviceapp.view.RoundImageView
+            <com.cmtech.android.bledeviceapp.view.CircleImageView
                 android:id="@+id/iv_account_image"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:src="@mipmap/ic_user"/>
         </LinearLayout>
 

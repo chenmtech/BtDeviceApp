@@ -3,19 +3,17 @@ package com.cmtech.android.bledeviceapp.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Path;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.view.View;
 
 /**
- *  RoundImageView: 圆角ImageView
+ *  CircleImageView: 圆形ImageView
  *  Created by bme on 2019/3/19.
  */
 
 public class CircleImageView extends android.support.v7.widget.AppCompatImageView{
 
     private float width,height;
-    private Path path = new Path();
+    private final Path path = new Path();
 
     public CircleImageView(Context context) {
         this(context, null);

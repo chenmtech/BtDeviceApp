@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.fragment;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -20,7 +21,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.util.DensityUtil;
 import com.cmtech.android.bledeviceapp.util.MyFileUtil;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -112,7 +115,7 @@ public class AccountInfoFragment extends Fragment {
                 try {
                     ivImage.setDrawingCacheEnabled(true);
                     Bitmap bitmap = ivImage.getDrawingCache();
-                    bitmap = BitmapUtil.scaleImageTo(bitmap, 100, 100);
+                    //bitmap = BitmapUtil.scaleImageTo(bitmap, 100, 100);
                     File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserName() + ".jpg");
                     BitmapUtil.saveBitmap(bitmap, toFile);
                     ivImage.setDrawingCacheEnabled(false);
@@ -137,7 +140,18 @@ public class AccountInfoFragment extends Fragment {
 
                 cacheImageFile = MyFileUtil.getFilePathByUri(getContext(), uri);
                 if (!TextUtils.isEmpty(cacheImageFile)) {
-                    Glide.with(getContext()).load(cacheImageFile).centerCrop().into(ivImage);
+                    int size = DensityUtil.dip2px(getContext(), 60);
+                    Bitmap bitmap = BitmapFactory.decodeFile(cacheImageFile);
+
+                    ViseLog.e("" + bitmap.getWidth( ) + " " + bitmap.getHeight());
+                    if(bitmap.getWidth() > bitmap.getHeight()) {
+                        bitmap = BitmapUtil.scaleImageTo(bitmap, bitmap.getWidth()*size/bitmap.getHeight(), size);
+                    } else {
+                        bitmap = BitmapUtil.scaleImageTo(bitmap, size, bitmap.getHeight()*size/bitmap.getWidth());
+                    }
+                    BitmapUtil.saveBitmap(bitmap, cacheImageFile);
+                    ViseLog.e("" + bitmap.getWidth() + " " + bitmap.getHeight());
+                    ivImage.setImageBitmap(bitmap);
                 }
             }
         }
