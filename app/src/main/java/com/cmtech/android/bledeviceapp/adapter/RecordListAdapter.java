@@ -22,6 +22,7 @@ import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
@@ -93,9 +94,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isOpeningRecord) return;
                 if(ClickCheckUtil.isFastClick()) return;
 
+                if(isOpeningRecord) return;
                 isOpeningRecord = true;
 
                 int prePos = position;
@@ -108,6 +109,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                 BasicRecord record = records.get(position);
                 record = LitePal.find(record.getClass(), record.getId(), true);
                 records.set(position, record);
+                ViseLog.e("opening record" + isOpeningRecord);
                 if(record.noSignal()) {
                     record.download(activity, code -> {
                         if (code == RETURN_CODE_SUCCESS) {
