@@ -11,12 +11,19 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -127,19 +134,43 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             }
         });
 
-        Button btnUpdateReport = findViewById(R.id.btn_request_report);
-        btnUpdateReport.setOnClickListener(view -> {
-            reportLayout.updateReport();
-        });
-
-        Button btnOutputReport = findViewById(R.id.btn_output_report);
-        btnOutputReport.setOnClickListener(view -> {
-            if(ecgView.isShowing())
-                ecgView.stopShow();
-            outputPdf();
+        ImageView ivOpenMenu = findViewById(R.id.iv_open_menu);
+        ivOpenMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPopupMenu(ivOpenMenu);
+            }
         });
 
         ecgView.startShow();
+    }
+
+    private void showPopupMenu(View view) {
+        // View当前PopupMenu显示的相对View的位置
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        // menu布局
+        popupMenu.getMenuInflater().inflate(R.menu.menu_ecg_report, popupMenu.getMenu());
+        // menu的item点击事件
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.refresh_report:
+                        reportLayout.updateReport();
+                        break;
+                    case R.id.output_report:
+                        if(ecgView.isShowing())
+                            ecgView.stopShow();
+                        outputPdf();
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
+
+        popupMenu.show();
     }
 
     private void outputPdf() {

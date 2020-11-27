@@ -81,58 +81,47 @@
 
     </LinearLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="visible">
 
-                <Button
-                    android:id="@+id/btn_request_report"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="更新报告"
-                    android:textColor="@color/accent"
-                    android:background="@color/background_transparent"/>
+                <com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout
+                    android:id="@+id/layout_record_report"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
-                <Button
-                    android:id="@+id/btn_output_report"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="输出PDF"
-                    android:textColor="@color/accent"
-                    android:background="@color/background_transparent"/>
+                <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
+                    android:id="@+id/layout_record_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"/>
             </LinearLayout>
 
-            <include layout="@layout/divider_line"/>
+        </android.support.v4.widget.NestedScrollView>
 
-            <com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout
-                android:id="@+id/layout_record_report"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/iv_open_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_margin="10dp"
+            android:src="@mipmap/ic_more_32px"/>
 
-            <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
-                android:id="@+id/layout_record_note"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+    </FrameLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="300dp"/>
-        </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
 
     <com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout
         android:id="@+id/layout_ecg_report_output"
