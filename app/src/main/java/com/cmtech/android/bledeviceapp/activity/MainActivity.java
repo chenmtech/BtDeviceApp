@@ -258,6 +258,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         View headerView = navView.getHeaderView(0);
         tvAccountNickName = headerView.findViewById(R.id.tv_account_nick_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
+        ivAccountImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PersonInfoActivity.class);
+                startActivityForResult(intent, RC_MODIFY_ACCOUNT);
+            }
+        });
         tvUserName = headerView.findViewById(R.id.tv_user_name);
         tvModifyAccountInfo = headerView.findViewById(R.id.tv_modify);
         tvModifyAccountInfo.setOnClickListener(new View.OnClickListener() {
@@ -425,7 +432,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 break;
 
             case R.id.toolbar_close:
-                onBackPressed();
+                DeviceFragment fragment1 = (DeviceFragment) fragTabManager.getCurrentFragment();
+                if(fragment1 != null) {
+                    closeFragment(fragment1);
+                } else {
+                    finish();
+                }
                 break;
         }
         return true;

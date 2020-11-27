@@ -6,12 +6,27 @@
     android:background="@color/secondary"
     android:orientation="horizontal">
 
-    <com.cmtech.android.bledeviceapp.view.CircleImageView
-        android:id="@+id/iv_account_image"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:src="@mipmap/ic_user"/>
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+        <com.cmtech.android.bledeviceapp.view.CircleImageView
+            android:id="@+id/iv_account_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_user"/>
+
+        <TextView
+            android:id="@+id/tv_modify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击修改"
+            android:textColor="@color/secondary_text"
+            android:textSize="@dimen/smallest_font"/>
+
+    </LinearLayout>
 
 
     <LinearLayout
@@ -41,14 +56,4 @@
 
     </LinearLayout>
 
-
-    <TextView
-        android:id="@+id/tv_modify"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="修改"
-        android:textColor="@color/secondary_text"
-        android:textSize="@dimen/normal_font"
-        android:drawableTop="@mipmap/ic_modify_24px"/>
 </LinearLayout>

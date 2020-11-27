@@ -20,7 +20,6 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 import com.cmtech.android.bledeviceapp.util.MyFileUtil;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -125,7 +124,7 @@ public class AccountInfoFragment extends Fragment {
                     Bitmap bitmap = MyBitmapUtil.scaleToDp(changedIconFile, 60);
                     if(bitmap != null) {
                         BitmapUtil.saveBitmap(bitmap, tmpIconFile);
-                        ViseLog.e("" + bitmap.getWidth() + " " + bitmap.getHeight());
+                        //ViseLog.e("" + bitmap.getWidth() + " " + bitmap.getHeight());
                         ivImage.setImageBitmap(bitmap);
                     }
                 }

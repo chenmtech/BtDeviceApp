@@ -109,7 +109,7 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
             holder.status.setText(R.string.added);
         } else {
             if(type == null) {
-                holder.status.setText(R.string.not_added);
+                holder.status.setText(" ");
             } else {
                 holder.status.setText("可添加");
             }

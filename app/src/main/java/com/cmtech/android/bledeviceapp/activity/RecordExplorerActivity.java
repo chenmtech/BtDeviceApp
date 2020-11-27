@@ -32,6 +32,8 @@ import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.layout.RecordSearchLayout;
 import com.vise.log.ViseLog;
 
+import org.litepal.LitePal;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -69,6 +71,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private RecordType recordType = null; // record type in record list
     private String noteFilterStr = ""; // record note filter string
     private long updateTime = new Date().getTime(); // update time in record list
+
+    private boolean canOpen = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,6 +185,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "打开记录错误。", Toast.LENGTH_SHORT).show();
             }
+            canOpen = true;
         }
     }
 
@@ -188,24 +193,48 @@ public class RecordExplorerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        ViseLog.e("RecordExplorerActivity onDestroy");
+        //ViseLog.e("RecordExplorerActivity onDestroy");
     }
 
     public void searchRecords(String noteFilterStr, long updateTime) {
         searchRecords(recordType, noteFilterStr, updateTime);
     }
 
-    public void openRecord(BasicRecord record) {
+    public void openRecord(int position) {
+        if(!canOpen) return;
+        canOpen = false;
+
+        BasicRecord record = allRecords.get(position);
+        record = LitePal.find(record.getClass(), record.getId(), true);
+        allRecords.set(position, record);
+        openRecord(record);
+    }
+
+    private void openRecord(final BasicRecord record) {
         if(record != null) {
-            Intent intent = null;
-            Class<? extends Activity> actClass = RecordType.fromCode(record.getTypeCode()).getActivityClass();
-            if (actClass != null) {
-                intent = new Intent(RecordExplorerActivity.this, actClass);
+            if(record.noSignal()) {
+                record.download(this, code -> {
+                    if (code == RETURN_CODE_SUCCESS) {
+                        doOpenRecord(record);
+                    } else {
+                        Toast.makeText(this, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                doOpenRecord(record);
             }
-            if (intent != null) {
-                intent.putExtra("record_id", record.getId());
-                startActivityForResult(intent, RC_OPEN_RECORD);
-            }
+        }
+    }
+
+    private void doOpenRecord(BasicRecord record) {
+        Intent intent = null;
+        Class<? extends Activity> actClass = RecordType.fromCode(record.getTypeCode()).getActivityClass();
+        if (actClass != null) {
+            intent = new Intent(RecordExplorerActivity.this, actClass);
+        }
+        if (intent != null) {
+            intent.putExtra("record_id", record.getId());
+            startActivityForResult(intent, RC_OPEN_RECORD);
         }
     }
 

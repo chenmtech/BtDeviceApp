@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -23,13 +22,10 @@ import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
-import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 
 /**
@@ -51,7 +47,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     private final List<BasicRecord> records;
     private int position = INVALID_POS;
 
-    private boolean isOpeningRecord = false;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View view;
@@ -95,17 +90,8 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ProgressDialog progressDialog = new ProgressDialog(activity);
-                progressDialog.setMessage("请等待...");
-                progressDialog.setCancelable(false);
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.show();
-                ViseLog.e("wait");
 
                 if(ClickCheckUtil.isFastClick()) return;
-
-                if(isOpeningRecord) return;
-                isOpeningRecord = true;
 
                 int prePos = position;
                 position = holder.getAdapterPosition();
@@ -113,8 +99,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                     notifyItemChanged(prePos);
                 }
                 notifyItemChanged(position);
+                activity.openRecord(position);
 
-                BasicRecord record = records.get(position);
+                /*BasicRecord record = records.get(position);
                 record = LitePal.find(record.getClass(), record.getId(), true);
                 records.set(position, record);
                 ViseLog.e("opening record" + isOpeningRecord);
@@ -130,9 +117,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                 } else {
                     activity.openRecord(records.get(position));
                     isOpeningRecord = false;
-                }
-
-                progressDialog.dismiss();
+                }*/
             }
         });
 
