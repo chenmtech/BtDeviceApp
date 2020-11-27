@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -34,7 +33,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -96,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private TextView tvAccountNickName; // 账户昵称
     private ImageView ivAccountImage; // 账户头像控件
     private TextView tvUserName;
-    private ImageButton ibModifyAccountInfo;
+    private TextView tvModifyAccountInfo;
     private NotificationService notifyService;
 
     private long exitTime = 0;
@@ -261,9 +259,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         tvAccountNickName = headerView.findViewById(R.id.tv_account_nick_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
         tvUserName = headerView.findViewById(R.id.tv_user_name);
-        ibModifyAccountInfo = headerView.findViewById(R.id.ib_modify_account_info);
-
-        ibModifyAccountInfo.setOnClickListener(new View.OnClickListener() {
+        tvModifyAccountInfo = headerView.findViewById(R.id.tv_modify);
+        tvModifyAccountInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, PersonInfoActivity.class);

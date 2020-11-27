@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -94,6 +95,13 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ProgressDialog progressDialog = new ProgressDialog(activity);
+                progressDialog.setMessage("请等待...");
+                progressDialog.setCancelable(false);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.show();
+                ViseLog.e("wait");
+
                 if(ClickCheckUtil.isFastClick()) return;
 
                 if(isOpeningRecord) return;
@@ -123,6 +131,8 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                     activity.openRecord(records.get(position));
                     isOpeningRecord = false;
                 }
+
+                progressDialog.dismiss();
             }
         });
 
@@ -166,7 +176,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         } else {
             Bitmap bitmap = MyBitmapUtil.scaleToDp(account.getIcon(),  32);
             holder.ivCreatorImage.setImageBitmap(bitmap);
-            //Glide.with(activity).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
         }
 
         holder.ivRecordType.setImageResource(RecordType.fromCode(record.getTypeCode()).getIconId());

@@ -2,7 +2,6 @@ package com.cmtech.android.bledeviceapp.fragment;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,7 +18,6 @@ import android.widget.ImageView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.DensityUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 import com.cmtech.android.bledeviceapp.util.MyFileUtil;
 import com.vise.log.ViseLog;
@@ -30,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static android.app.Activity.RESULT_OK;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 
 /**
@@ -50,7 +49,7 @@ public class AccountInfoFragment extends Fragment {
     private EditText etName;
     private ImageView ivImage;
     private EditText etNote;
-    private String changedIconFile = ""; // 账户头像文件名缓存
+    private File tmpIconFile;
 
     private Account account;
 
@@ -70,6 +69,7 @@ public class AccountInfoFragment extends Fragment {
         etName = view.findViewById(R.id.et_account_name);
         ivImage = view.findViewById(R.id.iv_account_image);
         etNote = view.findViewById(R.id.et_account_note);
+        tmpIconFile = FileUtil.getFile(DIR_CACHE, account.getUserName() + ".jpg");
 
         updateUI();
 
@@ -83,28 +83,34 @@ public class AccountInfoFragment extends Fragment {
 
     public void updateUI() {
         etName.setText(account.getNickName());
-
-        String currentIconFile = account.getIcon();
-        if (TextUtils.isEmpty(currentIconFile)) {
-            ivImage.setImageResource(R.mipmap.ic_user);
-        } else {
-            Bitmap bitmap = MyBitmapUtil.scaleToDp(currentIconFile, 60);
-            ivImage.setImageBitmap(bitmap);
-        }
-
         etNote.setText(account.getNote());
+
+        String iconFile = account.getIcon();
+        Bitmap bitmap;
+        if (!TextUtils.isEmpty(iconFile)) {
+            bitmap = MyBitmapUtil.scaleToDp(iconFile, 60);
+            if(bitmap != null) {
+                ivImage.setImageBitmap(bitmap);
+                return;
+            }
+        }
+        ivImage.setImageResource(R.mipmap.ic_user);
     }
 
     public void processOKButton() {
-        //Account account = MyApplication.getAccount();
         account.setNickName(etName.getText().toString());
+        account.setNote(etNote.getText().toString());
 
         // 把当前图像保存到DIR_IMAGE
-        if (!TextUtils.isEmpty(changedIconFile)) {
-            account.setIcon(changedIconFile);
+        if (tmpIconFile.exists()) {
+            File file = FileUtil.getFile(DIR_IMAGE, account.getUserName() + ".jpg");
+            try {
+                FileUtil.copyFile(tmpIconFile, file);
+                account.setIcon(file.getCanonicalPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-        account.setNote(etNote.getText().toString());
     }
 
     @Override
@@ -114,18 +120,14 @@ public class AccountInfoFragment extends Fragment {
                 Uri uri = data.getData();
                 if(uri == null) return;
 
-                changedIconFile = MyFileUtil.getFilePathByUri(getContext(), uri);
+                String changedIconFile = MyFileUtil.getFilePathByUri(getContext(), uri);
                 if (!TextUtils.isEmpty(changedIconFile)) {
                     Bitmap bitmap = MyBitmapUtil.scaleToDp(changedIconFile, 60);
-                    File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserName() + ".jpg");
-                    BitmapUtil.saveBitmap(bitmap, toFile);
-                    try {
-                        changedIconFile = toFile.getCanonicalPath();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if(bitmap != null) {
+                        BitmapUtil.saveBitmap(bitmap, tmpIconFile);
+                        ViseLog.e("" + bitmap.getWidth() + " " + bitmap.getHeight());
+                        ivImage.setImageBitmap(bitmap);
                     }
-                    ViseLog.e("" + bitmap.getWidth() + " " + bitmap.getHeight());
-                    ivImage.setImageBitmap(bitmap);
                 }
             }
         }

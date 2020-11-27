@@ -103,6 +103,9 @@ public class MainToolbarManager {
             bitmap = BitmapUtil.drawableToBitmap(ContextCompat.getDrawable(context, R.mipmap.ic_user_32px));
         } else {
             bitmap = MyBitmapUtil.scaleToDp(navIcon, 32);
+            if(bitmap == null) {
+                bitmap = BitmapUtil.drawableToBitmap(ContextCompat.getDrawable(context, R.mipmap.ic_user_32px));
+            }
         }
         Drawable circleDrawrable = new CircleImageDrawable(bitmap);
         toolbar.setNavigationIcon(circleDrawrable);

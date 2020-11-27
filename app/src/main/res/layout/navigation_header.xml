@@ -38,14 +38,17 @@
             android:maxLength="12"/>
 
 
+
     </LinearLayout>
 
 
-    <ImageButton
-        android:id="@+id/ib_modify_account_info"
+    <TextView
+        android:id="@+id/tv_modify"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:background="@color/background_transparent"
-        android:src="@mipmap/ic_modify_24px" />
+        android:text="修改"
+        android:textColor="@color/secondary_text"
+        android:textSize="@dimen/normal_font"
+        android:drawableTop="@mipmap/ic_modify_24px"/>
 </LinearLayout>
