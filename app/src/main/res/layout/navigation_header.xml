@@ -1,59 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="150dp"
     android:gravity="center_vertical"
-    android:background="@color/secondary"
-    android:orientation="horizontal">
+    android:background="@color/secondary">
 
-    <LinearLayout
+    <Button
+        android:id="@+id/btn_modify"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
-        <com.cmtech.android.bledeviceapp.view.CircleImageView
-            android:id="@+id/iv_account_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_user"/>
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_gravity="end|bottom"
+        android:text="编辑"
+        android:textColor="@color/accent"
+        android:background="@color/background_transparent"/>
 
-        <TextView
-            android:id="@+id/tv_modify"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="点击修改"
-            android:textColor="@color/secondary_text"
-            android:textSize="@dimen/smallest_font"/>
+            android:layout_margin="10dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+            <com.cmtech.android.bledeviceapp.view.CircleImageView
+                android:id="@+id/iv_account_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_user"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_account_nick_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="昵称"
+                android:textColor="@color/primary_text"
+                android:textSize="@dimen/normal_font"
+                android:maxLength="12"/>
+
+            <TextView
+                android:id="@+id/tv_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="用户名"
+                android:textColor="@color/secondary_text"
+                android:textSize="@dimen/normal_font"
+                android:maxLength="12"/>
+
+
+
+        </LinearLayout>
 
     </LinearLayout>
 
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/tv_account_nick_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="昵称"
-            android:textColor="@color/primary_text"
-            android:textSize="@dimen/normal_font"
-            android:maxLength="12"/>
-
-        <TextView
-            android:id="@+id/tv_user_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="用户名"
-            android:textColor="@color/secondary_text"
-            android:textSize="@dimen/normal_font"
-            android:maxLength="12"/>
-
-
-
-    </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

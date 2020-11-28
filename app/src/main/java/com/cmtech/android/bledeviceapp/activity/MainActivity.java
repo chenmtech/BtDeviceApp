@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -94,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     private TextView tvAccountNickName; // 账户昵称
     private ImageView ivAccountImage; // 账户头像控件
     private TextView tvUserName;
-    private TextView tvModifyAccountInfo;
     private NotificationService notifyService;
 
     private long exitTime = 0;
@@ -265,15 +265,15 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 startActivityForResult(intent, RC_MODIFY_ACCOUNT);
             }
         });
-        tvUserName = headerView.findViewById(R.id.tv_user_name);
-        tvModifyAccountInfo = headerView.findViewById(R.id.tv_modify);
-        tvModifyAccountInfo.setOnClickListener(new View.OnClickListener() {
+        Button btnModify = headerView.findViewById(R.id.btn_modify);
+        btnModify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, PersonInfoActivity.class);
                 startActivityForResult(intent, RC_MODIFY_ACCOUNT);
             }
         });
+        tvUserName = headerView.findViewById(R.id.tv_user_name);
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @SuppressLint("RestrictedApi")
