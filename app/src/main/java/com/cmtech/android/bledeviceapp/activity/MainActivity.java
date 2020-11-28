@@ -676,7 +676,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             if(TextUtils.isEmpty(account.getIcon())) {
                 ivAccountImage.setImageResource(R.mipmap.ic_user);
             } else {
-                Bitmap bitmap = MyBitmapUtil.scaleToDp(account.getIcon(), 60);
+                Bitmap bitmap = MyBitmapUtil.showToDp(account.getIcon(), 60);
                 ivAccountImage.setImageBitmap(bitmap);
             }
         }

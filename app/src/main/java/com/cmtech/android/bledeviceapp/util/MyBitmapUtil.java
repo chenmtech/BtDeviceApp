@@ -13,17 +13,43 @@ import java.io.IOException;
 public class MyBitmapUtil {
     public static Bitmap scaleToDp(String file, int dp) {
         int px = DensityUtil.dip2px(MyApplication.getContext(), dp);
+        px = Math.min(px, 130);
         Bitmap bitmap = BitmapFactory.decodeFile(file);
         int degree = getBitmapDegree(file);
         if(degree != 0) {
             bitmap = rotateBitmapByDegree(bitmap, degree);
         }
-        if (bitmap.getWidth() > bitmap.getHeight()) {
-            bitmap = BitmapUtil.scaleImageTo(bitmap, bitmap.getWidth() * px / bitmap.getHeight(), px);
-        } else {
-            bitmap = BitmapUtil.scaleImageTo(bitmap, px, bitmap.getHeight() * px / bitmap.getWidth());
+
+        return fitToSquare(bitmap, px);
+    }
+
+    public static Bitmap showToDp(String file, int dp) {
+        int px = DensityUtil.dip2px(MyApplication.getContext(), dp);
+        Bitmap bitmap = BitmapFactory.decodeFile(file);
+        int degree = getBitmapDegree(file);
+        if(degree != 0) {
+            bitmap = rotateBitmapByDegree(bitmap, degree);
         }
-        return bitmap;
+
+        return fitToSquare(bitmap, px);
+    }
+
+    private static Bitmap fitToSquare(Bitmap bm, int px) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+
+        Bitmap bitmap;
+        int diff;
+        if(width > height) {
+            diff = width-height;
+            bitmap = Bitmap.createBitmap(bm, diff/2, 0, height, height);
+        } else if(height > width) {
+            diff = height-width;
+            bitmap = Bitmap.createBitmap(bm, 0, diff/2, width, width);
+        } else {
+            bitmap = bm;
+        }
+        return BitmapUtil.scaleImageTo(bitmap, px, px);
     }
 
 

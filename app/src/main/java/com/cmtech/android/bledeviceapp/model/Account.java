@@ -13,6 +13,7 @@ import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
+import com.vise.log.ViseLog;
 import com.vise.utils.cipher.BASE64;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
@@ -206,6 +207,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             if(!TextUtils.isEmpty(icon)) {
                 Bitmap bitmap = BitmapFactory.decodeFile(icon);
                 iconStr = BitmapUtil.bitmapToString(bitmap);
+                ViseLog.e("icon len:" + iconStr.length());
             }
             json.put("iconStr", iconStr);
             json.put("gender", gender);

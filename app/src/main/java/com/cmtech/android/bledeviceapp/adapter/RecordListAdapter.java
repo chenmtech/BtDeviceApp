@@ -159,7 +159,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             // load icon by platform name
             holder.ivCreatorImage.setImageResource(R.mipmap.ic_user);
         } else {
-            Bitmap bitmap = MyBitmapUtil.scaleToDp(account.getIcon(),  32);
+            Bitmap bitmap = MyBitmapUtil.showToDp(account.getIcon(),  32);
             holder.ivCreatorImage.setImageBitmap(bitmap);
         }
 

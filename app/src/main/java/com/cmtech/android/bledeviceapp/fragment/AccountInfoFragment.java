@@ -20,10 +20,12 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 import com.cmtech.android.bledeviceapp.util.MyFileUtil;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static android.app.Activity.RESULT_OK;
@@ -87,7 +89,7 @@ public class AccountInfoFragment extends Fragment {
         String iconFile = account.getIcon();
         Bitmap bitmap;
         if (!TextUtils.isEmpty(iconFile)) {
-            bitmap = MyBitmapUtil.scaleToDp(iconFile, 60);
+            bitmap = MyBitmapUtil.showToDp(iconFile, 60);
             if(bitmap != null) {
                 ivImage.setImageBitmap(bitmap);
                 return;
@@ -123,9 +125,15 @@ public class AccountInfoFragment extends Fragment {
                 if (!TextUtils.isEmpty(changedIconFile)) {
                     Bitmap bitmap = MyBitmapUtil.scaleToDp(changedIconFile, 60);
                     if(bitmap != null) {
+                        //MyBitmapUtil.saveBitmap(bitmap, tmpIconFile, 25);
                         BitmapUtil.saveBitmap(bitmap, tmpIconFile);
-                        //ViseLog.e("" + bitmap.getWidth() + " " + bitmap.getHeight());
-                        ivImage.setImageBitmap(bitmap);
+                        try {
+                            bitmap = MyBitmapUtil.showToDp(tmpIconFile.getCanonicalPath(), 60);
+                            //ViseLog.e("" + bitmap.getWidth() + " " + bitmap.getHeight());
+                            ivImage.setImageBitmap(bitmap);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

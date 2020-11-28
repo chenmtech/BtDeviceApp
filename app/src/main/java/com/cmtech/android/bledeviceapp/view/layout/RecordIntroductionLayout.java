@@ -71,7 +71,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
                 // load icon by platform name
                 ivCreatorImage.setImageResource(R.mipmap.ic_user);
             } else {
-                Bitmap bitmap = MyBitmapUtil.scaleToDp(account.getIcon(), 32);
+                Bitmap bitmap = MyBitmapUtil.showToDp(account.getIcon(), 32);
                 ivCreatorImage.setImageBitmap(bitmap);
                 //Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
             }
