@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SPLASH_ACTIVITY_COUNT_DOWN_SECOND;
 
@@ -75,21 +77,25 @@ public class SplashActivity extends AppCompatActivity {
 
     // 检查权限
     private void checkPermissions() {
-        List<String> permission = new ArrayList<>();
+        List<String> permissions = new ArrayList<>();
         // 定位权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(SplashActivity.this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                permission.add(ACCESS_COARSE_LOCATION);
+            if (ContextCompat.checkSelfPermission(SplashActivity.this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(SplashActivity.this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(ACCESS_COARSE_LOCATION);
+                permissions.add(ACCESS_FINE_LOCATION);
             }
         }
+
         // 读写权限
         if(ContextCompat.checkSelfPermission(SplashActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            permission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
 
-        if(permission.size() != 0)
-            ActivityCompat.requestPermissions(SplashActivity.this, permission.toArray(new String[0]), 1);
+        if(permissions.size() != 0) {
+            ActivityCompat.requestPermissions(SplashActivity.this, permissions.toArray(new String[0]), 1);
+        }
         else {
             initialize();
         }
@@ -105,6 +111,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 1) {
+            ViseLog.e(grantResults);
             for (int result : grantResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "没有授予所需权限，应用程序退出。", Toast.LENGTH_SHORT).show();

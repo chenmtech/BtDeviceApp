@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -10,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -163,6 +165,16 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+            LocationManager alm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            if (!alm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)){
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
         }
     }
 
