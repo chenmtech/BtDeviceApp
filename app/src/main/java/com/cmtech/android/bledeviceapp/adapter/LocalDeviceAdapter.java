@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
@@ -59,11 +60,31 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_device_local, parent, false);
         final ViewHolder holder = new ViewHolder(view);
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+        IDevice device = deviceList.get(position);
+
+        String imagePath = device.getIcon();
+        //ViseLog.e("device icon:" + imagePath);
+        if(!TextUtils.isEmpty(imagePath)) {
+            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
+            holder.deviceImage.setImageDrawable(drawable);
+        } else {
+            DeviceType type = DeviceType.getFromUuid(device.getUuid());
+            if(type == null) return;
+            Glide.with(MyApplication.getContext()).load(type.getDefaultIcon()).into(holder.deviceImage);
+        }
+
+        holder.deviceName.setText(device.getName());
+        holder.deviceAddress.setText(device.getAddress());
+        holder.deviceStatus.setText(device.getConnectState().getDescription());
 
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                IDevice device = deviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
             }
         });
@@ -72,7 +93,6 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
             final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    IDevice device = deviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
                             activity.modifyDeviceInfo(device.getCommonInfo());
@@ -101,27 +121,6 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
                 return false;
             }
         });
-        return holder;
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
-        IDevice device = deviceList.get(position);
-
-        String imagePath = device.getIcon();
-        //ViseLog.e("device icon:" + imagePath);
-        if(!TextUtils.isEmpty(imagePath)) {
-            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
-            holder.deviceImage.setImageDrawable(drawable);
-        } else {
-            DeviceType type = DeviceType.getFromUuid(device.getUuid());
-            if(type == null) return;
-            Glide.with(MyApplication.getContext()).load(type.getDefaultIcon()).into(holder.deviceImage);
-        }
-
-        holder.deviceName.setText(device.getName());
-        holder.deviceAddress.setText(device.getAddress());
-        holder.deviceStatus.setText(device.getConnectState().getDescription());
     }
 
     @Override

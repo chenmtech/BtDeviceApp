@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -11,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
@@ -86,70 +86,11 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record, parent, false);
         final ViewHolder holder = new ViewHolder(view);
-
-        holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if(ClickCheckUtil.isFastClick()) return;
-
-                int prePos = position;
-                position = holder.getAdapterPosition();
-                if(prePos >= 0 && prePos < records.size()) {
-                    notifyItemChanged(prePos);
-                }
-                notifyItemChanged(position);
-                activity.openRecord(position);
-
-                /*BasicRecord record = records.get(position);
-                record = LitePal.find(record.getClass(), record.getId(), true);
-                records.set(position, record);
-                ViseLog.e("opening record" + isOpeningRecord);
-                if(record.noSignal()) {
-                    record.download(activity, code -> {
-                        if (code == RETURN_CODE_SUCCESS) {
-                            activity.openRecord(records.get(position));
-                        } else {
-                            Toast.makeText(activity, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
-                        }
-                        isOpeningRecord = false;
-                    });
-                } else {
-                    activity.openRecord(records.get(position));
-                    isOpeningRecord = false;
-                }*/
-            }
-        });
-
-        holder.ivDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ClickCheckUtil.isFastClick()) return;
-                activity.deleteRecord(records.get(holder.getAdapterPosition()));
-            }
-        });
-
-        holder.ivUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ClickCheckUtil.isFastClick()) return;
-                BasicRecord record = records.get(holder.getAdapterPosition());
-                if(record == null) {
-                    Toast.makeText(activity, "记录已损坏。", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(record.noSignal()) {
-                    record = LitePal.find(record.getClass(), record.getId(), true);
-                    records.set(holder.getAdapterPosition(), record);
-                }
-                activity.uploadRecord(record);
-            }
-        });
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         BasicRecord record = records.get(position);
         if(record == null) return;
 
@@ -186,6 +127,30 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         } else {
             holder.view.setBackgroundColor(ContextCompat.getColor(activity, R.color.primary));
         }
+
+        holder.llRecordInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ClickCheckUtil.isFastClick()) return;
+                activity.openRecord(record);
+            }
+        });
+
+        holder.ivDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ClickCheckUtil.isFastClick()) return;
+                activity.deleteRecord(record);
+            }
+        });
+
+        holder.ivUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ClickCheckUtil.isFastClick()) return;
+                activity.uploadRecord(record);
+            }
+        });
     }
 
     @Override
@@ -196,6 +161,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     public BasicRecord getSelectedRecord() {
         if(position == INVALID_POS) return null;
         return records.get(position);
+    }
+
+    public void setSelectedRecord(int position) {
+        this.position = position;
     }
 
     public void unselected() {

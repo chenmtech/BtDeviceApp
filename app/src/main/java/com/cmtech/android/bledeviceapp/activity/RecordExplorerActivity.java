@@ -72,7 +72,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private String noteFilterStr = ""; // record note filter string
     private long updateTime = new Date().getTime(); // update time in record list
 
-    private boolean canOpen = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,7 +184,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "打开记录错误。", Toast.LENGTH_SHORT).show();
             }
-            canOpen = true;
         }
     }
 
@@ -200,28 +198,25 @@ public class RecordExplorerActivity extends AppCompatActivity {
         searchRecords(recordType, noteFilterStr, updateTime);
     }
 
-    public void openRecord(int position) {
-        if(!canOpen) return;
-        canOpen = false;
-
-        BasicRecord record = allRecords.get(position);
+    public void openRecord(BasicRecord record) {
+        int index = allRecords.indexOf(record);
+        if(index == -1) return;
         record = LitePal.find(record.getClass(), record.getId(), true);
-        allRecords.set(position, record);
-        openRecord(record);
-    }
+        allRecords.set(index, record);
+        recordAdapter.setSelectedRecord(index);
+        updateRecordView();
 
-    private void openRecord(final BasicRecord record) {
         if(record != null) {
             if(record.noSignal()) {
                 record.download(this, code -> {
                     if (code == RETURN_CODE_SUCCESS) {
-                        doOpenRecord(record);
+                        doOpenRecord(allRecords.get(index));
                     } else {
                         Toast.makeText(this, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {
-                doOpenRecord(record);
+                doOpenRecord(allRecords.get(index));
             }
         }
     }
@@ -259,7 +254,14 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
-    public void uploadRecord(final BasicRecord record) {
+    public void uploadRecord(BasicRecord record) {
+        if(record.noSignal()) {
+            int index = allRecords.indexOf(record);
+            if(index == -1) return;
+            record = LitePal.find(record.getClass(), record.getId(), true);
+            allRecords.set(index, record);
+        }
+
         record.upload(this, new ICodeCallback() {
             @Override
             public void onFinish(int code) {

@@ -58,20 +58,6 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_device_scan, parent, false);
         final ViewHolder holder = new ViewHolder(view);
-
-        holder.view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(activity != null) {
-                    BleDeviceDetailInfo detailInfo = foundDetailInfos.get(holder.getAdapterPosition());
-                    if(!isRegistered(detailInfo)) {
-                        activity.registerDevice(detailInfo);
-                    } else {
-                        Toast.makeText(activity, "该设备已添加，可以直接使用。", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
         return holder;
     }
 
@@ -122,6 +108,19 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
             color = Color.BLACK;
         }
         holder.status.setTextColor(color);
+
+        holder.view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(activity != null) {
+                    if(!isRegistered(detailInfo)) {
+                        activity.registerDevice(detailInfo);
+                    } else {
+                        Toast.makeText(activity, "该设备已添加，可以直接使用。", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
     }
 
     @Override
