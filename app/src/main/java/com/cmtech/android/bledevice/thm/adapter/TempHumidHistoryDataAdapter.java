@@ -46,7 +46,7 @@ public class TempHumidHistoryDataAdapter extends RecyclerView.Adapter<TempHumidH
     }
 
     @Override
-    public void onBindViewHolder(TempHumidHistoryDataAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(TempHumidHistoryDataAdapter.ViewHolder holder, int position) {
         BleTempHumidData data = dataList.get(position);
 
         holder.historyTime.setText(DateTimeUtil.timeToShortString(data.getTime()));

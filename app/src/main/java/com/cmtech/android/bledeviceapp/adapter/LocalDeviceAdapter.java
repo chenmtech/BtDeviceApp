@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.annotation.SuppressLint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +20,6 @@ import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,8 +27,8 @@ import java.util.List;
  */
 
 public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.ViewHolder> {
-    private List<IDevice> deviceList = new ArrayList<>(); // 设备列表
-    private MainActivity activity; // MainActivity
+    private final List<IDevice> deviceList = MyApplication.getDeviceManager().getBleDeviceList(); // 设备列表
+    private final MainActivity activity; // MainActivity
 
     class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
@@ -50,21 +48,18 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
     }
 
     public LocalDeviceAdapter(MainActivity activity) {
-        this.deviceList = MyApplication.getDeviceManager().getBleDeviceList();
         this.activity = activity;
     }
-
 
     @Override
     public LocalDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_device_local, parent, false);
-        final ViewHolder holder = new ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         IDevice device = deviceList.get(position);
 
         String imagePath = device.getIcon();
@@ -129,7 +124,6 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
     }
 
     public void update() {
-        this.deviceList = MyApplication.getDeviceManager().getBleDeviceList();
         notifyDataSetChanged();
     }
 }

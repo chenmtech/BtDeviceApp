@@ -12,7 +12,6 @@ import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
-import com.cmtech.android.bledeviceapp.util.AESUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;

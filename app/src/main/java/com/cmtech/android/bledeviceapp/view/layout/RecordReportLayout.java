@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 
@@ -57,13 +56,13 @@ public class RecordReportLayout extends LinearLayout {
             /*if(MyEcgArrhythmiaDetector.VER.compareTo(record.getReport().getVer()) > 0) {
                 record.requestDiagnose();
                 updateView();
-                Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "已更新检测结果", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "当前报告是最新版本。", Toast.LENGTH_SHORT).show();
             }*/
             record.requestDiagnose();
             updateView();
-            Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "已更新检测结果", Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -57,12 +57,11 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
     public ScanAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_device_scan, parent, false);
-        final ViewHolder holder = new ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ScanAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull ScanAdapter.ViewHolder holder, int position) {
         BleDeviceDetailInfo detailInfo = foundDetailInfos.get(position);
 
         AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);

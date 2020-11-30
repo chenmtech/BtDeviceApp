@@ -198,10 +198,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         searchRecords(recordType, noteFilterStr, updateTime);
     }
 
-    public void openRecord(BasicRecord record) {
-        int index = allRecords.indexOf(record);
-        if(index == -1) return;
-        record = LitePal.find(record.getClass(), record.getId(), true);
+    public void openRecord(int index) {
+        BasicRecord record = LitePal.find(allRecords.get(index).getClass(), allRecords.get(index).getId(), true);
         allRecords.set(index, record);
         recordAdapter.setSelectedRecord(index);
         updateRecordView();
@@ -210,13 +208,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
             if(record.noSignal()) {
                 record.download(this, code -> {
                     if (code == RETURN_CODE_SUCCESS) {
-                        doOpenRecord(allRecords.get(index));
+                        doOpenRecord(record);
                     } else {
                         Toast.makeText(this, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {
-                doOpenRecord(allRecords.get(index));
+                doOpenRecord(record);
             }
         }
     }
@@ -233,7 +231,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
-    public void deleteRecord(final BasicRecord record) {
+    public void deleteRecord(int index) {
+        BasicRecord record = allRecords.get(index);
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.delete_record).setMessage(R.string.really_wanna_delete_record);
@@ -254,14 +253,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
-    public void uploadRecord(BasicRecord record) {
-        if(record.noSignal()) {
-            int index = allRecords.indexOf(record);
-            if(index == -1) return;
-            record = LitePal.find(record.getClass(), record.getId(), true);
-            allRecords.set(index, record);
-        }
-
+    public void uploadRecord(int index) {
+        BasicRecord record = LitePal.find(allRecords.get(index).getClass(), allRecords.get(index).getId(), true);
+        allRecords.set(index, record);
         record.upload(this, new ICodeCallback() {
             @Override
             public void onFinish(int code) {

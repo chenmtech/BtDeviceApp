@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -85,12 +84,11 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record, parent, false);
-        final ViewHolder holder = new ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BasicRecord record = records.get(position);
         if(record == null) return;
 
@@ -132,7 +130,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             @Override
             public void onClick(View view) {
                 if(ClickCheckUtil.isFastClick()) return;
-                activity.openRecord(record);
+                activity.openRecord(holder.getAdapterPosition());
             }
         });
 
@@ -140,7 +138,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             @Override
             public void onClick(View v) {
                 if(ClickCheckUtil.isFastClick()) return;
-                activity.deleteRecord(record);
+                activity.deleteRecord(holder.getAdapterPosition());
             }
         });
 
@@ -148,7 +146,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             @Override
             public void onClick(View v) {
                 if(ClickCheckUtil.isFastClick()) return;
-                activity.uploadRecord(record);
+                activity.uploadRecord(holder.getAdapterPosition());
             }
         });
     }
