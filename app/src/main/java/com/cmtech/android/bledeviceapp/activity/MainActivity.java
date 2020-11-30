@@ -166,16 +166,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
-            LocationManager alm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-            if (!alm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)){
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
-        }
     }
 
     // 主界面初始化

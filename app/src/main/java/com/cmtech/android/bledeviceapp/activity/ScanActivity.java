@@ -2,10 +2,14 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.ScanFilter;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -149,6 +153,18 @@ public class ScanActivity extends AppCompatActivity {
             }
         });
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+            LocationManager alm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            if (!alm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)){
+                Toast.makeText(this, "请开启位置信息。", Toast.LENGTH_SHORT).show();
+                Intent intentGps = new Intent();
+                intentGps.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                intentGps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivityForResult(intentGps, 2);
+                return;
+            }
+        }
+
         startScan();
     }
 
@@ -203,6 +219,12 @@ public class ScanActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     setResult(RESULT_OK, data);
                     finish();
+                }
+                break;
+
+            case 2: // 开启GPS返回码
+                if (resultCode == RESULT_OK) {
+                    startScan();
                 }
                 break;
         }
