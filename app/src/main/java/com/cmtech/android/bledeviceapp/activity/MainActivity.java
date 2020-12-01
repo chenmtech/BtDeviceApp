@@ -3,7 +3,6 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -11,7 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -637,9 +635,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     // 修改设备注册信息 
-    public void modifyDeviceInfo(final DeviceCommonInfo deviceCommonInfo) {
+    public void modifyDeviceInfo(final IDevice device) {
         Intent intent = new Intent(this, DeviceInfoActivity.class);
-        intent.putExtra(DEVICE_INFO, deviceCommonInfo);
+        intent.putExtra(DEVICE_INFO, device.getCommonInfo());
         startActivityForResult(intent, RC_MODIFY_DEVICE_INFO);
     }
 

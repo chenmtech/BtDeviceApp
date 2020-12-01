@@ -90,7 +90,7 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
                     switch (item.getItemId()){
                         case 1:
-                            activity.modifyDeviceInfo(device.getCommonInfo());
+                            activity.modifyDeviceInfo(device);
                             break;
                         case 2:
                             activity.removeRegisteredDevice(device);

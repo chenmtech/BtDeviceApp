@@ -80,23 +80,14 @@ public class DeviceManager {
     }
 
     public List<IDevice> getBleDeviceList() {
-        List<IDevice> devices = new ArrayList<>();
+        /*List<IDevice> devices = new ArrayList<>();
         for(IDevice device : DEVICE_LIST) {
             if(device.isLocal()) {
                 devices.add(device);
             }
         }
-        return devices;
-    }
-
-    public List<IDevice> getWebDeviceList() {
-        List<IDevice> devices = new ArrayList<>();
-        for(IDevice device : DEVICE_LIST) {
-            if(!device.isLocal()) {
-                devices.add(device);
-            }
-        }
-        return devices;
+        return devices;*/
+        return DEVICE_LIST;
     }
 
     // 获取所有设备的Mac列表
