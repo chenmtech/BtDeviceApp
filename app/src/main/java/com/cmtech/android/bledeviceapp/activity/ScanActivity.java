@@ -60,7 +60,7 @@ public class ScanActivity extends AppCompatActivity {
     private RecyclerView rvDevice;
     private final Handler mHandle = new Handler(Looper.getMainLooper());
 
-    private boolean isScanning = false;
+    private volatile boolean isScanning = false;
 
     // 扫描回调
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {

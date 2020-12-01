@@ -15,6 +15,7 @@ import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ScanActivity;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 
 import java.util.List;
 
@@ -111,6 +112,8 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(ClickCheckUtil.isFastClick()) return;
+
                 if(activity != null) {
                     if(!isRegistered(detailInfo)) {
                         activity.registerDevice(detailInfo);
