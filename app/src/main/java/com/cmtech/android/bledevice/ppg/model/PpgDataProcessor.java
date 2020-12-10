@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.ppg.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
-import com.cmtech.android.bledeviceapp.dataproc.SignalPreFilter;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
@@ -39,7 +38,7 @@ public class PpgDataProcessor {
         }
 
         this.device = device;
-        ppgFilter = new SignalPreFilter(device.getSampleRate());
+        ppgFilter = new PpgSignalPreFilter(device.getSampleRate());
     }
 
     public void reset() {
@@ -90,10 +89,9 @@ public class PpgDataProcessor {
     }
 
     private int[] parseAndProcessDataPacket(byte[] data, int begin) {
-        int[] pack = new int[(data.length-begin) / 3];
-        for (int i = begin, j = 0; i < data.length; i=i+3, j++) {
-            pack[j] = ByteUtil.getInt(new byte[]{0x00, data[i], data[i+1], data[i+2]});
-            pack[j] >>= 8;
+        int[] pack = new int[(data.length-begin) / 2];
+        for (int i = begin, j = 0; i < data.length; i=i+2, j++) {
+            pack[j] = ByteUtil.getInt(new byte[]{data[i], data[i+1], 0x00, 0x00});
             int fData = (int) ppgFilter.filter(pack[j]);
             device.showPpgSignal(fData);
             device.recordPpgSignal(fData);

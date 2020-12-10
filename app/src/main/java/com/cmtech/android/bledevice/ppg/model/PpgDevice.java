@@ -10,9 +10,6 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledevice.eeg.model.EegDataProcessor;
-import com.cmtech.android.bledevice.eeg.model.EegLeadType;
-import com.cmtech.android.bledevice.eeg.model.OnEegListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
@@ -44,8 +41,8 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
 
 
 public class PpgDevice extends AbstractDevice {
-    private static final int DEFAULT_CALI_1MV = 4096; // default 1mV calibration value
-    private static final int DEFAULT_SAMPLE_RATE = 250; // default sample rate, unit: Hz
+    private static final int DEFAULT_CALI_1MV = 1000; // default 1mV calibration value
+    private static final int DEFAULT_SAMPLE_RATE = 200; // default sample rate, unit: Hz
     private static final PpgLeadType DEFAULT_LEAD_TYPE = PpgLeadType.LEAD_I; // default lead type
 
     // ppg service
