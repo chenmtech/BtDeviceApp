@@ -72,7 +72,7 @@ public class PttRecordFragment extends Fragment {
         this.isRecord = isRecord;
     }
 
-    public void setPpgRecordTime(final int second) {
+    public void setPttRecordTime(final int second) {
         Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ppg.activityfragment.PpgRecordFragment;
 import com.cmtech.android.bledevice.ptt.model.OnPttListener;
 import com.cmtech.android.bledevice.ptt.model.PttDevice;
 import com.cmtech.android.bledeviceapp.R;
@@ -77,7 +76,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         pager = view.findViewById(R.id.ptt_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ptt_control_panel_tab);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(pttRecFrag));
-        String title = getResources().getString(PpgRecordFragment.TITLE_ID);
+        String title = getResources().getString(PttRecordFragment.TITLE_ID);
         List<String> titleList = new ArrayList<>(Arrays.asList(title));
         fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
@@ -129,7 +128,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
     @Override
     public void onPttSignalRecordTimeUpdated(int second) {
-        pttRecFrag.setPpgRecordTime(second);
+        pttRecFrag.setPttRecordTime(second);
     }
 
     @Override
