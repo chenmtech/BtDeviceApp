@@ -6,6 +6,7 @@ import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.eeg.model.EegFactory;
 import com.cmtech.android.bledevice.hrm.model.HrmFactory;
 import com.cmtech.android.bledevice.ppg.model.PpgFactory;
+import com.cmtech.android.bledevice.ptt.model.PttFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
 import com.cmtech.android.bledevice.thm.model.ThmFactory;
 import com.cmtech.android.bledeviceapp.R;
@@ -52,6 +53,7 @@ public class AppConstant {
             add(ThmFactory.THM_DEVICE_TYPE);
             add(EegFactory.EEG_DEVICE_TYPE);
             add(PpgFactory.PPG_DEVICE_TYPE);
+            add(PttFactory.PTT_DEVICE_TYPE);
         }
     }; // supported device types
 
