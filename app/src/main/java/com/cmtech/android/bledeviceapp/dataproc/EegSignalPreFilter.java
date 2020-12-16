@@ -21,7 +21,7 @@ import com.cmtech.dsp.filter.structure.StructType;
   * Version:        1.0
  */
 
-public class SignalPreFilter implements ISignalFilter {
+public class EegSignalPreFilter implements ISignalFilter {
     private static final double DEFAULT_BASELINE_CUTOFF_FREQ = 0.5; // default cut-off frequency of the baseline drift filter
     private static final int DEFAULT_NOTCH_FREQ = 50; // default notch central frequency
     private static final double DEFAULT_NOTCH_3DB_BANDWIDTH = 0.5; // default 3dB bandwidth of the notch filter
@@ -34,11 +34,11 @@ public class SignalPreFilter implements ISignalFilter {
 
     private boolean notchOn;
 
-    public SignalPreFilter(int sampleRate) {
+    public EegSignalPreFilter(int sampleRate) {
         this(sampleRate, DEFAULT_BASELINE_CUTOFF_FREQ, DEFAULT_NOTCH_FREQ);
     }
 
-    public SignalPreFilter(int sampleRate, double baselineFreq, int notchFreq) {
+    public EegSignalPreFilter(int sampleRate, double baselineFreq, int notchFreq) {
         this.baselineFreq = baselineFreq;
         this.notchFreq = notchFreq;
 

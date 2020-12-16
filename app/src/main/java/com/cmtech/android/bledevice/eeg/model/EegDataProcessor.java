@@ -1,8 +1,8 @@
 package com.cmtech.android.bledevice.eeg.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledeviceapp.dataproc.EegSignalPreFilter;
 import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
-import com.cmtech.android.bledeviceapp.dataproc.SignalPreFilter;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
@@ -39,7 +39,7 @@ public class EegDataProcessor {
         }
 
         this.device = device;
-        eegFilter = new SignalPreFilter(device.getSampleRate());
+        eegFilter = new EegSignalPreFilter(device.getSampleRate());
     }
 
     public void reset() {

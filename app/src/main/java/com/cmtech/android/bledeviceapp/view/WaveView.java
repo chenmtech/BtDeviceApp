@@ -120,6 +120,24 @@ public abstract class WaveView extends View {
         this.valuePerPixel = valuePerPixel;
     }
 
+    // 设置X分辨率
+    public void setXResolution(int pixelPerData)
+    {
+        if(pixelPerData < 1) {
+            throw new IllegalArgumentException();
+        }
+        this.pixelPerData = pixelPerData;
+    }
+
+    // 设置Y分辨率
+    public void setYResolution(float valuePerPixel)
+    {
+        if(valuePerPixel < 0) {
+            throw new IllegalArgumentException();
+        }
+        this.valuePerPixel = valuePerPixel;
+    }
+
     // 设置零值位置
     public void setZeroLocation(float zeroLocation)
     {

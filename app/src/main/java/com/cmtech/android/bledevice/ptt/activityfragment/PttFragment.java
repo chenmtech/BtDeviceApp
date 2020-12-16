@@ -21,9 +21,11 @@ import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.view.ScanPpgView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_1MV_CALI;
+import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_CALI;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
@@ -68,16 +70,16 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         tvMessage = view.findViewById(R.id.tv_ppg_message);
 
         ecgView = view.findViewById(R.id.ecg_view);
-        ecgView.setup(device.getSampleRate(), 164, DEFAULT_ZERO_LOCATION);
+        ecgView.setup(device.getSampleRate(), DEFAULT_ECG_1MV_CALI, DEFAULT_ZERO_LOCATION);
 
         ppgView = view.findViewById(R.id.ppg_view);
-        ppgView.setup(device.getSampleRate(), 1000, DEFAULT_ZERO_LOCATION);
+        ppgView.setup(device.getSampleRate(), DEFAULT_PPG_CALI, DEFAULT_ZERO_LOCATION);
 
         pager = view.findViewById(R.id.ptt_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ptt_control_panel_tab);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(pttRecFrag));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Collections.singletonList(pttRecFrag));
         String title = getResources().getString(PttRecordFragment.TITLE_ID);
-        List<String> titleList = new ArrayList<>(Arrays.asList(title));
+        List<String> titleList = new ArrayList<>(Collections.singletonList(title));
         fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(1);
@@ -103,13 +105,13 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int value1mV, final float zeroLocation) {
+    public void onFragmentUpdated(final int sampleRate, final int caliValue, final float zeroLocation) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ecgView.setup(sampleRate, 164, zeroLocation);
-                    ppgView.setup(sampleRate, 1000, zeroLocation);
+                    ecgView.setup(sampleRate, DEFAULT_ECG_1MV_CALI, zeroLocation);
+                    ppgView.setup(sampleRate, caliValue, zeroLocation);
                 }
             });
         }
@@ -136,7 +138,6 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         if(isShow) {
             ecgView.startShow();
             ppgView.startShow();
-            //eegView.initialize();
         } else {
             ecgView.stopShow();
             ppgView.stopShow();

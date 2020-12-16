@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ppg.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
+import com.cmtech.android.bledeviceapp.dataproc.PpgSignalPreFilter;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;

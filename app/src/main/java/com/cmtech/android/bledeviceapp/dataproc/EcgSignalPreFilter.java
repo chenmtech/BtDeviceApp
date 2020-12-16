@@ -1,6 +1,5 @@
-package com.cmtech.android.bledevice.ptt.model;
+package com.cmtech.android.bledeviceapp.dataproc;
 
-import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
 import com.cmtech.dsp.filter.design.FIRDesigner;
@@ -22,7 +21,7 @@ import com.cmtech.dsp.filter.structure.StructType;
   * Version:        1.0
  */
 
-public class PttSignalPreFilter implements ISignalFilter {
+public class EcgSignalPreFilter implements ISignalFilter {
     private static final double DEFAULT_BASELINE_CUTOFF_FREQ = 0.5; // default cut-off frequency of the baseline drift filter
     private static final int DEFAULT_NOTCH_FREQ = 50; // default notch central frequency
     private static final double DEFAULT_NOTCH_3DB_BANDWIDTH = 0.5; // default 3dB bandwidth of the notch filter
@@ -35,11 +34,11 @@ public class PttSignalPreFilter implements ISignalFilter {
 
     private boolean notchOn;
 
-    public PttSignalPreFilter(int sampleRate) {
+    public EcgSignalPreFilter(int sampleRate) {
         this(sampleRate, DEFAULT_BASELINE_CUTOFF_FREQ, DEFAULT_NOTCH_FREQ);
     }
 
-    public PttSignalPreFilter(int sampleRate, double baselineFreq, int notchFreq) {
+    public EcgSignalPreFilter(int sampleRate, double baselineFreq, int notchFreq) {
         this.baselineFreq = baselineFreq;
         this.notchFreq = notchFreq;
 
@@ -59,8 +58,8 @@ public class PttSignalPreFilter implements ISignalFilter {
         notch.createStructure(StructType.IIR_NOTCH); // 创建陷波器专用结构
 
         // 准备60Hz低通滤波器
-        int fp = 40;
-        int fs = 50;
+        int fp = 65;
+        int fs = 85;
         lpFilter = FIRDesigner.design(new double[]{2 * Math.PI * fp / sampleRate}, new double[]{2 * Math.PI * fs / sampleRate},
                 1, 50, FilterType.LOWPASS, WinType.HAMMING);
     }
@@ -68,8 +67,7 @@ public class PttSignalPreFilter implements ISignalFilter {
     @Override
     public double filter(double signal) {
         double result = lpFilter.filter(dcBlocker.filter(signal));
-        //return (notchOn) ? notch.filter(result) : result;
-        return result;
+        return (notchOn) ? notch.filter(result) : result;
     }
 
     public void turnOnNotch(boolean notchOn) {

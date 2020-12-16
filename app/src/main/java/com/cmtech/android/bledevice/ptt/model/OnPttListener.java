@@ -14,7 +14,7 @@ package com.cmtech.android.bledevice.ptt.model;
  */
 
 public interface OnPttListener {
-    void onFragmentUpdated(int sampleRate, int value1mV, float zeroLocation); // fragment updated
+    void onFragmentUpdated(int sampleRate, int caliValue, float zeroLocation); // fragment updated
     void onPttSignalShowed(int ecgSignal, int ppgSignal); // PTT signal showed
     void onPttSignalRecordStatusChanged(boolean isRecord); // ptt signal record status changed
     void onPttSignalRecordTimeUpdated(int second); // ptt signal record time updated

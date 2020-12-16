@@ -1,6 +1,5 @@
-package com.cmtech.android.bledevice.ppg.model;
+package com.cmtech.android.bledeviceapp.dataproc;
 
-import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
 import com.cmtech.dsp.filter.design.FIRDesigner;

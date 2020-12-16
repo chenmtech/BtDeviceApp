@@ -41,9 +41,9 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
 
 
 public class PttDevice extends AbstractDevice {
-    private static final int DEFAULT_CALI_1MV = 1000; // default 1mV calibration value
-    private static final int DEFAULT_SAMPLE_RATE = 200; // default sample rate, unit: Hz
-    private static final PttLeadType DEFAULT_LEAD_TYPE = PttLeadType.LEAD_I; // default lead type
+    public static final int DEFAULT_ECG_1MV_CALI = 160; // default ecg 1mV calibration value
+    public static final int DEFAULT_PPG_CALI = 1000; // default ppg calibration value
+    private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
 
     // ppg service
     private static final String pttServiceUuid = "AAC0";
@@ -58,8 +58,7 @@ public class PttDevice extends AbstractDevice {
     private static final BleGattElement PTTSAMPLERATE = new BleGattElement(pttServiceUUID, pttSampleRateUUID, null, "PTT Sample Rate");
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
-    private int caliValue = DEFAULT_CALI_1MV; // 1mV calibration value
-    private PttLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
+    private int caliValue = DEFAULT_PPG_CALI; // ppg calibration value
 
     private PttDataProcessor pttProcessor; // PTT processor
 
@@ -173,7 +172,6 @@ public class PttDevice extends AbstractDevice {
             if(pttRecord != null) {
                 pttRecord.setSampleRate(sampleRate);
                 pttRecord.setCaliValue(caliValue);
-                pttRecord.setLeadTypeCode(leadType.getCode());
                 Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
             }
         } else {

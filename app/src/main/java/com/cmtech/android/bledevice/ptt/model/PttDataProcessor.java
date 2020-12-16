@@ -1,9 +1,9 @@
 package com.cmtech.android.bledevice.ptt.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledevice.ppg.model.PpgSignalPreFilter;
+import com.cmtech.android.bledeviceapp.dataproc.PpgSignalPreFilter;
 import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
-import com.cmtech.android.bledeviceapp.dataproc.SignalPreFilter;
+import com.cmtech.android.bledeviceapp.dataproc.EcgSignalPreFilter;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
@@ -30,7 +30,7 @@ public class PttDataProcessor {
     private static final int INVALID_PACKET_NUM = -1; // invalid packet number
 
     private final PttDevice device;
-    private int nextPackNum = INVALID_PACKET_NUM; // the next packet number wanted to received
+    private int nextWantedPack = INVALID_PACKET_NUM; // the next packet number wanted to received
     private final ISignalFilter ecgFilter; //ECG filter
     private final ISignalFilter ppgFilter; // PPG filter
     private ExecutorService procService; // PTT data process Service
@@ -41,16 +41,17 @@ public class PttDataProcessor {
         }
 
         this.device = device;
-        ecgFilter = new SignalPreFilter(device.getSampleRate());
+        ecgFilter = new EcgSignalPreFilter(device.getSampleRate());
         ppgFilter = new PpgSignalPreFilter(device.getSampleRate());
     }
 
     public void reset() {
         ppgFilter.design(device.getSampleRate());
+        ecgFilter.design(device.getSampleRate());
     }
 
     public synchronized void start() {
-        nextPackNum = 0;
+        nextWantedPack = 0;
         if(ExecutorUtil.isDead(procService)) {
             procService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
@@ -75,16 +76,16 @@ public class PttDataProcessor {
                 @Override
                 public void run() {
                     int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
-                    if(packageNum == nextPackNum) { // good packet
-                        int[][] pack = parseAndProcessDataPacket(data, 1);
-                        if(nextPackNum == MAX_PACKET_NUM)
-                            nextPackNum = 0;
+                    if(packageNum == nextWantedPack) { // the packet number is ok
+                        ViseLog.i("Packet No." + packageNum);
+                        parseAndProcessDataPacket(data, 1);
+                        if(nextWantedPack == MAX_PACKET_NUM)
+                            nextWantedPack = 0;
                         else
-                            nextPackNum++;
-                        ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
-                    } else if(nextPackNum != INVALID_PACKET_NUM){ // bad packet, force disconnect
+                            nextWantedPack++;
+                    } else if(nextWantedPack != INVALID_PACKET_NUM){ // bad packet, force disconnect
                         ViseLog.e("The PTT data packet is lost. Disconnect device.");
-                        nextPackNum = INVALID_PACKET_NUM;
+                        nextWantedPack = INVALID_PACKET_NUM;
                         device.disconnect(false);
                     }
                 }
@@ -92,19 +93,19 @@ public class PttDataProcessor {
         }
     }
 
-    private int[][] parseAndProcessDataPacket(byte[] data, int begin) {
+    private void parseAndProcessDataPacket(byte[] data, int begin) {
         int n = (data.length-begin)/4;
-        int[][] pack = new int[2][];
-        pack[0] = new int[n];
-        pack[1] = new int[n];
+        int[] ecgData = new int[n];
+        int[] ppgData = new int[n];
         for (int i = begin, j = 0; i < data.length; i=i+4, j++) {
-            pack[0][j] = (short) ((0xff & data[i]) | (0xff00 & (data[i+1] << 8)));
-            int ecg = (int) ecgFilter.filter(pack[0][j]);
-            pack[1][j] = ByteUtil.getInt(new byte[]{data[i+2], data[i+3], 0x00, 0x00});
-            int ppg = (int) ppgFilter.filter(pack[1][j]);
+            ecgData[j] = (short) ((0xff & data[i]) | (0xff00 & (data[i+1] << 8))); // the type of ECG Data is int16
+            ppgData[j] = ByteUtil.getInt(new byte[]{data[i+2], data[i+3], 0x00, 0x00}); // the type of PPG Data is uint16
+            int ecg = (int) ecgFilter.filter(ecgData[j]);
+            int ppg = (int) ppgFilter.filter(ppgData[j]);
             device.showPttSignal(ecg, ppg);
             //device.recordPttSignal(fData);
         }
-        return pack;
+        ViseLog.i("ECG Data: " + Arrays.toString(ecgData));
+        ViseLog.i("PPG Data: " + Arrays.toString(ppgData));
     }
 }
