@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             }
         });
 
-        checkAppUpdateInfo();
+        //checkAppUpdateInfo();
     }
 
     private void checkAppUpdateInfo() {

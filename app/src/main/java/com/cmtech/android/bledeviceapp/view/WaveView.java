@@ -113,7 +113,7 @@ public abstract class WaveView extends View {
     // 设置分辨率
     public void setResolution(int pixelPerData, float valuePerPixel)
     {
-        if((pixelPerData < 1) || (valuePerPixel < 0)) {
+        if((pixelPerData < 1) || (valuePerPixel <= 0.0)) {
             throw new IllegalArgumentException();
         }
         this.pixelPerData = pixelPerData;
@@ -132,7 +132,7 @@ public abstract class WaveView extends View {
     // 设置Y分辨率
     public void setYResolution(float valuePerPixel)
     {
-        if(valuePerPixel < 0) {
+        if(valuePerPixel <= 0.0) {
             throw new IllegalArgumentException();
         }
         this.valuePerPixel = valuePerPixel;

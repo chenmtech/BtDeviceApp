@@ -71,7 +71,7 @@ public class AppConstant {
         }
     }; // supported login platform
 
-    public static final String KMIC_URL = "http://203.195.137.198/BtDeviceWebApp/";
-    //public static final String KMIC_URL = "http://kmic.xyz/BtDeviceWebApp/";
+    //public static final String KMIC_URL = "http://203.195.137.198/BtDeviceWebApp/";
+    public static final String KMIC_URL = "http://kmic.xyz/BtDeviceWebApp/";
 
 }

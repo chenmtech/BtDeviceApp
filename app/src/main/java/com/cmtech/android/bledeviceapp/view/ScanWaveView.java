@@ -48,13 +48,13 @@ public class ScanWaveView extends WaveView {
     private Canvas waveCanvas;	//波形canvas
 
     private boolean first = true; // 是否是第一个数据
-    private boolean showWave = true; // 是否显示波形
+    protected boolean showWave = true; // 是否显示波形
 
     private final PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
     private final PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
-    private final GestureDetector gestureDetector; // 手势探测器
-    private final GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
+    protected GestureDetector gestureDetector; // 手势探测器
+    private class MyGestureListener implements GestureDetector.OnGestureListener {
         @Override
         public boolean onDown(MotionEvent motionEvent) {
             return false;
@@ -80,19 +80,19 @@ public class ScanWaveView extends WaveView {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             return false;
         }
-    };
+    }
 
     private ExecutorService showService; // 显示服务
 
     public ScanWaveView(Context context) {
         super(context);
-        gestureDetector = new GestureDetector(context, gestureListener);
+        gestureDetector = new GestureDetector(context, new MyGestureListener());
         gestureDetector.setIsLongpressEnabled(false);
     }
 
     public ScanWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        gestureDetector = new GestureDetector(context, gestureListener);
+        gestureDetector = new GestureDetector(context, new MyGestureListener());
         gestureDetector.setIsLongpressEnabled(false);
     }
 
