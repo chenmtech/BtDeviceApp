@@ -18,6 +18,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
+import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 
 import java.util.Locale;
@@ -160,6 +161,7 @@ public class SignUpActivity extends AppCompatActivity {
         if (!granted) {
             Toast.makeText(this, R.string.pls_check_privacy, Toast.LENGTH_SHORT).show();
         }
+        MobSDK.submitPolicyGrantResult(granted, null);
         return granted;
     }
 
