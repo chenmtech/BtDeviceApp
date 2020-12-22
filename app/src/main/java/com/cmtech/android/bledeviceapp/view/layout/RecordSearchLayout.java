@@ -18,7 +18,7 @@ import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import java.util.Calendar;
 
 public class RecordSearchLayout extends LinearLayout {
-    private RecordExplorerActivity explorerActivity;
+    private RecordExplorerActivity activity;
 
     private EditText etNoteFilter; // note string filter
     private EditText etStartDate; //
@@ -47,8 +47,8 @@ public class RecordSearchLayout extends LinearLayout {
         btnSearch.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(explorerActivity != null) {
-                    explorerActivity.searchRecords(getSearchString(), getSearchTime());
+                if(activity != null) {
+                    activity.searchRecords(getSearchString(), getSearchTime());
                 }
             }
         });
@@ -57,21 +57,21 @@ public class RecordSearchLayout extends LinearLayout {
         btnReset.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(explorerActivity != null) {
+                if(activity != null) {
                     etNoteFilter.setText("");
                     Calendar calendar = Calendar.getInstance();
                     year = calendar.get(Calendar.YEAR);
                     month = calendar.get(Calendar.MONTH);
                     day = calendar.get(Calendar.DAY_OF_MONTH);
                     etStartDate.setText(year+"-"+ (month + 1) +"-"+day);
-                    explorerActivity.searchRecords("", calendar.getTimeInMillis());
+                    activity.searchRecords("", calendar.getTimeInMillis());
                 }
             }
         });
     }
 
-    public void setExplorerActivity(RecordExplorerActivity activity) {
-        this.explorerActivity = activity;
+    public void setActivity(RecordExplorerActivity activity) {
+        this.activity = activity;
     }
 
     private void selectStartDate() {

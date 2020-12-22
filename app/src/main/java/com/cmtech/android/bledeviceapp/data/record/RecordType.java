@@ -22,7 +22,7 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
  * Version:        1.0
  */
 public enum RecordType {
-    ALL(0, R.string.all_record, R.mipmap.ic_all_type_record_24px, AllTypesRecord.class, null),
+    ALL(0, R.string.all_type_record, R.mipmap.ic_all_type_record_24px, AllTypesRecord.class, null),
     ECG(1, R.string.ecg_record, R.mipmap.ic_ecg_24px, BleEcgRecord.class, EcgRecordActivity.class),
     HR(2, R.string.hr_record, R.mipmap.ic_hr_24px, BleHrRecord.class, HrRecordActivity.class),
     THERMO(3, R.string.thermo_record, R.mipmap.ic_thermo_24px, BleThermoRecord.class, ThermoRecordActivity.class),

@@ -58,7 +58,7 @@
     <string name="hr_too_high">Your heart rate is too high</string>
     <string name="hr_too_low">Your heart rate is too low</string>
     <string name="BPM">BPM</string>
-    <string name="all_record">All Record</string>
+    <string name="all_type_record">All Record</string>
     <string name="hr_record">HR Record</string>
     <string name="ecg_record">ECG Record</string>
     <string name="thermo_record">Thermo Record</string>

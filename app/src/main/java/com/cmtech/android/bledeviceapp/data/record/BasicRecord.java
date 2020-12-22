@@ -77,6 +77,10 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.ver= ver;
     }
 
+    public RecordType getType() {
+        return type;
+    }
+
     public int getTypeCode() {
         return type.getCode();
     }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -62,14 +63,16 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private static final int RC_OPEN_RECORD = 1;
     private static final int DEFAULT_DOWNLOAD_RECORD_NUM = 20;
 
-    private final List<BasicRecord> allRecords = new ArrayList<>(); // all records
+    private final List<BasicRecord> recordList = new ArrayList<>(); // all records
+
     private RecordListAdapter recordAdapter; // Adapter
     private RecyclerView recordView; // RecycleView
     private TextView tvNoRecord; // no record
+
     private RecordSearchLayout searchLayout;
 
     private RecordType recordType = null; // record type in record list
-    private String noteFilterStr = ""; // record note filter string
+    private String filterStr = ""; // record note filter string
     private long updateTime = new Date().getTime(); // update time in record list
 
 
@@ -85,18 +88,18 @@ public class RecordExplorerActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         searchLayout = findViewById(R.id.layout_record_search);
-        searchLayout.setExplorerActivity(this);
+        searchLayout.setActivity(this);
 
         // init record type spinner
         Spinner typeSpinner = findViewById(R.id.spinner_record_type);
-        List<Map<String, Object>> items = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> spinnerItems = new ArrayList<>();
         for (RecordType type : SUPPORT_RECORD_TYPES) {
-            Map<String, Object> item = new HashMap<String, Object>();
+            Map<String, Object> item = new HashMap<>();
             item.put("icon", type.getIconId());
             item.put("name", type.getName());
-            items.add(item);
+            spinnerItems.add(item);
         }
-        SimpleAdapter simpleadapter = new SimpleAdapter(this, items,
+        SimpleAdapter simpleadapter = new SimpleAdapter(this, spinnerItems,
                 R.layout.recycle_item_record_type, new String[] { "icon", "name" },
                 new int[] {R.id.iv_icon,R.id.tv_name});
         typeSpinner.setAdapter(simpleadapter);
@@ -116,14 +119,14 @@ public class RecordExplorerActivity extends AppCompatActivity {
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recordView.setLayoutManager(fileLayoutManager);
         recordView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recordAdapter = new RecordListAdapter(this, allRecords);
+        recordAdapter = new RecordListAdapter(this, recordList);
         recordView.setAdapter(recordAdapter);
         recordView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             //用来标记是否正在向上滑动
             private boolean isSlidingUpward = false;
 
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 LinearLayoutManager manager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 // 当不滑动时
@@ -178,6 +181,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if(requestCode == RC_OPEN_RECORD) {
             if(resultCode == RESULT_OK) {
                 recordAdapter.notifySelectedItemChanged();
@@ -190,17 +194,17 @@ public class RecordExplorerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        //ViseLog.e("RecordExplorerActivity onDestroy");
     }
 
-    public void searchRecords(String noteFilterStr, long updateTime) {
-        searchRecords(recordType, noteFilterStr, updateTime);
+    // 搜索记录
+    public void searchRecords(String filterStr, long updateTime) {
+        searchRecords(recordType, filterStr, updateTime);
     }
 
+    // 打开记录
     public void openRecord(int index) {
-        BasicRecord record = LitePal.find(allRecords.get(index).getClass(), allRecords.get(index).getId(), true);
-        allRecords.set(index, record);
+        BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId(), true);
+        recordList.set(index, record);
         recordAdapter.setSelectedRecord(index);
         updateRecordView();
 
@@ -232,7 +236,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     public void deleteRecord(int index) {
-        BasicRecord record = allRecords.get(index);
+        BasicRecord record = recordList.get(index);
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.delete_record).setMessage(R.string.really_wanna_delete_record);
@@ -242,7 +246,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     record.delete(RecordExplorerActivity.this, new ICodeCallback() {
                         @Override
                         public void onFinish(int code) {
-                            if (allRecords.remove(record)) {
+                            if (recordList.remove(record)) {
                                 recordAdapter.unselected();
                                 updateRecordView();
                             }
@@ -254,8 +258,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     public void uploadRecord(int index) {
-        BasicRecord record = LitePal.find(allRecords.get(index).getClass(), allRecords.get(index).getId(), true);
-        allRecords.set(index, record);
+        BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId(), true);
+        recordList.set(index, record);
         record.upload(this, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
@@ -275,10 +279,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     private void searchRecords(RecordType recordType, String noteFilterStr, long updateTime) {
         this.recordType = recordType;
-        this.noteFilterStr = noteFilterStr.trim();
+        this.filterStr = noteFilterStr.trim();
         this.updateTime = updateTime;
 
-        allRecords.clear();
+        recordList.clear();
         recordAdapter.unselected();
         updateRecordView();
 
@@ -294,20 +298,20 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, noteFilterStr, updateTime, new ICodeCallback() {
+        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, filterStr, updateTime, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code != RETURN_CODE_SUCCESS) {
                     Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
                 }
 
-                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), updateTime, noteFilterStr, DEFAULT_DOWNLOAD_RECORD_NUM);
+                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), updateTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM);
 
                 if(records == null) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else {
                     updateTime = records.get(records.size() - 1).getCreateTime();
-                    allRecords.addAll(records);
+                    recordList.addAll(records);
                     updateRecordView();
                 }
             }
@@ -315,7 +319,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordView() {
-        if(allRecords.isEmpty()) {
+        if(recordList.isEmpty()) {
             recordView.setVisibility(View.INVISIBLE);
             tvNoRecord.setVisibility(View.VISIBLE);
         }else {

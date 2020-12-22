@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.util;
 
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
+import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.vise.log.ViseLog;
@@ -17,6 +18,7 @@ import java.util.Objects;
 import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
@@ -176,7 +178,20 @@ public class KMWebServiceUtil {
         try {
             json.put("cmd", "downloadList");
             json.put("accountId", account.getAccountId());
-            json.put("recordTypeCode", record.getTypeCode());
+
+            RecordType type = record.getType();
+            StringBuilder builder = new StringBuilder();
+            if(type == RecordType.ALL) {
+                for(RecordType t : SUPPORT_RECORD_TYPES) {
+                    if(t != RecordType.ALL) {
+                        builder.append(t.getCode()).append(",");
+                    }
+                }
+            } else {
+                builder.append(type.getCode());
+            }
+            json.put("recordTypeCode", builder.toString());
+
             json.put("creatorId", record.getCreatorId());
             json.put("fromTime", fromTime);
             json.put("num", num);

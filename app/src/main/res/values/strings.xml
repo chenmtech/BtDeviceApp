@@ -60,7 +60,7 @@
     <string name="hr_too_high">心率过高</string>
     <string name="hr_too_low">心率过低</string>
     <string name="BPM">次/分钟</string>
-    <string name="all_record">所有记录</string>
+    <string name="all_type_record">所有记录</string>
     <string name="hr_record">心率记录</string>
     <string name="ecg_record">心电记录</string>
     <string name="thermo_record">体温记录</string>
