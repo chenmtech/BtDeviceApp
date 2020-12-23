@@ -5,11 +5,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.cmtech.android.bledeviceapp.model.AppInfo;
+import com.cmtech.android.bledeviceapp.model.AppPackageInfo;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 
-public class AppInfoWebAsyncTask extends AsyncTask<AppInfo, Void, WebResponse> {
+public class AppInfoWebAsyncTask extends AsyncTask<AppPackageInfo, Void, WebResponse> {
     public static final int CMD_DOWNLOAD_INFO = 0;
     public static final int CMD_DOWNLOAD_APK = 1;
 
@@ -40,7 +40,7 @@ public class AppInfoWebAsyncTask extends AsyncTask<AppInfo, Void, WebResponse> {
     }
 
     @Override
-    protected WebResponse doInBackground(AppInfo... infos) {
+    protected WebResponse doInBackground(AppPackageInfo... infos) {
         return KMWebServiceUtil.downloadNewestAppUpdateInfo();
     }
 

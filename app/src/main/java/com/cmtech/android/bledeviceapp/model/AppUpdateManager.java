@@ -11,7 +11,7 @@ import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class AppUpdateManager {
-    private final AppInfo updateInfo = new AppInfo();
+    private final AppPackageInfo updateInfo = new AppPackageInfo();
 
     public AppUpdateManager() {
 

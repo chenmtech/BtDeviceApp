@@ -31,8 +31,8 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.model
- * ClassName:      AppUpdateInfo
- * Description:    java类作用描述
+ * ClassName:      AppPackageInfo
+ * Description:    应用程序安装包信息
  * Author:         作者名
  * CreateDate:     2020/10/28 上午6:28
  * UpdateUser:     更新者
@@ -40,14 +40,14 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class AppInfo implements Serializable, IJsonable, IWebOperation {
-    private int verCode;
-    private String verName;
-    private String note;
-    private String url;
-    private double size; // unit: MB
+public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
+    private int verCode;        // 版本号
+    private String verName;     // 版本名
+    private String note;        // 备注
+    private String url;         // 安装包下载URL
+    private double size;        // 安装包大小，单位: MB
 
-    public AppInfo() {
+    public AppPackageInfo() {
 
     }
 
@@ -82,12 +82,12 @@ public class AppInfo implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public JSONObject toJson() throws JSONException {
-        return null;
+        throw new JSONException("Cannot use toJson of AppPackageInfo");
     }
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-
+        throw new IllegalStateException("Cannot use upload of AppPackageInfo");
     }
 
     @Override
@@ -111,12 +111,12 @@ public class AppInfo implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void delete(Context context, ICodeCallback callback) {
-
+        throw new IllegalStateException("Cannot use delete of AppPackageInfo");
     }
 
     @Override
     public void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
-
+        throw new IllegalStateException("Cannot use retrieveList of AppPackageInfo");
     }
 
     public void downloadApkFileThenInstall(Context context) {
@@ -198,6 +198,4 @@ public class AppInfo implements Serializable, IJsonable, IWebOperation {
     public String toString() {
         return "verCode:" + verCode + " verName:" + verName + " note:" + note + " size:" + size + " url:" + url;
     }
-
-
 }

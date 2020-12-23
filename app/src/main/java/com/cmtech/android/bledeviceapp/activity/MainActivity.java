@@ -79,9 +79,9 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 
 public class MainActivity extends AppCompatActivity implements IDevice.OnCommonDeviceListener, TabFragManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
-    private final static int RC_ADD_DEVICE = 1;     // return code for adding new devices
-    private final static int RC_MODIFY_DEVICE_INFO = 2;       // return code for modifying device info
-    private final static int RC_MODIFY_ACCOUNT = 3;
+    private final static int RC_ADD_DEVICE = 1;                 // return code for adding new devices
+    private final static int RC_MODIFY_DEVICE_INFO = 2;         // return code for modifying device info
+    private final static int RC_MODIFY_ACCOUNT_INFO = 3;        // return code for modifying account info
     private final static int RC_OPEN_INSTALL_PERMISSION = 4;
 
     private LocalDeviceAdapter localDeviceAdapter;
@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        startInstallPermissionSettingActivity();
+                        startActivityForSettingInstallPermission();
                     }
                 }).show();
                 return;
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void startInstallPermissionSettingActivity() {
+    private void startActivityForSettingInstallPermission() {
         Uri packageURI = Uri.parse("package:" + getPackageName());
         Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
         startActivityForResult(intent, RC_OPEN_INSTALL_PERMISSION);
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, PersonInfoActivity.class);
-                startActivityForResult(intent, RC_MODIFY_ACCOUNT);
+                startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
             }
         });
         Button btnModify = headerView.findViewById(R.id.btn_modify);
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, PersonInfoActivity.class);
-                startActivityForResult(intent, RC_MODIFY_ACCOUNT);
+                startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
             }
         });
         tvUserName = headerView.findViewById(R.id.tv_user_name);
@@ -378,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 }
                 break;
 
-            case RC_MODIFY_ACCOUNT:
+            case RC_MODIFY_ACCOUNT_INFO:
                 if(resultCode == RESULT_OK) {
                     updateNavigationHeader();
                     tbManager.setNavIcon(MyApplication.getAccount().getIcon());
