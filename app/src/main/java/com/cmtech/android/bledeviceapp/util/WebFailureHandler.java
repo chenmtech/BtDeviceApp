@@ -15,7 +15,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 public class WebFailureHandler {
-    public static String handle(int rtnCode) {
+    public static String toString(int rtnCode) {
         String errString = "";
         switch (rtnCode) {
             case RETURN_CODE_WEB_FAILURE:

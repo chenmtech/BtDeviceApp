@@ -266,7 +266,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 if (code == RETURN_CODE_SUCCESS) {
                     updateRecordView();
                 } else {
-                    Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -302,7 +302,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onFinish(int code) {
                 if(code != RETURN_CODE_SUCCESS) {
-                    Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
 
                 List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), updateTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM);

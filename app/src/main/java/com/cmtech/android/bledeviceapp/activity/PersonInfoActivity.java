@@ -91,7 +91,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                             setResult(RESULT_OK, intent);
                             finish();
                         } else
-                            Toast.makeText(PersonInfoActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PersonInfoActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -162,7 +162,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                 if (code == RETURN_CODE_SUCCESS) {
                     updateUI();
                 } else {
-                    Toast.makeText(PersonInfoActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PersonInfoActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

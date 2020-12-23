@@ -168,7 +168,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     etPassword.setText(""); // 清空显示的密码
                     finish();
                 } else {
-                    Toast.makeText(ChangePasswordActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ChangePasswordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

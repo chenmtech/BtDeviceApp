@@ -14,9 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -50,6 +48,7 @@ import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.AppUpdateManager;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
@@ -58,6 +57,7 @@ import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
+import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -223,10 +223,19 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             }
         });
 
-        //checkAppUpdateInfo();
+        //获取应用升级信息
+        AppUpdateManager appUpdateManager = MyApplication.getAppUpdateManager();
+        appUpdateManager.retrieveAppInfo(this, (code) -> {
+            if (code == RETURN_CODE_SUCCESS) {
+                if (appUpdateManager.needUpdate())
+                    appUpdateManager.updateApp(this);
+            } else {
+                Toast.makeText(MainActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void checkAppUpdateInfo() {
+/*    private void checkAppUpdateInfo() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             boolean haveInstallPermission = getPackageManager().canRequestPackageInstalls();
             if (!haveInstallPermission) {
@@ -243,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
             }
         }
         //有权限，开始获取应用升级信息
-        MyApplication.getAppUpdateManager().retrieveUpdateInfo(this);
+        MyApplication.getAppUpdateManager().retrieveAppInfo(this, null);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -251,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         Uri packageURI = Uri.parse("package:" + getPackageName());
         Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
         startActivityForResult(intent, RC_OPEN_INSTALL_PERMISSION);
-    }
+    }*/
 
     private void initNavigation() {
         NavigationView navView = findViewById(R.id.nav_view);
@@ -386,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
                 break;
 
             case RC_OPEN_INSTALL_PERMISSION:
-                checkAppUpdateInfo();
+                //checkAppUpdateInfo();
                 break;
         }
     }

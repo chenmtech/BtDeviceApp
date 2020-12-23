@@ -91,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                 if(code == RETURN_CODE_SUCCESS && MyApplication.getAccountManager().isValid()) {
                     startMainActivity();
                 } else {
-                    Toast.makeText(LoginActivity.this, WebFailureHandler.handle(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

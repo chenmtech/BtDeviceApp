@@ -119,14 +119,14 @@ public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
         throw new IllegalStateException("Cannot use retrieveList of AppPackageInfo");
     }
 
-    public void downloadApkFileThenInstall(Context context) {
+    public void downloadApkFileAndInstall(Context context) {
         if(TextUtils.isEmpty(url)) return;
 
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
-        pBar.setTitle("正在下载...");
-        pBar.setMessage("请稍候...");
+        pBar.setTitle("下载安装包");
+        pBar.setMessage("正在下载安装包，请稍候...");
         pBar.setProgress(0);
         pBar.show();
         new Thread() {
@@ -145,7 +145,7 @@ public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
                         FileOutputStream fileOutputStream = null;
                         File file = null;
                         if (is != null) {
-                            //对apk进行保存
+                            //将apk文件下载到DIR_CACHE文件夹中
                             file = new File(DIR_CACHE, "kmic.apk");
                             fileOutputStream = new FileOutputStream(file);
                             byte[] buf = new byte[1024];
@@ -183,7 +183,7 @@ public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        Uri uri = null;
+        Uri uri;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             uri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
         } else {
