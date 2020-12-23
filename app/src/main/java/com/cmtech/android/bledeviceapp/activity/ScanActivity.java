@@ -52,6 +52,8 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.SCAN_DURATION;
 
 public class ScanActivity extends AppCompatActivity {
     private static final ScanFilter SCAN_FILTER = null;
+    private static final int RC_REGISTER_DEVICE = 1; // 登记设备返回码
+    private static final int RC_OPEN_POSITION_FUNCTION = 2; // 开启位置信息功能返回码
 
     private final List<BleDeviceDetailInfo> scannedDevInfos = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
     private List<String> registeredDevAddrs = new ArrayList<>(); // 已注册的设备mac地址列表
@@ -160,7 +162,7 @@ public class ScanActivity extends AppCompatActivity {
                 Intent intentGps = new Intent();
                 intentGps.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 intentGps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivityForResult(intentGps, 2);
+                startActivityForResult(intentGps, RC_OPEN_POSITION_FUNCTION);
                 return;
             }
         }
@@ -215,14 +217,14 @@ public class ScanActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case 1: // 设备登记返回码
+            case RC_REGISTER_DEVICE: // 登记设备返回
                 if (resultCode == RESULT_OK) {
                     setResult(RESULT_OK, data);
                     finish();
                 }
                 break;
 
-            case 2: // 开启GPS返回码
+            case RC_OPEN_POSITION_FUNCTION: // 开启GPS位置信息返回
                 if (resultCode == RESULT_OK) {
                     startScan();
                 }
@@ -243,11 +245,6 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     public void registerDevice(final BleDeviceDetailInfo detailInfo) {
-        // 先停止扫描
-        BleScanner.stopScan(bleScanCallback);
-        llSearchProgress.setVisibility(View.GONE);
-        isScanning = false;
-
         AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(serviceUUID != null) {
             byte[] uuidBytes = new byte[]{serviceUUID.getData()[1], serviceUUID.getData()[0]};
@@ -255,8 +252,13 @@ public class ScanActivity extends AppCompatActivity {
             DeviceCommonInfo registerInfo = new BleDeviceCommonInfo(detailInfo.getAddress(), uuidShortString);
             Intent intent = new Intent(ScanActivity.this, DeviceInfoActivity.class);
             intent.putExtra(DEVICE_INFO, registerInfo);
-            startActivityForResult(intent, 1);
+            startActivityForResult(intent, RC_REGISTER_DEVICE);
         }
+
+        // 先停止扫描
+        BleScanner.stopScan(bleScanCallback);
+        llSearchProgress.setVisibility(View.GONE);
+        isScanning = false;
     }
 
     private void addDevice(final BleDeviceDetailInfo device) {
