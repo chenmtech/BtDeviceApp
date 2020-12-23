@@ -170,10 +170,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         } else if(id == R.id.search_record) {
-            if(searchLayout.getVisibility() == View.VISIBLE)
-                searchLayout.setVisibility(View.GONE);
-            else
-                searchLayout.setVisibility(View.VISIBLE);
+            searchRecords(recordType, searchLayout.getSearchString(), searchLayout.getSearchTime());
         }
         return true;
     }

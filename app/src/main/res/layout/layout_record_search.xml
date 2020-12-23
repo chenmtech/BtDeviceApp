@@ -17,21 +17,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="6dp"
-            android:text="开始\n日期"/>
+            android:text="开始\n日期"
+            android:textSize="@dimen/smallest_font"/>
 
         <EditText
             android:id="@+id/et_start_date"
             style="@style/edittext_circle_gray_no_focusable_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/big_font"
+            android:textSize="@dimen/small_font"
             android:text="0000-00-00"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="6dp"
-            android:text="备注\n包含"/>
 
         <EditText
             android:id="@+id/et_note_filter_string"
@@ -43,25 +39,11 @@
             android:singleLine="true"
             android:hint="输入备注包含内容"
             android:maxLength="5"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_reset"
             style="@style/button_circle_blue_style"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="60dp"
             android:text="重置"/>
-
-        <Button
-            android:id="@+id/btn_search"
-            style="@style/button_circle_blue_style"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="搜索"/>
     </LinearLayout>
 </LinearLayout>

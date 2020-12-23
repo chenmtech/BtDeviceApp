@@ -20,8 +20,8 @@ import java.util.Calendar;
 public class RecordSearchLayout extends LinearLayout {
     private RecordExplorerActivity activity;
 
-    private EditText etNoteFilter; // note string filter
-    private EditText etStartDate; //
+    private EditText etFilterStr; // filter string
+    private EditText etStartDate; // starting date
 
     private int year, month, day;
 
@@ -29,7 +29,7 @@ public class RecordSearchLayout extends LinearLayout {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_record_search, this);
 
-        etNoteFilter = view.findViewById(R.id.et_note_filter_string);
+        etFilterStr = view.findViewById(R.id.et_note_filter_string);
         etStartDate = view.findViewById(R.id.et_start_date);
         Calendar calendar = Calendar.getInstance();
         year = calendar.get(Calendar.YEAR);
@@ -43,22 +43,12 @@ public class RecordSearchLayout extends LinearLayout {
             }
         });
 
-        Button btnSearch = view.findViewById(R.id.btn_search);
-        btnSearch.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activity != null) {
-                    activity.searchRecords(getSearchString(), getSearchTime());
-                }
-            }
-        });
-
         Button btnReset = view.findViewById(R.id.btn_reset);
         btnReset.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(activity != null) {
-                    etNoteFilter.setText("");
+                    etFilterStr.setText("");
                     Calendar calendar = Calendar.getInstance();
                     year = calendar.get(Calendar.YEAR);
                     month = calendar.get(Calendar.MONTH);
@@ -116,6 +106,6 @@ public class RecordSearchLayout extends LinearLayout {
     }
 
     public String getSearchString() {
-        return etNoteFilter.getText().toString();
+        return etFilterStr.getText().toString();
     }
 }
