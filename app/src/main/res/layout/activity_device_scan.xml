@@ -24,7 +24,7 @@
         android:gravity="center"
         android:layout_margin="10dp"
         android:orientation="vertical"
-        android:visibility="visible">
+        android:visibility="gone">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="正在扫描..."
+                android:text="正在寻找设备..."
                 android:textSize="@dimen/big_font"
                 android:textColor="@color/accent"/>
         </LinearLayout>

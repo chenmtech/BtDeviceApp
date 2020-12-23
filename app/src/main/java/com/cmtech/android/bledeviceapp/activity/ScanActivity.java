@@ -155,24 +155,24 @@ public class ScanActivity extends AppCompatActivity {
             }
         });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
-            LocationManager alm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-            if (!alm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)){
-                Toast.makeText(this, "请开启位置信息。", Toast.LENGTH_SHORT).show();
-                Intent intentGps = new Intent();
-                intentGps.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                intentGps.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivityForResult(intentGps, RC_OPEN_POSITION_FUNCTION);
-                return;
-            }
-        }
-
         startScan();
     }
 
     // 开始扫描
     private void startScan() {
         if(isScanning) return;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+            LocationManager alm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            if (!alm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)){
+                Toast.makeText(this, "添加新设备需要您先开启位置服务。", Toast.LENGTH_SHORT).show();
+                Intent openPosIntent = new Intent();
+                openPosIntent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                openPosIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivityForResult(openPosIntent, RC_OPEN_POSITION_FUNCTION);
+                return;
+            }
+        }
 
         mHandle.removeCallbacksAndMessages(null);
 
