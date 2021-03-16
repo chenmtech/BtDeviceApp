@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.eeg.model.OnEegListener;
 import com.cmtech.android.bledevice.ppg.model.OnPpgListener;
 import com.cmtech.android.bledevice.ppg.model.PpgDevice;
 import com.cmtech.android.bledeviceapp.R;
@@ -155,7 +154,7 @@ public class PpgFragment extends DeviceFragment implements OnPpgListener, OnWave
 
     public void setPpgRecord(boolean isRecord) {
         if(device != null) {
-            device.setPpgRecord(isRecord);
+            device.setRecord(isRecord);
         }
     }
 }

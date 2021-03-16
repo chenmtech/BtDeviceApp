@@ -11,7 +11,7 @@ import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
+import com.cmtech.android.bledeviceapp.data.record.BlePpgRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
@@ -41,9 +41,8 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
 
 
 public class PpgDevice extends AbstractDevice {
-    private static final int DEFAULT_CALI_1MV = 1000; // default 1mV calibration value
+    private static final int DEFAULT_CALI_VALUE = 1000; // default calibration value
     private static final int DEFAULT_SAMPLE_RATE = 200; // default sample rate, unit: Hz
-    private static final PpgLeadType DEFAULT_LEAD_TYPE = PpgLeadType.LEAD_I; // default lead type
 
     // ppg service
     private static final String ppgServiceUuid = "AAB0";
@@ -58,15 +57,14 @@ public class PpgDevice extends AbstractDevice {
     private static final BleGattElement PPGSAMPLERATE = new BleGattElement(ppgServiceUUID, ppgSampleRateUUID, null, "PPG Sample Rate");
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
-    private int caliValue = DEFAULT_CALI_1MV; // 1mV calibration value
-    private PpgLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
+    private int caliValue = DEFAULT_CALI_VALUE; // calibration value
 
-    private PpgDataProcessor ppgProcessor; // ppg processor
+    private PpgDataProcessor dataProcessor; // ppg data processor
 
     private OnPpgListener listener; // device listener
 
-    private BleEegRecord ppgRecord;
-    private boolean isPpgRecord = false; // is recording ppg
+    private BlePpgRecord record;
+    private boolean isRecording = false; // is recording
 
     public PpgDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
@@ -97,8 +95,8 @@ public class PpgDevice extends AbstractDevice {
     public void close() {
         super.close();
 
-        if(isPpgRecord) {
-            setPpgRecord(false);
+        if(isRecording) {
+            setRecord(false);
         }
     }
 
@@ -109,6 +107,7 @@ public class PpgDevice extends AbstractDevice {
         BleGattElement[] elements = new BleGattElement[]{PPGMEAS, PPGMEASCCC, PPGSAMPLERATE};
         if(connector.containGattElements(elements)) {
             readSampleRate();
+
             ((BleConnector)connector).runInstantly(new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
@@ -117,8 +116,8 @@ public class PpgDevice extends AbstractDevice {
 
                     updateSignalShowState(true);
 
-                    ppgProcessor = new PpgDataProcessor(PpgDevice.this);
-                    ppgProcessor.start();
+                    dataProcessor = new PpgDataProcessor(PpgDevice.this);
+                    dataProcessor.start();
                 }
 
                 @Override
@@ -127,7 +126,7 @@ public class PpgDevice extends AbstractDevice {
                 }
             });
 
-            enablePpg(true);
+            enablePpgSampling(true);
         } else {
             return false;
         }
@@ -137,56 +136,55 @@ public class PpgDevice extends AbstractDevice {
 
     @Override
     public void onConnectFailure() {
-        if(ppgProcessor != null) {
-            ppgProcessor.stop();
+        if(dataProcessor != null) {
+            dataProcessor.stop();
         }
 
         updateSignalShowState(false);
 
-        setPpgRecord(false);
+        setRecord(false);
     }
 
     @Override
     public void onDisconnect() {
-        if(ppgProcessor != null) {
-            ppgProcessor.stop();
+        if(dataProcessor != null) {
+            dataProcessor.stop();
         }
 
         updateSignalShowState(false);
 
-        setPpgRecord(false);
+        setRecord(false);
     }
 
     @Override
     public void disconnect(final boolean forever) {
-        enablePpg(false);
-        setPpgRecord(false);
+        enablePpgSampling(false);
+        setRecord(false);
         super.disconnect(forever);
     }
 
-    public void setPpgRecord(final boolean isRecord) {
-        if(isPpgRecord == isRecord) return;
+    public void setRecord(final boolean isRecord) {
+        if(isRecording == isRecord) return;
 
-        isPpgRecord = isRecord;
+        isRecording = isRecord;
         if(isRecord) {
-            ppgRecord = (BleEegRecord) RecordFactory.create(EEG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
-            if(ppgRecord != null) {
-                ppgRecord.setSampleRate(sampleRate);
-                ppgRecord.setCaliValue(caliValue);
-                ppgRecord.setLeadTypeCode(leadType.getCode());
+            this.record = (BlePpgRecord) RecordFactory.create(PPG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
+            if(this.record != null) {
+                this.record.setSampleRate(sampleRate);
+                this.record.setCaliValue(caliValue);
                 Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
             }
         } else {
-            if(ppgRecord == null) return;
+            if(this.record == null) return;
 
-            ppgRecord.setCreateTime(new Date().getTime());
-            ppgRecord.setRecordSecond(ppgRecord.getEegData().size()/sampleRate);
-            ppgRecord.save();
+            this.record.setCreateTime(new Date().getTime());
+            this.record.setRecordSecond(this.record.getPpgData().size()/sampleRate);
+            this.record.save();
             Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
         }
 
         if(listener != null) {
-            listener.onPpgSignalRecordStatusChanged(isPpgRecord);
+            listener.onPpgSignalRecordStatusChanged(isRecording);
         }
     }
 
@@ -197,24 +195,24 @@ public class PpgDevice extends AbstractDevice {
     }
 
     public void recordPpgSignal(int ppgSignal) {
-        if(isPpgRecord && ppgRecord != null) {
-            ppgRecord.process(ppgSignal);
-            if(ppgRecord.getDataNum() % sampleRate == 0 && listener != null) {
-                int second = ppgRecord.getDataNum()/sampleRate;
+        if(isRecording && record != null) {
+            record.process(ppgSignal);
+            if(record.getDataNum() % sampleRate == 0 && listener != null) {
+                int second = record.getDataNum()/sampleRate;
                 listener.onPpgSignalRecordTimeUpdated(second);
             }
         }
     }
 
-    private void enablePpg(boolean enable) {
+    private void enablePpgSampling(boolean enable) {
         //((BleConnector)connector).notify(PPGMEASCCC, false, null);
 
         if(enable) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    if(ppgProcessor != null)
-                        ppgProcessor.processData(data);
+                    if(dataProcessor != null)
+                        dataProcessor.processData(data);
                 }
 
                 @Override
@@ -226,8 +224,8 @@ public class PpgDevice extends AbstractDevice {
         } else {
             ((BleConnector)connector).notify(PPGMEASCCC, false, null);
 
-            if(ppgProcessor != null)
-                ppgProcessor.stop();
+            if(dataProcessor != null)
+                dataProcessor.stop();
 
         }
     }

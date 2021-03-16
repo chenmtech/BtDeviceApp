@@ -30,8 +30,8 @@ public class PpgDataProcessor {
 
     private final PpgDevice device;
     private int nextPackNum = INVALID_PACKET_NUM; // the next packet number wanted to received
-    private final ISignalFilter ppgFilter; // eeg filter
-    private ExecutorService procService; // eeg data process Service
+    private final ISignalFilter filter; // filter
+    private ExecutorService procService; // data process Service
 
     public PpgDataProcessor(PpgDevice device) {
         if(device == null) {
@@ -39,11 +39,11 @@ public class PpgDataProcessor {
         }
 
         this.device = device;
-        ppgFilter = new PpgSignalPreFilter(device.getSampleRate());
+        filter = new PpgSignalPreFilter(device.getSampleRate());
     }
 
     public void reset() {
-        ppgFilter.design(device.getSampleRate());
+        filter.design(device.getSampleRate());
     }
 
     public synchronized void start() {
@@ -80,7 +80,7 @@ public class PpgDataProcessor {
                             nextPackNum++;
                         ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
                     } else if(nextPackNum != INVALID_PACKET_NUM){ // bad packet, force disconnect
-                        ViseLog.e("The eeg data packet is lost. Disconnect device.");
+                        ViseLog.e("The ppg data packet is lost. Disconnect device.");
                         nextPackNum = INVALID_PACKET_NUM;
                         device.disconnect(false);
                     }
@@ -93,7 +93,7 @@ public class PpgDataProcessor {
         int[] pack = new int[(data.length-begin) / 2];
         for (int i = begin, j = 0; i < data.length; i=i+2, j++) {
             pack[j] = ByteUtil.getInt(new byte[]{data[i], data[i+1], 0x00, 0x00});
-            int fData = (int) ppgFilter.filter(pack[j]);
+            int fData = (int) filter.filter(pack[j]);
             device.showPpgSignal(fData);
             device.recordPpgSignal(fData);
         }
