@@ -67,7 +67,7 @@
     <string name="th_record">温湿度记录</string>
     <string name="eeg_record">脑电记录</string>
     <string name="ppg_record">脉搏记录</string>
-    <string name="ptt_record">心电脉搏记录</string>
+    <string name="ptt_record">PTT记录</string>
     <string name="open_record_failure">打开记录失败</string>
     <string name="save_record_success">记录已保存</string>
     <string name="record_too_short">记录时长太短，未保存</string>

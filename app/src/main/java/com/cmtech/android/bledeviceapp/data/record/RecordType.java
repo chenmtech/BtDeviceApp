@@ -31,7 +31,7 @@ public enum RecordType {
     TH(4, R.string.th_record, R.drawable.ic_thm_default_icon, BleTempHumidRecord.class, null),
     EEG(5, R.string.eeg_record, R.mipmap.ic_eeg_24px, BleEegRecord.class, EegRecordActivity.class),
     PPG(6, R.string.ppg_record, R.mipmap.ic_ppg_24px, BlePpgRecord.class, PpgRecordActivity.class),
-    PTT(6, R.string.ptt_record, R.mipmap.ic_unknown_device, BlePttRecord.class, PttRecordActivity.class);
+    PTT(7, R.string.ptt_record, R.mipmap.ic_unknown_device, BlePttRecord.class, PttRecordActivity.class);
 
     private final String name;
     private final int code;
