@@ -11,7 +11,7 @@ import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
+import com.cmtech.android.bledeviceapp.data.record.BlePttRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
@@ -41,9 +41,9 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
 
 
 public class PttDevice extends AbstractDevice {
-    public static final int DEFAULT_ECG_1MV_CALI = 160; // default ecg 1mV calibration value
-    public static final int DEFAULT_PPG_CALI = 1000; // default ppg calibration value
     private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
+    public static final int DEFAULT_ECG_CALI = 160; // default ecg 1mV calibration value
+    public static final int DEFAULT_PPG_CALI = 100; // default ppg calibration value
 
     // ppg service
     private static final String pttServiceUuid = "AAC0";
@@ -58,13 +58,12 @@ public class PttDevice extends AbstractDevice {
     private static final BleGattElement PTTSAMPLERATE = new BleGattElement(pttServiceUUID, pttSampleRateUUID, null, "PTT Sample Rate");
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
-    private int caliValue = DEFAULT_PPG_CALI; // ppg calibration value
 
     private PttDataProcessor pttProcessor; // PTT processor
 
     private OnPttListener listener; // device listener
 
-    private BleEegRecord pttRecord;
+    private BlePttRecord pttRecord;
     private boolean isPttRecord = false; // is recording ppg
 
     public PttDevice(Context context, DeviceCommonInfo registerInfo) {
@@ -73,10 +72,6 @@ public class PttDevice extends AbstractDevice {
 
     public final int getSampleRate() {
         return sampleRate;
-    }
-
-    public final int getCaliValue() {
-        return caliValue;
     }
 
     public void setListener(OnPttListener listener) {
@@ -112,7 +107,7 @@ public class PttDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if (listener != null)
-                        listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION);
+                        listener.onFragmentUpdated(sampleRate, DEFAULT_ECG_CALI, DEFAULT_PPG_CALI, DEFAULT_ZERO_LOCATION);
 
                     updateSignalShowState(true);
 
@@ -168,17 +163,18 @@ public class PttDevice extends AbstractDevice {
 
         isPttRecord = isRecord;
         if(isRecord) {
-            pttRecord = (BleEegRecord) RecordFactory.create(EEG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
+            pttRecord = (BlePttRecord) RecordFactory.create(PTT, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
             if(pttRecord != null) {
                 pttRecord.setSampleRate(sampleRate);
-                pttRecord.setCaliValue(caliValue);
+                pttRecord.setEcgCaliValue(DEFAULT_ECG_CALI);
+                pttRecord.setPpgCaliValue(DEFAULT_PPG_CALI);
                 Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
             }
         } else {
             if(pttRecord == null) return;
 
             pttRecord.setCreateTime(new Date().getTime());
-            pttRecord.setRecordSecond(pttRecord.getEegData().size()/sampleRate);
+            pttRecord.setRecordSecond(pttRecord.getEcgData().size()/sampleRate);
             pttRecord.save();
             Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
         }
@@ -194,9 +190,9 @@ public class PttDevice extends AbstractDevice {
         }
     }
 
-    public void recordPttSignal(int pttSignal) {
+    public void recordPttSignal(int ecgSignal, int ppgSignal) {
         if(isPttRecord && pttRecord != null) {
-            pttRecord.process(pttSignal);
+            pttRecord.process(ecgSignal, ppgSignal);
             if(pttRecord.getDataNum() % sampleRate == 0 && listener != null) {
                 int second = pttRecord.getDataNum()/sampleRate;
                 listener.onPttSignalRecordTimeUpdated(second);

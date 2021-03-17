@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_1MV_CALI;
+import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_CALI;
 import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_CALI;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
@@ -70,7 +70,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         tvMessage = view.findViewById(R.id.tv_ppg_message);
 
         ecgView = view.findViewById(R.id.ecg_view);
-        ecgView.setup(device.getSampleRate(), DEFAULT_ECG_1MV_CALI, DEFAULT_ZERO_LOCATION);
+        ecgView.setup(device.getSampleRate(), DEFAULT_ECG_CALI, DEFAULT_ZERO_LOCATION);
 
         ppgView = view.findViewById(R.id.ppg_view);
         ppgView.setup(device.getSampleRate(), DEFAULT_PPG_CALI, DEFAULT_ZERO_LOCATION);
@@ -105,13 +105,13 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int caliValue, final float zeroLocation) {
+    public void onFragmentUpdated(final int sampleRate, final int ecgCaliValue, final int ppgCaliValue, final float zeroLocation) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ecgView.setup(sampleRate, DEFAULT_ECG_1MV_CALI, zeroLocation);
-                    ppgView.setup(sampleRate, caliValue, zeroLocation);
+                    ecgView.setup(sampleRate, ecgCaliValue, zeroLocation);
+                    ppgView.setup(sampleRate, ppgCaliValue, zeroLocation);
                 }
             });
         }

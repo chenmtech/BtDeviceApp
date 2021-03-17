@@ -6,6 +6,7 @@ import com.cmtech.android.bledevice.eeg.activityfragment.EegRecordActivity;
 import com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.activityfragment.HrRecordActivity;
 import com.cmtech.android.bledevice.ppg.activityfragment.PpgRecordActivity;
+import com.cmtech.android.bledevice.ptt.activityfragment.PttRecordActivity;
 import com.cmtech.android.bledevice.thermo.activityfragment.ThermoRecordActivity;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -29,7 +30,8 @@ public enum RecordType {
     THERMO(3, R.string.thermo_record, R.mipmap.ic_thermo_24px, BleThermoRecord.class, ThermoRecordActivity.class),
     TH(4, R.string.th_record, R.drawable.ic_thm_default_icon, BleTempHumidRecord.class, null),
     EEG(5, R.string.eeg_record, R.mipmap.ic_eeg_24px, BleEegRecord.class, EegRecordActivity.class),
-    PPG(6, R.string.ppg_record, R.mipmap.ic_ppg_24px, BlePpgRecord.class, PpgRecordActivity.class);
+    PPG(6, R.string.ppg_record, R.mipmap.ic_ppg_24px, BlePpgRecord.class, PpgRecordActivity.class),
+    PTT(6, R.string.ptt_record, R.mipmap.ic_unknown_device, BlePttRecord.class, PttRecordActivity.class);
 
     private final String name;
     private final int code;
