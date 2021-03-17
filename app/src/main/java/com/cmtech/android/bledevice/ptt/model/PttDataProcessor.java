@@ -15,8 +15,8 @@ import java.util.concurrent.ThreadFactory;
 
 /**
   *
-  * ClassName:      EegDataProcessor
-  * Description:    eeg signal processor, including resolving the eeg data packet and filtering the data
+  * ClassName:      PttDataProcessor
+  * Description:    ptt signal processor, including resolving the ptt data packet and filtering the data
   * Author:         chenm
   * CreateDate:     2020-06-11 05:17
   * UpdateUser:     chenm
@@ -103,7 +103,7 @@ public class PttDataProcessor {
             int ecg = (int) ecgFilter.filter(ecgData[j]);
             int ppg = (int) ppgFilter.filter(ppgData[j]);
             device.showPttSignal(ecg, ppg);
-            //device.recordPttSignal(fData);
+            device.recordPttSignal(ecg, ppg);
         }
         ViseLog.i("ECG Data: " + Arrays.toString(ecgData));
         ViseLog.i("PPG Data: " + Arrays.toString(ppgData));
