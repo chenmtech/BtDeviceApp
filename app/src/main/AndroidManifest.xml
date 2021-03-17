@@ -120,7 +120,10 @@
             android:name="com.cmtech.android.bledevice.eeg.activityfragment.EegRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-
+        <activity
+            android:name="com.cmtech.android.bledevice.ppg.activityfragment.PpgRecordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <service
             android:name=".activity.NotificationService"
             android:enabled="true"

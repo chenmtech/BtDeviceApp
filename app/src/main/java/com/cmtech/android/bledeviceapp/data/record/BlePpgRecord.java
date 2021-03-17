@@ -44,7 +44,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
-        ListStringUtil.stringToList(json.getString("eegData"), ppgData, Integer.class);
+        ListStringUtil.stringToList(json.getString("ppgData"), ppgData, Integer.class);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         JSONObject json = super.toJson();
         json.put("sampleRate", sampleRate);
         json.put("caliValue", caliValue);
-        json.put("eegData", ListStringUtil.listToString(ppgData));
+        json.put("ppgData", ListStringUtil.listToString(ppgData));
         return json;
     }
 

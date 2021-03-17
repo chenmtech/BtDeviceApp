@@ -1,6 +1,8 @@
 package com.cmtech.android.bledevice.ppg.model;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -43,6 +45,7 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
 public class PpgDevice extends AbstractDevice {
     private static final int DEFAULT_CALI_VALUE = 1000; // default calibration value
     private static final int DEFAULT_SAMPLE_RATE = 200; // default sample rate, unit: Hz
+    private static final int PPG_RECORD_MAX_SECOND = 30;
 
     // ppg service
     private static final String ppgServiceUuid = "AAB0";
@@ -200,6 +203,14 @@ public class PpgDevice extends AbstractDevice {
             if(record.getDataNum() % sampleRate == 0 && listener != null) {
                 int second = record.getDataNum()/sampleRate;
                 listener.onPpgSignalRecordTimeUpdated(second);
+                if(second >= PPG_RECORD_MAX_SECOND) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            setRecord(false);
+                        }
+                    });
+                }
             }
         }
     }

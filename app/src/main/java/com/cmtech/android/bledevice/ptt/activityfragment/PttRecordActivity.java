@@ -55,7 +55,7 @@ public class PttRecordActivity extends AppCompatActivity implements OnRollWaveVi
         noteLayout.setRecord(record);
         noteLayout.updateView();
 
-        eegView = findViewById(R.id.roll_eeg_view);
+        eegView = findViewById(R.id.roll_ppg_view);
         eegView.setListener(this);
         eegView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
 
