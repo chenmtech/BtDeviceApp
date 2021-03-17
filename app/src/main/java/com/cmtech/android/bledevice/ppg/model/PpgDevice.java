@@ -43,7 +43,7 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
 
 
 public class PpgDevice extends AbstractDevice {
-    private static final int DEFAULT_CALI_VALUE = 1000; // default calibration value
+    private static final int DEFAULT_CALI_VALUE = 100; // default calibration value
     private static final int DEFAULT_SAMPLE_RATE = 200; // default sample rate, unit: Hz
     private static final int PPG_RECORD_MAX_SECOND = 30;
 
