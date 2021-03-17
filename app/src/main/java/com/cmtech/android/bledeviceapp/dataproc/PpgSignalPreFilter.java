@@ -6,6 +6,7 @@ import com.cmtech.dsp.filter.design.FIRDesigner;
 import com.cmtech.dsp.filter.design.FilterType;
 import com.cmtech.dsp.filter.design.WinType;
 import com.cmtech.dsp.filter.structure.StructType;
+import com.vise.log.ViseLog;
 
 import static java.lang.Math.PI;
 
@@ -36,12 +37,13 @@ public class PpgSignalPreFilter implements ISignalFilter {
         dcBlocker = DCBlockDesigner.design(0.5, sampleRate); // 设计隔直滤波器
         dcBlocker.createStructure(StructType.IIR_DCBLOCK); // 创建隔直滤波器专用结构
 
-        // 准备15Hz低通滤波器
-        int fp = 15;
-        int fs = 20;
+        // 准备20Hz低通滤波器
+        int fp = 20;
+        int fs = 25;
         double[] wp = {2*PI*fp/sampleRate};
         double[] ws = {2*PI*fs/sampleRate};
-        lpFilter = FIRDesigner.design(wp, ws,1, 50, FilterType.LOWPASS, WinType.HAMMING);
+        lpFilter = FIRDesigner.design(wp, ws,3, 50, FilterType.LOWPASS, WinType.HAMMING);
+        ViseLog.e("PPG filter size: " + lpFilter.getB().size());
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.cmtech.dsp.filter.design.FilterType;
 import com.cmtech.dsp.filter.design.NotchDesigner;
 import com.cmtech.dsp.filter.design.WinType;
 import com.cmtech.dsp.filter.structure.StructType;
+import com.vise.log.ViseLog;
 
 
 /**
@@ -58,10 +59,11 @@ public class EcgSignalPreFilter implements ISignalFilter {
         notch.createStructure(StructType.IIR_NOTCH); // 创建陷波器专用结构
 
         // 准备60Hz低通滤波器
-        int fp = 65;
-        int fs = 85;
+        int fp = 60;
+        int fs = 65;
         lpFilter = FIRDesigner.design(new double[]{2 * Math.PI * fp / sampleRate}, new double[]{2 * Math.PI * fs / sampleRate},
                 1, 50, FilterType.LOWPASS, WinType.HAMMING);
+        ViseLog.e("ecgFilter size: " + lpFilter.getB().size());
     }
 
     @Override
