@@ -65,6 +65,10 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         return ppgData;
     }
 
+    public void setPpgData(List<Integer> ppgData) {
+        this.ppgData.addAll(ppgData);
+    }
+
     @Override
     public int getSampleRate() {
         return sampleRate;
@@ -82,6 +86,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     public void setCaliValue(int caliValue) {
         this.caliValue = caliValue;
     }
+
 
     @Override
     public boolean isEOD() {

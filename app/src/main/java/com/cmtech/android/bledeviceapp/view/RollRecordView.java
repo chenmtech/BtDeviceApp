@@ -76,7 +76,7 @@ public class RollRecordView extends RollWaveView {
         }
     }
 
-    private final GestureDetector gestureDetector;
+    private GestureDetector gestureDetector;
     private final GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
         @Override
         public boolean onDown(MotionEvent motionEvent) {
@@ -129,7 +129,8 @@ public class RollRecordView extends RollWaveView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
+        if(gestureDetector != null)
+            gestureDetector.onTouchEvent(event);
         return true;
     }
 
@@ -246,6 +247,10 @@ public class RollRecordView extends RollWaveView {
         if(listener != null) {
             listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
         }
+    }
+
+    public void setGestureDetector(GestureDetector detector) {
+        gestureDetector = detector;
     }
 
 }

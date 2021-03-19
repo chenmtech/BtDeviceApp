@@ -7,10 +7,16 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
+import com.cmtech.android.bledeviceapp.data.record.BlePpgRecord;
+import com.cmtech.android.bledeviceapp.data.record.BlePttRecord;
+import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
+import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
-import com.cmtech.android.bledeviceapp.view.RollEegView;
+import com.cmtech.android.bledeviceapp.view.RollEcgView;
+import com.cmtech.android.bledeviceapp.view.RollPpgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
@@ -20,12 +26,13 @@ import org.litepal.LitePal;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 public class PttRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
-    private BleEegRecord record;
+    private BlePttRecord record;
 
     private RecordIntroductionLayout introLayout;
     private RecordNoteLayout noteLayout;
 
-    private RollEegView eegView; // eegView
+    private RollEcgView ecgView; // ecgView
+    private RollPpgView ppgView; // ppgView
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
@@ -34,10 +41,10 @@ public class PttRecordActivity extends AppCompatActivity implements OnRollWaveVi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record_eeg);
+        setContentView(R.layout.activity_record_ptt);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BleEegRecord.class, recordId, true);
+        record = LitePal.find(BlePttRecord.class, recordId, true);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
@@ -55,9 +62,23 @@ public class PttRecordActivity extends AppCompatActivity implements OnRollWaveVi
         noteLayout.setRecord(record);
         noteLayout.updateView();
 
-        eegView = findViewById(R.id.roll_ppg_view);
-        eegView.setListener(this);
-        eegView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView = findViewById(R.id.roll_ecg_view);
+        ecgView.setListener(this);
+        BleEcgRecord ecgRecord = (BleEcgRecord) RecordFactory.create(RecordType.ECG, BasicRecord.DEFAULT_RECORD_VER, record.getCreateTime(), record.getDevAddress(), record.getCreatorId());
+        ecgRecord.setSampleRate(record.getSampleRate());
+        ecgRecord.setCaliValue(record.getEcgCaliValue());
+        ecgRecord.setEcgData(record.getEcgData());
+        ecgView.setup(ecgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView.setGestureDetector(null);
+
+        ppgView = findViewById(R.id.roll_ppg_view);
+        //ppgView.setListener(this);
+        BlePpgRecord ppgRecord = (BlePpgRecord) RecordFactory.create(RecordType.PPG, BasicRecord.DEFAULT_RECORD_VER, record.getCreateTime(), record.getDevAddress(), record.getCreatorId());
+        ppgRecord.setSampleRate(record.getSampleRate());
+        ppgRecord.setCaliValue(record.getPpgCaliValue());
+        ppgRecord.setPpgData(record.getPpgData());
+        ppgView.setup(ppgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ppgView.setGestureDetector(null);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
@@ -72,7 +93,8 @@ public class PttRecordActivity extends AppCompatActivity implements OnRollWaveVi
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(b) {
-                    eegView.showAtSecond(i);
+                    ecgView.showAtSecond(i);
+                    ppgView.showAtSecond(i);
                 }
             }
             @Override
@@ -86,14 +108,17 @@ public class PttRecordActivity extends AppCompatActivity implements OnRollWaveVi
 
         btnReplayCtrl = findViewById(R.id.ib_replay_control);
         btnReplayCtrl.setOnClickListener(view -> {
-            if(eegView.isShowing()) {
-                eegView.stopShow();
+            if(ecgView.isShowing()) {
+                ecgView.stopShow();
+                ppgView.stopShow();
             } else {
-                eegView.startShow();
+                ecgView.startShow();
+                ppgView.startShow();
             }
         });
 
-        eegView.startShow();
+        ecgView.startShow();
+        ppgView.startShow();
     }
 
     @Override
@@ -105,12 +130,18 @@ public class PttRecordActivity extends AppCompatActivity implements OnRollWaveVi
     @Override
     public void onShowStateUpdated(boolean show) {
         sbReplay.setEnabled(!show);
+        if(show)
+            btnReplayCtrl.setImageResource(R.mipmap.ic_pause_32px);
+        else
+            btnReplayCtrl.setImageResource(R.mipmap.ic_play_32px);
     }
 
     @Override
     public void onBackPressed() {
-        if(eegView != null)
-            eegView.stopShow();
+        if(ecgView != null)
+            ecgView.stopShow();
+        if(ppgView != null)
+            ppgView.stopShow();
 
         setResult(RESULT_OK);
         finish();

@@ -30,7 +30,7 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
 public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializable {
     private int sampleRate = 0; // sample rate
     private int ecgCaliValue = 0; // ecg calibration value
-    private final List<Integer> ecgData = new ArrayList<>(); // ecg data
+    private final List<Short> ecgData = new ArrayList<>(); // ecg data
     private int ppgCaliValue = 0; // ppg calibration value
     private final List<Integer> ppgData = new ArrayList<>(); // ppg data
 
@@ -46,7 +46,7 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
         ecgCaliValue = json.getInt("ecgCaliValue");
-        ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Integer.class);
+        ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
         ppgCaliValue = json.getInt("ppgCaliValue");
         ListStringUtil.stringToList(json.getString("ppgData"), ppgData, Integer.class);
     }
@@ -67,7 +67,7 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
         return ecgData.isEmpty() || ppgData.isEmpty();
     }
 
-    public List<Integer> getEcgData() {
+    public List<Short> getEcgData() {
         return ecgData;
     }
 
@@ -140,7 +140,7 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     public boolean process(int ecg, int ppg) {
-        ecgData.add(ecg);
+        ecgData.add((short)ecg);
         ppgData.add(ppg);
         return true;
     }
