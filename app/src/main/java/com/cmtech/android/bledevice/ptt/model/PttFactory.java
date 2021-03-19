@@ -24,8 +24,8 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
  */
 public class PttFactory extends DeviceFactory {
     private static final String PTT_UUID = "AAC0"; // PTT uuid
-    private static final String PTT_DEFAULT_NAME = "心电脉搏"; // default PTT name
-    private static final int PTT_DEFAULT_ICON = R.drawable.ic_eeg_default_icon;
+    private static final String PTT_DEFAULT_NAME = "PTT"; // default PTT name
+    private static final int PTT_DEFAULT_ICON = R.drawable.ic_ptt_default_icon;
     private static final String PTT_FACTORY = PttFactory.class.getName();
 
     public static final DeviceType PTT_DEVICE_TYPE = new DeviceType(PTT_UUID, PTT_DEFAULT_ICON, PTT_DEFAULT_NAME, PTT_FACTORY);
