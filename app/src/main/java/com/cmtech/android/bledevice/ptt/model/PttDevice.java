@@ -1,6 +1,8 @@
 package com.cmtech.android.bledevice.ptt.model;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -44,6 +46,7 @@ public class PttDevice extends AbstractDevice {
     private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
     public static final int DEFAULT_ECG_CALI = 160; // default ecg 1mV calibration value
     public static final int DEFAULT_PPG_CALI = 100; // default ppg calibration value
+    private static final int PTT_RECORD_MAX_SECOND = 30;
 
     // ppg service
     private static final String pttServiceUuid = "AAC0";
@@ -196,6 +199,14 @@ public class PttDevice extends AbstractDevice {
             if(pttRecord.getDataNum() % sampleRate == 0 && listener != null) {
                 int second = pttRecord.getDataNum()/sampleRate;
                 listener.onPttSignalRecordTimeUpdated(second);
+                if(second >= PTT_RECORD_MAX_SECOND) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            setPttRecord(false);
+                        }
+                    });
+                }
             }
         }
     }

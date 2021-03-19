@@ -28,6 +28,7 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.THERMO;
 
 /**
@@ -59,7 +60,7 @@ public class AppConstant {
     }; // supported device types
 
     // supported record types
-    public static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{ALL, HR, ECG, THERMO, EEG, PPG};
+    public static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{ALL, HR, ECG, THERMO, EEG, PPG, PTT};
 
     public static final String QQ_PLAT_NAME = QQ.NAME;
     public static final String WX_PLAT_NAME = Wechat.NAME;

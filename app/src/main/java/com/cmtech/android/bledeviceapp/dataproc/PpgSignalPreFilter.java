@@ -42,7 +42,7 @@ public class PpgSignalPreFilter implements ISignalFilter {
         int fs = 25;
         double[] wp = {2*PI*fp/sampleRate};
         double[] ws = {2*PI*fs/sampleRate};
-        lpFilter = FIRDesigner.design(wp, ws,3, 50, FilterType.LOWPASS, WinType.HAMMING);
+        lpFilter = FIRDesigner.design(wp, ws,1, 50, FilterType.LOWPASS, WinType.HAMMING);
         ViseLog.e("PPG filter size: " + lpFilter.getB().size());
     }
 

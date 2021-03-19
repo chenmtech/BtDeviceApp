@@ -1,10 +1,10 @@
-package com.cmtech.android.bledeviceapp.dataproc;
+package com.cmtech.android.bledevice.ptt.model;
 
+import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
 import com.cmtech.dsp.filter.design.FIRDesigner;
 import com.cmtech.dsp.filter.design.FilterType;
-import com.cmtech.dsp.filter.design.NotchDesigner;
 import com.cmtech.dsp.filter.design.WinType;
 import com.cmtech.dsp.filter.structure.StructType;
 import com.vise.log.ViseLog;
@@ -24,28 +24,18 @@ import com.vise.log.ViseLog;
 
 public class EcgSignalPreFilter implements ISignalFilter {
     private static final double DEFAULT_BASELINE_CUTOFF_FREQ = 0.5; // default cut-off frequency of the baseline drift filter
-    private static final int DEFAULT_NOTCH_FREQ = 50; // default notch central frequency
-    private static final double DEFAULT_NOTCH_3DB_BANDWIDTH = 0.5; // default 3dB bandwidth of the notch filter
 
     private final double baselineFreq; // cut-off frequency of the baseline drift filter
-    private final int notchFreq; // notch central frequency
     private IDigitalFilter dcBlocker; // a DC blocker filtering the baseline drift
-    private IDigitalFilter notch; // a notch filter filtering the 50Hz noise
     private IDigitalFilter lpFilter; // a lowpass filter filtering the noise which frequency is larger than 60Hz
 
-    private boolean notchOn;
-
     public EcgSignalPreFilter(int sampleRate) {
-        this(sampleRate, DEFAULT_BASELINE_CUTOFF_FREQ, DEFAULT_NOTCH_FREQ);
+        this(sampleRate, DEFAULT_BASELINE_CUTOFF_FREQ);
     }
 
-    public EcgSignalPreFilter(int sampleRate, double baselineFreq, int notchFreq) {
+    public EcgSignalPreFilter(int sampleRate, double baselineFreq) {
         this.baselineFreq = baselineFreq;
-        this.notchFreq = notchFreq;
-
         design(sampleRate);
-
-        notchOn = true;
     }
 
     @Override
@@ -54,13 +44,9 @@ public class EcgSignalPreFilter implements ISignalFilter {
         dcBlocker = DCBlockDesigner.design(baselineFreq, sampleRate); // 设计隔直滤波器
         dcBlocker.createStructure(StructType.IIR_DCBLOCK); // 创建隔直滤波器专用结构
 
-        // 准备50Hz陷波器
-        notch = NotchDesigner.design(notchFreq, DEFAULT_NOTCH_3DB_BANDWIDTH, sampleRate);  // 设计陷波器
-        notch.createStructure(StructType.IIR_NOTCH); // 创建陷波器专用结构
-
         // 准备60Hz低通滤波器
-        int fp = 60;
-        int fs = 65;
+        int fp = 45;
+        int fs = 50;
         lpFilter = FIRDesigner.design(new double[]{2 * Math.PI * fp / sampleRate}, new double[]{2 * Math.PI * fs / sampleRate},
                 1, 50, FilterType.LOWPASS, WinType.HAMMING);
         ViseLog.e("ecgFilter size: " + lpFilter.getB().size());
@@ -68,12 +54,7 @@ public class EcgSignalPreFilter implements ISignalFilter {
 
     @Override
     public double filter(double signal) {
-        double result = lpFilter.filter(dcBlocker.filter(signal));
-        return (notchOn) ? notch.filter(result) : result;
-    }
-
-    public void turnOnNotch(boolean notchOn) {
-        this.notchOn = notchOn;
+        return lpFilter.filter(dcBlocker.filter(signal));
     }
 
 }

@@ -7,10 +7,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ppg.activityfragment.PpgFragment;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.Objects;
@@ -31,7 +31,7 @@ public class PttRecordFragment extends Fragment {
     public static final int TITLE_ID = R.string.ptt_record;
 
     ImageButton ibRecord;
-    TextView tvTimeLength;
+    EditText etTimeLength;
     TextView tvRecordStatus;
 
     boolean isRecord = false;
@@ -40,7 +40,7 @@ public class PttRecordFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_record_hrm_ecg, container, false);
+        return inflater.inflate(R.layout.fragment_record_ptt, container, false);
     }
 
     @Override
@@ -52,31 +52,31 @@ public class PttRecordFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 assert getParentFragment() != null;
-                ((PpgFragment)getParentFragment()).setPpgRecord(!isRecord);
+                ((PttFragment)getParentFragment()).setPttRecord(!isRecord);
             }
         });
 
-        tvTimeLength = view.findViewById(R.id.tv_time_length);
+        etTimeLength = view.findViewById(R.id.et_time_length);
 
         tvRecordStatus = view.findViewById(R.id.tv_record_status);
     }
 
-    public void updateRecordStatus(boolean isRecord) {
-        if(isRecord) {
+    public void updateRecordStatus(boolean record) {
+        if(record) {
             ibRecord.setImageResource(R.mipmap.ic_stop_32px);
             tvRecordStatus.setText(R.string.recording);
         } else {
             ibRecord.setImageResource(R.mipmap.ic_start_32px);
             tvRecordStatus.setText(R.string.start_record);
         }
-        this.isRecord = isRecord;
+        this.isRecord = record;
     }
 
     public void setPttRecordTime(final int second) {
         Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tvTimeLength.setText(String.valueOf(second));
+                etTimeLength.setText(String.valueOf(30-second));
             }
         });
     }

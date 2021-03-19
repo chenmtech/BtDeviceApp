@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -38,7 +38,7 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
     private int pos = 0;
 
     private BlePttRecord(String ver, long createTime, String devAddress, int creatorId) {
-        super(PPG, ver, createTime, devAddress, creatorId);
+        super(PTT, ver, createTime, devAddress, creatorId);
     }
 
     @Override
