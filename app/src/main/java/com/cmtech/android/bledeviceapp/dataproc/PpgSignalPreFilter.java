@@ -38,12 +38,12 @@ public class PpgSignalPreFilter implements ISignalFilter {
         dcBlocker.createStructure(StructType.IIR_DCBLOCK); // 创建隔直滤波器专用结构
 
         // 准备20Hz低通滤波器
-        int fp = 20;
-        int fs = 25;
+        int fp = 10;
+        int fs = 15;
         double[] wp = {2*PI*fp/sampleRate};
         double[] ws = {2*PI*fs/sampleRate};
         lpFilter = FIRDesigner.design(wp, ws,1, 50, FilterType.LOWPASS, WinType.HAMMING);
-        ViseLog.e("PPG filter size: " + lpFilter.getB().size());
+        ViseLog.e("ppg lowpass filter: " + lpFilter);
     }
 
     @Override

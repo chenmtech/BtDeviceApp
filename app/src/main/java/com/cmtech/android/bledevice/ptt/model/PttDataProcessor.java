@@ -99,8 +99,8 @@ public class PttDataProcessor {
         for (int i = begin, j = 0; i < data.length; i=i+4, j++) {
             ecgData[j] = (short) ((0xff & data[i]) | (0xff00 & (data[i+1] << 8))); // the type of ECG Data is int16
             ppgData[j] = ByteUtil.getInt(new byte[]{data[i+2], data[i+3], 0x00, 0x00}); // the type of PPG Data is uint16
-            int ecg = (int) ecgFilter.filter(ecgData[j]);
-            int ppg = (int) ppgFilter.filter(ppgData[j]);
+            int ecg = (int) Math.round(ecgFilter.filter(ecgData[j]));
+            int ppg = -(int) Math.round(ppgFilter.filter(ppgData[j]));
             device.showPttSignal(ecg, ppg);
             device.recordPttSignal(ecg, ppg);
         }

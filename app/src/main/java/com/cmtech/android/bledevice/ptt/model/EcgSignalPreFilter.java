@@ -9,6 +9,8 @@ import com.cmtech.dsp.filter.design.WinType;
 import com.cmtech.dsp.filter.structure.StructType;
 import com.vise.log.ViseLog;
 
+import static java.lang.Math.PI;
+
 
 /**
   *
@@ -47,9 +49,10 @@ public class EcgSignalPreFilter implements ISignalFilter {
         // 准备60Hz低通滤波器
         int fp = 45;
         int fs = 50;
-        lpFilter = FIRDesigner.design(new double[]{2 * Math.PI * fp / sampleRate}, new double[]{2 * Math.PI * fs / sampleRate},
-                1, 50, FilterType.LOWPASS, WinType.HAMMING);
-        ViseLog.e("ecgFilter size: " + lpFilter.getB().size());
+        double[] wp = {2*PI*fp/sampleRate};
+        double[] ws = {2*PI*fs/sampleRate};
+        lpFilter = FIRDesigner.design(wp, ws,  1, 50, FilterType.LOWPASS, WinType.HAMMING);
+        ViseLog.e("ecg lowpass filter: " + lpFilter);
     }
 
     @Override

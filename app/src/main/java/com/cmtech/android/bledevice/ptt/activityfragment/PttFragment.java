@@ -19,7 +19,6 @@ import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.view.ScanPpgView;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -122,7 +121,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     public void onPttSignalShowed(int ecgSignal, int ppgSignal) {
         ecgView.addData(ecgSignal);
         ppgView.addData(ppgSignal);
-        ViseLog.e("show data:" + ecgSignal + "," + ppgSignal);
+        //ViseLog.e("show data:" + ecgSignal + "," + ppgSignal);
     }
 
     @Override
