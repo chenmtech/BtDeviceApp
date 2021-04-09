@@ -171,7 +171,12 @@ public class PttDevice extends AbstractDevice {
                 pttRecord.setSampleRate(sampleRate);
                 pttRecord.setEcgCaliValue(DEFAULT_ECG_CALI);
                 pttRecord.setPpgCaliValue(DEFAULT_PPG_CALI);
-                Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         } else {
             if(pttRecord == null) return;
@@ -179,7 +184,12 @@ public class PttDevice extends AbstractDevice {
             pttRecord.setCreateTime(new Date().getTime());
             pttRecord.setRecordSecond(pttRecord.getEcgData().size()/sampleRate);
             pttRecord.save();
-            Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         if(listener != null) {

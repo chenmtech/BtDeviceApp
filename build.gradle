@@ -3,6 +3,10 @@
 buildscript {
     
     repositories {
+        // 配置Mob Maven库
+        maven {
+            url "http://mvn.mob.com/android"
+        }
         google()
         jcenter()
     }
