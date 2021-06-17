@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ptt.model;
 
+import android.util.Pair;
+
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledeviceapp.dataproc.PpgSignalPreFilter;
 import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
@@ -109,6 +111,8 @@ public class PttDataProcessor {
             int ptt = pttDetector.process(ecg, ppg);
             if(ptt != 0) {
                 device.showPttValue(ptt);
+                Pair<Integer, Integer> bp = device.calculateBPUsingPTT(ptt);
+                device.showBpValue(bp.first, bp.second);
             }
         }
         ViseLog.i("ECG Data: " + Arrays.toString(ecgData));

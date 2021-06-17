@@ -138,6 +138,7 @@
     <string name="no_record">无记录</string>
     <string name="hr_limit_wrong">心率上限必须大于下限。</string>
     <string name="title_activity_hrmcfg">配置心率计</string>
+    <string name="title_activity_pttcfg">配置PTT</string>
     <string name="scan_failed_already_started">扫描已开始</string>
     <string name="scan_failed_bt_closed">蓝牙已关闭</string>
     <string name="scan_failed_ble_inner_error">蓝牙内部错误</string>

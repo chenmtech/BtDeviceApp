@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ptt.model;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -18,6 +19,8 @@ import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
+
+import org.litepal.LitePal;
 
 import java.util.Date;
 import java.util.UUID;
@@ -69,8 +72,18 @@ public class PttDevice extends AbstractDevice {
     private BlePttRecord pttRecord;
     private boolean isPttRecord = false; // is recording ppg
 
+    private final PttCfg config; // PTTdevice configuration
+
     public PttDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
+
+        PttCfg config = LitePal.where("address = ?", getAddress()).findFirst(PttCfg.class);
+        if (config == null) {
+            config = new PttCfg();
+            config.setAddress(getAddress());
+            config.save();
+        }
+        this.config = config;
     }
 
     public final int getSampleRate() {
@@ -223,7 +236,23 @@ public class PttDevice extends AbstractDevice {
 
     public void showPttValue(int ptt) {
         if (listener != null) {
-            listener.onPttValueShowed(ptt);
+            new Handler((Looper.getMainLooper())).post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onPttValueShowed(ptt);
+                }
+            });
+        }
+    }
+
+    public void showBpValue(int sbp, int dbp) {
+        if (listener != null) {
+            new Handler((Looper.getMainLooper())).post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onBpValueShowed(sbp, dbp);
+                }
+            });
         }
     }
 
@@ -270,5 +299,25 @@ public class PttDevice extends AbstractDevice {
         if (listener != null) {
             listener.onPttSignalShowStatusUpdated(isShow);
         }
+    }
+
+
+    public final PttCfg getConfig() {
+        return config;
+    }
+
+    public void updateConfig(PttCfg config) {
+        this.config.copyFrom(config);
+        this.config.save();
+    }
+
+    public Pair<Integer, Integer> calculateBPUsingPTT(int ptt) {
+        int ptt0 = config.getPtt0();
+        int sbp0 = config.getSbp0();
+        int dbp0 = config.getDbp0();
+        double tmp = 2*(ptt-ptt0)/0.017/ptt0;
+        int sbp = (int)(sbp0 - tmp);
+        int dbp = (int)(dbp0 - tmp);
+        return new Pair<>(sbp, dbp);
     }
 }

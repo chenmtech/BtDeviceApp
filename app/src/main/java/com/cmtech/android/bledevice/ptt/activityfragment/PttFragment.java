@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ptt.model.OnPttListener;
+import com.cmtech.android.bledevice.ptt.model.PttCfg;
 import com.cmtech.android.bledevice.ptt.model.PttDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_CALI;
 import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_CALI;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
@@ -42,12 +44,15 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
  * Version:        1.0
  */
 public class PttFragment extends DeviceFragment implements OnPttListener, OnWaveViewListener {
+    private static final int RC_CONFIG = 1;
     private PttDevice device; // device
 
     private ScanEcgView ecgView; // ECG View
     private ScanPpgView ppgView; // PPG View
     private TextView tvMessage; // message
     private EditText etPtt; // ptt
+    private EditText etSbp;
+    private EditText etDbp;
 
     private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
@@ -71,6 +76,8 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         super.onViewCreated(view, savedInstanceState);
         tvMessage = view.findViewById(R.id.tv_ppg_message);
         etPtt = view.findViewById(R.id.et_ptt);
+        etSbp = view.findViewById(R.id.et_sbp);
+        etDbp = view.findViewById(R.id.et_dbp);
 
         ecgView = view.findViewById(R.id.ecg_view);
         ecgView.setup(device.getSampleRate(), DEFAULT_ECG_CALI, DEFAULT_ZERO_LOCATION);
@@ -99,12 +106,21 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        if(requestCode == RC_CONFIG) { // cfg return
+            if(resultCode == RESULT_OK) {
+                PttCfg cfg = (PttCfg) data.getSerializableExtra("ptt_cfg");
+                device.updateConfig(cfg);
+            }
+        }
     }
 
     @Override
     public void openConfigureActivity() {
+        PttCfg cfg = device.getConfig();
 
+        Intent intent = new Intent(getActivity(), PttCfgActivity.class);
+        intent.putExtra("ptt_cfg", cfg);
+        startActivityForResult(intent, RC_CONFIG);
     }
 
     @Override
@@ -153,6 +169,11 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         etPtt.setText(String.valueOf(ptt));
     }
 
+    @Override
+    public void onBpValueShowed(int sbp, int dbp) {
+        etSbp.setText(String.valueOf(sbp));
+        etDbp.setText(String.valueOf(dbp));
+    }
 
     @Override
     public void onShowStateUpdated(boolean show) {

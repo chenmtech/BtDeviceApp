@@ -105,6 +105,10 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
+            android:name="com.cmtech.android.bledevice.ptt.activityfragment.PttCfgActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
             android:name="com.cmtech.android.bledevice.hrm.activityfragment.HrRecordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />

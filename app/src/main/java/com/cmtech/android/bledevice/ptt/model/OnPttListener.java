@@ -21,4 +21,6 @@ public interface OnPttListener {
     void onPttSignalShowStatusUpdated(boolean isShow); // ptt signal show status updated
 
     void onPttValueShowed(int ptt); // ptt value showed
+
+    void onBpValueShowed(int sbp, int dbp);
 }
