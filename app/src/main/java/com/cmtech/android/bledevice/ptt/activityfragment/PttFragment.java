@@ -23,6 +23,7 @@ import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.view.ScanPpgView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,6 +58,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
     private final PttRecordFragment pttRecFrag = new PttRecordFragment(); // PTT record fragment
+    private final PttCalibrationFragment pttCalibrationFrag = new PttCalibrationFragment(); // PTT Calibration fragment
 
     public PttFragment() {
         super();
@@ -87,12 +89,13 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
         pager = view.findViewById(R.id.ptt_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ptt_control_panel_tab);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Collections.singletonList(pttRecFrag));
-        String title = getResources().getString(PttRecordFragment.TITLE_ID);
-        List<String> titleList = new ArrayList<>(Collections.singletonList(title));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(pttRecFrag, pttCalibrationFrag));
+        String title1 = getResources().getString(PttRecordFragment.TITLE_ID);
+        String title2 = getResources().getString(PttCalibrationFragment.TITLE_ID);
+        List<String> titleList = new ArrayList<>(Arrays.asList(title1, title2));
         fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
-        pager.setOffscreenPageLimit(1);
+        pager.setOffscreenPageLimit(2);
         layout.setupWithViewPager(pager);
 
         device.setListener(this);
@@ -167,6 +170,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     @Override
     public void onPttValueShowed(int ptt) {
         etPtt.setText(String.valueOf(ptt));
+        pttCalibrationFrag.addPttValue(ptt);
     }
 
     @Override

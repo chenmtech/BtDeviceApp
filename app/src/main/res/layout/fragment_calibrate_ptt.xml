@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageButton
+        android:id="@+id/ib_calibrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="20dp"
+        android:src="@mipmap/ic_start_32px"
+        android:background="@color/background_transparent"/>
+
+    <TextView
+        android:id="@+id/tv_calibration_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ib_calibrate"
+        android:layout_centerHorizontal="true"
+        android:text="@string/start_calibration"
+        android:textSize="@dimen/big_font"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/ib_calibrate"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="平均PTT："
+            android:textSize="@dimen/big_font"/>
+
+        <EditText
+            android:id="@+id/et_average_ptt"
+            style="@style/edittext_circle_gray_no_focusable_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ellipsis"
+            android:textSize="@dimen/bigger_font"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="毫秒"
+            android:textSize="@dimen/big_font"/>
+    </LinearLayout>
+
+</RelativeLayout>
