@@ -95,4 +95,27 @@ public class MathUtil {
 		 return new Pair<>(maxI, maxV);
 	 }
 
+    public static Pair<Integer, Integer> intMax(List<Integer> x, int begin, int end) {
+        int maxV = Integer.MIN_VALUE;
+        int maxI = -1;
+        for(int i = begin; i < end; i++) {
+            if(x.get(i) > maxV) {
+                maxV = x.get(i);
+                maxI = i;
+            }
+        }
+        return new Pair<>(maxI, maxV);
+    }
+
+    public static Pair<Integer, Integer> intMin(List<Integer> x, int begin, int end) {
+        int minV = Integer.MAX_VALUE;
+        int minI = -1;
+        for(int i = begin; i < end; i++) {
+            if(x.get(i) < minV) {
+                minV = x.get(i);
+                minI = i;
+            }
+        }
+        return new Pair<>(minI, minV);
+    }
 }

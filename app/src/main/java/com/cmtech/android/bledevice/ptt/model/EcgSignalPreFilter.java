@@ -46,7 +46,7 @@ public class EcgSignalPreFilter implements ISignalFilter {
         dcBlocker = DCBlockDesigner.design(baselineFreq, sampleRate); // 设计隔直滤波器
         dcBlocker.createStructure(StructType.IIR_DCBLOCK); // 创建隔直滤波器专用结构
 
-        // 准备60Hz低通滤波器
+        // 准备45Hz低通滤波器
         int fp = 45;
         int fs = 50;
         double[] wp = {2*PI*fp/sampleRate};

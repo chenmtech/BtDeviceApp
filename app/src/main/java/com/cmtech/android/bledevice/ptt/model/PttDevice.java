@@ -221,6 +221,12 @@ public class PttDevice extends AbstractDevice {
         }
     }
 
+    public void showPttValue(int ptt) {
+        if (listener != null) {
+            listener.onPttValueShowed(ptt);
+        }
+    }
+
     private void enablePtt(boolean enable) {
         //((BleConnector)connector).notify(PPGMEASCCC, false, null);
 

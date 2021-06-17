@@ -32,6 +32,7 @@ public class PttDataProcessor {
     private int nextWantedPack = INVALID_PACKET_NUM; // the next packet number wanted to received
     private final ISignalFilter ecgFilter; //ECG filter
     private final ISignalFilter ppgFilter; // PPG filter
+    private final PttDetector pttDetector; // PTT Detector
     private ExecutorService procService; // PTT data process Service
 
     public PttDataProcessor(PttDevice device) {
@@ -42,11 +43,13 @@ public class PttDataProcessor {
         this.device = device;
         ecgFilter = new EcgSignalPreFilter(device.getSampleRate());
         ppgFilter = new PpgSignalPreFilter(device.getSampleRate());
+        pttDetector = new PttDetector(device.getSampleRate());
     }
 
     public void reset() {
         ppgFilter.design(device.getSampleRate());
         ecgFilter.design(device.getSampleRate());
+        pttDetector.initialize();
     }
 
     public synchronized void start() {
@@ -103,6 +106,10 @@ public class PttDataProcessor {
             int ppg = -(int) Math.round(ppgFilter.filter(ppgData[j]));
             device.showPttSignal(ecg, ppg);
             device.recordPttSignal(ecg, ppg);
+            int ptt = pttDetector.process(ecg, ppg);
+            if(ptt != 0) {
+                device.showPttValue(ptt);
+            }
         }
         ViseLog.i("ECG Data: " + Arrays.toString(ecgData));
         ViseLog.i("PPG Data: " + Arrays.toString(ppgData));

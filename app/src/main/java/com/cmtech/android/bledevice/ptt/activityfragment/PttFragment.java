@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ptt.model.OnPttListener;
@@ -46,6 +47,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     private ScanEcgView ecgView; // ECG View
     private ScanPpgView ppgView; // PPG View
     private TextView tvMessage; // message
+    private EditText etPtt; // ptt
 
     private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
@@ -68,6 +70,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvMessage = view.findViewById(R.id.tv_ppg_message);
+        etPtt = view.findViewById(R.id.et_ptt);
 
         ecgView = view.findViewById(R.id.ecg_view);
         ecgView.setup(device.getSampleRate(), DEFAULT_ECG_CALI, DEFAULT_ZERO_LOCATION);
@@ -144,6 +147,12 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
             ppgView.stopShow();
         }
     }
+
+    @Override
+    public void onPttValueShowed(int ptt) {
+        etPtt.setText(String.valueOf(ptt));
+    }
+
 
     @Override
     public void onShowStateUpdated(boolean show) {

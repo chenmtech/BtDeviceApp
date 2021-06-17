@@ -8,6 +8,53 @@
     android:layout_height="match_parent"
     tools:context = "com.cmtech.android.bledevice.ptt.activityfragment.PttFragment">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:text="PTT(ms):"
+                android:textSize="@dimen/big_font"/>
+
+            <EditText
+                android:id="@+id/et_ptt"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minEms="1"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/bigger_font"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:text="BP(mmHg):"
+                android:textSize="@dimen/big_font"/>
+
+            <EditText
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minEms="1"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/bigger_font"/>
+        </LinearLayout>
+    </LinearLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
