@@ -25,10 +25,10 @@ public class PttCfgActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cfg_hrm);
+        setContentView(R.layout.activity_cfg_ptt);
 
         // create ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_hrm_cfg);
+        Toolbar toolbar = findViewById(R.id.tb_ptt_cfg);
         setSupportActionBar(toolbar);
 
         Intent intent = getIntent();

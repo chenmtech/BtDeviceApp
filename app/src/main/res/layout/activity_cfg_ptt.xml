@@ -5,7 +5,7 @@
     xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/tb_hrm_cfg"
+        android:id="@+id/tb_ptt_cfg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary"
@@ -33,8 +33,9 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="end"
                     android:textSize="@dimen/normal_font"
                     android:text="PTT标定值(ms):"/>
@@ -57,8 +58,9 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="end"
                     android:textSize="@dimen/normal_font"
                     android:text="收缩压标定值(mmHg):"/>
@@ -81,8 +83,9 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="end"
                     android:textSize="@dimen/normal_font"
                     android:text="舒张压标定值(mmHg):"/>

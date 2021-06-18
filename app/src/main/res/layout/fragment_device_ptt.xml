@@ -8,74 +8,6 @@
     android:layout_height="match_parent"
     tools:context = "com.cmtech.android.bledevice.ptt.activityfragment.PttFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:text="PTT\n(ms):"
-                android:textSize="@dimen/small_font"/>
-
-            <EditText
-                android:id="@+id/et_ptt"
-                style="@style/edittext_circle_gray_no_focusable_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minEms="1"
-                android:text="@string/ellipsis"
-                android:textSize="@dimen/bigger_font"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:text="收缩压\n(mmHg):"
-                android:textSize="@dimen/small_font"/>
-
-            <EditText
-                android:id="@+id/et_sbp"
-                style="@style/edittext_circle_gray_no_focusable_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minEms="1"
-                android:text="@string/ellipsis"
-                android:textSize="@dimen/bigger_font"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                android:text="舒张压\n(mmHg):"
-                android:textSize="@dimen/small_font"/>
-
-            <EditText
-                android:id="@+id/et_dbp"
-                style="@style/edittext_circle_gray_no_focusable_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minEms="1"
-                android:text="@string/ellipsis"
-                android:textSize="@dimen/bigger_font"/>
-        </LinearLayout>
-    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -128,6 +60,78 @@
             android:textColor="@color/primary"
             android:visibility="gone"/>
     </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:gravity="end"
+                android:text="PTT\nms:"
+                android:textSize="@dimen/smallest_font"/>
+
+            <EditText
+                android:id="@+id/et_ptt"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minEms="1"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/big_font"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:gravity="end"
+                android:text="收缩压\nmmHg:"
+                android:textSize="@dimen/smallest_font"/>
+
+            <EditText
+                android:id="@+id/et_sbp"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minEms="1"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/big_font"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:gravity="end"
+                android:text="舒张压\nmmHg:"
+                android:textSize="@dimen/smallest_font"/>
+
+            <EditText
+                android:id="@+id/et_dbp"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minEms="1"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/big_font"/>
+        </LinearLayout>
+    </LinearLayout>
 
     <android.support.design.widget.TabLayout
         android:id="@+id/ptt_control_panel_tab"

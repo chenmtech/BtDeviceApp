@@ -4,6 +4,7 @@ import android.util.Pair;
 
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.qrsdetbyhamilton.QrsDetector;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,8 @@ public class PttDetector {
         }
 
         // 如果是QRS波
-        if(qrsDetector.outputRRInterval(ecg) != 0) {
+        int delay = qrsDetector.detectQrs(ecg);
+        if(delay != 0) {
             qrsNum++;
         }
 
@@ -56,38 +58,50 @@ public class PttDetector {
             length++;
         }
 
-        // 如果发现第二个QRS波，记录QRS波峰位置
-        if(qrsNum == 2) {
-            qrsPos = length-1;
-            return 0;
-        }
+        if(delay != 0) {
+            // 如果发现第二个QRS波，记录QRS波峰位置
+            if (qrsNum == 2) {
+                qrsPos = length - delay + 1;
+                return 0;
+            }
 
-        // 如果发现第三个QRS波，开始处理第二个QRS波，并计算PTT和BP
-        if(qrsNum == 3) {
-            // 精确定位R波
-            int minPos = Math.min(qrsPos-halfQrsWidth, 0);
-            int maxPos = Math.max(qrsPos+halfQrsWidth, length);
-            Pair<Integer, Integer> rlt = MathUtil.intMax(ecgData, minPos, maxPos);
-            qrsPos = rlt.first;
+            // 如果发现第三个QRS波，开始处理第二个QRS波，并计算PTT和BP
+            if (qrsNum == 3) {
+                // 精确定位R波
+                ViseLog.e("The QRS Position:" + qrsPos);
+                int minPos = Math.max(qrsPos - halfQrsWidth, 0);
+                int maxPos = Math.min(qrsPos + halfQrsWidth, length);
+                Pair<Integer, Integer> rlt = MathUtil.intMax(ecgData, minPos, maxPos);
+                qrsPos = rlt.first;
+                ViseLog.e("The R Position:" + qrsPos);
 
-            // 获取第一个R波和第二个R波之间的PPG最大导数位置
-            rlt = MathUtil.intMax(deltaPpg, 0, qrsPos);
-            int ppgPos = Math.max(0, rlt.first-1); // 中心差分的deltaPPG有一位的延时
+                // 获取第一个R波和第二个R波之间的PPG最大导数位置
+                List<Integer> ecgTmp = ecgData.subList(0, qrsPos);
+                List<Integer> ppgTmp = ppgData.subList(0, qrsPos);
+                List<Integer> deltaPpgTmp = deltaPpg.subList(0, qrsPos);
+                ViseLog.e("ECG:" + ecgTmp);
+                ViseLog.e("PPG:" + ppgTmp);
+                ViseLog.e("Delta PPG:" + deltaPpgTmp);
+                rlt = MathUtil.intMax(deltaPpg, 0, qrsPos);
+                int ppgPos = Math.max(0, rlt.first - 1); // 中心差分的deltaPPG有一位的延时
+                ViseLog.e("The PPG Position:" + ppgPos);
 
-            // 计算PTT
-            int ptt = (int) Math.round(ppgPos*1000.0/sampleRate);
+                // 计算PTT
+                int ptt = (int) Math.round(ppgPos * 1000.0 / sampleRate);
+                ViseLog.e("PTT:" + ptt);
 
-            // 把第二个R波之前的数据都删除掉
-            ecgData.subList(0, qrsPos).clear();
-            ppgData.subList(0, qrsPos).clear();
-            deltaPpg.subList(0, qrsPos).clear();
+                // 把第二个R波之前的数据都删除掉
+                ecgData.subList(0, qrsPos).clear();
+                ppgData.subList(0, qrsPos).clear();
+                deltaPpg.subList(0, qrsPos).clear();
 
-            // 更新数据
-            length = ecgData.size();
-            qrsNum--;
-            qrsPos = length-1-qrsPos;
+                // 更新数据
+                length = ecgData.size();
+                qrsPos = length - delay + 1;
+                qrsNum--;
 
-            return ptt;
+                return ptt;
+            }
         }
 
         return 0;

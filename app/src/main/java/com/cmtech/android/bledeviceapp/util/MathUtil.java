@@ -99,8 +99,9 @@ public class MathUtil {
         int maxV = Integer.MIN_VALUE;
         int maxI = -1;
         for(int i = begin; i < end; i++) {
-            if(x.get(i) > maxV) {
-                maxV = x.get(i);
+            int value = x.get(i);
+            if(value > maxV) {
+                maxV = value;
                 maxI = i;
             }
         }

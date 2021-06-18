@@ -13,8 +13,6 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,6 +32,7 @@ public class PttCalibrationFragment extends Fragment {
 
     ImageButton ibCalibrate;
     EditText etAveragePtt;
+    EditText etPttNum;
     TextView tvCalibrateStatus;
 
     boolean isCalibrate = false;
@@ -60,6 +59,7 @@ public class PttCalibrationFragment extends Fragment {
         });
 
         etAveragePtt = view.findViewById(R.id.et_average_ptt);
+        etPttNum = view.findViewById(R.id.et_ptt_num);
 
         tvCalibrateStatus = view.findViewById(R.id.tv_calibration_status);
     }
@@ -70,6 +70,8 @@ public class PttCalibrationFragment extends Fragment {
             tvCalibrateStatus.setText(R.string.calibrating);
             pttSum = 0;
             pttNum = 0;
+            etAveragePtt.setText(R.string.ellipsis);
+            etPttNum.setText("0");
         } else {
             ibCalibrate.setImageResource(R.mipmap.ic_start_32px);
             tvCalibrateStatus.setText(R.string.start_calibration);
@@ -85,6 +87,7 @@ public class PttCalibrationFragment extends Fragment {
                     pttSum += ptt;
                     pttNum++;
                     etAveragePtt.setText(String.valueOf(pttSum/pttNum));
+                    etPttNum.setText(String.valueOf(pttNum));
                 }
             });
         }

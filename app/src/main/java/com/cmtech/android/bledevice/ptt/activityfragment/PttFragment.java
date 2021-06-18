@@ -24,7 +24,6 @@ import com.cmtech.android.bledeviceapp.view.ScanPpgView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
@@ -89,10 +88,10 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
         pager = view.findViewById(R.id.ptt_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ptt_control_panel_tab);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(pttRecFrag, pttCalibrationFrag));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(pttCalibrationFrag, pttRecFrag));
         String title1 = getResources().getString(PttRecordFragment.TITLE_ID);
         String title2 = getResources().getString(PttCalibrationFragment.TITLE_ID);
-        List<String> titleList = new ArrayList<>(Arrays.asList(title1, title2));
+        List<String> titleList = new ArrayList<>(Arrays.asList(title2, title1));
         fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(2);

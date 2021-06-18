@@ -7,7 +7,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_margin="20dp"
+        android:layout_margin="10dp"
         android:src="@mipmap/ic_start_32px"
         android:background="@color/background_transparent"/>
 
@@ -45,6 +45,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="毫秒"
+            android:textSize="@dimen/big_font"/>
+
+        <EditText
+            android:id="@+id/et_ptt_num"
+            style="@style/edittext_circle_gray_no_focusable_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="@dimen/bigger_font"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="个"
             android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
