@@ -2,94 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="平均PTT："
-            android:textSize="@dimen/small_font"/>
-
-        <EditText
-            android:id="@+id/et_average_ptt"
-            style="@style/edittext_circle_gray_no_focusable_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ellipsis"
-            android:textSize="@dimen/bigger_font"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="毫秒"
-            android:textSize="@dimen/small_font"/>
-
-        <EditText
-            android:id="@+id/et_ptt_num"
-            style="@style/edittext_circle_gray_no_focusable_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:textSize="@dimen/bigger_font"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="个"
-            android:textSize="@dimen/small_font"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="收缩压："
-            android:textSize="@dimen/small_font"/>
-
-        <EditText
-            android:id="@+id/et_sbp"
-            style="@style/edittext_circle_gray_no_focusable_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ellipsis"
-            android:textSize="@dimen/bigger_font"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="mmHg，舒张压："
-            android:textSize="@dimen/small_font"/>
-
-        <EditText
-            android:id="@+id/et_dbp"
-            style="@style/edittext_circle_gray_no_focusable_style"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ellipsis"
-            android:textSize="@dimen/bigger_font"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="mmHg"
-            android:textSize="@dimen/small_font"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
         android:layout_gravity="center_horizontal"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
         <ImageButton
             android:id="@+id/ib_calibrate"
             android:layout_width="wrap_content"
@@ -106,7 +27,110 @@
             android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
+    <View
+        android:layout_width="1px"
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
+        android:background="@color/divider"/>
 
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="平均PTT："
+                android:textSize="@dimen/small_font"/>
 
+            <EditText
+                android:id="@+id/et_average_ptt"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/big_font"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="毫秒"
+                android:textSize="@dimen/small_font"/>
+
+            <EditText
+                android:id="@+id/et_ptt_num"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="@dimen/big_font"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="个"
+                android:textSize="@dimen/small_font"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="收缩压："
+                android:textSize="@dimen/small_font"/>
+
+            <EditText
+                android:id="@+id/et_sbp"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/big_font"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mmHg"
+                android:textSize="@dimen/small_font"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="舒张压："
+                android:textSize="@dimen/small_font"/>
+
+            <EditText
+                android:id="@+id/et_dbp"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ellipsis"
+                android:textSize="@dimen/big_font"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="mmHg"
+                android:textSize="@dimen/small_font"/>
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>
