@@ -20,7 +20,5 @@ public interface OnPttListener {
     void onPttSignalRecordTimeUpdated(int second); // ptt signal record time updated
     void onPttSignalShowStatusUpdated(boolean isShow); // ptt signal show status updated
 
-    void onPttValueShowed(int ptt); // ptt value showed
-
-    void onBpValueShowed(int sbp, int dbp);
+    void onPttAndBpValueShowed(int ptt, int sbp, int dbp); // ptt value showed
 }

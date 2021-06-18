@@ -61,7 +61,7 @@ public class PttDetector {
         if(delay != 0) {
             // 如果发现第二个QRS波，记录QRS波峰位置
             if (qrsNum == 2) {
-                qrsPos = length - delay + 1;
+                qrsPos = Math.max(0, length - delay + 1);
                 return 0;
             }
 

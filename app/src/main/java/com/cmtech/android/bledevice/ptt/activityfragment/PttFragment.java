@@ -167,15 +167,11 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     }
 
     @Override
-    public void onPttValueShowed(int ptt) {
+    public void onPttAndBpValueShowed(int ptt, int sbp, int dbp) {
         etPtt.setText(String.valueOf(ptt));
-        pttCalibrationFrag.addPttValue(ptt);
-    }
-
-    @Override
-    public void onBpValueShowed(int sbp, int dbp) {
         etSbp.setText(String.valueOf(sbp));
         etDbp.setText(String.valueOf(dbp));
+        pttCalibrationFrag.addPttAndBpValue(ptt, sbp, dbp);
     }
 
     @Override

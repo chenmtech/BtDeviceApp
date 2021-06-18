@@ -110,9 +110,7 @@ public class PttDataProcessor {
             device.recordPttSignal(ecg, ppg);
             int ptt = pttDetector.process(ecg, ppg);
             if(ptt != 0) {
-                device.showPttValue(ptt);
-                Pair<Integer, Integer> bp = device.calculateBPUsingPTT(ptt);
-                device.showBpValue(bp.first, bp.second);
+                device.processPtt(ptt);
             }
         }
         ViseLog.i("ECG Data: " + Arrays.toString(ecgData));

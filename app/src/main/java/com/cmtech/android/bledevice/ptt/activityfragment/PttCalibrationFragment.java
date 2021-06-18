@@ -33,10 +33,14 @@ public class PttCalibrationFragment extends Fragment {
     ImageButton ibCalibrate;
     EditText etAveragePtt;
     EditText etPttNum;
+    EditText etSbp;
+    EditText etDbp;
     TextView tvCalibrateStatus;
 
     boolean isCalibrate = false;
     int pttSum = 0;
+    int sbpSum = 0;
+    int dbpSum = 0;
     int pttNum = 0;
 
     @Nullable
@@ -60,6 +64,8 @@ public class PttCalibrationFragment extends Fragment {
 
         etAveragePtt = view.findViewById(R.id.et_average_ptt);
         etPttNum = view.findViewById(R.id.et_ptt_num);
+        etSbp = view.findViewById(R.id.et_sbp);
+        etDbp = view.findViewById(R.id.et_dbp);
 
         tvCalibrateStatus = view.findViewById(R.id.tv_calibration_status);
     }
@@ -69,8 +75,12 @@ public class PttCalibrationFragment extends Fragment {
             ibCalibrate.setImageResource(R.mipmap.ic_stop_32px);
             tvCalibrateStatus.setText(R.string.calibrating);
             pttSum = 0;
+            sbpSum = 0;
+            dbpSum = 0;
             pttNum = 0;
             etAveragePtt.setText(R.string.ellipsis);
+            etSbp.setText(R.string.ellipsis);
+            etDbp.setText(R.string.ellipsis);
             etPttNum.setText("0");
         } else {
             ibCalibrate.setImageResource(R.mipmap.ic_start_32px);
@@ -79,14 +89,18 @@ public class PttCalibrationFragment extends Fragment {
         this.isCalibrate = isCalibrate;
     }
 
-    public void addPttValue(final int ptt) {
+    public void addPttAndBpValue(final int ptt, final int sbp, final int dbp) {
         if(isCalibrate) {
             Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     pttSum += ptt;
+                    sbpSum += sbp;
+                    dbpSum += dbp;
                     pttNum++;
                     etAveragePtt.setText(String.valueOf(pttSum/pttNum));
+                    etSbp.setText(String.valueOf(sbpSum/pttNum));
+                    etDbp.setText(String.valueOf(dbpSum/pttNum));
                     etPttNum.setText(String.valueOf(pttNum));
                 }
             });

@@ -234,23 +234,17 @@ public class PttDevice extends AbstractDevice {
         }
     }
 
-    public void showPttValue(int ptt) {
-        if (listener != null) {
-            new Handler((Looper.getMainLooper())).post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onPttValueShowed(ptt);
-                }
-            });
-        }
+    public void processPtt(int ptt) {
+        Pair<Integer, Integer> bp = calculateBPUsingPTT(ptt);
+        showPttAndBpValue(ptt, bp.first, bp.second);
     }
 
-    public void showBpValue(int sbp, int dbp) {
+    private void showPttAndBpValue(int ptt, int sbp, int dbp) {
         if (listener != null) {
             new Handler((Looper.getMainLooper())).post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onBpValueShowed(sbp, dbp);
+                    listener.onPttAndBpValueShowed(ptt, sbp, dbp);
                 }
             });
         }
@@ -311,7 +305,7 @@ public class PttDevice extends AbstractDevice {
         this.config.save();
     }
 
-    public Pair<Integer, Integer> calculateBPUsingPTT(int ptt) {
+    private Pair<Integer, Integer> calculateBPUsingPTT(int ptt) {
         int ptt0 = config.getPtt0();
         int sbp0 = config.getSbp0();
         int dbp0 = config.getDbp0();

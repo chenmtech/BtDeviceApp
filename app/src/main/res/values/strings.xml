@@ -40,8 +40,8 @@
     <string name="save">保存</string>
     <string name="start_record">开始记录</string>
     <string name="stop_record">停止记录</string>
-    <string name="start_calibration">开始标定</string>
-    <string name="calibrating">标定中...</string>
+    <string name="start_calibration">开始</string>
+    <string name="calibrating">停止</string>
     <string name="recording">记录中</string>
     <string name="temperature_of_body">体温</string>
     <string name="modify_account_info">修改账户信息</string>
@@ -69,8 +69,8 @@
     <string name="th_record">温湿度记录</string>
     <string name="eeg_record">脑电记录</string>
     <string name="ppg_record">脉搏记录</string>
-    <string name="ptt_record">PTT记录</string>
-    <string name="bp_calibration">血压标定</string>
+    <string name="ptt_record">记录信号</string>
+    <string name="bp_calibration">测量血压</string>
     <string name="open_record_failure">打开记录失败</string>
     <string name="save_record_success">记录已保存</string>
     <string name="record_too_short">记录时长太短，未保存</string>

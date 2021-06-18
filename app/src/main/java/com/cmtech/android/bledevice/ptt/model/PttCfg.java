@@ -21,8 +21,8 @@ public class PttCfg extends LitePalSupport implements Serializable {
 
     private int id; // id
     private String address = ""; // mac address
-    private int ptt0 = 289;
-    private int sbp0 = 130;
+    private int ptt0 = 227;
+    private int sbp0 = 124;
     private int dbp0 = 80;
 
     public int getId() {
