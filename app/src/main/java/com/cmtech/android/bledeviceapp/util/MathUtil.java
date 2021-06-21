@@ -71,30 +71,31 @@ public class MathUtil {
         return (float)Math.sqrt(var/(x.size()-1));
     }
 	 
-	 public static Pair<Integer, Float> floatMin(List<Float> x) {
-		 float minV = Float.MAX_VALUE;
-		 int minI = -1;
-		 for(int i = 0; i < x.size(); i++) {
-			 if(x.get(i) < minV) {
-				 minV = x.get(i);
-				 minI = i;
-			 }
-		 }
-		 return new Pair<>(minI, minV);
-	 }
-	 
-	 public static Pair<Integer, Float> floatMax(List<Float> x) {
-		 float maxV = Float.MIN_VALUE;
-		 int maxI = -1;
-		 for(int i = 0; i < x.size(); i++) {
-			 if(x.get(i) > maxV) {
-				 maxV = x.get(i);
-				 maxI = i;
-			 }
-		 }
-		 return new Pair<>(maxI, maxV);
-	 }
+    public static Pair<Integer, Float> floatMin(List<Float> x) {
+     float minV = Float.MAX_VALUE;
+     int minI = -1;
+     for(int i = 0; i < x.size(); i++) {
+         if(x.get(i) < minV) {
+             minV = x.get(i);
+             minI = i;
+         }
+     }
+     return new Pair<>(minI, minV);
+    }
 
+    public static Pair<Integer, Float> floatMax(List<Float> x) {
+     float maxV = Float.MIN_VALUE;
+     int maxI = -1;
+     for(int i = 0; i < x.size(); i++) {
+         if(x.get(i) > maxV) {
+             maxV = x.get(i);
+             maxI = i;
+         }
+     }
+     return new Pair<>(maxI, maxV);
+    }
+
+    // 寻找List<Integer>中从begin到end之间的最大值及出现最大值的位置
     public static Pair<Integer, Integer> intMax(List<Integer> x, int begin, int end) {
         int maxV = Integer.MIN_VALUE;
         int maxI = -1;
@@ -118,5 +119,29 @@ public class MathUtil {
             }
         }
         return new Pair<>(minI, minV);
+    }
+
+    // 寻找List<Integer>中从begin到end之间的最大值及出现最大值的位置
+    // 如果连续出现几个最大值，则返回中间的位置
+    public static Pair<Integer, Integer> intMax1(List<Integer> x, int begin, int end) {
+        int maxV = Integer.MIN_VALUE;
+        int maxI = -1;
+        for(int i = begin; i < end; i++) {
+            int value = x.get(i);
+            if(value > maxV) {
+                maxV = value;
+                maxI = i;
+            }
+        }
+        int num = 0;
+        for(int i = maxI+1; i < end; i++) {
+            int value = x.get(i);
+            if(value == maxV) {
+                num++;
+            } else {
+                break;
+            }
+        }
+        return new Pair<>(maxI+num/2, maxV);
     }
 }

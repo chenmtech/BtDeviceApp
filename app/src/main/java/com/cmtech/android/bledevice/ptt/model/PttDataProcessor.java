@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.ptt.model;
 
-import android.util.Pair;
-
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledeviceapp.dataproc.PpgSignalPreFilter;
 import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
@@ -108,7 +106,7 @@ public class PttDataProcessor {
             int ppg = -(int) Math.round(ppgFilter.filter(ppgData[j]));
             device.showPttSignal(ecg, ppg);
             device.recordPttSignal(ecg, ppg);
-            int ptt = pttDetector.process(ecg, ppg);
+            int ptt = pttDetector.findDPTT(ecg, ppg);
             if(ptt != 0) {
                 device.processPtt(ptt);
             }

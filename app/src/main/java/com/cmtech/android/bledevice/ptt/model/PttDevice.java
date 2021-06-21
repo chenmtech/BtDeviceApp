@@ -13,6 +13,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledevice.ptt.model.ptt2bp.Ptt2BpModel2;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BlePttRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
@@ -309,9 +310,7 @@ public class PttDevice extends AbstractDevice {
         int ptt0 = config.getPtt0();
         int sbp0 = config.getSbp0();
         int dbp0 = config.getDbp0();
-        double tmp = 2*(ptt-ptt0)/0.017/ptt0;
-        int sbp = (int)(sbp0 - tmp);
-        int dbp = (int)(dbp0 - tmp);
-        return new Pair<>(sbp, dbp);
+        Pair<Double, Double> rlt = new Ptt2BpModel2(ptt0, sbp0, dbp0).getBp(ptt);
+        return new Pair<>(rlt.first.intValue(), rlt.second.intValue());
     }
 }
