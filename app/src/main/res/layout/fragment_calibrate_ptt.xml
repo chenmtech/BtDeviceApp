@@ -25,6 +25,28 @@
             android:layout_height="wrap_content"
             android:text="@string/start_calibration"
             android:textSize="@dimen/big_font"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="平均\n次数"
+                android:textSize="@dimen/small_font" />
+
+            <EditText
+                android:id="@+id/et_ptt_num"
+                style="@style/edittext_circle_gray_no_focusable_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="@dimen/big_font" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <View
@@ -41,7 +63,7 @@
         android:gravity="center_vertical"
         android:orientation="vertical">
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -65,19 +87,6 @@
                 android:text="毫秒"
                 android:textSize="@dimen/small_font"/>
 
-            <EditText
-                android:id="@+id/et_ptt_num"
-                style="@style/edittext_circle_gray_no_focusable_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="@dimen/big_font"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="个"
-                android:textSize="@dimen/small_font"/>
         </LinearLayout>
 
         <LinearLayout

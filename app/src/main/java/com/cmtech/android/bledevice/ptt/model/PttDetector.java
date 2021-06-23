@@ -14,6 +14,8 @@ import java.util.List;
  */
 public class PttDetector {
     private static final int QRS_WIDTH_MS = 200; // QRS波宽度，单位:毫秒
+    private static final int DELTA_PTT = 0;
+    private static final int FOOT_PTT = 1;
 
     private final int sampleRate; // 采样率，Hz
     private final int maxLength; // 数据缓存允许最大长度，如果超过该长度，则认为信号长时间没有出现QRS波，信号将被清空
@@ -39,13 +41,24 @@ public class PttDetector {
         initialize();
     }
 
+    // 处理同步的ECG和PPG信号，返回检测到的R波峰时刻到PPG最大导数时刻的PTT
+    public int findDeltaPtt(int ecg, int ppg) {
+        return findPtt(ecg, ppg, DELTA_PTT);
+    }
+
+    // 处理同步的ECG和PPG信号，返回检测到的R波峰时刻到PPG波谷时刻的PTT
+    public int findFootPtt(int ecg, int ppg) {
+        return findPtt(ecg, ppg, FOOT_PTT);
+    }
+
     /**
-     * 处理同步的ECG和PPG信号，返回检测到的dPTT
-     * @param ecg
-     * @param ppg
+     * 处理同步的ECG和PPG信号，返回检测到的R波峰时刻到PPG最大导数时刻的PTT
+     * @param ecg ECG信号
+     * @param ppg PPG信号
+     * @param whichPtt 指定求哪个PTT
      * @return 如果检测到PTT，则返回PTT值（单位：ms),否则返回0
      */
-    public int findDPTT(int ecg, int ppg) {
+    private int findPtt(int ecg, int ppg, int whichPtt) {
         // 数据长度超过最大长度限制，初始化
         if(length >= maxLength) {
             initialize();
@@ -96,12 +109,24 @@ public class PttDetector {
                 ViseLog.e("PPG:" + ppgTmp);
                 ViseLog.e("Delta PPG:" + deltaPpgTmp);*/
                 rlt = MathUtil.intMax(deltaPpg, 0, qrsPos);
-                int ppgPos = Math.max(0, rlt.first - 1); // 中心差分的deltaPPG有一位的延时，所以要减一
-                ViseLog.e("Delta PPG Max Position:" + ppgPos);
+                int deltaPpgPos = Math.max(0, rlt.first - 1); // 中心差分的deltaPPG有一位的延时，所以要减一
+                double maxDelta = rlt.second;
+                ViseLog.e("Delta PPG Max Position:" + deltaPpgPos);
 
-                // 将PPG波峰位置换算为PTT
-                int ptt = (int) Math.round(ppgPos * 1000.0 / sampleRate);
-                ViseLog.e("PTT:" + ptt);
+                int ptt = 0;
+                // 如果是DELTA_PTT，将PPG一阶导数最大值位置换算为PTT
+                if(whichPtt == DELTA_PTT) {
+                    ptt = (int) Math.round(deltaPpgPos * 1000.0 / sampleRate);
+                    ViseLog.e("PTT:" + ptt);
+                }
+                // 否则是FOOT_PTT，继续寻找foot PPG位置，并将该位置换算为PTT
+                else {
+                    rlt = MathUtil.intMin(ppgData, 0, deltaPpgPos);
+                    int footPpg = rlt.second;
+                    int footPpgPos = (int)Math.round((footPpg - ppgData.get(deltaPpgPos))/maxDelta + deltaPpgPos);
+                    ptt = (int) Math.round(footPpgPos * 1000.0 / sampleRate);
+                    ViseLog.e("PTT:" + ptt);
+                }
 
                 // 把第二个R波之前的数据都删除掉，使得第二波R波变为第一个，第三个变为第二个
                 ecgData.subList(0, qrsPos).clear();
@@ -132,7 +157,7 @@ public class PttDetector {
         ppg_2 = 0;
     }
 
-    // 计算PPG信号的一阶导数
+    // 用中心差分计算PPG信号的一阶导数
     private int getDeltaPpg(int ppg) {
         int delta = ppg - ppg_2;
         ppg_2 = ppg_1;

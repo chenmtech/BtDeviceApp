@@ -106,7 +106,7 @@ public class PttDataProcessor {
             int ppg = -(int) Math.round(ppgFilter.filter(ppgData[j]));
             device.showPttSignal(ecg, ppg);
             device.recordPttSignal(ecg, ppg);
-            int ptt = pttDetector.findDPTT(ecg, ppg);
+            int ptt = pttDetector.findDeltaPtt(ecg, ppg);
             if(ptt != 0) {
                 device.processPtt(ptt);
             }

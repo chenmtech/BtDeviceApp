@@ -122,7 +122,7 @@ public class MathUtil {
     }
 
     // 寻找List<Integer>中从begin到end之间的最大值及出现最大值的位置
-    // 如果连续出现几个最大值，则返回中间的位置
+    // 如果连续出现几个最大值，则返回出现最大值的中间位置
     public static Pair<Integer, Integer> intMax1(List<Integer> x, int begin, int end) {
         int maxV = Integer.MIN_VALUE;
         int maxI = -1;
