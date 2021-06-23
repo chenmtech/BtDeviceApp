@@ -108,7 +108,7 @@ public class PttDetector {
                 ViseLog.e("ECG:" + ecgTmp);
                 ViseLog.e("PPG:" + ppgTmp);
                 ViseLog.e("Delta PPG:" + deltaPpgTmp);*/
-                rlt = MathUtil.intMax(deltaPpg, 0, qrsPos);
+                rlt = MathUtil.intMax1(deltaPpg, 0, qrsPos);
                 int deltaPpgPos = Math.max(0, rlt.first - 1); // 中心差分的deltaPPG有一位的延时，所以要减一
                 double maxDelta = rlt.second;
                 ViseLog.e("Delta PPG Max Position:" + deltaPpgPos);
