@@ -124,6 +124,7 @@ public class PttDetector {
                     rlt = MathUtil.intMin(ppgData, 0, deltaPpgPos);
                     int footPpg = rlt.second;
                     int footPpgPos = (int)Math.round((footPpg - ppgData.get(deltaPpgPos))/maxDelta + deltaPpgPos);
+                    ViseLog.e("Foot PPG Position:" + footPpgPos);
                     ptt = (int) Math.round(footPpgPos * 1000.0 / sampleRate);
                     ViseLog.e("PTT:" + ptt);
                 }
