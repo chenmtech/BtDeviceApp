@@ -6,10 +6,14 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ptt.model.OnPttListener;
@@ -43,7 +47,7 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
  * UpdateRemark:
  * Version:        1.0
  */
-public class PttFragment extends DeviceFragment implements OnPttListener, OnWaveViewListener {
+public class PttFragment extends DeviceFragment implements OnPttListener, OnWaveViewListener, AdapterView.OnItemSelectedListener {
     private static final int RC_CONFIG = 1;
     private PttDevice device; // device
 
@@ -53,6 +57,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     private EditText etPtt; // ptt
     private EditText etSbp;
     private EditText etDbp;
+    private Spinner spinner;
 
     private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
@@ -79,6 +84,12 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         etPtt = view.findViewById(R.id.et_ptt);
         etSbp = view.findViewById(R.id.et_sbp);
         etDbp = view.findViewById(R.id.et_dbp);
+        spinner = view.findViewById(R.id.spinner_ptt_type);
+        spinner.setOnItemSelectedListener(this);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.ptt_type_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        spinner.setAdapter(adapter);
 
         ecgView = view.findViewById(R.id.ecg_view);
         ecgView.setup(device.getSampleRate(), DEFAULT_ECG_CALI, DEFAULT_ZERO_LOCATION);
@@ -198,5 +209,19 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         if(device != null) {
             device.setPttRecord(isRecord);
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        switch (parent.getId()) {
+            case R.id.spinner_ptt_type:
+
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

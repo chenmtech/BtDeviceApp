@@ -6,4 +6,9 @@
         <item>体温记录</item>
         <item>温湿度记录</item>
     </string-array>
+
+    <string-array name="ptt_type_array">
+        <item>每搏</item>
+        <item>平均</item>
+    </string-array>
 </resources>
