@@ -37,7 +37,7 @@ public class PttCalibrationFragment extends Fragment {
     EditText etDbp;
     TextView tvCalibrateStatus;
 
-    boolean isCalibrate = false;
+    boolean calibrating = false;
     int pttSum = 0;
     int sbpSum = 0;
     int dbpSum = 0;
@@ -58,7 +58,7 @@ public class PttCalibrationFragment extends Fragment {
         ibCalibrate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateCalibrationStatus(!isCalibrate);
+                updateCalibrationStatus(!calibrating);
             }
         });
 
@@ -70,8 +70,8 @@ public class PttCalibrationFragment extends Fragment {
         tvCalibrateStatus = view.findViewById(R.id.tv_calibration_status);
     }
 
-    private void updateCalibrationStatus(boolean isCalibrate) {
-        if(isCalibrate) {
+    private void updateCalibrationStatus(boolean calibrating) {
+        if(calibrating) {
             ibCalibrate.setImageResource(R.mipmap.ic_stop_32px);
             tvCalibrateStatus.setText(R.string.calibrating);
             pttSum = 0;
@@ -86,11 +86,11 @@ public class PttCalibrationFragment extends Fragment {
             ibCalibrate.setImageResource(R.mipmap.ic_start_32px);
             tvCalibrateStatus.setText(R.string.start_calibration);
         }
-        this.isCalibrate = isCalibrate;
+        this.calibrating = calibrating;
     }
 
     public void addPttAndBpValue(final int ptt, final int sbp, final int dbp) {
-        if(isCalibrate) {
+        if(calibrating) {
             Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

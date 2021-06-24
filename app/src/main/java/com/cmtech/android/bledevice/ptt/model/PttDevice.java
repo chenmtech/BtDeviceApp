@@ -236,7 +236,7 @@ public class PttDevice extends AbstractDevice {
     }
 
     public void processPtt(int ptt) {
-        if(ptt > 0) {
+        if(ptt > 0 && ptt < 500) {
             Pair<Integer, Integer> bp = calculateBPUsingPTT(ptt);
             showPttAndBpValue(ptt, bp.first, bp.second);
         }

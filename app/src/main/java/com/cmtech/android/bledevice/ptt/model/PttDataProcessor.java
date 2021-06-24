@@ -78,17 +78,18 @@ public class PttDataProcessor {
                 @Override
                 public void run() {
                     int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
-                    int diff = (packageNum - nextWantedPack) % MAX_PACKET_NUM;
-                    ViseLog.e("want: " + nextWantedPack + "arrive: " + packageNum + "equal: " + (nextWantedPack == packageNum));
-                    if(diff < 6) { // the packet number is ok
-                        ViseLog.i("Packet No." + packageNum);
-                        parseAndProcessDataPacket(data, 1, diff+1);
+                    // 计算接收到的包号与想要的包号之间的区别，以获取丢包数量
+                    int lostNum = (packageNum - nextWantedPack) % MAX_PACKET_NUM;
+                    ViseLog.e("wanted: " + nextWantedPack + "received: " + packageNum + ", isEqual: " + (nextWantedPack == packageNum));
+                    // 如果丢包小于6，则接受
+                    if(lostNum < 6) { // the packet number is ok
+                        parseAndProcessDataPacket(data, 1, lostNum+1);
                         if(packageNum == MAX_PACKET_NUM)
                             nextWantedPack = 0;
                         else
                             nextWantedPack = packageNum+1;
                     } else if(nextWantedPack != INVALID_PACKET_NUM){ // bad packet, force disconnect
-                        ViseLog.e("The PTT data packet is lost. Disconnect device.");
+                        ViseLog.e("The PTT data packet is lost too much. Disconnect device.");
                         nextWantedPack = INVALID_PACKET_NUM;
                         device.disconnect(false);
                     }
@@ -109,7 +110,7 @@ public class PttDataProcessor {
                 int ppg = -(int) Math.round(ppgFilter.filter(ppgData[j]));
                 device.showPttSignal(ecg, ppg);
                 device.recordPttSignal(ecg, ppg);
-                int ptt = pttDetector.findDeltaPtt(ecg, ppg);
+                int ptt = pttDetector.findFootPtt(ecg, ppg);
                 if (ptt != 0) {
                     device.processPtt(ptt);
                 }

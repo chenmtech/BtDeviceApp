@@ -7,7 +7,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_margin="20dp"
+        android:layout_margin="10dp"
         android:src="@mipmap/ic_start_32px"
         android:background="@color/background_transparent"/>
 
@@ -18,7 +18,7 @@
         android:layout_below="@id/ib_record"
         android:layout_centerHorizontal="true"
         android:text="@string/start_record"
-        android:textSize="@dimen/big_font"/>
+        android:textSize="@dimen/normal_font"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -38,8 +38,9 @@
             style="@style/edittext_circle_gray_no_focusable_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="0dp"
             android:text="@string/ellipsis"
-            android:textSize="@dimen/bigger_font"/>
+            android:textSize="@dimen/big_font"/>
 
         <TextView
             android:layout_width="wrap_content"
