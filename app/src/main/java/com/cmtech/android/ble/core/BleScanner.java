@@ -6,6 +6,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.os.Build;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.vise.log.ViseLog;
@@ -68,12 +69,20 @@ public class BleScanner {
         ViseLog.e("Scan started");
 
         BluetoothLeScanner scanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
-        ScanSettings.Builder settingsBuilder = new ScanSettings.Builder()
-                .setScanMode(SCAN_MODE_LOW_POWER)
-                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
-                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
-                .setReportDelay(0L);
+        ScanSettings.Builder settingsBuilder;
+        int sdkVersion = Build.VERSION.SDK_INT;
+        if (sdkVersion >= 23) { // api >= 23
+            settingsBuilder = new ScanSettings.Builder()
+                    .setScanMode(SCAN_MODE_LOW_POWER)
+                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+                    .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
+                    .setReportDelay(0L);
+        } else { // api < 23
+            settingsBuilder = new ScanSettings.Builder()
+                    .setScanMode(SCAN_MODE_LOW_POWER)
+                    .setReportDelay(0L);
+        }
         List<ScanFilter> scanFilters = (scanFilter == null) ? null : Collections.singletonList(scanFilter);
         scanner.startScan(scanFilters, settingsBuilder.build(), cbAdapter);
     }
