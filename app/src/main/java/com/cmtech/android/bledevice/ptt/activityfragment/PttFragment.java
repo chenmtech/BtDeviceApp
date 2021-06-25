@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,10 +98,10 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
         pager = view.findViewById(R.id.ptt_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ptt_control_panel_tab);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(pttCalibrationFrag, pttRecFrag));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(pttRecFrag));
         String title1 = getResources().getString(PttRecordFragment.TITLE_ID);
         String title2 = getResources().getString(PttCalibrationFragment.TITLE_ID);
-        List<String> titleList = new ArrayList<>(Arrays.asList(title2, title1));
+        List<String> titleList = new ArrayList<>(Arrays.asList(title1));
         fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(2);
@@ -182,7 +181,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         etPtt.setText(String.valueOf(ptt));
         etSbp.setText(String.valueOf(sbp));
         etDbp.setText(String.valueOf(dbp));
-        pttCalibrationFrag.addPttAndBpValue(ptt, sbp, dbp);
+        //pttCalibrationFrag.addPttAndBpValue(ptt, sbp, dbp);
     }
 
     @Override
@@ -215,7 +214,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         switch (parent.getId()) {
             case R.id.spinner_ptt_type:
-
+                device.setShowAveragePtt(position != 0);
                 break;
         }
     }

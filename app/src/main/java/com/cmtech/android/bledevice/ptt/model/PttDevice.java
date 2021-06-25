@@ -13,6 +13,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledevice.ptt.model.ptt2bp.AverageFilter;
 import com.cmtech.android.bledevice.ptt.model.ptt2bp.Ptt2BpModel2;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BlePttRecord;
@@ -75,6 +76,10 @@ public class PttDevice extends AbstractDevice {
 
     private final PttCfg config; // PTTdevice configuration
 
+    private final AverageFilter pttFilter;
+
+    private boolean showAveragePtt = false;
+
     public PttDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
 
@@ -85,6 +90,8 @@ public class PttDevice extends AbstractDevice {
             config.save();
         }
         this.config = config;
+
+        pttFilter = new AverageFilter(30);
     }
 
     public final int getSampleRate() {
@@ -237,9 +244,20 @@ public class PttDevice extends AbstractDevice {
 
     public void processPtt(int ptt) {
         if(ptt > 0 && ptt < 500) {
-            Pair<Integer, Integer> bp = calculateBPUsingPTT(ptt);
-            showPttAndBpValue(ptt, bp.first, bp.second);
+            int avePtt = pttFilter.filter(ptt);
+            Pair<Integer, Integer> bp;
+            if(showAveragePtt) {
+                bp = calculateBPUsingPTT(avePtt);
+                showPttAndBpValue(avePtt, bp.first, bp.second);
+            } else {
+                bp = calculateBPUsingPTT(ptt);
+                showPttAndBpValue(ptt, bp.first, bp.second);
+            }
         }
+    }
+
+    public void setShowAveragePtt(boolean showAveragePtt) {
+        this.showAveragePtt = showAveragePtt;
     }
 
     private void showPttAndBpValue(int ptt, int sbp, int dbp) {
