@@ -70,8 +70,7 @@ public class BleScanner {
 
         BluetoothLeScanner scanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
         ScanSettings.Builder settingsBuilder;
-        int sdkVersion = Build.VERSION.SDK_INT;
-        if (sdkVersion >= 23) { // api >= 23
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // api >= 23
             settingsBuilder = new ScanSettings.Builder()
                     .setScanMode(SCAN_MODE_LOW_POWER)
                     .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)

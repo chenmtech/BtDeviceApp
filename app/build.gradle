@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.mob.sdk'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.cmtech.android.bledeviceapp"
-        minSdkVersion 22
-        targetSdkVersion 28
-        versionCode 23
-        versionName "1.0.8"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 24
+        versionName "1.0.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

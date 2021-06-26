@@ -44,7 +44,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private final EventHandler eventHandler = new EventHandler() {
         public void afterEvent(int event, int result, Object data) {
             // afterEvent会在子线程被调用，因此如果后续有UI相关操作，需要将数据发送到UI线程
-            Message msg = new Message();
+            Message msg = Message.obtain();//new Message();
             msg.arg1 = event;
             msg.arg2 = result;
             msg.obj = data;
@@ -77,7 +77,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         }
     };
 
-    private final Handler countDownHandler = new Handler(new Handler.Callback() {
+    private final Handler countDownHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             if(msg.what == MSG_COUNT_DOWN_SECOND) {

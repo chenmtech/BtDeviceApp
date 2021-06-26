@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -49,13 +50,13 @@ public class SignUpActivity extends AppCompatActivity {
     private final EventHandler eventHandler = new EventHandler() {
         public void afterEvent(int event, int result, Object data) {
             // afterEvent会在子线程被调用，因此如果后续有UI相关操作，需要将数据发送到UI线程
-            Message msg = new Message();
+            Message msg = Message.obtain();//new Message();
             msg.arg1 = event;
             msg.arg2 = result;
             msg.obj = data;
             new Handler(Looper.getMainLooper(), new Handler.Callback() {
                 @Override
-                public boolean handleMessage(Message msg) {
+                public boolean handleMessage(@NonNull Message msg) {
                     int event = msg.arg1;
                     int result = msg.arg2;
                     Object data = msg.obj;
@@ -82,9 +83,9 @@ public class SignUpActivity extends AppCompatActivity {
         }
     };
 
-    private final Handler countDownHandler = new Handler(new Handler.Callback() {
+    private final Handler countDownHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
-        public boolean handleMessage(Message msg) {
+        public boolean handleMessage(@NonNull Message msg) {
             if(msg.what == MSG_COUNT_DOWN_SECOND) {
                 int nSecond = msg.arg1;
 

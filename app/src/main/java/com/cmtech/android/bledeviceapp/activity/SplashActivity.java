@@ -49,7 +49,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
-        public boolean handleMessage(Message msg) {
+        public boolean handleMessage(@NonNull Message msg) {
             if(msg.what == MSG_COUNT_SECOND) {
                 int nSecond = msg.arg1;
                 SplashActivity.this.tvSecond.setText(String.format(Locale.getDefault(), "%d%s", nSecond, getString(R.string.second)));

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -34,7 +35,7 @@ public class RollRecordView extends RollWaveView {
     private ScheduledExecutorService showExecutor; // 定时更新显示线程池
     private final Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
-        public boolean handleMessage(Message msg) {
+        public boolean handleMessage(@NonNull Message msg) {
             if(msg.what == MSG_UPDATE_VIEW) {
                 int curIndex = msg.arg1;
                 showView();

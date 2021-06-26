@@ -128,6 +128,8 @@ public class HrmDevice extends AbstractDevice {
 
     private OnHrmListener listener; // HRM device listener
 
+    private final static Handler mHandler = new Handler(Looper.getMainLooper());
+
     public HrmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
         HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
@@ -201,7 +203,7 @@ public class HrmDevice extends AbstractDevice {
             if(ecgRecord != null) {
                 int recordSecond = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 if (recordSecond < RECORD_MIN_SECOND) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
@@ -214,7 +216,7 @@ public class HrmDevice extends AbstractDevice {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
@@ -222,7 +224,7 @@ public class HrmDevice extends AbstractDevice {
                             });
 
                             ecgRecord.requestDiagnose();
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     Toast.makeText(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT).show();
@@ -681,7 +683,7 @@ public class HrmDevice extends AbstractDevice {
                 int second = ecgRecord.getDataNum()/sampleRate;
                 listener.onEcgRecordTimeUpdated(second);
                 if(second >= ECG_RECORD_MAX_SECOND) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    mHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             setEcgRecord(false);

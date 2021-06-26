@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -51,19 +52,23 @@ public class BleGatt {
     private volatile Map<UUID, Pair<BleGattElement, IBleDataCallback>> notifyElementCallbackMap = new HashMap<>(); // Notify或Indicate操作的Element和Callback Map
 
     private final Lock connLock = new ReentrantLock();
-    private boolean acting = false;
+    private boolean acting = false; // 是否有CONNECT或DISCONNET事件在处理
 
     // 回调Handler，除了onCharacteristicChanged回调在其本身的线程中执行外，其他所有回调处理都在此Handler中执行
-    private final Handler callbackHandler = new Handler(Looper.getMainLooper()) {
+    private final Handler callbackHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
-        public void handleMessage(Message msg) {
-            if(acting) return;
+        public boolean handleMessage(Message msg) {
+            if(acting) return false;
             switch (msg.what) {
                 case MSG_CONNECT:
                     BluetoothDevice bluetoothDevice = getBluetoothDevice(bleAddress);
                     if(bluetoothDevice != null) {
                         acting = true;
-                        bluetoothDevice.connectGatt(context, false, coreGattCallback, BluetoothDevice.TRANSPORT_LE);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            bluetoothDevice.connectGatt(context, false, coreGattCallback, BluetoothDevice.TRANSPORT_LE);
+                        } else {
+                            bluetoothDevice.connectGatt(context, false, coreGattCallback);
+                        }
                     }
                     break;
 
@@ -74,8 +79,9 @@ public class BleGatt {
                     }
                     break;
             }
+            return true;
         }
-    };
+    });
 
     /**
      * 蓝牙所有Gatt操作的回调
