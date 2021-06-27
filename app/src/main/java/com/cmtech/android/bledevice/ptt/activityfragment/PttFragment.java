@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ptt.activityfragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,7 @@ import com.cmtech.android.bledeviceapp.view.ScanPpgView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_CALI;
@@ -69,7 +71,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (PttDevice) getDevice();
@@ -77,7 +79,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         tvMessage = view.findViewById(R.id.tv_ppg_message);
         etPtt = view.findViewById(R.id.et_ptt);
@@ -85,7 +87,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         etDbp = view.findViewById(R.id.et_dbp);
         spinner = view.findViewById(R.id.spinner_ptt_type);
         spinner.setOnItemSelectedListener(this);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(Objects.requireNonNull(getContext()),
                 R.array.ptt_type_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinner.setAdapter(adapter);
@@ -152,17 +154,30 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     public void onPttSignalShowed(int ecgSignal, int ppgSignal) {
         ecgView.addData(ecgSignal);
         ppgView.addData(ppgSignal);
-        //ViseLog.e("show data:" + ecgSignal + "," + ppgSignal);
     }
 
     @Override
     public void onPttSignalRecordStatusChanged(boolean isRecord) {
-        pttRecFrag.updateRecordStatus(isRecord);
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pttRecFrag.updateRecordStatus(isRecord);
+                }
+            });
+        }
     }
 
     @Override
     public void onPttSignalRecordTimeUpdated(int second) {
-        pttRecFrag.setPttRecordTime(second);
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pttRecFrag.setPttRecordTime(second);
+                }
+            });
+        }
     }
 
     @Override
@@ -178,10 +193,16 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
     @Override
     public void onPttAndBpValueShowed(int ptt, int sbp, int dbp) {
-        etPtt.setText(String.valueOf(ptt));
-        etSbp.setText(String.valueOf(sbp));
-        etDbp.setText(String.valueOf(dbp));
-        //pttCalibrationFrag.addPttAndBpValue(ptt, sbp, dbp);
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    etPtt.setText(String.valueOf(ptt));
+                    etSbp.setText(String.valueOf(sbp));
+                    etDbp.setText(String.valueOf(dbp));
+                }
+            });
+        }
     }
 
     @Override
@@ -212,10 +233,8 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        switch (parent.getId()) {
-            case R.id.spinner_ptt_type:
-                device.setShowAveragePtt(position != 0);
-                break;
+        if (parent.getId() == R.id.spinner_ptt_type) {
+            device.setShowAveragePtt(position != 0);
         }
     }
 

@@ -1,6 +1,8 @@
 package com.cmtech.android.bledevice.eeg.model;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -204,15 +206,25 @@ public class EegDevice extends AbstractDevice {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
-                Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         } else {
-            if(eegRecord == null) return;
-
-            eegRecord.setCreateTime(new Date().getTime());
-            eegRecord.setRecordSecond(eegRecord.getEegData().size()/sampleRate);
-            eegRecord.save();
-            Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
+            if(eegRecord != null) {
+                eegRecord.setCreateTime(new Date().getTime());
+                eegRecord.setRecordSecond(eegRecord.getEegData().size()/sampleRate);
+                eegRecord.save();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
 
         if(listener != null) {
@@ -231,7 +243,8 @@ public class EegDevice extends AbstractDevice {
             eegRecord.process(eegSignal);
             if(eegRecord.getDataNum() % sampleRate == 0 && listener != null) {
                 int second = eegRecord.getDataNum()/sampleRate;
-                listener.onEegSignalRecordTimeUpdated(second);
+                if(listener != null)
+                    listener.onEegSignalRecordTimeUpdated(second);
             }
         }
     }

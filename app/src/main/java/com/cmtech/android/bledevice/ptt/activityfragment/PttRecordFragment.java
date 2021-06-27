@@ -73,11 +73,6 @@ public class PttRecordFragment extends Fragment {
     }
 
     public void setPttRecordTime(final int second) {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                etTimeLength.setText(String.valueOf(30-second));
-            }
-        });
+        etTimeLength.setText(String.valueOf(30-second));
     }
 }

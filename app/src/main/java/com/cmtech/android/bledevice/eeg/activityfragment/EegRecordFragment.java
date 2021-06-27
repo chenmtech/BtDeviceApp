@@ -72,11 +72,6 @@ public class EegRecordFragment extends Fragment {
     }
 
     public void setEcgRecordTime(final int second) {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tvTimeLength.setText(String.valueOf(second));
-            }
-        });
+        tvTimeLength.setText(String.valueOf(second));
     }
 }

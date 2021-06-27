@@ -80,8 +80,6 @@ public class PttDevice extends AbstractDevice {
 
     private boolean showAveragePtt = false;
 
-    private final static Handler mHandler = new Handler(Looper.getMainLooper());
-
     public PttDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
 
@@ -194,7 +192,7 @@ public class PttDevice extends AbstractDevice {
                 pttRecord.setSampleRate(sampleRate);
                 pttRecord.setEcgCaliValue(DEFAULT_ECG_CALI);
                 pttRecord.setPpgCaliValue(DEFAULT_PPG_CALI);
-                mHandler.post(new Runnable() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
@@ -202,17 +200,17 @@ public class PttDevice extends AbstractDevice {
                 });
             }
         } else {
-            if(pttRecord == null) return;
-
-            pttRecord.setCreateTime(new Date().getTime());
-            pttRecord.setRecordSecond(pttRecord.getEcgData().size()/sampleRate);
-            pttRecord.save();
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
-                }
-            });
+            if(pttRecord != null) {
+                pttRecord.setCreateTime(new Date().getTime());
+                pttRecord.setRecordSecond(pttRecord.getEcgData().size()/sampleRate);
+                pttRecord.save();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
 
         if(listener != null) {
@@ -233,12 +231,7 @@ public class PttDevice extends AbstractDevice {
                 int second = pttRecord.getDataNum()/sampleRate;
                 listener.onPttSignalRecordTimeUpdated(second);
                 if(second >= PTT_RECORD_MAX_SECOND) {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            setPttRecord(false);
-                        }
-                    });
+                    setPttRecord(false);
                 }
             }
         }
@@ -264,12 +257,7 @@ public class PttDevice extends AbstractDevice {
 
     private void showPttAndBpValue(int ptt, int sbp, int dbp) {
         if (listener != null) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onPttAndBpValueShowed(ptt, sbp, dbp);
-                }
-            });
+            listener.onPttAndBpValueShowed(ptt, sbp, dbp);
         }
     }
 
