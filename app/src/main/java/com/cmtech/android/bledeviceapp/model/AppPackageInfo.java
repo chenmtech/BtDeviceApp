@@ -15,6 +15,7 @@ import com.cmtech.android.bledeviceapp.asynctask.AppInfoWebAsyncTask;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
+import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -162,7 +163,7 @@ public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
                             fileOutputStream.close();
                         }
 
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        ThreadUtil.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 pBar.dismiss();

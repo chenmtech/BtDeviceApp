@@ -17,6 +17,7 @@ import com.cmtech.android.bledeviceapp.data.record.BlePpgRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
 import java.util.Date;
@@ -175,7 +176,7 @@ public class PpgDevice extends AbstractDevice {
             if(this.record != null) {
                 this.record.setSampleRate(sampleRate);
                 this.record.setCaliValue(caliValue);
-                Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(this.record == null) return;
@@ -183,7 +184,7 @@ public class PpgDevice extends AbstractDevice {
             this.record.setCreateTime(new Date().getTime());
             this.record.setRecordSecond(this.record.getPpgData().size()/sampleRate);
             this.record.save();
-            Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
+            ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
         }
 
         if(listener != null) {
@@ -204,12 +205,7 @@ public class PpgDevice extends AbstractDevice {
                 int second = record.getDataNum()/sampleRate;
                 listener.onPpgSignalRecordTimeUpdated(second);
                 if(second >= PPG_RECORD_MAX_SECOND) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            setRecord(false);
-                        }
-                    });
+                    setRecord(false);
                 }
             }
         }

@@ -19,6 +19,7 @@ import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
 
@@ -181,12 +182,7 @@ public class HrmDevice extends AbstractDevice {
         if(this.ecgRecording == record) return;
 
         if(record && !ecgOn) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
-                }
-            });
+            ThreadUtil.showToastInMainThread(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT);
             if(listener != null) {
                 listener.onEcgSignalRecordStatusUpdated(false);
             }
@@ -200,23 +196,13 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);
                 ecgRecord.setLeadTypeCode(leadType.getCode());
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(ecgRecord != null) {
                 int recordSecond = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 if (recordSecond < RECORD_MIN_SECOND) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    ThreadUtil.showToastInMainThread(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT);
                 } else {
                     ecgRecord.setCreateTime(new Date().getTime());
                     ecgRecord.setRecordSecond(recordSecond);
@@ -224,20 +210,11 @@ public class HrmDevice extends AbstractDevice {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                            ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
 
                             ecgRecord.requestDiagnose();
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT).show();
-                                }
-                            });
+
+                            ThreadUtil.showToastInMainThread(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT);
                         }
                     }).start();
                 }
@@ -273,12 +250,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(ecgRecording && !ecgOn) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT).show();
-                }
-            });
+            ThreadUtil.showToastInMainThread(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT);
             if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
         }
@@ -696,12 +668,7 @@ public class HrmDevice extends AbstractDevice {
                 int second = ecgRecord.getDataNum()/sampleRate;
                 listener.onEcgRecordTimeUpdated(second);
                 if(second >= ECG_RECORD_MAX_SECOND) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            setEcgRecord(false);
-                        }
-                    });
+                    setEcgRecord(false);
                 }
             }
         }

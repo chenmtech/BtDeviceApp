@@ -115,7 +115,14 @@ public class PpgFragment extends DeviceFragment implements OnPpgListener, OnWave
 
     @Override
     public void onPpgSignalRecordStatusChanged(boolean isRecord) {
-        ppgRecFrag.updateRecordStatus(isRecord);
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ppgRecFrag.updateRecordStatus(isRecord);
+                }
+            });
+        }
     }
 
     @Override

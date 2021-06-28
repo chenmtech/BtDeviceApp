@@ -17,6 +17,7 @@ import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
 import java.util.Date;
@@ -206,24 +207,14 @@ public class EegDevice extends AbstractDevice {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(eegRecord != null) {
                 eegRecord.setCreateTime(new Date().getTime());
                 eegRecord.setRecordSecond(eegRecord.getEegData().size()/sampleRate);
                 eegRecord.save();
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
             }
         }
 

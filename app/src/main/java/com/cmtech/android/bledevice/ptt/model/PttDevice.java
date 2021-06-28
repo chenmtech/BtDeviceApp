@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.data.record.BlePttRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
 import org.litepal.LitePal;
@@ -192,24 +193,14 @@ public class PttDevice extends AbstractDevice {
                 pttRecord.setSampleRate(sampleRate);
                 pttRecord.setEcgCaliValue(DEFAULT_ECG_CALI);
                 pttRecord.setPpgCaliValue(DEFAULT_PPG_CALI);
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(pttRecord != null) {
                 pttRecord.setCreateTime(new Date().getTime());
                 pttRecord.setRecordSecond(pttRecord.getEcgData().size()/sampleRate);
                 pttRecord.save();
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
             }
         }
 
