@@ -170,8 +170,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
     @Override
     public void onHRUpdated(final BleHeartRateData hrData) {
-        if(hrData != null) {
-            Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+        if(hrData != null && getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     int bpm = hrData.getBpm();
@@ -187,22 +187,26 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
     @Override
     public void onHRStatisticInfoUpdated(BleHrRecord record) {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                hrRecFrag.updateHrInfo(record.getHrList(), record.getHrMax(), record.getHrAve());
-            }
-        });
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    hrRecFrag.updateHrInfo(record.getHrList(), record.getHrMax(), record.getHrAve());
+                }
+            });
+        }
     }
 
     @Override
     public void onHRSensLocUpdated(final int loc) {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //debugFrag.updateHrSensLoc(String.valueOf(loc));
-            }
-        });
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //debugFrag.updateHrSensLoc(String.valueOf(loc));
+                }
+            });
+        }
     }
 
     @Override
@@ -212,38 +216,54 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
     @Override
     public void onFragmentUpdated(final int sampleRate, final int caliValue, final float zeroLocation, final boolean inHrMode) {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tvSwitchMode.setVisibility(View.VISIBLE);
-                if(inHrMode) {
-                    flInHrMode.setVisibility(View.VISIBLE);
-                    flInEcgMode.setVisibility(View.GONE);
-                    ecgView.stopShow();
-                    fragAdapter.removeFragment(ecgRecFrag);
-                    pager.setCurrentItem(fragAdapter.getCount()-1);
-                    tvSwitchMode.setTextColor(Color.BLACK);
-                    tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
-                            getResources().getDrawable(R.mipmap.ic_hr_24px, null), null, null);
-                } else {
-                    ecgView.setup(sampleRate, caliValue, zeroLocation);
-                    fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
-                    tvSwitchMode.setTextColor(Color.WHITE);
-                    tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
-                            getResources().getDrawable(R.mipmap.ic_ecg_24px, null), null, null);
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvSwitchMode.setVisibility(View.VISIBLE);
+                    if (inHrMode) {
+                        flInHrMode.setVisibility(View.VISIBLE);
+                        flInEcgMode.setVisibility(View.GONE);
+                        ecgView.stopShow();
+                        fragAdapter.removeFragment(ecgRecFrag);
+                        pager.setCurrentItem(fragAdapter.getCount() - 1);
+                        tvSwitchMode.setTextColor(Color.BLACK);
+                        tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
+                                getResources().getDrawable(R.mipmap.ic_hr_24px, null), null, null);
+                    } else {
+                        ecgView.setup(sampleRate, caliValue, zeroLocation);
+                        fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
+                        tvSwitchMode.setTextColor(Color.WHITE);
+                        tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
+                                getResources().getDrawable(R.mipmap.ic_ecg_24px, null), null, null);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
     public void onHrRecordStatusUpdated(boolean record) {
-        hrRecFrag.updateRecordStatus(record);
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    hrRecFrag.updateRecordStatus(record);
+                }
+            });
+        }
     }
 
     @Override
     public void onEcgSignalRecordStatusUpdated(boolean record) {
-        ecgRecFrag.updateRecordStatus(record);
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ecgRecFrag.updateRecordStatus(record);
+                }
+            });
+        }
     }
 
     @Override
@@ -254,26 +274,35 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
     @Override
     public void onEcgOnStatusUpdated(final boolean ecgOn) {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (ecgOn) {
-                    flInHrMode.setVisibility(View.GONE);
-                    flInEcgMode.setVisibility(View.VISIBLE);
-                    ecgView.startShow();
-                    ecgView.resetView(false);
-                } else {
-                    flInHrMode.setVisibility(View.VISIBLE);
-                    flInEcgMode.setVisibility(View.GONE);
-                    ecgView.stopShow();
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (ecgOn) {
+                        flInHrMode.setVisibility(View.GONE);
+                        flInEcgMode.setVisibility(View.VISIBLE);
+                        ecgView.startShow();
+                        ecgView.resetView(false);
+                    } else {
+                        flInHrMode.setVisibility(View.VISIBLE);
+                        flInEcgMode.setVisibility(View.GONE);
+                        ecgView.stopShow();
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
     public void onEcgRecordTimeUpdated(int second) {
-        ecgRecFrag.setEcgRecordTime(second);
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ecgRecFrag.setEcgRecordTime(second);
+                }
+            });
+        }
     }
 
     @Override

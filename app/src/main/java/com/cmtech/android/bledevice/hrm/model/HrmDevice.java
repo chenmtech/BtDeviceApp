@@ -128,8 +128,6 @@ public class HrmDevice extends AbstractDevice {
 
     private OnHrmListener listener; // HRM device listener
 
-    private final static Handler mHandler = new Handler(Looper.getMainLooper());
-
     public HrmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
         HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
@@ -183,7 +181,12 @@ public class HrmDevice extends AbstractDevice {
         if(this.ecgRecording == record) return;
 
         if(record && !ecgOn) {
-            Toast.makeText(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
+                }
+            });
             if(listener != null) {
                 listener.onEcgSignalRecordStatusUpdated(false);
             }
@@ -197,13 +200,18 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);
                 ecgRecord.setLeadTypeCode(leadType.getCode());
-                Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         } else {
             if(ecgRecord != null) {
                 int recordSecond = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 if (recordSecond < RECORD_MIN_SECOND) {
-                    mHandler.post(new Runnable() {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
@@ -216,7 +224,7 @@ public class HrmDevice extends AbstractDevice {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            mHandler.post(new Runnable() {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
                                 public void run() {
                                     Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
@@ -224,7 +232,7 @@ public class HrmDevice extends AbstractDevice {
                             });
 
                             ecgRecord.requestDiagnose();
-                            mHandler.post(new Runnable() {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
                                 @Override
                                 public void run() {
                                     Toast.makeText(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT).show();
@@ -265,7 +273,12 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(ecgRecording && !ecgOn) {
-            Toast.makeText(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT).show();
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT).show();
+                }
+            });
             if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
         }
@@ -683,7 +696,7 @@ public class HrmDevice extends AbstractDevice {
                 int second = ecgRecord.getDataNum()/sampleRate;
                 listener.onEcgRecordTimeUpdated(second);
                 if(second >= ECG_RECORD_MAX_SECOND) {
-                    mHandler.post(new Runnable() {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
                             setEcgRecord(false);
