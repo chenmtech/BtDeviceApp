@@ -1,8 +1,6 @@
 package com.cmtech.android.bledevice.hrm.model;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -25,6 +23,7 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -455,11 +454,11 @@ public class HrmDevice extends AbstractDevice {
 
     private static class HRSpeaker {
         private volatile boolean on = false;
-        private long periodMs = 0;
-        private volatile long lastSpeakTime = 0;
+        private long speakPeriod = 0; // 播报周期，ms
+        private volatile long lastSpeakTime = 0; // 上次播报时间
 
         public void start(int periodS) {
-            periodMs = periodS*60000L;
+            speakPeriod = periodS*60000L;
             lastSpeakTime = new Date().getTime();
             on = true;
         }
@@ -471,7 +470,7 @@ public class HrmDevice extends AbstractDevice {
         public void speak(String hr) {
             if(on) {
                 long currentTime = new Date().getTime();
-                if ((currentTime - lastSpeakTime) > periodMs) {
+                if ((currentTime - lastSpeakTime) > speakPeriod) {
                     MyApplication.getTts().speak(hr);
                     lastSpeakTime = currentTime;
                     ViseLog.e("speak: " + hr);
@@ -515,8 +514,10 @@ public class HrmDevice extends AbstractDevice {
                         }
 
                         String currentHr = MyApplication.getStr(R.string.current_hr) + bpm;
+                        String currentTime = "当前时间" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "点"
+                                + Calendar.getInstance().get(Calendar.MINUTE) + "分";
                         setNotificationInfo(currentHr);
-                        speaker.speak(currentHr);
+                        speaker.speak(currentHr + currentTime);
 
                         boolean hrStatisticUpdated = (hrRecording && hrRecord.record((short) bpm, heartRateData.getTime()));
                         if (!MyApplication.isRunInBackground()) {
