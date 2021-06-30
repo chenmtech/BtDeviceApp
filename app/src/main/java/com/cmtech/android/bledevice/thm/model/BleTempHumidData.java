@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.thm.model;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 

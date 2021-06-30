@@ -1,8 +1,8 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,7 +11,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.vise.utils.handler.HandlerUtil;
 
 public class AboutUsActivity extends AppCompatActivity {
     private WebView mWebview;

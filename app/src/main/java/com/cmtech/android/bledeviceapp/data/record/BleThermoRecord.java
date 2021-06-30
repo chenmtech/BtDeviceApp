@@ -1,8 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 
 import org.json.JSONException;

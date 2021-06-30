@@ -7,7 +7,7 @@
     <!--记录简介部分-->
     <include layout="@layout/layout_ecgrecord_introduction"/>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
@@ -99,7 +99,7 @@
                         android:textSize="@dimen/smallest_font"/>
                 </LinearLayout>
 
-                <android.support.v7.widget.RecyclerView
+                <androidx.recyclerview.widget.RecyclerView
                     android:id = "@+id/rv_comment_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -150,5 +150,5 @@
             </LinearLayout>
         </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

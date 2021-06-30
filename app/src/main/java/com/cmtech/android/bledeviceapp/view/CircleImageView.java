@@ -10,7 +10,7 @@ import android.util.AttributeSet;
  *  Created by bme on 2019/3/19.
  */
 
-public class CircleImageView extends android.support.v7.widget.AppCompatImageView{
+public class CircleImageView extends androidx.appcompat.widget.AppCompatImageView{
 
     private float width,height;
     private final Path path = new Path();

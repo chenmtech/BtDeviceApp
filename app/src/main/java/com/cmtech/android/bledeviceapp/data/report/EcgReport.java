@@ -1,9 +1,8 @@
 package com.cmtech.android.bledeviceapp.data.report;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
-import com.cmtech.android.bledeviceapp.util.AESUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;

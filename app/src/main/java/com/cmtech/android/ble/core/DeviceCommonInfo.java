@@ -1,7 +1,7 @@
 package com.cmtech.android.ble.core;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.litepal.crud.LitePalSupport;
 

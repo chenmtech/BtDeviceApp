@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ptt.activityfragment;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;

@@ -12,7 +12,7 @@ import android.view.View;
  *  Created by bme on 2019/3/19.
  */
 
-public class RoundImageView extends android.support.v7.widget.AppCompatImageView{
+public class RoundImageView extends androidx.appcompat.widget.AppCompatImageView{
 
     private float width,height;
     private Path path = new Path();
