@@ -467,11 +467,14 @@ public class HrmDevice extends AbstractDevice {
             on = false;
         }
 
-        public void speak(String hr) {
+        public void speak(int hr) {
             if(on) {
                 long currentTime = new Date().getTime();
                 if ((currentTime - lastSpeakTime) > speakPeriod) {
-                    MyApplication.getTts().speak(hr);
+                    String currentHr = MyApplication.getStr(R.string.current_hr) + hr;
+                    String currentStr = "现在时间" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "点"
+                            + Calendar.getInstance().get(Calendar.MINUTE) + "分";
+                    MyApplication.getTts().speak(currentHr + currentStr);
                     lastSpeakTime = currentTime;
                     ViseLog.e("speak: " + hr);
                 }
@@ -514,10 +517,8 @@ public class HrmDevice extends AbstractDevice {
                         }
 
                         String currentHr = MyApplication.getStr(R.string.current_hr) + bpm;
-                        String currentTime = "当前时间" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "点"
-                                + Calendar.getInstance().get(Calendar.MINUTE) + "分";
                         setNotificationInfo(currentHr);
-                        speaker.speak(currentHr + currentTime);
+                        speaker.speak(bpm);
 
                         boolean hrStatisticUpdated = (hrRecording && hrRecord.record((short) bpm, heartRateData.getTime()));
                         if (!MyApplication.isRunInBackground()) {
