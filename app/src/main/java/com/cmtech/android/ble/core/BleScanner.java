@@ -121,12 +121,12 @@ public class BleScanner {
     }
 
     // 清除BLE内部错误标志
-    public static void clearInnerError() {
+    public synchronized static void clearInnerError() {
         bleInnerError = false;
     }
 
     private static class ScanCallbackAdapter extends ScanCallback {
-        private IBleScanCallback callback;
+        private final IBleScanCallback callback;
 
         ScanCallbackAdapter(IBleScanCallback bleCallback) {
             if(bleCallback == null) {
@@ -139,19 +139,16 @@ public class BleScanner {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
 
-            if(callback != null) {
-                byte[] recordBytes = (result.getScanRecord() == null) ? null : result.getScanRecord().getBytes();
-                BleDeviceDetailInfo bleDeviceDetailInfo = new BleDeviceDetailInfo(result.getDevice(), result.getRssi(), recordBytes, result.getTimestampNanos());
-                callback.onDeviceFound(bleDeviceDetailInfo);
-            }
+            byte[] recordBytes = (result.getScanRecord() == null) ? null : result.getScanRecord().getBytes();
+            BleDeviceDetailInfo bleDeviceDetailInfo = new BleDeviceDetailInfo(result.getDevice(), result.getRssi(), recordBytes, result.getTimestampNanos());
+            callback.onDeviceFound(bleDeviceDetailInfo);
         }
 
         @Override
         public void onScanFailed(int errorCode) {
             super.onScanFailed(errorCode);
             bleInnerError = true;
-            if(callback != null)
-                callback.onScanFailed(CODE_BLE_INNER_ERROR);
+            callback.onScanFailed(CODE_BLE_INNER_ERROR);
         }
 
         @Override

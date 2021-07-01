@@ -9,8 +9,6 @@ import com.vise.log.ViseLog;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
   *
@@ -46,27 +44,20 @@ public class PpgDataProcessor {
         filter.design(device.getSampleRate());
     }
 
-    public synchronized void start() {
+    public void start() {
         nextPackNum = 0;
         if(ExecutorUtil.isDead(procService)) {
-            procService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MT_Ppg_Process");
-                }
-            });
-
-            ViseLog.e("The ppg data processor is started.");
+            procService = ExecutorUtil.newSingleExecutor("MT_Ppg_Process");
+            ViseLog.e("The ppg data processor started.");
         }
     }
 
-    public synchronized void stop() {
-        ViseLog.e("The ppg data processor is stopped.");
-
+    public void stop() {
         ExecutorUtil.shutdownNowAndAwaitTerminate(procService);
+        ViseLog.e("The ppg data processor stopped.");
     }
 
-    public synchronized void processData(final byte[] data) {
+    public void processData(final byte[] data) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override

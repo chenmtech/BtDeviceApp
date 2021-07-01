@@ -22,8 +22,6 @@ import com.vise.log.ViseLog;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -147,13 +145,7 @@ public class ScanWaveView extends WaveView {
     public void startShow() {
         if(showService == null || showService.isTerminated()) {
             ViseLog.e("启动ScanWaveView");
-
-            showService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MT_Wave_Show");
-                }
-            });
+            showService = ExecutorUtil.newSingleExecutor("MT_Wave_Show");
         }
     }
 

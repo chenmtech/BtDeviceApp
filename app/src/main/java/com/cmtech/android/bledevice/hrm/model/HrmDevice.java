@@ -122,7 +122,7 @@ public class HrmDevice extends AbstractDevice {
     private final HrmCfg config; // HRM device configuration
     private final HRSpeaker speaker = new HRSpeaker(); // HR Speaker
 
-    private EcgDataPacketProcessor ecgProcessor; // ecg signal processor
+    private EcgDataProcessor ecgProcessor; // ecg signal processor
     private BleHrRecord hrRecord; // HR record
     private BleEcgRecord ecgRecord; // ECG record
 
@@ -262,7 +262,7 @@ public class HrmDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     //ViseLog.i("ecg data: " + Arrays.toString(data));
-                    ecgProcessor.takePacket(data);
+                    ecgProcessor.processData(data);
                 }
 
                 @Override
@@ -602,7 +602,7 @@ public class HrmDevice extends AbstractDevice {
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                ecgProcessor = new EcgDataPacketProcessor(HrmDevice.this);
+                ecgProcessor = new EcgDataProcessor(HrmDevice.this);
                 ecgProcessor.start();
 
                 if (listener != null)

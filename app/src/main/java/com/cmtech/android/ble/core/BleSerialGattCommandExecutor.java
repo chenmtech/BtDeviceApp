@@ -5,8 +5,6 @@ import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.vise.log.ViseLog;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
  *
@@ -37,15 +35,9 @@ class BleSerialGattCommandExecutor {
         if(connector.getBleGatt() == null || isAlive()) {
             return;
         }
+        gattCmdService = ExecutorUtil.newSingleExecutor("MT_Gatt_Cmd_Service");
+        ViseLog.e("The gattCmdExecutor started.");
 
-        ViseLog.e("Starting the gattCmdExecutor.");
-
-        gattCmdService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable runnable) {
-                return new Thread(runnable, "MT_Gatt_Cmd_Service");
-            }
-        });
     }
 
     // 停止Gatt命令执行器

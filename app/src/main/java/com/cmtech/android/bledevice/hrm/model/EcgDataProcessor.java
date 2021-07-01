@@ -7,8 +7,6 @@ import com.vise.log.ViseLog;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
   *
@@ -22,7 +20,7 @@ import java.util.concurrent.ThreadFactory;
   * Version:        1.0
  */
 
-public class EcgDataPacketProcessor {
+public class EcgDataProcessor {
     private static final int MAX_PACKET_NUM = 255; // the max packet number
     private static final int INVALID_PACKET_NUM = -1; // invalid packet number
 
@@ -31,7 +29,7 @@ public class EcgDataPacketProcessor {
     private final ISignalFilter preFilter; // ecg filter
     private ExecutorService procService; // ecg data process Service
 
-    public EcgDataPacketProcessor(HrmDevice device) {
+    public EcgDataProcessor(HrmDevice device) {
         if(device == null) {
             throw new NullPointerException("The device is null.");
         }
@@ -44,29 +42,22 @@ public class EcgDataPacketProcessor {
         preFilter.design(device.getSampleRate());
     }
 
-    public synchronized void start() {
+    public void start() {
         if(ExecutorUtil.isDead(procService)) {
             nextPackNum = 0;
-            procService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MT_Ecg_Process");
-                }
-            });
-
-            ViseLog.e("The ecg data processor is started.");
+            procService = ExecutorUtil.newSingleExecutor("MT_Ecg_Process");
+            ViseLog.e("The ecg data processor started.");
         } else {
-            throw new IllegalStateException("The ecg data processor's executor is not stopped and can't be started.");
+            throw new IllegalStateException("The ecg data processor's executor is not stopped. The processor can't be started.");
         }
     }
 
-    public synchronized void stop() {
-        ViseLog.e("The ecg data processor is stopped.");
-
+    public void stop() {
         ExecutorUtil.shutdownNowAndAwaitTerminate(procService);
+        ViseLog.e("The ecg data processor stopped.");
     }
 
-    public synchronized void takePacket(final byte[] packet) {
+    public void processData(final byte[] packet) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override

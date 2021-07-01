@@ -1,16 +1,14 @@
 package com.cmtech.android.bledevice.ptt.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledeviceapp.dataproc.PpgSignalPreFilter;
 import com.cmtech.android.bledeviceapp.dataproc.ISignalFilter;
+import com.cmtech.android.bledeviceapp.dataproc.PpgSignalPreFilter;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
   *
@@ -27,6 +25,7 @@ import java.util.concurrent.ThreadFactory;
 public class PttDataProcessor {
     private static final int MAX_PACKET_NUM = 255; // the max packet number
     private static final int INVALID_PACKET_NUM = -1; // invalid packet number
+    private static final int MAX_ALLOWED_LOST_PACKET = 5; // 最大允许丢包数
 
     private final PttDevice device;
     private int nextWantedPack = INVALID_PACKET_NUM; // the next packet number wanted to received
@@ -52,27 +51,20 @@ public class PttDataProcessor {
         pttDetector.initialize();
     }
 
-    public synchronized void start() {
+    public void start() {
         nextWantedPack = 0;
         if(ExecutorUtil.isDead(procService)) {
-            procService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MT_PTT_Process");
-                }
-            });
-
-            ViseLog.e("The PTT data processor is started.");
+            procService = ExecutorUtil.newSingleExecutor("MT_PTT_Process");
+            ViseLog.e("The PTT data processor started.");
         }
     }
 
-    public synchronized void stop() {
-        ViseLog.e("The PTT data processor is stopped.");
-
+    public void stop() {
         ExecutorUtil.shutdownNowAndAwaitTerminate(procService);
+        ViseLog.e("The PTT data processor stopped.");
     }
 
-    public synchronized void processData(final byte[] data) {
+    public void processData(final byte[] data) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override
@@ -81,8 +73,8 @@ public class PttDataProcessor {
                     // 计算接收到的包号与想要的包号之间的区别，以获取丢包数量
                     int lostNum = (packageNum - nextWantedPack) % MAX_PACKET_NUM;
                     ViseLog.e("wanted: " + nextWantedPack + "received: " + packageNum + ", isEqual: " + (nextWantedPack == packageNum));
-                    // 如果丢包小于6，则接受
-                    if(lostNum < 6) { // the packet number is ok
+                    // 如果丢包数少，则接受
+                    if(lostNum <= MAX_ALLOWED_LOST_PACKET) { // the packet number is ok
                         parseAndProcessDataPacket(data, 1, lostNum+1);
                         if(packageNum == MAX_PACKET_NUM)
                             nextWantedPack = 0;

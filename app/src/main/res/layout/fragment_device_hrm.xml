@@ -29,10 +29,10 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:layout_margin="2dp"
-                    android:drawableStart="@mipmap/ic_hr_48px"
                     android:text="@string/ellipsis"
                     android:textSize="@dimen/biggest_font"
-                    android:textColor="@color/secondary_text"/>
+                    android:textColor="@color/secondary_text"
+                    app:drawableStartCompat="@mipmap/ic_hr_48px" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -65,10 +65,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"
                 android:layout_margin="2dp"
-                android:drawableStart="@mipmap/ic_hr_48px"
                 android:text="@string/ellipsis"
                 android:textSize="@dimen/bigger_font"
-                android:textColor="@color/primary"/>
+                android:textColor="@color/primary"
+                app:drawableStartCompat="@mipmap/ic_hr_48px" />
 
             <TextView
                 android:id="@+id/tv_message"
@@ -89,12 +89,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
             android:layout_margin="5dp"
-            android:drawableTop="@mipmap/ic_ecg_24px"
             android:text="模式切换"
             android:textSize="@dimen/smallest_font"
             android:textColor="@color/white"
             android:visibility="gone"
-            tools:ignore="SmallSp" />
+            tools:ignore="SmallSp"
+            app:drawableTopCompat="@mipmap/ic_ecg_24px" />
 
     </FrameLayout>
 

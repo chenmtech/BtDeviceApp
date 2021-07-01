@@ -3,6 +3,8 @@ package com.cmtech.android.ble.utils;
 import com.vise.log.ViseLog;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public class ExecutorUtil {
@@ -25,5 +27,14 @@ public class ExecutorUtil {
 
     public static boolean isDead(ExecutorService pool) {
         return pool == null || pool.isTerminated();
+    }
+
+    public static ExecutorService newSingleExecutor(String threadName) {
+        return Executors.newSingleThreadExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable runnable) {
+                return new Thread(runnable, threadName);
+            }
+        });
     }
 }

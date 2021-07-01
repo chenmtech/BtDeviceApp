@@ -9,13 +9,11 @@ import com.vise.log.ViseLog;
 
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
   *
   * ClassName:      EegDataProcessor
-  * Description:    eeg signal processor, including resolving the eeg data packet and filtering the data
+  * Description:    Eeg signal processor, including resolving the eeg data packet and filtering the data
   * Author:         chenm
   * CreateDate:     2020-06-11 05:17
   * UpdateUser:     chenm
@@ -46,27 +44,22 @@ public class EegDataProcessor {
         eegFilter.design(device.getSampleRate());
     }
 
-    public synchronized void start() {
+    public void start() {
         nextPackNum = 0;
         if(ExecutorUtil.isDead(procService)) {
-            procService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MT_Ecg_Process");
-                }
-            });
-
-            ViseLog.e("The eeg data processor is started.");
+            procService = ExecutorUtil.newSingleExecutor("MT_Eeg_Process");
+            ViseLog.e("The eeg data processor started.");
+        } else {
+            throw new IllegalStateException("The ecg data processor's executor is not stopped. The processor can't be started.");
         }
     }
 
-    public synchronized void stop() {
-        ViseLog.e("The eeg data processor is stopped.");
-
+    public void stop() {
         ExecutorUtil.shutdownNowAndAwaitTerminate(procService);
+        ViseLog.e("The eeg data processor is stopped.");
     }
 
-    public synchronized void processData(final byte[] data) {
+    public void processData(final byte[] data) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override
