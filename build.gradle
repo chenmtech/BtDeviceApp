@@ -9,9 +9,10 @@ buildscript {
         }
         google()
         jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.1'
+        classpath 'com.android.tools.build:gradle:4.2.2'
         // 注册MobSDK
         classpath "com.mob.sdk:MobSDK:2018.0319.1724"
 
@@ -24,6 +25,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
         maven { url 'https://jitpack.io' }
     }
 }
