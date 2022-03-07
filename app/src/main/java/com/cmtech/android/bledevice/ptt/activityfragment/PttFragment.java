@@ -1,12 +1,12 @@
 package com.cmtech.android.bledevice.ptt.activityfragment;
 
+import static android.app.Activity.RESULT_OK;
+import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_CALI;
+import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_CALI;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +15,11 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.cmtech.android.bledevice.ptt.model.OnPttListener;
 import com.cmtech.android.bledevice.ptt.model.PttCfg;
@@ -25,16 +30,11 @@ import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.view.ScanPpgView;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-
-import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_CALI;
-import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_CALI;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -87,7 +87,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         etDbp = view.findViewById(R.id.et_dbp);
         spinner = view.findViewById(R.id.spinner_ptt_type);
         spinner.setOnItemSelectedListener(this);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(Objects.requireNonNull(getContext()),
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(requireContext(),
                 R.array.ptt_type_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinner.setAdapter(adapter);
