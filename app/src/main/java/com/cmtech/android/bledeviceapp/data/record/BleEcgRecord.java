@@ -1,8 +1,11 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
@@ -21,8 +24,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -43,7 +44,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     private final List<Short> ecgData = new ArrayList<>(); // ecg data
     private final EcgReport report = new EcgReport();
     @Column(ignore = true)
-    private int pos = 0; // current position to the ecgData
+    private int pos = 0; // current position of the ecgData in this record
 
     private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(ECG, ver, createTime, devAddress, creatorId);
@@ -145,15 +146,16 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     @Override
-    public void retrieveDiagnoseResult(Context context, IWebResponseCallback callback) {
+    public void remoteDiagnose(Context context, IWebResponseCallback callback) {
         processReport(context, CMD_DOWNLOAD_REPORT, callback);
     }
 
     @Override
-    public void requestDiagnose() {
+    public void localDiagnose() {
         IEcgArrhythmiaDetector algorithm = new MyEcgArrhythmiaDetector();
         EcgReport rtnReport = algorithm.process(this);
         report.setVer(rtnReport.getVer());
+        report.setReportClient(rtnReport.getReportClient());
         report.setReportTime(rtnReport.getReportTime());
         report.setContent(rtnReport.getContent());
         report.setStatus(rtnReport.getStatus());

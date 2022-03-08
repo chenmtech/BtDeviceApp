@@ -1,5 +1,8 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.afdetector.AFEvidence.MyAFEvidence.NON_AF;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
+
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.afdetector.AFEvidence.MyAFEvidence;
@@ -7,9 +10,6 @@ import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.EcgPreProcessor;
 
 import java.util.Date;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.afdetector.AFEvidence.MyAFEvidence.NON_AF;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
     private static final int HR_TOO_LOW_LIMIT = 50;
@@ -63,6 +63,7 @@ public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
 
         EcgReport report = new EcgReport();
         report.setVer(VER);
+        report.setReportClient(EcgReport.LOCAL);
         report.setReportTime(new Date().getTime());
         report.setContent(strHrResult + strAFEResult);
         report.setStatus(EcgReport.DONE);

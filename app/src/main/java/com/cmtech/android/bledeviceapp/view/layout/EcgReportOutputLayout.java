@@ -1,28 +1,30 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.LOCAL;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.interfac.ISimpleCallback;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
-import com.cmtech.android.bledeviceapp.R;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -46,6 +48,7 @@ public class EcgReportOutputLayout extends LinearLayout {
     private final TextView tvXResolution;
     private final TextView tvYResolution;
     private final TextView tvReportVer;
+    private final TextView tvReportClient;
     private final TextView tvReportTime;
     private final TextView tvReportPrintTime;
     private final TextView tvContent;
@@ -64,6 +67,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         tvYResolution = view.findViewById(R.id.tv_y_resolution);
         tvContent = view.findViewById(R.id.tv_report_content);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
+        tvReportClient = view.findViewById(R.id.tv_report_client);
         tvReportTime = view.findViewById(R.id.tv_report_time);
         tvReportPrintTime = view.findViewById(R.id.tv_report_print_time);
         tvNote = view.findViewById(R.id.tv_note);
@@ -94,6 +98,10 @@ public class EcgReportOutputLayout extends LinearLayout {
         DateFormat dateFmt1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         if(reportTime > INVALID_TIME) {
             tvReportVer.setText(record.getReport().getVer());
+            if(record.getReport().getReportClient() == LOCAL)
+                tvReportClient.setText("本地检测：");
+            else
+                tvReportClient.setText("远程检测：");
             tvReportTime.setText(dateFmt1.format(reportTime));
             tvContent.setText(record.getReport().getContent());
             tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));

@@ -1,5 +1,8 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfDocument;
@@ -9,10 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.PopupMenu;
-
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -21,16 +20,20 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.FileProvider;
+
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
+import com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout;
 import com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
-import com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout;
 import com.vise.log.ViseLog;
 import com.vise.utils.view.BitmapUtil;
 
@@ -44,13 +47,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-
 public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
     private BleEcgRecord record; // record
     private RecordIntroductionLayout introductionLayout; // record introduction layout
-    private RecordReportLayout reportLayout; // record report layout
+    private EcgRecordReportLayout reportLayout; // record report layout
     private RecordNoteLayout noteLayout; // record note layout
     private EcgReportOutputLayout reportOutputLayout; // record report output layout
 
@@ -152,8 +152,11 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()){
-                    case R.id.refresh_report:
-                        reportLayout.updateReport();
+                    case R.id.local_diagnose:
+                        reportLayout.localDiagnose();
+                        break;
+                    case R.id.remote_diagnose:
+                        reportLayout.remoteDiagnose();
                         break;
                     case R.id.output_report:
                         if(ecgView.isShowing())

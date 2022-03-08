@@ -2,13 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/refresh_report"
+        android:id="@+id/local_diagnose"
         android:orderInCategory="1"
-        android:title="更新"/>
+        android:title="本地检测"/>
+
+    <item
+        android:id="@+id/remote_diagnose"
+        android:orderInCategory="2"
+        android:title="远程检测"/>
 
     <item
         android:id="@+id/output_report"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         android:title="输出PDF"/>
 
 </menu>

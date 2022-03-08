@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_ecg_report_output.xml" value="0.19067028985507245" />
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_record_report.xml" value="0.33" />
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/menu/menu_ecg_report.xml" value="0.215625" />
+      </map>
+    </option>
+  </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="NullableNotNullManager">
     <option name="myDefaultNullable" value="android.support.annotation.Nullable" />

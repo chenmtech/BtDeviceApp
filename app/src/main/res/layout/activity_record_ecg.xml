@@ -95,7 +95,7 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
-                <com.cmtech.android.bledeviceapp.view.layout.RecordReportLayout
+                <com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout
                     android:id="@+id/layout_record_report"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>

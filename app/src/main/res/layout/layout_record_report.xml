@@ -44,9 +44,10 @@
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
             <TextView
+                android:id="@+id/tv_report_client"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="检测结果："
+                android:text="本地检测："
                 android:textSize="@dimen/big_font"/>
 
             <EditText

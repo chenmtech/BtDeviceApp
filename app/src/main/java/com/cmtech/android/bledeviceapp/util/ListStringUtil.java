@@ -7,6 +7,12 @@ public class ListStringUtil {
     private ListStringUtil() {
     }
 
+    /**
+     * to transfer the List<T> to a string
+     * @param list
+     * @param <T>
+     * @return
+     */
     public static <T extends Number> String listToString(List<T> list) {
         if(list == null || list.isEmpty()) return "";
 
@@ -17,6 +23,13 @@ public class ListStringUtil {
         return builder.toString();
     }
 
+    /**
+     * to transfer the string to a List<T>
+     * @param str
+     * @param list
+     * @param type
+     * @param <T>
+     */
     public static <T extends Number> void stringToList(String str, List<T> list, Class<T> type) {
         if(str == null || list == null) return;
         list.clear();

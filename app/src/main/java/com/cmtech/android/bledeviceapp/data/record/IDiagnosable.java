@@ -27,6 +27,6 @@ public interface IDiagnosable {
     int CODE_REPORT_REQUEST_AGAIN = 4;
     int CODE_REPORT_NO_NEW = 5;
 
-    void retrieveDiagnoseResult(Context context, IWebResponseCallback callback);
-    void requestDiagnose();
+    void remoteDiagnose(Context context, IWebResponseCallback callback); // 远程端诊断
+    void localDiagnose(); // 本地端诊断
 }

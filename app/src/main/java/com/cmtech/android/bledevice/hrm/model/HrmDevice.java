@@ -211,7 +211,7 @@ public class HrmDevice extends AbstractDevice {
                         public void run() {
                             ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
 
-                            ecgRecord.requestDiagnose();
+                            ecgRecord.localDiagnose();
 
                             ThreadUtil.showToastInMainThread(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT);
                         }
