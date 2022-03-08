@@ -3,16 +3,13 @@ package com.cmtech.android.bledeviceapp.data.record;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 
 import android.content.Context;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgArrhythmiaDetector;
-import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 
@@ -147,7 +144,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public void remoteDiagnose(Context context, IWebResponseCallback callback) {
-        processReport(context, CMD_DOWNLOAD_REPORT, callback);
+        new ReportAsyncTask(context, CMD_DOWNLOAD_REPORT, callback).execute(this);
     }
 
     @Override
@@ -161,29 +158,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         report.setStatus(rtnReport.getStatus());
         report.setAveHr(rtnReport.getAveHr());
         report.save();
-        setNeedUpload(true);
+        //setNeedUpload(true);
         save();
-    }
-
-    private void processReport(Context context, int cmd, IWebResponseCallback callback) {
-        if(needUpload()) {
-            upload(context, new ICodeCallback() {
-                @Override
-                public void onFinish(int code) {
-                    if (code == RETURN_CODE_SUCCESS) {
-                        doProcessRequest(context, cmd, callback);
-                    } else {
-                        Toast.makeText(context, R.string.operation_failure, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        } else {
-            doProcessRequest(context, cmd, callback);
-        }
-    }
-
-    private void doProcessRequest(Context context, int cmd, IWebResponseCallback callback) {
-        new ReportAsyncTask(context, cmd, callback).execute(this);
     }
 
 }

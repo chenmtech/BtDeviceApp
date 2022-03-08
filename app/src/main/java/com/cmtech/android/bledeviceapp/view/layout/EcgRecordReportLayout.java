@@ -22,6 +22,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
+import com.vise.log.ViseLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,6 +95,7 @@ public class EcgRecordReportLayout extends LinearLayout {
             IWebResponseCallback getReportWebCallback = new IWebResponseCallback() {
                 @Override
                 public void onFinish(WebResponse response) {
+                    ViseLog.e(response.getCode());
                     Context context = EcgRecordReportLayout.this.getContext();
                     if(response.getCode() == RETURN_CODE_SUCCESS) {
                         JSONObject reportResult = (JSONObject) response.getContent();
@@ -102,14 +104,10 @@ public class EcgRecordReportLayout extends LinearLayout {
                             switch (reportCode) {
                                 case CODE_REPORT_SUCCESS:
                                     if (reportResult.has("report")) {
-                                        long time = reportResult.getJSONObject("report").getLong("reportTime");
-                                        boolean updated = (record.getReport().getReportTime() < time);
                                         record.getReport().fromJson(reportResult.getJSONObject("report"));
                                         record.save();
                                         updateView();
-                                        if (updated) {
-                                            Toast.makeText(context, "报告已更新", Toast.LENGTH_SHORT).show();
-                                        }
+                                        Toast.makeText(context, "报告已更新", Toast.LENGTH_SHORT).show();
                                     }
                                     break;
                                 case CODE_REPORT_FAILURE:
@@ -125,6 +123,8 @@ public class EcgRecordReportLayout extends LinearLayout {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                    } else {
+                        Toast.makeText(context, "获取报告错误", Toast.LENGTH_SHORT).show();
                     }
                 }
             };

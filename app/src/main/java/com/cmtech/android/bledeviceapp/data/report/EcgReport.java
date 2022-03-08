@@ -27,7 +27,7 @@ public class EcgReport extends LitePalSupport implements IJsonable {
 
     private int id;
     private String ver = DEFAULT_REPORT_VER;
-    private int reportClient = LOCAL; // 报告产生的终端，本地或云端
+    private int reportClient = LOCAL; // 产生报告的终端：本地或云端
     private long reportTime = INVALID_TIME;
     private String content = DEFAULT_REPORT_CONTENT;
     private int status = DONE;
