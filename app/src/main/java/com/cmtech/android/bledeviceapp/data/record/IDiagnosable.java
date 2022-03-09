@@ -18,7 +18,7 @@ import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
  */
 public interface IDiagnosable {
     int CMD_REQUEST_REPORT = 0; // request report
-    int CMD_DOWNLOAD_REPORT = 1; // get a new report
+    int CMD_REQUEST_DIAGNOSE_REPORT = 1; // download a diagnose report from the remote terminal
 
     int CODE_REPORT_SUCCESS = 0;
     int CODE_REPORT_FAILURE = 1;

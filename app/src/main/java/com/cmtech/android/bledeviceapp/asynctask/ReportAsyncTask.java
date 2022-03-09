@@ -1,19 +1,19 @@
 package com.cmtech.android.bledeviceapp.asynctask;
 
+import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CMD_REQUEST_DIAGNOSE_REPORT;
+import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CMD_REQUEST_REPORT;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
-
-import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CMD_DOWNLOAD_REPORT;
-import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CMD_REQUEST_REPORT;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 public class ReportAsyncTask extends AsyncTask<BleEcgRecord, Void, WebResponse> {
     private final IWebResponseCallback callback;
@@ -45,8 +45,8 @@ public class ReportAsyncTask extends AsyncTask<BleEcgRecord, Void, WebResponse> 
             case CMD_REQUEST_REPORT:
                 response = KMWebServiceUtil.requestReport(MyApplication.getAccount(), record);
                 break;
-            case CMD_DOWNLOAD_REPORT:
-                response = KMWebServiceUtil.downloadReport(MyApplication.getAccount(), record);
+            case CMD_REQUEST_DIAGNOSE_REPORT:
+                response = KMWebServiceUtil.requestDiagnoseReport(MyApplication.getAccount(), record);
                 break;
             default:
                 break;

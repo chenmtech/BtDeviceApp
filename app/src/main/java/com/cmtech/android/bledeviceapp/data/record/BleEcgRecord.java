@@ -144,7 +144,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public void remoteDiagnose(Context context, IWebResponseCallback callback) {
-        new ReportAsyncTask(context, CMD_DOWNLOAD_REPORT, callback).execute(this);
+        new ReportAsyncTask(context, CMD_REQUEST_DIAGNOSE_REPORT, callback).execute(this);
     }
 
     @Override

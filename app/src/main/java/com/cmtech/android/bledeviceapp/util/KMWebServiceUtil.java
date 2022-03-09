@@ -1,5 +1,11 @@
 package com.cmtech.android.bledeviceapp.util;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
+
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
@@ -16,12 +22,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Response;
-
-import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -203,13 +203,13 @@ public class KMWebServiceUtil {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
-    public static WebResponse downloadReport(Account account, BleEcgRecord record) {
+    public static WebResponse requestDiagnoseReport(Account account, BleEcgRecord record) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
-            json.put("cmd", "downloadReport");
+            json.put("cmd", "requestDiagnoseReport");
             json.put("accountId", account.getAccountId());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());

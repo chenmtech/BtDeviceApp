@@ -1,10 +1,10 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
-import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CODE_REPORT_FAILURE;
-import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CODE_REPORT_NO_NEW;
-import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CODE_REPORT_SUCCESS;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.DONE;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.LOCAL;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.PROCESS;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.REQUEST;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.content.Context;
@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
+import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.vise.log.ViseLog;
@@ -95,28 +96,36 @@ public class EcgRecordReportLayout extends LinearLayout {
             IWebResponseCallback getReportWebCallback = new IWebResponseCallback() {
                 @Override
                 public void onFinish(WebResponse response) {
-                    ViseLog.e(response.getCode());
                     Context context = EcgRecordReportLayout.this.getContext();
                     if(response.getCode() == RETURN_CODE_SUCCESS) {
                         JSONObject reportResult = (JSONObject) response.getContent();
                         try {
-                            int reportCode = reportResult.getInt("reportCode");
-                            switch (reportCode) {
-                                case CODE_REPORT_SUCCESS:
-                                    if (reportResult.has("report")) {
-                                        record.getReport().fromJson(reportResult.getJSONObject("report"));
-                                        record.save();
-                                        updateView();
-                                        Toast.makeText(context, "报告已更新", Toast.LENGTH_SHORT).show();
-                                    }
-                                    break;
-                                case CODE_REPORT_FAILURE:
-                                    Toast.makeText(context, "获取报告错误", Toast.LENGTH_SHORT).show();
-                                    break;
-                                case CODE_REPORT_NO_NEW:
-                                    Toast.makeText(context, "暂无新报告", Toast.LENGTH_SHORT).show();
+                            EcgReport report = new EcgReport();
+                            report.fromJson(reportResult);
+                            ViseLog.e(report);
+                            int status = report.getStatus();
+                            switch (status) {
+                                case DONE:
+                                    record.getReport().setVer(report.getVer());
+                                    record.getReport().setReportClient(report.getReportClient());
+                                    record.getReport().setReportTime(report.getReportTime());
+                                    record.getReport().setContent(report.getContent());
+                                    record.getReport().setStatus(report.getStatus());
+                                    record.getReport().setAveHr(report.getAveHr());
+                                    record.getReport().save();
+                                    //setNeedUpload(true);
+                                    record.save();
+                                    updateView();
+                                    Toast.makeText(context, "检测报告已更新", Toast.LENGTH_SHORT).show();
                                     break;
 
+                                case REQUEST:
+                                    Toast.makeText(context, "已申请检测，请稍后更新", Toast.LENGTH_SHORT).show();
+                                    break;
+
+                                case PROCESS:
+                                    Toast.makeText(context, "正在检测，请稍后更新", Toast.LENGTH_SHORT).show();
+                                    break;
                                 default:
                                     break;
                             }
@@ -124,7 +133,7 @@ public class EcgRecordReportLayout extends LinearLayout {
                             e.printStackTrace();
                         }
                     } else {
-                        Toast.makeText(context, "获取报告错误", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "获取检测报告错误", Toast.LENGTH_SHORT).show();
                     }
                 }
             };

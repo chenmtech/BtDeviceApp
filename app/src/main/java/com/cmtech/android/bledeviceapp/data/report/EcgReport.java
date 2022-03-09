@@ -24,6 +24,8 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     public static final int DONE = 0;
     public static final int REQUEST = 1;
     public static final int PROCESS = 2;
+    public static final int WAIT_READ = 3;
+
 
     private int id;
     private String ver = DEFAULT_REPORT_VER;
@@ -127,6 +129,9 @@ public class EcgReport extends LitePalSupport implements IJsonable {
                 break;
             case PROCESS:
                 statusStr = "正在处理";
+                break;
+            case WAIT_READ:
+                statusStr = "等待读取";
                 break;
             default:
                 break;
