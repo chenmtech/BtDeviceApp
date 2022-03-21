@@ -3,9 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../../layout/custom_preview.xml" value="0.2515625" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_ecg_report_output.xml" value="0.19067028985507245" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_record_report.xml" value="0.33" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/menu/menu_ecg_report.xml" value="0.215625" />
+        <entry key="app/src/main/res/layout/activity_change_password.xml" value="0.196875" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.196875" />
+        <entry key="app/src/main/res/layout/activity_person_info.xml" value="0.196875" />
+        <entry key="app/src/main/res/layout/activity_record_ecg.xml" value="0.21875" />
+        <entry key="app/src/main/res/layout/layout_ecg_report_output.xml" value="0.196875" />
+        <entry key="app/src/main/res/layout/layout_record_report.xml" value="0.21875" />
       </map>
     </option>
   </component>

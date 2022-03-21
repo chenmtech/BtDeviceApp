@@ -68,7 +68,7 @@ public class EcgRecordReportLayout extends LinearLayout {
             }*/
             record.localDiagnose();
             updateView();
-            Toast.makeText(getContext(), "已更新检测结果", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -81,9 +81,9 @@ public class EcgRecordReportLayout extends LinearLayout {
             tvTime.setText(dateFmt.format(time));
             etAveHr.setText(String.valueOf(record.getReport().getAveHr()));
             if(record.getReport().getReportClient() == LOCAL)
-                tvReportClient.setText("本地检测：");
+                tvReportClient.setText("本地诊断结果：");
             else
-                tvReportClient.setText("远程检测：");
+                tvReportClient.setText("远程诊断结果：");
             etContent.setText(record.getReport().getContent());
             tvReportVer.setText(record.getReport().getVer());
         } else {
@@ -116,15 +116,15 @@ public class EcgRecordReportLayout extends LinearLayout {
                                     //setNeedUpload(true);
                                     record.save();
                                     updateView();
-                                    Toast.makeText(context, "检测报告已更新", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "诊断已更新", Toast.LENGTH_SHORT).show();
                                     break;
 
                                 case REQUEST:
-                                    Toast.makeText(context, "已申请检测，请稍后更新", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "已申请诊断，请稍后更新", Toast.LENGTH_SHORT).show();
                                     break;
 
                                 case PROCESS:
-                                    Toast.makeText(context, "正在检测，请稍后更新", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "正在诊断中，请稍后更新", Toast.LENGTH_SHORT).show();
                                     break;
                                 default:
                                     break;
@@ -133,7 +133,7 @@ public class EcgRecordReportLayout extends LinearLayout {
                             e.printStackTrace();
                         }
                     } else {
-                        Toast.makeText(context, "获取检测报告错误", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "获取诊断报告失败", Toast.LENGTH_SHORT).show();
                     }
                 }
             };

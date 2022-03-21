@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -51,7 +52,10 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     private BleEcgRecord record; // record
     private RecordIntroductionLayout introductionLayout; // record introduction layout
     private EcgRecordReportLayout reportLayout; // record report layout
+    private Button btnGetLocalDiagnose;
+    private Button btnGetRemoteDiagnose;
     private RecordNoteLayout noteLayout; // record note layout
+    private Button btnOutputPdf;
     private EcgReportOutputLayout reportOutputLayout; // record report output layout
 
     private RollEcgView ecgView; // ecgView
@@ -131,11 +135,29 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
             }
         });
 
-        ImageView ivOpenMenu = findViewById(R.id.iv_open_menu);
-        ivOpenMenu.setOnClickListener(new View.OnClickListener() {
+        btnGetLocalDiagnose = findViewById(R.id.btn_get_local_diagnose);
+        btnGetLocalDiagnose.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                showPopupMenu(ivOpenMenu);
+            public void onClick(View view) {
+                reportLayout.localDiagnose();
+            }
+        });
+
+        btnGetRemoteDiagnose = findViewById(R.id.btn_get_remote_diagnose);
+        btnGetRemoteDiagnose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                reportLayout.remoteDiagnose();
+            }
+        });
+
+        btnOutputPdf = findViewById(R.id.btn_output_pdf);
+        btnOutputPdf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ecgView.isShowing())
+                    ecgView.stopShow();
+                outputPdf();
             }
         });
 

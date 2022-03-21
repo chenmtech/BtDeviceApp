@@ -47,18 +47,20 @@
                 android:id="@+id/tv_report_client"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="本地检测："
+                android:text="本地诊断结果："
                 android:textSize="@dimen/big_font"/>
 
-            <EditText
-                android:id="@+id/et_report_content"
-                style="@style/edittext_circle_gray_no_focusable_style"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minLines="1"
-                android:text="暂无"
-                android:textSize="@dimen/big_font"/>
+
         </LinearLayout>
+
+        <EditText
+            android:id="@+id/et_report_content"
+            style="@style/edittext_circle_gray_no_focusable_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="1"
+            android:text="暂无"
+            android:textSize="@dimen/big_font"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -70,27 +72,19 @@
                 android:id="@+id/time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="检测时间："/>
+                android:text="时间："/>
 
             <TextView
                 android:id="@+id/tv_report_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="0dp"
+                android:layout_marginEnd="16dp"
                 android:text="  "/>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginStart="10dp"
-            android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="检测版本："/>
+                android:text="版本："/>
 
             <TextView
                 android:id="@+id/tv_report_ver"

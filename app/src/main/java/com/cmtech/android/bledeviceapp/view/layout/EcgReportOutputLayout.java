@@ -99,9 +99,9 @@ public class EcgReportOutputLayout extends LinearLayout {
         if(reportTime > INVALID_TIME) {
             tvReportVer.setText(record.getReport().getVer());
             if(record.getReport().getReportClient() == LOCAL)
-                tvReportClient.setText("本地检测：");
+                tvReportClient.setText("本地诊断：");
             else
-                tvReportClient.setText("远程检测：");
+                tvReportClient.setText("远程诊断：");
             tvReportTime.setText(dateFmt1.format(reportTime));
             tvContent.setText(record.getReport().getContent());
             tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
