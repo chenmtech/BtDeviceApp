@@ -35,7 +35,6 @@ import java.util.Locale;
 public class EcgRecordReportLayout extends LinearLayout {
     private BleEcgRecord record;
 
-    private final EditText etAveHr;
     private final TextView tvReportClient;
     private final EditText etContent;
     private final TextView tvTime;
@@ -45,7 +44,6 @@ public class EcgRecordReportLayout extends LinearLayout {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_record_report, this);
 
-        etAveHr = view.findViewById(R.id.et_report_ave_hr);
         tvReportClient = view.findViewById(R.id.tv_report_client);
         etContent = view.findViewById(R.id.et_report_content);
         tvTime = view.findViewById(R.id.tv_report_time);
@@ -79,7 +77,6 @@ public class EcgRecordReportLayout extends LinearLayout {
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             tvTime.setText(dateFmt.format(time));
-            etAveHr.setText(String.valueOf(record.getReport().getAveHr()));
             if(record.getReport().getReportClient() == LOCAL)
                 tvReportClient.setText("本地诊断结果：");
             else

@@ -38,12 +38,15 @@ public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
         String strHrResult;
         if(aveHr == INVALID_HR) {
             strHrResult = "";
-        } else if(aveHr > HR_TOO_HIGH_LIMIT)
-            strHrResult = "心动过速。";
-        else if(aveHr < HR_TOO_LOW_LIMIT)
-            strHrResult = "心动过缓。";
-        else
-            strHrResult = "心率正常。";
+        } else {
+            strHrResult = "平均心率：" + aveHr + "次/分钟，";
+            if(aveHr > HR_TOO_HIGH_LIMIT)
+                strHrResult += "心动过速。\n";
+            else if(aveHr < HR_TOO_LOW_LIMIT)
+                strHrResult += "心动过缓。\n";
+            else
+                strHrResult += "心率正常。\n";
+        }
 
         afEvidence.process(RR);
         int afe = afEvidence.getAFEvidence();

@@ -131,7 +131,7 @@
                     style="@style/button_circle_blue_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="输出PDF"
+                    android:text="生成PDF文档"
                     android:textSize="@dimen/normal_font"/>
 
                 <View

@@ -17,33 +17,6 @@
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="平均心率："
-                android:textSize="@dimen/big_font"/>
-
-            <EditText
-                android:id="@+id/et_report_ave_hr"
-                style="@style/edittext_circle_gray_no_focusable_style"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minEms="1"
-                android:text=" "
-                android:textSize="@dimen/bigger_font"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="次/分钟"
-                android:textSize="@dimen/big_font"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginStart="10dp"
-            android:orientation="horizontal">
-            <TextView
                 android:id="@+id/tv_report_client"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
