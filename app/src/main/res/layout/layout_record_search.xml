@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_margin="0dp"
     android:gravity="center_vertical"
     android:orientation="vertical"
     android:baselineAligned="false">
@@ -16,8 +16,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="6dp"
-            android:text="开始\n日期"
+            android:layout_margin="4dp"
+            android:text="日期："
             android:textSize="@dimen/smallest_font"/>
 
         <EditText
@@ -28,6 +28,12 @@
             android:textSize="@dimen/small_font"
             android:text="0000-00-00"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:text="包含："
+            android:textSize="@dimen/smallest_font"/>
 
         <EditText
             android:id="@+id/et_note_filter_string"
@@ -37,13 +43,8 @@
             android:layout_weight="1"
             android:textSize="@dimen/small_font"
             android:singleLine="true"
-            android:hint="输入备注包含内容"
+            android:hint="输入包含内容"
             android:maxLength="5"/>
 
-        <Button
-            android:id="@+id/btn_reset"
-            style="@style/button_circle_blue_style"
-            android:layout_width="60dp"
-            android:text="重置"/>
     </LinearLayout>
 </LinearLayout>

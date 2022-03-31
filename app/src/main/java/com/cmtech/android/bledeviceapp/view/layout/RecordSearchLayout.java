@@ -42,22 +42,19 @@ public class RecordSearchLayout extends LinearLayout {
                 selectStartDate();
             }
         });
+    }
 
-        Button btnReset = view.findViewById(R.id.btn_reset);
-        btnReset.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(activity != null) {
-                    etFilterStr.setText("");
-                    Calendar calendar = Calendar.getInstance();
-                    year = calendar.get(Calendar.YEAR);
-                    month = calendar.get(Calendar.MONTH);
-                    day = calendar.get(Calendar.DAY_OF_MONTH);
-                    etStartDate.setText(year+"-"+ (month + 1) +"-"+day);
-                    activity.searchRecords("", calendar.getTimeInMillis());
-                }
-            }
-        });
+    // 重置过滤条件
+    public void resetFilterCondition() {
+        if(activity != null) {
+            etFilterStr.setText("");
+            Calendar calendar = Calendar.getInstance();
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+            etStartDate.setText(year+"-"+ (month + 1) +"-"+day);
+            activity.searchRecords("", calendar.getTimeInMillis());
+        }
     }
 
     public void setActivity(RecordExplorerActivity activity) {

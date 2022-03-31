@@ -60,20 +60,20 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
-    private static final int RC_OPEN_RECORD = 1;
-    private static final int DEFAULT_DOWNLOAD_RECORD_NUM = 20;
+    private static final int RC_OPEN_RECORD = 1; // 打开记录返回码
+    private static final int DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME = 20; // 每次要下载的记录数
 
-    private final List<BasicRecord> recordList = new ArrayList<>(); // all records
+    private final List<BasicRecord> recordList = new ArrayList<>(); //  record List
 
     private RecordListAdapter recordAdapter; // Adapter
     private RecyclerView recordView; // RecycleView
     private TextView tvNoRecord; // no record
 
-    private RecordSearchLayout searchLayout;
+    private RecordSearchLayout searchLayout; // 搜索记录的Layout
 
-    private RecordType recordType = null; // record type in record list
-    private String filterStr = ""; // record note filter string
-    private long updateTime = new Date().getTime(); // update time in record list
+    private RecordType recordType = null; // 当前浏览的记录类型
+    private String filterStr = ""; // 过滤的备注字符串
+    private long filterTime = new Date().getTime(); // 过滤的记录时间
 
 
     @Override
@@ -90,7 +90,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         searchLayout = findViewById(R.id.layout_record_search);
         searchLayout.setActivity(this);
 
-        // init record type spinner
+        // 初始化并设置“记录类型”的spinner
         Spinner typeSpinner = findViewById(R.id.spinner_record_type);
         List<Map<String, Object>> spinnerItems = new ArrayList<>();
         for (RecordType type : SUPPORT_RECORD_TYPES) {
@@ -113,7 +113,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // init record list
+        // 初始化记录列表
         recordView = findViewById(R.id.rv_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -146,7 +146,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-
                 // 大于0表示正在向上滑动，小于等于0表示停止或向下滑动
                 isSlidingUpward = dy > 0;
             }
@@ -154,7 +153,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         tvNoRecord = findViewById(R.id.tv_no_record);
         tvNoRecord.setText(R.string.no_record);
-
     }
 
     @Override
@@ -171,6 +169,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
             finish();
         } else if(id == R.id.search_record) {
             searchRecords(recordType, searchLayout.getSearchString(), searchLayout.getSearchTime());
+        } else if(id == R.id.filter_reset) {
+            if(searchLayout != null) {
+                searchLayout.resetFilterCondition();
+            }
         }
         return true;
     }
@@ -179,9 +181,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // 打开记录的返回码
         if(requestCode == RC_OPEN_RECORD) {
             if(resultCode == RESULT_OK) {
-                recordAdapter.notifySelectedItemChanged();
+                recordAdapter.notifySelectedItemChanged(); // 更新adapter
             } else {
                 Toast.makeText(this, "打开记录错误。", Toast.LENGTH_SHORT).show();
             }
@@ -194,8 +197,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     // 搜索记录
-    public void searchRecords(String filterStr, long updateTime) {
-        searchRecords(recordType, filterStr, updateTime);
+    public void searchRecords(String filterStr, long filterTime) {
+        searchRecords(recordType, filterStr, filterTime);
     }
 
     // 打开记录
@@ -232,6 +235,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
+    // 删除记录
     public void deleteRecord(int index) {
         BasicRecord record = recordList.get(index);
         if(record != null) {
@@ -254,6 +258,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
+    // 更新记录
     public void uploadRecord(int index) {
         BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId(), true);
         recordList.set(index, record);
@@ -277,7 +282,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private void searchRecords(RecordType recordType, String noteFilterStr, long updateTime) {
         this.recordType = recordType;
         this.filterStr = noteFilterStr.trim();
-        this.updateTime = updateTime;
+        this.filterTime = updateTime;
 
         recordList.clear();
         recordAdapter.unselected();
@@ -295,19 +300,19 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM, filterStr, updateTime, new ICodeCallback() {
+        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME, filterStr, filterTime, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code != RETURN_CODE_SUCCESS) {
                     Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
 
-                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), updateTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM);
+                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), filterTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME);
 
                 if(records == null) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else {
-                    updateTime = records.get(records.size() - 1).getCreateTime();
+                    filterTime = records.get(records.size() - 1).getCreateTime();
                     recordList.addAll(records);
                     updateRecordView();
                 }
