@@ -15,7 +15,9 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
+import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
@@ -60,6 +62,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         ImageView ivDelete;
         LinearLayout llRecordInfo;
 
+        LinearLayout llDiagnoseResult;
+        TextView tvDiagnoseResult;
+
         ViewHolder(View itemView) {
             super(itemView);
             view = itemView;
@@ -72,6 +77,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             ivUpload = view.findViewById(R.id.iv_need_upload);
             ivDelete = view.findViewById(R.id.iv_delete);
             llRecordInfo = view.findViewById(R.id.ll_basic_info);
+
+            llDiagnoseResult = view.findViewById(R.id.layout_diagnose);
+            tvDiagnoseResult = view.findViewById(R.id.tv_diagnose_result);
         }
     }
 
@@ -95,7 +103,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.tvCreatorName.setText(record.getCreatorNickName());
         Account account = MyApplication.getAccount();
         if(TextUtils.isEmpty(account.getIcon())) {
-            // load icon by platform name
             holder.ivCreatorImage.setImageResource(R.mipmap.ic_user);
         } else {
             Bitmap bitmap = MyBitmapUtil.showToDp(account.getIcon(),  32);
@@ -149,6 +156,14 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                 activity.uploadRecord(holder.getAdapterPosition());
             }
         });
+
+        if(record.getType() == RecordType.ECG) {
+            EcgReport report = ((BleEcgRecord)record).getReport();
+            if(report != null) {
+                holder.tvDiagnoseResult.setText(report.getContent());
+                holder.llDiagnoseResult.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     @Override

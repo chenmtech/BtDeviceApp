@@ -167,9 +167,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
         if(id == android.R.id.home) {
             setResult(RESULT_CANCELED);
             finish();
-        } else if(id == R.id.search_record) {
+        } else if(id == R.id.search_record) { // 搜索记录
             searchRecords(recordType, searchLayout.getSearchString(), searchLayout.getSearchTime());
-        } else if(id == R.id.filter_reset) {
+        } else if(id == R.id.filter_reset) { // 重置过滤条件
             if(searchLayout != null) {
                 searchLayout.resetFilterCondition();
             }
@@ -258,7 +258,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
-    // 更新记录
+    // 上传/更新记录
     public void uploadRecord(int index) {
         BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId(), true);
         recordList.set(index, record);
