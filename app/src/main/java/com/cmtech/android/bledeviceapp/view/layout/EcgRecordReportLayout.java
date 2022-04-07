@@ -1,10 +1,10 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.DONE;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.LOCAL;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.PROCESS;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.REQUEST;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DONE;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.LOCAL;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.PROCESS;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.REQUEST;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.content.Context;
@@ -71,18 +71,18 @@ public class EcgRecordReportLayout extends LinearLayout {
     }
 
     public void updateView() {
-        if(record == null || record.getReport() == null) return;
+        if(record == null) return;
 
-        long time = record.getReport().getReportTime();
+        long time = record.getReportTime();
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             tvTime.setText(dateFmt.format(time));
-            if(record.getReport().getReportClient() == LOCAL)
+            if(record.getReportClient() == LOCAL)
                 tvReportClient.setText("本地诊断结果：");
             else
                 tvReportClient.setText("远程诊断结果：");
-            etContent.setText(record.getReport().getContent());
-            tvReportVer.setText(record.getReport().getVer());
+            etContent.setText(record.getContent());
+            tvReportVer.setText(record.getReportVer());
         } else {
 
         }
@@ -103,13 +103,13 @@ public class EcgRecordReportLayout extends LinearLayout {
                             int status = report.getStatus();
                             switch (status) {
                                 case DONE:
-                                    record.getReport().setVer(report.getVer());
-                                    record.getReport().setReportClient(report.getReportClient());
-                                    record.getReport().setReportTime(report.getReportTime());
-                                    record.getReport().setContent(report.getContent());
-                                    record.getReport().setStatus(report.getStatus());
-                                    record.getReport().setAveHr(report.getAveHr());
-                                    record.getReport().save();
+                                    record.setReportVer(report.getVer());
+                                    record.setReportClient(report.getReportClient());
+                                    record.setReportTime(report.getReportTime());
+                                    record.setContent(report.getContent());
+                                    record.setStatus(report.getStatus());
+                                    //record.getReport().setAveHr(report.getAveHr());
+                                    //record.getReport().save();
                                     //setNeedUpload(true);
                                     record.save();
                                     updateView();

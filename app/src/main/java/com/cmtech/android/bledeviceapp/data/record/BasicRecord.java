@@ -43,7 +43,18 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
     public static final String DEFAULT_RECORD_VER = "1.0";
     private static final String[] basicItems = {"id", "createTime", "devAddress",
-            "creatorId", "ver", "note", "recordSecond", "needUpload"};
+            "creatorId", "ver", "note", "recordSecond", "needUpload",
+            "reportVer", "reportClient", "reportTime", "content", "status"};
+
+    public static final long INVALID_TIME = -1;
+    public static final String DEFAULT_REPORT_CONTENT = "无";
+    public static final String DEFAULT_REPORT_VER = "1.0";
+    public static final int LOCAL = 0;
+    public static final int REMOTE = 1;
+    public static final int DONE = 0;
+    public static final int REQUEST = 1;
+    public static final int PROCESS = 2;
+    public static final int WAIT_READ = 3;
 
     private int id;
     @Column(ignore = true)
@@ -55,6 +66,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     private String note = ""; // note
     private int recordSecond = 0; // unit: s
+
+    private String reportVer = DEFAULT_REPORT_VER;
+    private int reportClient = LOCAL; // 产生报告的终端：本地或云端
+    private long reportTime = INVALID_TIME;
+    private String content = DEFAULT_REPORT_CONTENT;
+    private int status = DONE;
+
     private boolean needUpload = true; // need uploaded
 
     BasicRecord(RecordType type, String ver, long createTime, String devAddress, int creatorId) {
@@ -145,6 +163,46 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.recordSecond = recordSecond;
     }
 
+    public String getReportVer() {
+        return reportVer;
+    }
+
+    public void setReportVer(String reportVer) {
+        this.reportVer = reportVer;
+    }
+
+    public int getReportClient() {
+        return reportClient;
+    }
+
+    public void setReportClient(int reportClient) {
+        this.reportClient = reportClient;
+    }
+
+    public long getReportTime() {
+        return reportTime;
+    }
+
+    public void setReportTime(long reportTime) {
+        this.reportTime = reportTime;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     public boolean needUpload() {
         return needUpload;
     }
@@ -161,6 +219,16 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     public void basicRecordFromJson(JSONObject json) throws JSONException{
         note = json.getString("note");
         recordSecond = json.getInt("recordSecond");
+        if(json.has("reportVer"))
+            reportVer = json.getString("reportVer");
+        if(json.has("reportClient"))
+            reportClient = json.getInt("reportClient");
+        if(json.has("reportTime"))
+            reportTime = json.getLong("reportTime");
+        if(json.has("content"))
+        content = json.getString("content");
+        if(json.has("status"))
+        status = json.getInt("status");
     }
 
     @Override
@@ -173,6 +241,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("ver", ver);
         json.put("note", note);
         json.put("recordSecond", recordSecond);
+        json.put("reportVer", reportVer);
+        json.put("reportClient", reportClient);
+        json.put("reportTime", reportTime);
+        json.put("content", content);
+        json.put("status", status);
         return json;
     }
 
@@ -270,7 +343,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @NonNull
     @Override
     public String toString() {
-        return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + note + "-" + recordSecond + "-" + needUpload;
+        return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + note + "-" + recordSecond + "-" + needUpload + "-" + content;
     }
 
     @Override

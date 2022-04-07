@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.INVALID_TIME;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.LOCAL;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.LOCAL;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -94,17 +94,17 @@ public class EcgReportOutputLayout extends LinearLayout {
         tvXResolution.setText(String.format(Locale.getDefault(), "%.1f", ScanEcgView.SECOND_PER_GRID*5));
         tvYResolution.setText(String.format(Locale.getDefault(), "%.1f", ScanEcgView.MV_PER_GRID*5));
 
-        long reportTime = record.getReport().getReportTime();
+        long reportTime = record.getReportTime();
         DateFormat dateFmt1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         if(reportTime > INVALID_TIME) {
-            tvReportVer.setText(record.getReport().getVer());
-            if(record.getReport().getReportClient() == LOCAL)
+            tvReportVer.setText(record.getReportVer());
+            if(record.getReportClient() == LOCAL)
                 tvReportClient.setText("本地诊断：");
             else
                 tvReportClient.setText("远程诊断：");
             tvReportTime.setText(dateFmt1.format(reportTime));
-            tvContent.setText(record.getReport().getContent());
-            tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
+            tvContent.setText(record.getContent());
+            //tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
         }
 
         tvReportPrintTime.setText(dateFmt1.format(new Date().getTime()));

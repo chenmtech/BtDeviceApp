@@ -39,7 +39,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     private int caliValue = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
     private final List<Short> ecgData = new ArrayList<>(); // ecg data
-    private final EcgReport report = new EcgReport();
     @Column(ignore = true)
     private int pos = 0; // current position of the ecgData in this record
 
@@ -54,10 +53,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
         ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
-        if(json.has("report")) {
-            report.fromJson(json.getJSONObject("report"));
-        }
-        report.save();
     }
 
     @Override
@@ -67,7 +62,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
         json.put("ecgData", ListStringUtil.listToString(ecgData));
-        json.put("report", report.toJson());
         return json;
     }
 
@@ -106,10 +100,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.leadTypeCode = leadTypeCode;
     }
 
-    public EcgReport getReport() {
-        return report;
-    }
-
     @Override
     public boolean isEOD() {
         return (pos >= ecgData.size());
@@ -139,7 +129,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgData + "-" + report;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgData;
     }
 
     @Override
@@ -151,13 +141,13 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     public void localDiagnose() {
         IEcgArrhythmiaDetector algorithm = new MyEcgArrhythmiaDetector();
         EcgReport rtnReport = algorithm.process(this);
-        report.setVer(rtnReport.getVer());
-        report.setReportClient(rtnReport.getReportClient());
-        report.setReportTime(rtnReport.getReportTime());
-        report.setContent(rtnReport.getContent());
-        report.setStatus(rtnReport.getStatus());
-        report.setAveHr(rtnReport.getAveHr());
-        report.save();
+        setReportVer(rtnReport.getVer());
+        setReportClient(rtnReport.getReportClient());
+        setReportTime(rtnReport.getReportTime());
+        setContent(rtnReport.getContent());
+        setStatus(rtnReport.getStatus());
+        //report.setAveHr(rtnReport.getAveHr());
+        setContent(rtnReport.getContent());
         //setNeedUpload(true);
         save();
     }

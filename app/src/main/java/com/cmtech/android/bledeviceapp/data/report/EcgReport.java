@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class EcgReport extends LitePalSupport implements IJsonable {
+public class EcgReport implements IJsonable {
     public static final long INVALID_TIME = -1;
     public static final String DEFAULT_REPORT_CONTENT = "无";
     public static final String DEFAULT_REPORT_VER = "1.0";
@@ -26,8 +26,6 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     public static final int PROCESS = 2;
     public static final int WAIT_READ = 3;
 
-
-    private int id;
     private String ver = DEFAULT_REPORT_VER;
     private int reportClient = LOCAL; // 产生报告的终端：本地或云端
     private long reportTime = INVALID_TIME;
@@ -36,10 +34,6 @@ public class EcgReport extends LitePalSupport implements IJsonable {
     private int aveHr = INVALID_HR;
 
     public EcgReport() {
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getVer() {

@@ -17,7 +17,6 @@ import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
-import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
@@ -157,13 +156,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             }
         });
 
-        if(record.getType() == RecordType.ECG) {
-            EcgReport report = ((BleEcgRecord)record).getReport();
-            if(report != null) {
-                holder.tvDiagnoseResult.setText(report.getContent());
-                holder.llDiagnoseResult.setVisibility(View.VISIBLE);
-            }
-        }
+        holder.tvDiagnoseResult.setText(record.getContent());
     }
 
     @Override
