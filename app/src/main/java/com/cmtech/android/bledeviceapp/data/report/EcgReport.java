@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.report;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import androidx.annotation.NonNull;
 
@@ -8,7 +9,6 @@ import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.crud.LitePalSupport;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class EcgReport implements IJsonable {
-    public static final long INVALID_TIME = -1;
     public static final String DEFAULT_REPORT_CONTENT = "无";
     public static final String DEFAULT_REPORT_VER = "1.0";
     public static final int LOCAL = 0;
@@ -29,8 +28,8 @@ public class EcgReport implements IJsonable {
     private String ver = DEFAULT_REPORT_VER;
     private int reportClient = LOCAL; // 产生报告的终端：本地或云端
     private long reportTime = INVALID_TIME;
-    private String content = DEFAULT_REPORT_CONTENT;
-    private int status = DONE;
+    private String reportContent = DEFAULT_REPORT_CONTENT;
+    private int reportStatus = DONE;
     private int aveHr = INVALID_HR;
 
     public EcgReport() {
@@ -60,20 +59,20 @@ public class EcgReport implements IJsonable {
         this.reportTime = reportTime;
     }
 
-    public String getContent() {
-        return content;
+    public String getReportContent() {
+        return reportContent;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setReportContent(String reportContent) {
+        this.reportContent = reportContent;
     }
 
-    public int getStatus() {
-        return status;
+    public int getReportStatus() {
+        return reportStatus;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public void setReportStatus(int reportStatus) {
+        this.reportStatus = reportStatus;
     }
 
     public int getAveHr() {
@@ -86,13 +85,11 @@ public class EcgReport implements IJsonable {
 
     @Override
     public void fromJson(JSONObject json) throws JSONException{
-        if(json.has("reportVer"))
-            ver = json.getString("reportVer");
-        if(json.has("reportClient"))
-            reportClient = json.getInt("reportClient");
+        ver = json.getString("reportVer");
+        reportClient = json.getInt("reportClient");
         reportTime = json.getLong("reportTime");
-        content = json.getString("content");
-        status = json.getInt("status");
+        reportContent = json.getString("reportContent");
+        reportStatus = json.getInt("reportStatus");
         if(json.has("aveHr"))
             aveHr = json.getInt("aveHr");
     }
@@ -103,8 +100,8 @@ public class EcgReport implements IJsonable {
         json.put("reportVer", ver);
         json.put("reportClient", reportClient);
         json.put("reportTime", reportTime);
-        json.put("content", content);
-        json.put("status", status);
+        json.put("reportContent", reportContent);
+        json.put("reportStatus", reportStatus);
         json.put("aveHr", aveHr);
         return json;
     }
@@ -114,7 +111,7 @@ public class EcgReport implements IJsonable {
     public String toString() {
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
         String statusStr = "未知";
-        switch (status) {
+        switch (reportStatus) {
             case DONE:
                 statusStr = "已处理";
                 break;
@@ -133,7 +130,7 @@ public class EcgReport implements IJsonable {
         return "时间：" + dateFmt.format(new Date(reportTime))
                 + "\n报告端：" + ((reportClient == LOCAL) ? "本地端" : "云端")
                 + "\n平均心率：" + aveHr
-                + "\n内容：" + content
+                + "\n内容：" + reportContent
                 + "\n状态：" + statusStr;
     }
 }

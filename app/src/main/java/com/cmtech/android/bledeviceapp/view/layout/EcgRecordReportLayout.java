@@ -1,11 +1,11 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DONE;
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.LOCAL;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.PROCESS;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.REQUEST;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -23,7 +23,6 @@ import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
-import com.vise.log.ViseLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,7 +80,7 @@ public class EcgRecordReportLayout extends LinearLayout {
                 tvReportClient.setText("本地诊断结果：");
             else
                 tvReportClient.setText("远程诊断结果：");
-            etContent.setText(record.getContent());
+            etContent.setText(record.getReportContent());
             tvReportVer.setText(record.getReportVer());
         } else {
 
@@ -99,16 +98,15 @@ public class EcgRecordReportLayout extends LinearLayout {
                         try {
                             EcgReport report = new EcgReport();
                             report.fromJson(reportResult);
-                            ViseLog.e(report);
-                            int status = report.getStatus();
+                            int status = report.getReportStatus();
                             switch (status) {
                                 case DONE:
                                     record.setReportVer(report.getVer());
                                     record.setReportClient(report.getReportClient());
                                     record.setReportTime(report.getReportTime());
-                                    record.setContent(report.getContent());
-                                    record.setStatus(report.getStatus());
-                                    //record.getReport().setAveHr(report.getAveHr());
+                                    record.setReportContent(report.getReportContent());
+                                    record.setReportStatus(report.getReportStatus());
+                                    record.setAveHr(report.getAveHr());
                                     //record.getReport().save();
                                     //setNeedUpload(true);
                                     record.save();

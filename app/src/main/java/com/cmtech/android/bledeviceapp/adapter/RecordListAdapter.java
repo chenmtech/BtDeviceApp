@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -156,7 +155,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             }
         });
 
-        holder.tvDiagnoseResult.setText(record.getContent());
+        holder.tvDiagnoseResult.setText(record.getReportContent());
     }
 
     @Override

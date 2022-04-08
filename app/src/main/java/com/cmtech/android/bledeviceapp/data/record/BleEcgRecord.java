@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 import android.content.Context;
 
@@ -25,9 +26,9 @@ import java.util.List;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.data.record
- * ClassName:      BleEcgRecord10
- * Description:    java类作用描述
- * Author:         作者名
+ * ClassName:      BleEcgRecord
+ * Description:    心电信号记录类
+ * Author:         chenm
  * CreateDate:     2020/3/28 上午7:11
  * UpdateUser:     更新者
  * UpdateDate:     2020/3/28 上午7:11
@@ -39,6 +40,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     private int caliValue = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
     private final List<Short> ecgData = new ArrayList<>(); // ecg data
+    private int aveHr = INVALID_HR;
     @Column(ignore = true)
     private int pos = 0; // current position of the ecgData in this record
 
@@ -52,6 +54,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
+        aveHr = json.getInt("aveHr");
         ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
     }
 
@@ -61,6 +64,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         json.put("sampleRate", sampleRate);
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
+        json.put("aveHr", aveHr);
         json.put("ecgData", ListStringUtil.listToString(ecgData));
         return json;
     }
@@ -100,6 +104,14 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.leadTypeCode = leadTypeCode;
     }
 
+    public int getAveHr() {
+        return aveHr;
+    }
+
+    public void setAveHr(int aveHr) {
+        this.aveHr = aveHr;
+    }
+
     @Override
     public boolean isEOD() {
         return (pos >= ecgData.size());
@@ -121,6 +133,11 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return ecgData.size();
     }
 
+    /**
+     * 处理一个ECG信号值
+     * @param ecg
+     * @return
+     */
     public boolean process(short ecg) {
         ecgData.add(ecg);
         return true;
@@ -144,12 +161,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         setReportVer(rtnReport.getVer());
         setReportClient(rtnReport.getReportClient());
         setReportTime(rtnReport.getReportTime());
-        setContent(rtnReport.getContent());
-        setStatus(rtnReport.getStatus());
-        //report.setAveHr(rtnReport.getAveHr());
-        setContent(rtnReport.getContent());
+        setReportContent(rtnReport.getReportContent());
+        setReportStatus(rtnReport.getReportStatus());
+        setAveHr(rtnReport.getAveHr());
         //setNeedUpload(true);
         save();
     }
-
 }

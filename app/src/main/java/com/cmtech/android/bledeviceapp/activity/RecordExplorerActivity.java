@@ -42,9 +42,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 /**
   *

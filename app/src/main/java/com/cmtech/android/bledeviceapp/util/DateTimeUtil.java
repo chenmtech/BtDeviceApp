@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DateTimeUtil {
+    public static final long INVALID_TIME = -1;
+
     public static String timeToString(long timeInMillis) {
         return new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒", Locale.CHINA).format(new Date(timeInMillis));
     }

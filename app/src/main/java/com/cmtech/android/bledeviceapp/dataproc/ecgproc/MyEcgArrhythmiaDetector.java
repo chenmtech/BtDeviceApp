@@ -68,8 +68,8 @@ public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
         report.setVer(VER);
         report.setReportClient(EcgReport.LOCAL);
         report.setReportTime(new Date().getTime());
-        report.setContent(strHrResult + strAFEResult);
-        report.setStatus(EcgReport.DONE);
+        report.setReportContent(strHrResult + strAFEResult);
+        report.setReportStatus(EcgReport.DONE);
         report.setAveHr(aveHr);
         return report;
     }

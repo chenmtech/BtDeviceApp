@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.LOCAL;
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -103,7 +103,7 @@ public class EcgReportOutputLayout extends LinearLayout {
             else
                 tvReportClient.setText("远程诊断：");
             tvReportTime.setText(dateFmt1.format(reportTime));
-            tvContent.setText(record.getContent());
+            tvContent.setText(record.getReportContent());
             //tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
         }
 
