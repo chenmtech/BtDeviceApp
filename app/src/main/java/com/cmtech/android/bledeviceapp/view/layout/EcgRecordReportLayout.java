@@ -107,7 +107,6 @@ public class EcgRecordReportLayout extends LinearLayout {
                                     record.setReportContent(report.getReportContent());
                                     record.setReportStatus(report.getReportStatus());
                                     record.setAveHr(report.getAveHr());
-                                    //record.getReport().save();
                                     //setNeedUpload(true);
                                     record.save();
                                     updateView();
