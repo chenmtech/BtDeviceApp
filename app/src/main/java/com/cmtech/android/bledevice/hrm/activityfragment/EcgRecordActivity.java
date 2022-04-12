@@ -52,8 +52,6 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
     private BleEcgRecord record; // record
     private RecordIntroductionLayout introductionLayout; // record introduction layout
     private EcgRecordReportLayout reportLayout; // record report layout
-    private Button btnGetLocalDiagnose;
-    private Button btnGetRemoteDiagnose;
     private RecordNoteLayout noteLayout; // record note layout
     private Button btnOutputPdf;
     private EcgReportOutputLayout reportOutputLayout; // record report output layout
@@ -132,22 +130,6 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
                 ecgView.stopShow();
             } else {
                 ecgView.startShow();
-            }
-        });
-
-        btnGetLocalDiagnose = findViewById(R.id.btn_get_local_diagnose);
-        btnGetLocalDiagnose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                reportLayout.localDiagnose();
-            }
-        });
-
-        btnGetRemoteDiagnose = findViewById(R.id.btn_get_remote_diagnose);
-        btnGetRemoteDiagnose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                reportLayout.remoteDiagnose();
             }
         });
 

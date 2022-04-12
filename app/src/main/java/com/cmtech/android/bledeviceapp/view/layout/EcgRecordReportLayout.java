@@ -3,7 +3,6 @@ package com.cmtech.android.bledeviceapp.view.layout;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DONE;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.LOCAL;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.PROCESS;
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.REQUEST;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
@@ -11,6 +10,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,20 +34,26 @@ import java.util.Locale;
 public class EcgRecordReportLayout extends LinearLayout {
     private BleEcgRecord record;
 
-    private final TextView tvReportClient;
     private final EditText etContent;
     private final TextView tvTime;
     private final TextView tvReportVer;
+    private final Button btnUpdateReport;
 
     public EcgRecordReportLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_record_report, this);
 
-        tvReportClient = view.findViewById(R.id.tv_report_client);
         etContent = view.findViewById(R.id.et_report_content);
         tvTime = view.findViewById(R.id.tv_report_time);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
+        btnUpdateReport = view.findViewById(R.id.btn_update_diagnose);
 
+        btnUpdateReport.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                remoteDiagnose();
+            }
+        });
     }
 
     public void setRecord(BleEcgRecord record) {
@@ -56,13 +62,6 @@ public class EcgRecordReportLayout extends LinearLayout {
 
     public void localDiagnose() {
         if(record != null) {
-            /*if(MyEcgArrhythmiaDetector.VER.compareTo(record.getReport().getVer()) > 0) {
-                record.requestDiagnose();
-                updateView();
-                Toast.makeText(getContext(), "已更新检测结果", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "当前报告是最新版本。", Toast.LENGTH_SHORT).show();
-            }*/
             record.localDiagnose();
             updateView();
             Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
@@ -76,10 +75,6 @@ public class EcgRecordReportLayout extends LinearLayout {
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             tvTime.setText(dateFmt.format(time));
-            if(record.getReportClient() == LOCAL)
-                tvReportClient.setText("本地诊断结果：");
-            else
-                tvReportClient.setText("远程诊断结果：");
             etContent.setText(record.getReportContent());
             tvReportVer.setText(record.getReportVer());
         } else {
@@ -101,20 +96,20 @@ public class EcgRecordReportLayout extends LinearLayout {
                             int status = report.getReportStatus();
                             switch (status) {
                                 case DONE:
-                                    record.setReportVer(report.getVer());
-                                    record.setReportClient(report.getReportClient());
-                                    record.setReportTime(report.getReportTime());
-                                    record.setReportContent(report.getReportContent());
-                                    record.setReportStatus(report.getReportStatus());
-                                    record.setAveHr(report.getAveHr());
-                                    //setNeedUpload(true);
-                                    record.save();
-                                    updateView();
-                                    Toast.makeText(context, "诊断已更新", Toast.LENGTH_SHORT).show();
-                                    break;
-
-                                case REQUEST:
-                                    Toast.makeText(context, "已申请诊断，请稍后更新", Toast.LENGTH_SHORT).show();
+                                    if(record.getReportVer().compareTo(report.getVer()) >= 0) {
+                                        Toast.makeText(context, "诊断无更新", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        record.setReportVer(report.getVer());
+                                        record.setReportClient(report.getReportClient());
+                                        record.setReportTime(report.getReportTime());
+                                        record.setReportContent(report.getReportContent());
+                                        record.setReportStatus(report.getReportStatus());
+                                        record.setAveHr(report.getAveHr());
+                                        //setNeedUpload(true);
+                                        record.save();
+                                        updateView();
+                                        Toast.makeText(context, "诊断已更新", Toast.LENGTH_SHORT).show();
+                                    }
                                     break;
 
                                 case PROCESS:
@@ -127,7 +122,7 @@ public class EcgRecordReportLayout extends LinearLayout {
                             e.printStackTrace();
                         }
                     } else {
-                        Toast.makeText(context, "获取诊断报告失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "请先将记录上传，才能更新诊断。", Toast.LENGTH_SHORT).show();
                     }
                 }
             };

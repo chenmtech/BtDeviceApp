@@ -18,6 +18,7 @@
             android:src="@mipmap/ic_left_arrow_32px"/>
 
         <LinearLayout
+            android:id="@+id/ll_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/iv_exit"
@@ -44,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
+            android:layout_toRightOf="@id/ll_account"
             android:orientation="vertical">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -55,7 +56,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/record_time"
+                    android:text="记录时间:"
                     android:textSize="@dimen/smallest_font"/>
 
                 <TextView
@@ -70,13 +71,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical|end"
+                android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="4dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="记录设备："
+                    android:text="记录设备:"
                     android:textSize="@dimen/smallest_font"/>
 
                 <TextView
@@ -88,6 +89,15 @@
             </LinearLayout>
 
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:src="@mipmap/ic_upload_24px"/>
 
     </RelativeLayout>
 

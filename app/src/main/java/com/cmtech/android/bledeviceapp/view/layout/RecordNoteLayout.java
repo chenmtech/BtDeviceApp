@@ -28,20 +28,11 @@ public class RecordNoteLayout extends LinearLayout {
             @Override
             public void onClick(View v) {
                 if(record != null) {
-                    if(etNote.isEnabled()) {
-                        String note = etNote.getText().toString();
-                        if(!record.getNote().equals(note)) {
-                            record.setNote(note);
-                            record.setNeedUpload(true);
-                            record.save();
-                        }
-                        etNote.setEnabled(false);
-                        etNote.clearFocus();
-                        btnEdit.setText("修改");
-                    } else {
-                        etNote.setEnabled(true);
-                        etNote.requestFocus();
-                        btnEdit.setText("保存");
+                    String note = etNote.getText().toString();
+                    if(!record.getNote().equals(note)) {
+                        record.setNote(note);
+                        record.setNeedUpload(true);
+                        record.save();
                     }
                 }
             }
@@ -55,9 +46,6 @@ public class RecordNoteLayout extends LinearLayout {
     public void updateView() {
         if(record != null) {
             etNote.setText(record.getNote());
-            etNote.setEnabled(false);
         }
     }
-
-
 }

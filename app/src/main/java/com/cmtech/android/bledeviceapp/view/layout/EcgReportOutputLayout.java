@@ -48,11 +48,9 @@ public class EcgReportOutputLayout extends LinearLayout {
     private final TextView tvXResolution;
     private final TextView tvYResolution;
     private final TextView tvReportVer;
-    private final TextView tvReportClient;
     private final TextView tvReportTime;
     private final TextView tvReportPrintTime;
     private final TextView tvContent;
-    private final TextView tvAveHr;
     private final TextView tvNote;
 
 
@@ -67,11 +65,9 @@ public class EcgReportOutputLayout extends LinearLayout {
         tvYResolution = view.findViewById(R.id.tv_y_resolution);
         tvContent = view.findViewById(R.id.tv_report_content);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
-        tvReportClient = view.findViewById(R.id.tv_report_client);
         tvReportTime = view.findViewById(R.id.tv_report_time);
         tvReportPrintTime = view.findViewById(R.id.tv_report_print_time);
         tvNote = view.findViewById(R.id.tv_note);
-        tvAveHr= view.findViewById(R.id.tv_report_ave_hr);
         ECG_VIEWS[0] = view.findViewById(R.id.roll_ecg_view1);
         ECG_VIEWS[1] = view.findViewById(R.id.roll_ecg_view2);
         ECG_VIEWS[2] = view.findViewById(R.id.roll_ecg_view3);
@@ -98,10 +94,6 @@ public class EcgReportOutputLayout extends LinearLayout {
         DateFormat dateFmt1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         if(reportTime > INVALID_TIME) {
             tvReportVer.setText(record.getReportVer());
-            if(record.getReportClient() == LOCAL)
-                tvReportClient.setText("本地诊断：");
-            else
-                tvReportClient.setText("远程诊断：");
             tvReportTime.setText(dateFmt1.format(reportTime));
             tvContent.setText(record.getReportContent());
             //tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));

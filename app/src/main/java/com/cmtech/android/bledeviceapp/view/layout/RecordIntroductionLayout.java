@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,13 +13,17 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
+import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -38,6 +44,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
     private ImageView ivCreatorImage;
     private TextView tvCreateTime; // 创建时间
     private TextView tvAddress; // device address
+    private ImageView ivUpload;
 
     public RecordIntroductionLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -55,6 +62,24 @@ public class RecordIntroductionLayout extends RelativeLayout {
             }
         });
 
+        ivUpload = findViewById(R.id.iv_upload);
+        ivUpload.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(record != null) {
+                    record.upload(getContext(), new ICodeCallback() {
+                        @Override
+                        public void onFinish(int code) {
+                            if (code == RETURN_CODE_SUCCESS) {
+                                Toast.makeText(getContext(), "记录已上传", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public void setRecord(BasicRecord record) {
@@ -68,7 +93,6 @@ public class RecordIntroductionLayout extends RelativeLayout {
         Account account = MyApplication.getAccount();
         if(account != null) {
             if (TextUtils.isEmpty(account.getIcon())) {
-                // load icon by platform name
                 ivCreatorImage.setImageResource(R.mipmap.ic_user);
             } else {
                 Bitmap bitmap = MyBitmapUtil.showToDp(account.getIcon(), 32);

@@ -9,6 +9,9 @@
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/menu/menu_ecg_report.xml" value="0.215625" />
         <entry key="..\:/chenm/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_record_ecg.xml" value="0.1" />
         <entry key="..\:/chenm/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_record_explorer.xml" value="0.25" />
+        <entry key="..\:/chenm/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_ecg_report_output.xml" value="0.1" />
+        <entry key="..\:/chenm/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_record_intro.xml" value="0.1" />
+        <entry key="..\:/chenm/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_record_note.xml" value="0.18" />
         <entry key="..\:/chenm/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_record_report.xml" value="0.22" />
         <entry key="..\:/chenm/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_record_search.xml" value="0.22" />
         <entry key="..\:/chenm/ProgAndroid/BtDeviceApp/app/src/main/res/layout/recycle_item_record.xml" value="0.25" />

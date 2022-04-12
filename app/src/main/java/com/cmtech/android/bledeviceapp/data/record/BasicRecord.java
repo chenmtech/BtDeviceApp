@@ -49,13 +49,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             "reportVer", "reportClient", "reportTime", "reportContent", "reportStatus"};
 
     public static final String DEFAULT_REPORT_CONTENT = "无";
-    public static final String DEFAULT_REPORT_VER = "1.0";
+    public static final String DEFAULT_REPORT_VER = "1.0.0";
     public static final int LOCAL = 0;
     public static final int REMOTE = 1;
+
     public static final int DONE = 0;
-    public static final int REQUEST = 1;
-    public static final int PROCESS = 2;
-    public static final int WAIT_READ = 3;
+    public static final int PROCESS = 1;
 
     private int id;
     @Column(ignore = true)

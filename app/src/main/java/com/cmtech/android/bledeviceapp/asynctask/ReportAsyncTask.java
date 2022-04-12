@@ -1,7 +1,5 @@
 package com.cmtech.android.bledeviceapp.asynctask;
 
-import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CMD_REQUEST_DIAGNOSE_REPORT;
-import static com.cmtech.android.bledeviceapp.data.record.IDiagnosable.CMD_REQUEST_REPORT;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 import android.app.ProgressDialog;
@@ -18,11 +16,9 @@ import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 public class ReportAsyncTask extends AsyncTask<BleEcgRecord, Void, WebResponse> {
     private final IWebResponseCallback callback;
     private final ProgressDialog progressDialog;
-    private final int cmd;
 
-    public ReportAsyncTask(Context context, int cmd, IWebResponseCallback callback) {
+    public ReportAsyncTask(Context context, IWebResponseCallback callback) {
         this.callback = callback;
-        this.cmd = cmd;
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
         progressDialog.setCancelable(false);
@@ -41,17 +37,7 @@ public class ReportAsyncTask extends AsyncTask<BleEcgRecord, Void, WebResponse> 
 
         BleEcgRecord record = ecgRecords[0];
 
-        switch (cmd) {
-            case CMD_REQUEST_REPORT:
-                response = KMWebServiceUtil.requestReport(MyApplication.getAccount(), record);
-                break;
-            case CMD_REQUEST_DIAGNOSE_REPORT:
-                response = KMWebServiceUtil.requestDiagnoseReport(MyApplication.getAccount(), record);
-                break;
-            default:
-                break;
-        }
-        return response;
+        return KMWebServiceUtil.retrieveDiagnoseReport(MyApplication.getAccount(), record);
     }
 
     @Override

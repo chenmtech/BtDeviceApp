@@ -100,27 +100,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <Button
-                        android:id="@+id/btn_get_local_diagnose"
-                        style="@style/button_circle_blue_style"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="本地诊断"
-                        android:textSize="@dimen/normal_font"/>
-
-                    <Button
-                        android:id="@+id/btn_get_remote_diagnose"
-                        style="@style/button_circle_blue_style"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:text="远程诊断"
-                        android:textSize="@dimen/normal_font"/>
-                </LinearLayout>
-
                 <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
                     android:id="@+id/layout_record_note"
                     android:layout_width="match_parent"

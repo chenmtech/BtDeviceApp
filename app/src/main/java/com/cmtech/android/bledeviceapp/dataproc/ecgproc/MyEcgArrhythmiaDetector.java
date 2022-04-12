@@ -14,7 +14,7 @@ import java.util.List;
 public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
     private static final int HR_TOO_LOW_LIMIT = 50;
     private static final int HR_TOO_HIGH_LIMIT = 100;
-    public static final String VER = "0.1.4";
+    public static final String VER = "1.0.0";
 
     private final MyAFEvidence afEvidence;
 

@@ -26,7 +26,6 @@
             android:gravity="start|top"
             android:minLines="2"
             android:inputType="textMultiLine"
-            android:enabled="false"
             android:autofillHints=""
             android:textColor="@color/accent"
             android:maxLength="255"/>
@@ -36,7 +35,7 @@
             style="@style/button_circle_blue_style"
             android:layout_width="40dp"
             android:layout_margin="0dp"
-            android:text="修改"/>
+            android:text="保存"/>
 
     </LinearLayout>
 
