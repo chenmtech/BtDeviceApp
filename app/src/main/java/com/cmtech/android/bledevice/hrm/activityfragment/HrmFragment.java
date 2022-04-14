@@ -105,7 +105,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     Toast.makeText(getContext(), R.string.cannot_switch_mode, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getContext()));
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
                 builder.setTitle(R.string.switch_mode)
                         .setMessage(R.string.reconnect_after_disconnect)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -233,6 +233,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     } else {
                         ecgView.setup(sampleRate, caliValue, zeroLocation);
                         fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
+                        pager.setCurrentItem(fragAdapter.getCount() - 1);
                         tvSwitchMode.setTextColor(Color.WHITE);
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
                                 getResources().getDrawable(R.mipmap.ic_ecg_24px, null), null, null);

@@ -46,12 +46,16 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     public static final String DEFAULT_RECORD_VER = "1.0";
     private static final String[] basicItems = {"id", "createTime", "devAddress",
             "creatorId", "ver", "note", "recordSecond", "needUpload",
-            "reportVer", "reportClient", "reportTime", "reportContent", "reportStatus"};
+            "reportVer", "reportProvider", "reportTime", "reportContent", "reportStatus"};
 
-    public static final String DEFAULT_REPORT_CONTENT = "无";
+    // 缺省报告内容
+    public static final String DEFAULT_REPORT_CONTENT = "";
+
+    // 缺省报告版本号
     public static final String DEFAULT_REPORT_VER = "1.0.0";
-    public static final int LOCAL = 0;
-    public static final int REMOTE = 1;
+
+    // 缺省报告提供者
+    public static final String DEFAULT_REPORT_PROVIDER = "";
 
     public static final int DONE = 0;
     public static final int PROCESS = 1;
@@ -69,7 +73,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     // 报告相关字段
     private String reportVer = DEFAULT_REPORT_VER; // 报告版本号
-    private int reportClient = LOCAL; // 产生报告的终端：本地或云端
+    private String reportProvider = DEFAULT_REPORT_PROVIDER; // 报告提供者
     private long reportTime = INVALID_TIME; // 报告产生时间
     private String reportContent = DEFAULT_REPORT_CONTENT; // 报告内容
     private int reportStatus = DONE; // 报告状态
@@ -172,12 +176,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.reportVer = reportVer;
     }
 
-    public int getReportClient() {
-        return reportClient;
+    public String getReportProvider() {
+        return reportProvider;
     }
 
-    public void setReportClient(int reportClient) {
-        this.reportClient = reportClient;
+    public void setReportProvider(String reportProvider) {
+        this.reportProvider = reportProvider;
     }
 
     public long getReportTime() {
@@ -221,7 +225,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         note = json.getString("note");
         recordSecond = json.getInt("recordSecond");
         reportVer = json.getString("reportVer");
-        reportClient = json.getInt("reportClient");
+        reportProvider = json.getString("reportProvider");
         reportTime = json.getLong("reportTime");
         reportContent = json.getString("reportContent");
         reportStatus = json.getInt("reportStatus");
@@ -238,7 +242,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("note", note);
         json.put("recordSecond", recordSecond);
         json.put("reportVer", reportVer);
-        json.put("reportClient", reportClient);
+        json.put("reportProvider", reportProvider);
         json.put("reportTime", reportTime);
         json.put("reportContent", reportContent);
         json.put("reportStatus", reportStatus);

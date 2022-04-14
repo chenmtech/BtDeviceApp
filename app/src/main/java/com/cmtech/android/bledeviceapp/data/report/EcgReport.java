@@ -16,17 +16,17 @@ import java.util.Date;
 import java.util.Locale;
 
 public class EcgReport implements IJsonable {
-    public static final String DEFAULT_REPORT_CONTENT = "无";
+    public static final String DEFAULT_REPORT_CONTENT = "";
     public static final String DEFAULT_REPORT_VER = "1.0";
-    public static final int LOCAL = 0;
-    public static final int REMOTE = 1;
+
+    // 缺省报告提供者
+    public static final String DEFAULT_REPORT_PROVIDER = "";
+
     public static final int DONE = 0;
     public static final int REQUEST = 1;
-    public static final int PROCESS = 2;
-    public static final int WAIT_READ = 3;
 
     private String ver = DEFAULT_REPORT_VER;
-    private int reportClient = LOCAL; // 产生报告的终端：本地或云端
+    private String reportProvider = DEFAULT_REPORT_PROVIDER; // 报告提供者
     private long reportTime = INVALID_TIME;
     private String reportContent = DEFAULT_REPORT_CONTENT;
     private int reportStatus = DONE;
@@ -43,12 +43,12 @@ public class EcgReport implements IJsonable {
         this.ver = ver;
     }
 
-    public int getReportClient() {
-        return reportClient;
+    public String getReportProvider() {
+        return reportProvider;
     }
 
-    public void setReportClient(int reportClient) {
-        this.reportClient = reportClient;
+    public void setReportProvider(String reportProvider) {
+        this.reportProvider = reportProvider;
     }
 
     public long getReportTime() {
@@ -86,7 +86,7 @@ public class EcgReport implements IJsonable {
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         ver = json.getString("reportVer");
-        reportClient = json.getInt("reportClient");
+        reportProvider = json.getString("reportProvider");
         reportTime = json.getLong("reportTime");
         reportContent = json.getString("reportContent");
         reportStatus = json.getInt("reportStatus");
@@ -98,7 +98,7 @@ public class EcgReport implements IJsonable {
     public JSONObject toJson() throws JSONException{
         JSONObject json = new JSONObject();
         json.put("reportVer", ver);
-        json.put("reportClient", reportClient);
+        json.put("reportClient", reportProvider);
         json.put("reportTime", reportTime);
         json.put("reportContent", reportContent);
         json.put("reportStatus", reportStatus);
@@ -116,19 +116,13 @@ public class EcgReport implements IJsonable {
                 statusStr = "已处理";
                 break;
             case REQUEST:
-                statusStr = "等待处理";
-                break;
-            case PROCESS:
                 statusStr = "正在处理";
-                break;
-            case WAIT_READ:
-                statusStr = "等待读取";
                 break;
             default:
                 break;
         }
         return "时间：" + dateFmt.format(new Date(reportTime))
-                + "\n报告端：" + ((reportClient == LOCAL) ? "本地端" : "云端")
+                + "\n提供方：" + reportProvider
                 + "\n平均心率：" + aveHr
                 + "\n内容：" + reportContent
                 + "\n状态：" + statusStr;

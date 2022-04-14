@@ -159,7 +159,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         IEcgArrhythmiaDetector algorithm = new MyEcgArrhythmiaDetector();
         EcgReport rtnReport = algorithm.process(this);
         setReportVer(rtnReport.getVer());
-        setReportClient(rtnReport.getReportClient());
+        setReportProvider(rtnReport.getReportProvider());
         setReportTime(rtnReport.getReportTime());
         setReportContent(rtnReport.getReportContent());
         setReportStatus(rtnReport.getReportStatus());

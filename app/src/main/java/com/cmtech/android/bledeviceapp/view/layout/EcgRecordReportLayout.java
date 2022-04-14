@@ -1,7 +1,6 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DONE;
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.LOCAL;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.PROCESS;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
@@ -37,6 +36,7 @@ public class EcgRecordReportLayout extends LinearLayout {
     private final EditText etContent;
     private final TextView tvTime;
     private final TextView tvReportVer;
+    private final TextView tvReportProvider;
     private final Button btnUpdateReport;
 
     public EcgRecordReportLayout(Context context, @Nullable AttributeSet attrs) {
@@ -47,6 +47,7 @@ public class EcgRecordReportLayout extends LinearLayout {
         tvTime = view.findViewById(R.id.tv_report_time);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
         btnUpdateReport = view.findViewById(R.id.btn_update_diagnose);
+        tvReportProvider = view.findViewById(R.id.tv_report_provider);
 
         btnUpdateReport.setOnClickListener(new OnClickListener() {
             @Override
@@ -77,6 +78,7 @@ public class EcgRecordReportLayout extends LinearLayout {
             tvTime.setText(dateFmt.format(time));
             etContent.setText(record.getReportContent());
             tvReportVer.setText(record.getReportVer());
+            tvReportProvider.setText(record.getReportProvider());
         } else {
 
         }
@@ -100,7 +102,7 @@ public class EcgRecordReportLayout extends LinearLayout {
                                         Toast.makeText(context, "诊断无更新", Toast.LENGTH_SHORT).show();
                                     } else {
                                         record.setReportVer(report.getVer());
-                                        record.setReportClient(report.getReportClient());
+                                        record.setReportProvider(report.getReportProvider());
                                         record.setReportTime(report.getReportTime());
                                         record.setReportContent(report.getReportContent());
                                         record.setReportStatus(report.getReportStatus());

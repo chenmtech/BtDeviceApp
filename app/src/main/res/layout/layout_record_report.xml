@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -26,19 +26,19 @@
             <Button
                 android:id="@+id/btn_update_diagnose"
                 style="@style/button_circle_blue_style"
-                android:layout_alignParentEnd="true"
                 android:layout_width="40dp"
                 android:layout_margin="0dp"
                 android:text="更新"
                 android:textSize="@dimen/normal_font"/>
-        </RelativeLayout>
+        </LinearLayout>
 
         <EditText
             android:id="@+id/et_report_content"
             style="@style/edittext_circle_gray_no_focusable_style"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="0dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             android:minLines="1"
             android:text="暂无"
             android:textSize="@dimen/big_font"/>
@@ -73,6 +73,26 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="0dp"
                 android:text="   "/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="提供方："/>
+
+            <TextView
+                android:id="@+id/tv_report_provider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="  "/>
         </LinearLayout>
 
         <TextView

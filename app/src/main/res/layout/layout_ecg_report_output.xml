@@ -41,26 +41,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="记录时间：从"
+            android:text="记录起始时间："
             android:textSize="@dimen/big_font"/>
 
         <TextView
             android:id="@+id/tv_record_begin_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:padding="6dp"
-            android:text="  "
-            android:textSize="@dimen/big_font"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="到"
-            android:textSize="@dimen/big_font"/>
-
-        <TextView
-            android:id="@+id/tv_record_end_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
@@ -326,18 +311,19 @@
             android:text="20s"/>
 
     </LinearLayout>
+
     <com.cmtech.android.bledeviceapp.view.ScanEcgView
         android:id="@+id/roll_ecg_view3"
         android:layout_width="2500px"
         android:layout_height="500px"
-        android:layout_marginTop="4dp"
         android:layout_marginStart="50px"
+        android:layout_marginTop="4dp"
         cmtech:background_color="#fff"
         cmtech:large_grid_line_color="@color/primary_dark"
-        cmtech:small_grid_line_color="@color/secondary_dark"
-        cmtech:wave_color="#f00"
+        cmtech:large_grid_line_width="4"
         cmtech:show_grid_line="true"
-        cmtech:large_grid_line_width="4"/>
+        cmtech:small_grid_line_color="@color/secondary_dark"
+        cmtech:wave_color="#f00" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -496,13 +482,32 @@
             android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="报告提供方："
+            android:textSize="@dimen/big_font"/>
+
+        <TextView
+            android:id="@+id/tv_report_provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minEms="10"
+            android:text="   "
+            android:textSize="@dimen/big_font"/>
+    </LinearLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="6dp"
         android:text="*以上结论不能作为临床诊断依据。如有心脏不适，请及时就医。"
-        android:textSize="@dimen/smallest_font"
+        android:textSize="@dimen/big_font"
         android:textColor="@color/red"/>
 
 

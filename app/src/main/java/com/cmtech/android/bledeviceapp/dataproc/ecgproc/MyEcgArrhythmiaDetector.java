@@ -16,6 +16,8 @@ public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
     private static final int HR_TOO_HIGH_LIMIT = 100;
     public static final String VER = "1.0.0";
 
+    private static final String REPORT_PROVIDER = "康明智能";
+
     private final MyAFEvidence afEvidence;
 
     public MyEcgArrhythmiaDetector() {
@@ -41,11 +43,11 @@ public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
         } else {
             strHrResult = "平均心率：" + aveHr + "次/分钟，";
             if(aveHr > HR_TOO_HIGH_LIMIT)
-                strHrResult += "心动过速。\n";
+                strHrResult += "心动过速;";
             else if(aveHr < HR_TOO_LOW_LIMIT)
-                strHrResult += "心动过缓。\n";
+                strHrResult += "心动过缓;";
             else
-                strHrResult += "心率正常。\n";
+                strHrResult += "心率正常;";
         }
 
         afEvidence.process(RR);
@@ -66,7 +68,7 @@ public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
 
         EcgReport report = new EcgReport();
         report.setVer(VER);
-        report.setReportClient(EcgReport.LOCAL);
+        report.setReportProvider(REPORT_PROVIDER);
         report.setReportTime(new Date().getTime());
         report.setReportContent(strHrResult + strAFEResult);
         report.setReportStatus(EcgReport.DONE);
