@@ -274,7 +274,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param fromTime：起始时间
      * @param callback：返回回调
      */
-    @Override
     public final void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
         new RecordAsyncTask(context, "获取记录中，请稍等。", RecordAsyncTask.CMD_DOWNLOAD_RECORD_LIST, new Object[]{num, queryStr, fromTime}, new IWebResponseCallback() {
             @Override

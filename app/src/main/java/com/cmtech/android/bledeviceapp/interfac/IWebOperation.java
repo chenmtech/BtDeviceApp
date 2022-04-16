@@ -6,10 +6,10 @@ import android.content.Context;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.interfac
  * ClassName:      IWebOperatable
- * Description:    java类作用描述
- * Author:         作者名
+ * Description:    网络操作接口
+ * Author:         chenm
  * CreateDate:     2020/9/12 上午5:46
- * UpdateUser:     更新者
+ * UpdateUser:     chenm
  * UpdateDate:     2020/9/12 上午5:46
  * UpdateRemark:   更新说明
  * Version:        1.0
@@ -27,8 +27,13 @@ public interface IWebOperation {
     int RETURN_CODE_DELETE_ERR = 9;
     int RETURN_CODE_DATA_ERR = 10;
     int RETURN_CODE_CHANGE_PASSWORD = 11;
-    void upload(Context context, ICodeCallback callback); // upload a new record or update the record info
-    void download(Context context, ICodeCallback callback); // download the info
-    void delete(Context context, ICodeCallback callback); // delete the record
-    void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback); // retrieve record list according to the conditions
+
+    // 上传或者更新
+    void upload(Context context, ICodeCallback callback);
+
+    // 下载
+    void download(Context context, ICodeCallback callback);
+
+    // 删除
+    void delete(Context context, ICodeCallback callback);
 }

@@ -114,11 +114,6 @@ public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
         throw new IllegalStateException("Cannot use delete of AppPackageInfo");
     }
 
-    @Override
-    public void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
-        throw new IllegalStateException("Cannot use retrieveList of AppPackageInfo");
-    }
-
     public void downloadApkFileAndInstall(Context context) {
         if(TextUtils.isEmpty(url)) return;
 

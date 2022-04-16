@@ -320,11 +320,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         throw new IllegalStateException();
     }
 
-    @Override
-    public void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
-        throw new IllegalStateException();
-    }
-
     @NonNull
     @Override
     public String toString() {
