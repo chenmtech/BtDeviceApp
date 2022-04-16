@@ -23,7 +23,8 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/iv_exit"
             android:layout_centerVertical="true"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
             <com.cmtech.android.bledeviceapp.view.CircleImageView
                 android:id="@+id/iv_creator_image"
                 android:layout_width="wrap_content"

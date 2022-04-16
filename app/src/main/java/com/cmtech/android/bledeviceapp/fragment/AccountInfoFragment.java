@@ -141,6 +141,7 @@ public class AccountInfoFragment extends Fragment {
     private void openAlbum() {
         Intent intent = new Intent(Intent.ACTION_PICK, null);
         intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        //registerForActivityResult(intent, 1);
         startActivityForResult(intent, 1);
     }
 }

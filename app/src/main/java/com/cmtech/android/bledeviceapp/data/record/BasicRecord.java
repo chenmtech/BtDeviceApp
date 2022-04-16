@@ -137,6 +137,10 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         }
     }
 
+    /**
+     * 在输出诊断报告中产生创建者昵称
+     * @return
+     */
     public String getCreatorNickNameInOutputReport() {
         Account account = MyApplication.getAccount();
         if(account == null || account.getAccountId() != creatorId) {
@@ -149,6 +153,15 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                 return userName.substring(0, length/3) + "*" + userName.substring(length*2/3, length);
             }
             return nickName;
+        }
+    }
+
+    public String getCreatorNoteInOutputReport() {
+        Account account = MyApplication.getAccount();
+        if(account == null || account.getAccountId() != creatorId) {
+            return  "匿名";
+        } else {
+            return account.getNote();
         }
     }
 

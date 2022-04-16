@@ -27,6 +27,20 @@
 
         <TextView
             android:id="@+id/tv_record_person"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  "
+            android:textSize="@dimen/big_font"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="备注："
+            android:textSize="@dimen/big_font"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/tv_record_person_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="  "
@@ -432,7 +446,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="诊断结果："
+            android:text="智能诊断："
             android:textSize="@dimen/big_font"/>
 
         <TextView

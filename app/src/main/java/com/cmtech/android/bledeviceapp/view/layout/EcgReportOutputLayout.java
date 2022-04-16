@@ -42,6 +42,7 @@ public class EcgReportOutputLayout extends LinearLayout {
 
     private BleEcgRecord record;
     private final TextView tvRecordPerson;
+    private final TextView tvRecordPersonNote;
     private final TextView tvRecordBeginTime;
     private final TextView tvXResolution;
     private final TextView tvYResolution;
@@ -58,6 +59,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         View view = LayoutInflater.from(context).inflate(R.layout.layout_ecg_report_output, this);
 
         tvRecordPerson = view.findViewById(R.id.tv_record_person);
+        tvRecordPersonNote = view.findViewById(R.id.tv_record_person_note);
         tvRecordBeginTime = view.findViewById(R.id.tv_record_begin_time);
         tvXResolution = view.findViewById(R.id.tv_x_resolution);
         tvYResolution = view.findViewById(R.id.tv_y_resolution);
@@ -81,6 +83,7 @@ public class EcgReportOutputLayout extends LinearLayout {
 
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         tvRecordPerson.setText(record.getCreatorNickNameInOutputReport());
+        tvRecordPersonNote.setText(record.getCreatorNoteInOutputReport());
         long endTime = record.getCreateTime();
         long beginTime = endTime-record.getRecordSecond()*1000;
         tvRecordBeginTime.setText(dateFmt.format(beginTime));

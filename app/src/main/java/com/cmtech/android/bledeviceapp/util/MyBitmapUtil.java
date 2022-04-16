@@ -6,6 +6,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.vise.log.ViseLog;
 import com.vise.utils.view.BitmapUtil;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ public class MyBitmapUtil {
         int px = DensityUtil.dip2px(MyApplication.getContext(), dp);
         px = Math.min(px, 130);
         Bitmap bitmap = BitmapFactory.decodeFile(file);
+        ViseLog.e(file + ":" + bitmap);
         int degree = getBitmapDegree(file);
         if(degree != 0) {
             bitmap = rotateBitmapByDegree(bitmap, degree);

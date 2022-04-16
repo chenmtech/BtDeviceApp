@@ -20,13 +20,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="诊断结果："
+                android:text="智能诊断："
                 android:textSize="@dimen/big_font"/>
 
             <Button
                 android:id="@+id/btn_update_diagnose"
                 style="@style/button_circle_blue_style"
-                android:layout_width="40dp"
+                android:layout_width="wrap_content"
                 android:layout_margin="0dp"
                 android:text="更新"
                 android:textSize="@dimen/normal_font"/>
@@ -46,7 +46,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:gravity="center_vertical|right"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
             <TextView
@@ -79,7 +79,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:gravity="center_vertical|right"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
             <TextView
