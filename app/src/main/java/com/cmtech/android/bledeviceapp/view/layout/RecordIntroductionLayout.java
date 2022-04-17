@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
@@ -44,6 +45,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
     private ImageView ivCreatorImage;
     private TextView tvCreateTime; // 创建时间
     private TextView tvAddress; // device address
+    private ImageView ivDownload;
     private ImageView ivUpload;
 
     public RecordIntroductionLayout(Context context, @Nullable AttributeSet attrs) {
@@ -59,6 +61,26 @@ public class RecordIntroductionLayout extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 ((Activity)getContext()).onBackPressed();
+            }
+        });
+
+        ivDownload = findViewById(R.id.iv_download);
+        ivDownload.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(record != null) {
+                    String reportVer = record.getReportVer();
+                    record.download(getContext(), code -> {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            if(!record.getReportVer().equals(reportVer)) {
+                                Toast.makeText(getContext(), "诊断报告已更新。", Toast.LENGTH_SHORT).show();
+                                ((Activity)getContext()).onCreate(null);
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "无法下载记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
 

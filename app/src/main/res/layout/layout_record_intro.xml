@@ -8,14 +8,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp">
+
         <ImageView
             android:id="@+id/iv_exit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_alignParentStart="true"
-            android:layout_marginEnd="5dp"
-            android:src="@mipmap/ic_left_arrow_32px"/>
+            android:layout_centerVertical="true"
+            android:src="@mipmap/ic_left_arrow_32px" />
 
         <LinearLayout
             android:id="@+id/ll_account"
@@ -91,14 +91,24 @@
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/iv_upload"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="5dp"
-            android:src="@mipmap/ic_upload_24px"/>
+            android:layout_alignParentEnd="true">
+            <ImageView
+                android:id="@+id/iv_download"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:src="@mipmap/ic_download_24px"/>
+
+            <ImageView
+                android:id="@+id/iv_upload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_upload_24px"/>
+        </LinearLayout>
 
     </RelativeLayout>
 

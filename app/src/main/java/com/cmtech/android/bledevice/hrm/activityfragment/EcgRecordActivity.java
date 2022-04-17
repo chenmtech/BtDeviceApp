@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,8 +27,13 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.FileProvider;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordActivity;
+import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
@@ -48,8 +54,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
-    private BleEcgRecord record; // record
+public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewListener {
+    //private BleEcgRecord record; // record
     private RecordIntroductionLayout introductionLayout; // record introduction layout
     private EcgRecordReportLayout reportLayout; // record report layout
     private RecordNoteLayout noteLayout; // record note layout
@@ -85,7 +91,7 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         introductionLayout.updateView();
 
         reportLayout = findViewById(R.id.layout_record_report);
-        reportLayout.setRecord(record);
+        reportLayout.setRecord((BleEcgRecord) record);
         reportLayout.updateView();
 
         noteLayout = findViewById(R.id.layout_record_note);
@@ -93,11 +99,11 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         noteLayout.updateView();
 
         reportOutputLayout = findViewById(R.id.layout_ecg_report_output);
-        reportOutputLayout.setRecord(record);
+        reportOutputLayout.setRecord((BleEcgRecord) record);
 
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
-        ecgView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView.setup((BleEcgRecord) record, RollWaveView.DEFAULT_ZERO_LOCATION);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
@@ -144,6 +150,36 @@ public class EcgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         });
 
         ecgView.startShow();
+    }
+
+    // 上传记录
+    public void uploadRecord() {
+        record.upload(this, new ICodeCallback() {
+            @Override
+            public void onFinish(int code) {
+                if (code == RETURN_CODE_SUCCESS) {
+                    Toast.makeText(EcgRecordActivity.this, "记录已上传", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(EcgRecordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public void downloadRecord() {
+        String reportVer = record.getReportVer();
+        record.download(this, code -> {
+            if (code == RETURN_CODE_SUCCESS) {
+                introductionLayout.updateView();
+                reportLayout.updateView();
+                noteLayout.updateView();
+                if(!record.getReportVer().equals(reportVer)) {
+                    Toast.makeText(this, "诊断报告已更新。", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "无法下载记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showPopupMenu(View view) {

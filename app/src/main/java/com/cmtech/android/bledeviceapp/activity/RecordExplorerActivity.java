@@ -206,7 +206,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId(), true);
         recordList.set(index, record);
         recordAdapter.setSelectedRecord(index);
-        updateRecordView();
+        updateView();
 
         if(record != null) {
             if(record.noSignal()) {
@@ -249,7 +249,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         public void onFinish(int code) {
                             if (recordList.remove(record)) {
                                 recordAdapter.unselected();
-                                updateRecordView();
+                                updateView();
                             }
                         }
                     });
@@ -266,7 +266,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onFinish(int code) {
                 if (code == RETURN_CODE_SUCCESS) {
-                    updateRecordView();
+                    updateView();
                 } else {
                     Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
@@ -286,7 +286,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         recordList.clear();
         recordAdapter.unselected();
-        updateRecordView();
+        updateView();
 
         updateRecordList();
     }
@@ -314,13 +314,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 } else {
                     filterTime = records.get(records.size() - 1).getCreateTime();
                     recordList.addAll(records);
-                    updateRecordView();
+                    updateView();
                 }
             }
         });
     }
 
-    private void updateRecordView() {
+    private void updateView() {
         if(recordList.isEmpty()) {
             recordView.setVisibility(View.INVISIBLE);
             tvNoRecord.setVisibility(View.VISIBLE);
