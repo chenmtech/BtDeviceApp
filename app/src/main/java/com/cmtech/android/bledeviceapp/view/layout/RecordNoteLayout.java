@@ -15,7 +15,6 @@ import com.cmtech.android.bledeviceapp.R;
 public class RecordNoteLayout extends LinearLayout {
     private BasicRecord record;
     private final EditText etNote;
-    private final Button btnEdit;
 
     public RecordNoteLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -23,20 +22,6 @@ public class RecordNoteLayout extends LinearLayout {
 
         etNote = view.findViewById(R.id.et_note);
 
-        btnEdit = view.findViewById(R.id.btn_edit);
-        btnEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(record != null) {
-                    String note = etNote.getText().toString();
-                    if(!record.getNote().equals(note)) {
-                        record.setNote(note);
-                        record.setNeedUpload(true);
-                        record.save();
-                    }
-                }
-            }
-        });
     }
 
     public void setRecord(BasicRecord record) {
@@ -46,6 +31,17 @@ public class RecordNoteLayout extends LinearLayout {
     public void updateView() {
         if(record != null) {
             etNote.setText(record.getNote());
+        }
+    }
+
+    public void saveNote() {
+        if(record != null) {
+            String note = etNote.getText().toString();
+            if(!record.getNote().equals(note)) {
+                record.setNote(note);
+                record.setNeedUpload(true);
+                record.save();
+            }
         }
     }
 }

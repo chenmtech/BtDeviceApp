@@ -29,14 +29,6 @@
             android:autofillHints=""
             android:textColor="@color/accent"
             android:maxLength="255"/>
-
-        <Button
-            android:id="@+id/btn_edit"
-            style="@style/button_circle_blue_style"
-            android:layout_width="40dp"
-            android:layout_margin="0dp"
-            android:text="保存"/>
-
     </LinearLayout>
 
     <include layout="@layout/divider_line"/>

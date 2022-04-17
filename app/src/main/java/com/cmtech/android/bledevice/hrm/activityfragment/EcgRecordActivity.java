@@ -55,10 +55,7 @@ import java.util.Date;
 import java.util.Locale;
 
 public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewListener {
-    //private BleEcgRecord record; // record
-    private RecordIntroductionLayout introductionLayout; // record introduction layout
     private EcgRecordReportLayout reportLayout; // record report layout
-    private RecordNoteLayout noteLayout; // record note layout
     private Button btnOutputPdf;
     private EcgReportOutputLayout reportOutputLayout; // record report output layout
 
@@ -85,18 +82,13 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         }
     }
 
-    private void initUI() {
-        introductionLayout = findViewById(R.id.layout_record_intro);
-        introductionLayout.setRecord(record);
-        introductionLayout.updateView();
+    @Override
+    public void initUI() {
+        super.initUI();
 
         reportLayout = findViewById(R.id.layout_record_report);
         reportLayout.setRecord((BleEcgRecord) record);
         reportLayout.updateView();
-
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
-        noteLayout.updateView();
 
         reportOutputLayout = findViewById(R.id.layout_ecg_report_output);
         reportOutputLayout.setRecord((BleEcgRecord) record);
@@ -150,36 +142,6 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         });
 
         ecgView.startShow();
-    }
-
-    // 上传记录
-    public void uploadRecord() {
-        record.upload(this, new ICodeCallback() {
-            @Override
-            public void onFinish(int code) {
-                if (code == RETURN_CODE_SUCCESS) {
-                    Toast.makeText(EcgRecordActivity.this, "记录已上传", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(EcgRecordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
-
-    public void downloadRecord() {
-        String reportVer = record.getReportVer();
-        record.download(this, code -> {
-            if (code == RETURN_CODE_SUCCESS) {
-                introductionLayout.updateView();
-                reportLayout.updateView();
-                noteLayout.updateView();
-                if(!record.getReportVer().equals(reportVer)) {
-                    Toast.makeText(this, "诊断报告已更新。", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(this, "无法下载记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private void showPopupMenu(View view) {
@@ -320,8 +282,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         if(ecgView != null)
             ecgView.stopShow();
 
-        setResult(RESULT_OK);
-        finish();
+        super.onBackPressed();
     }
 
     @Override

@@ -7,6 +7,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -20,11 +21,7 @@ import org.litepal.LitePal;
 import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
-public class HrRecordActivity extends AppCompatActivity {
-    private BleHrRecord record;
-    private RecordIntroductionLayout introLayout;
-    private RecordNoteLayout noteLayout;
-
+public class HrRecordActivity extends RecordActivity {
     private EditText etMaxHr; // max HR
     private EditText etAveHr; // average HR
     private EditText etHrv; // HRV value
@@ -44,29 +41,22 @@ public class HrRecordActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         } else {
-            record.createHistogramFromHrHist();
+            ((BleHrRecord)record).createHistogramFromHrHist();
             initUI();
         }
     }
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_OK);
-        finish();
+        super.onBackPressed();
     }
 
-    private void initUI() {
-        introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.setRecord(record);
-        introLayout.updateView();
-
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
-        noteLayout.updateView();
+    public void initUI() {
+        super.initUI();
 
         hrLineChart = findViewById(R.id.hr_line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
-        hrLineChart.showShortLineChart(record.getHrList(), getResources().getString(R.string.hr_linechart), Color.BLUE);
+        hrLineChart.showShortLineChart(((BleHrRecord)record).getHrList(), getResources().getString(R.string.hr_linechart), Color.BLUE);
 
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.BPM);
@@ -77,16 +67,16 @@ public class HrRecordActivity extends AppCompatActivity {
         etHrv = findViewById(R.id.et_hrv);
         etCalories = findViewById(R.id.et_burned_calories);
 
-        etAveHr.setText(String.valueOf(record.getHrAve()));
-        etMaxHr.setText(String.valueOf(record.getHrMax()));
+        etAveHr.setText(String.valueOf(((BleHrRecord)record).getHrAve()));
+        etMaxHr.setText(String.valueOf(((BleHrRecord)record).getHrMax()));
 
-        etHrv.setText(String.valueOf(record.calculateHRVInMs()));
+        etHrv.setText(String.valueOf(((BleHrRecord)record).calculateHRVInMs()));
         Account account = MyApplication.getAccount();
         if(account == null || account.notSetPersonInfo())
             etCalories.setText("请完善个人信息");
         else
-            etCalories.setText(String.valueOf(record.calculateCalories(account)));
+            etCalories.setText(String.valueOf(((BleHrRecord)record).calculateCalories(account)));
 
-        hrHistChart.update(record.getHrHistogram());
+        hrHistChart.update(((BleHrRecord)record).getHrHistogram());
     }
 }

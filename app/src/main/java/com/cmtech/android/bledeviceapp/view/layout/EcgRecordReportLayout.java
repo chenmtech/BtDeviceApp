@@ -37,7 +37,6 @@ public class EcgRecordReportLayout extends LinearLayout {
     private final TextView tvTime;
     private final TextView tvReportVer;
     private final TextView tvReportProvider;
-    private final Button btnUpdateReport;
 
     public EcgRecordReportLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -46,15 +45,7 @@ public class EcgRecordReportLayout extends LinearLayout {
         etContent = view.findViewById(R.id.et_report_content);
         tvTime = view.findViewById(R.id.tv_report_time);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
-        btnUpdateReport = view.findViewById(R.id.btn_update_diagnose);
         tvReportProvider = view.findViewById(R.id.tv_report_provider);
-
-        btnUpdateReport.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                remoteDiagnose();
-            }
-        });
     }
 
     public void setRecord(BleEcgRecord record) {

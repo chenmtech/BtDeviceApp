@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -69,17 +70,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
             @Override
             public void onClick(View view) {
                 if(record != null) {
-                    String reportVer = record.getReportVer();
-                    record.download(getContext(), code -> {
-                        if (code == RETURN_CODE_SUCCESS) {
-                            if(!record.getReportVer().equals(reportVer)) {
-                                Toast.makeText(getContext(), "诊断报告已更新。", Toast.LENGTH_SHORT).show();
-                                ((Activity)getContext()).onCreate(null);
-                            }
-                        } else {
-                            Toast.makeText(getContext(), "无法下载记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    ((RecordActivity)getContext()).downloadRecord();
                 }
             }
         });
@@ -89,16 +80,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
             @Override
             public void onClick(View view) {
                 if(record != null) {
-                    record.upload(getContext(), new ICodeCallback() {
-                        @Override
-                        public void onFinish(int code) {
-                            if (code == RETURN_CODE_SUCCESS) {
-                                Toast.makeText(getContext(), "记录已上传", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(getContext(), WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
+                    ((RecordActivity)getContext()).uploadRecord();
                 }
             }
         });

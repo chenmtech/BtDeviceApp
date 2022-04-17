@@ -342,6 +342,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                     if(content != null) {
                         try {
                             fromJson(content);
+                            setNeedUpload(false);
                             save();
                         } catch (JSONException e) {
                             e.printStackTrace();

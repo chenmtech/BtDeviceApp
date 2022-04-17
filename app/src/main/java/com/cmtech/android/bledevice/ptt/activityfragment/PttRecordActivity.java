@@ -7,6 +7,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BlePpgRecord;
@@ -25,12 +26,7 @@ import org.litepal.LitePal;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
-public class PttRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
-    private BlePttRecord record;
-
-    private RecordIntroductionLayout introLayout;
-    private RecordNoteLayout noteLayout;
-
+public class PttRecordActivity extends RecordActivity implements OnRollWaveViewListener {
     private RollEcgView ecgView; // ecgView
     private RollPpgView ppgView; // ppgView
     private TextView tvTotalTime; // 总时长
@@ -53,30 +49,24 @@ public class PttRecordActivity extends AppCompatActivity implements OnRollWaveVi
         }
     }
 
-    private void initUI() {
-        introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.setRecord(record);
-        introLayout.updateView();
-
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
-        noteLayout.updateView();
+    public void initUI() {
+        super.initUI();
 
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
         BleEcgRecord ecgRecord = (BleEcgRecord) RecordFactory.create(RecordType.ECG, BasicRecord.DEFAULT_RECORD_VER, record.getCreateTime(), record.getDevAddress(), record.getCreatorId());
-        ecgRecord.setSampleRate(record.getSampleRate());
-        ecgRecord.setCaliValue(record.getEcgCaliValue());
-        ecgRecord.setEcgData(record.getEcgData());
+        ecgRecord.setSampleRate(((BlePttRecord)record).getSampleRate());
+        ecgRecord.setCaliValue(((BlePttRecord)record).getEcgCaliValue());
+        ecgRecord.setEcgData(((BlePttRecord)record).getEcgData());
         ecgView.setup(ecgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
         ecgView.setGestureDetector(null);
 
         ppgView = findViewById(R.id.roll_ppg_view);
         //ppgView.setListener(this);
         BlePpgRecord ppgRecord = (BlePpgRecord) RecordFactory.create(RecordType.PPG, BasicRecord.DEFAULT_RECORD_VER, record.getCreateTime(), record.getDevAddress(), record.getCreatorId());
-        ppgRecord.setSampleRate(record.getSampleRate());
-        ppgRecord.setCaliValue(record.getPpgCaliValue());
-        ppgRecord.setPpgData(record.getPpgData());
+        ppgRecord.setSampleRate(((BlePttRecord)record).getSampleRate());
+        ppgRecord.setCaliValue(((BlePttRecord)record).getPpgCaliValue());
+        ppgRecord.setPpgData(((BlePttRecord)record).getPpgData());
         ppgView.setup(ppgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
         ppgView.setGestureDetector(null);
 
@@ -143,8 +133,7 @@ public class PttRecordActivity extends AppCompatActivity implements OnRollWaveVi
         if(ppgView != null)
             ppgView.stopShow();
 
-        setResult(RESULT_OK);
-        finish();
+        super.onBackPressed();
     }
 
     @Override

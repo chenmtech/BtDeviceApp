@@ -7,6 +7,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BlePpgRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
@@ -19,12 +20,7 @@ import org.litepal.LitePal;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
-public class PpgRecordActivity extends AppCompatActivity implements OnRollWaveViewListener {
-    private BlePpgRecord record;
-
-    private RecordIntroductionLayout introLayout;
-    private RecordNoteLayout noteLayout;
-
+public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewListener {
     private RollPpgView ppgView; // ppg View
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放信号的时刻
@@ -46,18 +42,12 @@ public class PpgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         }
     }
 
-    private void initUI() {
-        introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.setRecord(record);
-        introLayout.updateView();
-
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
-        noteLayout.updateView();
+    public void initUI() {
+        super.initUI();
 
         ppgView = findViewById(R.id.roll_ppg_view);
         ppgView.setListener(this);
-        ppgView.setup(record, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ppgView.setup((BlePpgRecord) record, RollWaveView.DEFAULT_ZERO_LOCATION);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
@@ -112,8 +102,7 @@ public class PpgRecordActivity extends AppCompatActivity implements OnRollWaveVi
         if(ppgView != null)
             ppgView.stopShow();
 
-        setResult(RESULT_OK);
-        finish();
+        super.onBackPressed();
     }
 
     @Override

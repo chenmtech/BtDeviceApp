@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordActivity;
+import com.cmtech.android.bledeviceapp.data.record.BlePttRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord;
 import com.cmtech.android.bledeviceapp.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
@@ -27,12 +29,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class ThermoRecordActivity extends AppCompatActivity {
-    private BleThermoRecord record;
-
-    private RecordIntroductionLayout introLayout;
-    private RecordNoteLayout noteLayout;
-
+public class ThermoRecordActivity extends RecordActivity {
     private MyLineChart lineChart; //
 
     @Override
@@ -52,22 +49,15 @@ public class ThermoRecordActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_OK);
-        finish();
+        super.onBackPressed();
     }
 
-    private void initUI() {
-        introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.setRecord(record);
-        introLayout.updateView();
-
-        noteLayout = findViewById(R.id.layout_record_note);
-        noteLayout.setRecord(record);
-        noteLayout.updateView();
+    public void initUI() {
+        super.initUI();
         
         lineChart = findViewById(R.id.hr_line_chart);
         lineChart.setXAxisValueFormatter(2);
-        lineChart.showFloatLineChart(record.getTemp(), getResources().getString(R.string.thermo_linechart), Color.BLUE);
+        lineChart.showFloatLineChart(((BleThermoRecord)record).getTemp(), getResources().getString(R.string.thermo_linechart), Color.BLUE);
 
         TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.temperature);
