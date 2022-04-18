@@ -12,8 +12,14 @@ import android.widget.LinearLayout;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.R;
 
+/**
+ * 记录备注Layout
+ */
 public class RecordNoteLayout extends LinearLayout {
+    // 该Layout关联的记录
     private BasicRecord record;
+
+    // 备注框
     private final EditText etNote;
 
     public RecordNoteLayout(Context context, @Nullable AttributeSet attrs) {
@@ -24,16 +30,27 @@ public class RecordNoteLayout extends LinearLayout {
 
     }
 
+    /**
+     * 设置关联的记录
+     * @param record
+     */
     public void setRecord(BasicRecord record) {
         this.record = record;
     }
 
+    /**
+     * 更新显示
+     */
     public void updateView() {
         if(record != null) {
             etNote.setText(record.getNote());
         }
     }
 
+    /**
+     * 如果备注框中的内容已修改，则将其保存起来，并提示记录需要上传
+     *
+     */
     public void saveNote() {
         if(record != null) {
             String note = etNote.getText().toString();

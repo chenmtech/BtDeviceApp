@@ -55,7 +55,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="记录起始时间："
+            android:text="记录时间："
             android:textSize="@dimen/big_font"/>
 
         <TextView
@@ -552,7 +552,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="报告打印时间："
+            android:text="打印时间："
             android:textSize="@dimen/big_font"/>
 
         <TextView

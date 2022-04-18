@@ -96,18 +96,20 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true">
-            <ImageView
-                android:id="@+id/iv_download"
+            <TextView
+                android:id="@+id/tv_download"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
-                android:src="@mipmap/ic_download_24px"/>
+                android:text="更新"
+                android:drawableTop="@mipmap/ic_download_24px"/>
 
-            <ImageView
-                android:id="@+id/iv_upload"
+            <TextView
+                android:id="@+id/tv_upload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_upload_24px"/>
+                android:text="上传"
+                android:drawableTop ="@mipmap/ic_upload_24px"/>
         </LinearLayout>
 
     </RelativeLayout>

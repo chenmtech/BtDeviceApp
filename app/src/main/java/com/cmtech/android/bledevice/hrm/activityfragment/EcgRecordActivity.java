@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,34 +12,24 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.FileProvider;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
-import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
-import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
-import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout;
 import com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout;
-import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
-import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 import com.vise.log.ViseLog;
 import com.vise.utils.view.BitmapUtil;
 
@@ -54,16 +43,33 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * 心电记录Activity
+ */
 public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewListener {
-    private EcgRecordReportLayout reportLayout; // record report layout
-    private Button btnOutputPdf;
-    private EcgReportOutputLayout reportOutputLayout; // record report output layout
+    // 心电记录报告Layout
+    private EcgRecordReportLayout reportLayout;
 
-    private RollEcgView ecgView; // ecgView
-    private TextView tvTimeLength; // record time length
-    private TextView tvCurrentTime; // current replay time
-    private SeekBar sbReplay; // ecg replay seek bar
-    private ImageButton ibReplayCtrl; // ecg replay control button
+    // 心电记录报告输出layout，用于输出PDF
+    private EcgReportOutputLayout reportOutputLayout;
+
+    // 心电信号View
+    private RollEcgView ecgView;
+
+    // 记录时长
+    private TextView tvTimeLength;
+
+    // 当前回放时刻点
+    private TextView tvCurrentTime;
+
+    // 回放条
+    private SeekBar sbReplay;
+
+    // 回放开始/停止按钮
+    private ImageButton ibReplayCtrl;
+
+    // 输出PDF按钮
+    private Button btnOutputPdf;
 
 
     @Override
@@ -144,6 +150,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         ecgView.startShow();
     }
 
+    /*
     private void showPopupMenu(View view) {
         // View当前PopupMenu显示的相对View的位置
         PopupMenu popupMenu = new PopupMenu(this, view);
@@ -174,26 +181,34 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         popupMenu.show();
     }
+    */
 
+    /**
+     * 将记录输出为PDF文档，文档结构按照reportOutputLayout
+     */
     private void outputPdf() {
-        reportOutputLayout.outputPdf("将报告输出为PDF文件，请稍等...", () -> {
+        reportOutputLayout.output("将报告输出为PDF文件，请稍等...", () -> {
             PdfDocument doc = new PdfDocument();
-            PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
+
+            PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(
                     reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)
                     .create();
 
             PdfDocument.Page page = doc.startPage(pageInfo);
 
             reportOutputLayout.draw(page.getCanvas());
+
             doc.finishPage(page);
 
-            DateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault());
-            String docTime = dateFmt.format(new Date());
+            String docTime = new SimpleDateFormat("yyyyMMddHHmmssSSS", Locale.getDefault()).format(new Date());
             //File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             try {
+                // 将记录写入临时文件中
                 File pdfFile = new File(DIR_CACHE,"km_ecgreport_"+docTime+".pdf");
                 doc.writeTo(new FileOutputStream(pdfFile));
                 doc.close();
+
+                // 启动app打开PDF文档
                 Uri uri;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     uri = FileProvider.getUriForFile(EcgRecordActivity.this,
@@ -213,8 +228,11 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         });
     }
 
+    /**
+     * 将记录输出为PNG图片，按照reportOutputLayout
+     */
     private void outputPng() {
-        reportOutputLayout.outputPdf("将报告输出为PNG图片，请稍等...", () -> {
+        reportOutputLayout.output("将报告输出为PNG图片，请稍等...", () -> {
             PdfDocument doc = new PdfDocument();
             PdfDocument.PageInfo pageInfo =new PdfDocument.PageInfo.Builder(
                     reportOutputLayout.getWidth(), reportOutputLayout.getHeight(), 1)
@@ -241,6 +259,11 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         });
     }
 
+    /**
+     * 将PDF文档转换为Bitmap
+     * @param pdfFile
+     * @return
+     */
     private  Bitmap pdfToBitmap(File pdfFile) {
         try {
             PdfRenderer renderer = new PdfRenderer(ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY));

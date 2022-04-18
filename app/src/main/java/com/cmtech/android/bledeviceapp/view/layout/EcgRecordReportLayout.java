@@ -9,7 +9,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -30,48 +29,67 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+/**
+ * 心电记录诊断报告Layout
+ */
 public class EcgRecordReportLayout extends LinearLayout {
+    // 该Layout关联的记录
     private BleEcgRecord record;
 
-    private final EditText etContent;
-    private final TextView tvTime;
+    // 报告的内容
+    private final EditText etReportContent;
+
+    // 报告时间
+    private final TextView tvReportTime;
+
+    // 报告版本
     private final TextView tvReportVer;
+
+    // 报告提供方
     private final TextView tvReportProvider;
 
     public EcgRecordReportLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_record_report, this);
 
-        etContent = view.findViewById(R.id.et_report_content);
-        tvTime = view.findViewById(R.id.tv_report_time);
+        etReportContent = view.findViewById(R.id.et_report_content);
+        tvReportTime = view.findViewById(R.id.tv_report_time);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
         tvReportProvider = view.findViewById(R.id.tv_report_provider);
     }
 
+    /**
+     * 设置关联的记录
+     * @param record
+     */
     public void setRecord(BleEcgRecord record) {
         this.record = record;
     }
 
-    public void localDiagnose() {
-        if(record != null) {
-            record.localDiagnose();
-            updateView();
-            Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
-        }
-    }
-
+    /**
+     * 更新显示
+     */
     public void updateView() {
         if(record == null) return;
 
         long time = record.getReportTime();
         if(time > INVALID_TIME) {
             DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-            tvTime.setText(dateFmt.format(time));
-            etContent.setText(record.getReportContent());
+            tvReportTime.setText(dateFmt.format(time));
+            etReportContent.setText(record.getReportContent());
             tvReportVer.setText(record.getReportVer());
             tvReportProvider.setText(record.getReportProvider());
         } else {
 
+        }
+    }
+
+    /*
+    public void localDiagnose() {
+        if(record != null) {
+            record.localDiagnose();
+            updateView();
+            Toast.makeText(getContext(), "已更新诊断结果", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -123,4 +141,5 @@ public class EcgRecordReportLayout extends LinearLayout {
             record.remoteDiagnose(getContext(), getReportWebCallback);
         }
     }
+    */
 }

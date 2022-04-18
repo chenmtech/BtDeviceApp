@@ -40,14 +40,29 @@ import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
  * Version:        1.0
  */
 public class RecordIntroductionLayout extends RelativeLayout {
+    // 该Layout关联的记录
     private BasicRecord record;
+
+    // 退出按钮
     private ImageView ivExit;
-    private TextView tvCreatorName; // 创建人名
+
+    // 创建人名
+    private TextView tvCreatorName;
+
+    // 创建人头像
     private ImageView ivCreatorImage;
-    private TextView tvCreateTime; // 创建时间
-    private TextView tvAddress; // device address
-    private ImageView ivDownload;
-    private ImageView ivUpload;
+
+    // 创建时间
+    private TextView tvCreateTime;
+
+    // 记录设备地址
+    private TextView tvAddress;
+
+    // 下载更新按钮
+    private TextView tvDownload;
+
+    // 上传按钮
+    private TextView tvUpload;
 
     public RecordIntroductionLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -65,8 +80,8 @@ public class RecordIntroductionLayout extends RelativeLayout {
             }
         });
 
-        ivDownload = findViewById(R.id.iv_download);
-        ivDownload.setOnClickListener(new OnClickListener() {
+        tvDownload = findViewById(R.id.tv_download);
+        tvDownload.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(record != null) {
@@ -75,8 +90,8 @@ public class RecordIntroductionLayout extends RelativeLayout {
             }
         });
 
-        ivUpload = findViewById(R.id.iv_upload);
-        ivUpload.setOnClickListener(new OnClickListener() {
+        tvUpload = findViewById(R.id.tv_upload);
+        tvUpload.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(record != null) {
@@ -86,10 +101,17 @@ public class RecordIntroductionLayout extends RelativeLayout {
         });
     }
 
+    /**
+     * 设置关联记录
+     * @param record
+     */
     public void setRecord(BasicRecord record) {
         this.record = record;
     }
 
+    /**
+     * 更新显示
+     */
     public void updateView() {
         if(record == null) return;
 

@@ -26,33 +26,47 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledeviceapp.view
- * ClassName:      EcgReportPdfLayout
- * Description:    java类作用描述
- * Author:         作者名
- * CreateDate:     2020/10/18 下午3:04
- * UpdateUser:     更新者
- * UpdateDate:     2020/10/18 下午3:04
- * UpdateRemark:   更新说明
- * Version:        1.0
+ * 心电记录报告输出Layout
  */
 public class EcgReportOutputLayout extends LinearLayout {
+    // 关联的记录
+    private BleEcgRecord record;
+
+    // 用户显示心电信号的View数组
     private static final ScanEcgView[] ECG_VIEWS = new ScanEcgView[3]; // ecgView array
 
-    private BleEcgRecord record;
+    // 记录人名
     private final TextView tvRecordPerson;
+
+    // 记录人备注
     private final TextView tvRecordPersonNote;
+
+    // 记录起始时间
     private final TextView tvRecordBeginTime;
+
+    // X方向分辨率
     private final TextView tvXResolution;
+
+    // Y方向分辨率
     private final TextView tvYResolution;
+
+    // 报告版本
     private final TextView tvReportVer;
+
+    // 报告提供方
     private final TextView tvReportProvider;
+
+    // 报告产生时间
     private final TextView tvReportTime;
-    private final TextView tvReportPrintTime;
-    private final TextView tvContent;
+
+    // 报告内容
+    private final TextView tvReportContent;
+
+    // 备注
     private final TextView tvNote;
 
+    // 打印时间
+    private final TextView tvPrintTime;
 
     public EcgReportOutputLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -63,22 +77,32 @@ public class EcgReportOutputLayout extends LinearLayout {
         tvRecordBeginTime = view.findViewById(R.id.tv_record_begin_time);
         tvXResolution = view.findViewById(R.id.tv_x_resolution);
         tvYResolution = view.findViewById(R.id.tv_y_resolution);
-        tvContent = view.findViewById(R.id.tv_report_content);
+        tvReportContent = view.findViewById(R.id.tv_report_content);
         tvReportVer = view.findViewById(R.id.tv_report_ver);
         tvReportProvider = view.findViewById(R.id.tv_report_provider);
         tvReportTime = view.findViewById(R.id.tv_report_time);
-        tvReportPrintTime = view.findViewById(R.id.tv_report_print_time);
+        tvPrintTime = view.findViewById(R.id.tv_report_print_time);
         tvNote = view.findViewById(R.id.tv_note);
         ECG_VIEWS[0] = view.findViewById(R.id.roll_ecg_view1);
         ECG_VIEWS[1] = view.findViewById(R.id.roll_ecg_view2);
         ECG_VIEWS[2] = view.findViewById(R.id.roll_ecg_view3);
     }
 
+    /**
+     * 设置关联记录
+     * @param record
+     */
     public void setRecord(BleEcgRecord record) {
         this.record = record;
     }
 
-    public void outputPdf(String showText, ISimpleCallback callback) {
+    /**
+     * 将该Layout内容输出
+     * 输出过程分为两步：第一步，先将要显示的内容设置好；第二步，调用callback将内容输出
+     * @param showText：输出过程中要显示的字符串
+     * @param callback：将内容输出的回调
+     */
+    public void output(String showText, ISimpleCallback callback) {
         if(record == null) return;
 
         DateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -96,12 +120,11 @@ public class EcgReportOutputLayout extends LinearLayout {
         if(reportTime > INVALID_TIME) {
             tvReportVer.setText(record.getReportVer());
             tvReportTime.setText(dateFmt1.format(reportTime));
-            tvContent.setText(record.getReportContent());
+            tvReportContent.setText(record.getReportContent());
             tvReportProvider.setText(record.getReportProvider());
-            //tvAveHr.setText(String.valueOf(record.getReport().getAveHr()));
         }
 
-        tvReportPrintTime.setText(dateFmt1.format(new Date().getTime()));
+        tvPrintTime.setText(dateFmt1.format(new Date().getTime()));
         tvNote.setText(record.getNote());
 
         new DrawEcgViewAsyncTask(getContext(), showText, callback).execute(record);
