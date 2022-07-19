@@ -26,8 +26,8 @@ import java.util.Calendar;
 public class RecordSearchLayout extends LinearLayout {
     private RecordExplorerActivity activity;
 
-    private EditText etFilterStr; // filter string
-    private EditText etStartDate; // starting date
+    private final EditText etFilterStr; // filter string
+    private final EditText etStartDate; // starting date
 
     private int year, month, day;
 
@@ -37,6 +37,8 @@ public class RecordSearchLayout extends LinearLayout {
 
         etFilterStr = view.findViewById(R.id.et_note_filter_string);
         etStartDate = view.findViewById(R.id.et_start_date);
+
+        etFilterStr.setText("");
 
         // 设置当前日期
         Calendar calendar = Calendar.getInstance();
@@ -56,11 +58,13 @@ public class RecordSearchLayout extends LinearLayout {
     public void resetFilterCondition() {
         if(activity != null) {
             etFilterStr.setText("");
+
             Calendar calendar = Calendar.getInstance();
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
             day = calendar.get(Calendar.DAY_OF_MONTH);
             etStartDate.setText(year+"-"+ (month + 1) +"-"+day);
+
             activity.searchRecords("", calendar.getTimeInMillis());
         }
     }
@@ -69,6 +73,7 @@ public class RecordSearchLayout extends LinearLayout {
         this.activity = activity;
     }
 
+    // 选择查询记录的起始日期
     private void selectStartDate() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setPositiveButton("设置", new DialogInterface.OnClickListener() {

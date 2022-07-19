@@ -28,6 +28,7 @@ import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 /**
@@ -267,15 +268,15 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     /**
-     * 从远程端获取符合条件的BasicRecord对象字段信息，保存到本地数据库中。仅获取BasicRecord的字段
+     * 从服务器端获取符合条件的BasicRecord对象字段信息，保存到本地数据库中。仅获取BasicRecord的字段
      * @param context
      * @param num：获取记录数
-     * @param queryStr：搜索字符串
-     * @param fromTime：起始时间
+     * @param filterStr：过滤的字符串
+     * @param filterTime：过滤的起始时间
      * @param callback：返回回调
      */
-    public final void retrieveList(Context context, int num, String queryStr, long fromTime, ICodeCallback callback) {
-        new RecordAsyncTask(context, "获取记录中，请稍等。", RecordAsyncTask.CMD_DOWNLOAD_RECORD_LIST, new Object[]{num, queryStr, fromTime}, new IWebResponseCallback() {
+    public final void retrieveList(Context context, int num, String filterStr, long filterTime, ICodeCallback callback) {
+        new RecordAsyncTask(context, "获取记录中，请稍等。", RecordAsyncTask.CMD_DOWNLOAD_RECORD_LIST, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -380,15 +381,15 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * 静态函数，从本地数据库获取满足条件的BasicRecord对象字段信息，仅获取BasicRecord字段
      * @param type：记录类型，如果是ALL，则包含所有记录类型
      * @param creator：记录创建者
-     * @param fromTime：起始时间
-     * @param filterStr：搜索字符串
+     * @param filterTime：过滤的起始时间
+     * @param filterStr：过滤的字符串
      * @param num：记录数
-     * @return
+     * @return 查询到的BasicRecord对象列表
      */
-    public static List<? extends BasicRecord> retrieveListFromLocalDb(RecordType type, Account creator, long fromTime, String filterStr, int num) {
+    public static List<? extends BasicRecord> retrieveListFromLocalDb(RecordType type, Account creator, long filterTime, String filterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
-            for(RecordType t : RecordType.values()) {
+            for(RecordType t : SUPPORT_RECORD_TYPES) {
                 if(t != RecordType.ALL) {
                     types.add(t);
                 }
@@ -404,16 +405,17 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                 //ViseLog.e(recordClass);
                 if(TextUtils.isEmpty(filterStr)) {
                     records.addAll(LitePal.select(basicItems)
-                            .where("creatorId = ? and createTime < ?", ""+creator.getAccountId(), ""+fromTime)
+                            .where("creatorId = ? and createTime < ?", ""+creator.getAccountId(), ""+filterTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
                     records.addAll(LitePal.select(basicItems)
-                            .where("creatorId = ? and createTime < ? and note like ?", ""+creator.getAccountId(), ""+fromTime, "%"+filterStr+"%")
+                            .where("creatorId = ? and createTime < ? and note like ?", ""+creator.getAccountId(), ""+filterTime, "%"+filterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }
         }
         if(records.isEmpty()) return null;
+
         Collections.sort(records, new Comparator<BasicRecord>() {
             @Override
             public int compare(BasicRecord o1, BasicRecord o2) {

@@ -291,6 +291,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateRecordList();
     }
 
+    // 更新记录列表
     private void updateRecordList() {
         KeyBoardUtil.closeKeybord(this);
 
@@ -300,6 +301,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
+        // 从服务器查询记录，并将得到的记录保存到本地数据库
         record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME, filterStr, filterTime, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
@@ -307,12 +309,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
 
+                // 从本地读取记录
                 List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), filterTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME);
 
                 if(records == null) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else {
-                    filterTime = records.get(records.size() - 1).getCreateTime();
+                    filterTime = records.get(records.size() - 1).getCreateTime(); // 用最后一条记录的创建时间更新过滤时间，准备下次查询
                     recordList.addAll(records);
                     updateView();
                 }

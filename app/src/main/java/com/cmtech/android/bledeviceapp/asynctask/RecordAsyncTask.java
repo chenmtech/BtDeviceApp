@@ -99,7 +99,7 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
             case CMD_DOWNLOAD_RECORD_LIST:
                 int downloadNum = 0;
                 String filterStr = "";
-                long fromTime = new Date().getTime();
+                long filterTime = new Date().getTime();
                 if(params == null || params.length == 0) {
                     downloadNum = DEFAULT_DOWNLOAD_NUM;
                 } else if(params.length == 1) {
@@ -110,9 +110,9 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
                 } else if(params.length == 3) {
                     downloadNum = (Integer) params[0];
                     filterStr = (String) params[1];
-                    fromTime = (Long) params[2];
+                    filterTime = (Long) params[2];
                 }
-                response = KMWebServiceUtil.downloadBasicRecords(MyApplication.getAccount(), record, fromTime, downloadNum, filterStr);
+                response = KMWebServiceUtil.downloadBasicRecords(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
                 break;
 
             default:
