@@ -2,21 +2,27 @@ package com.cmtech.android.bledeviceapp.view.layout;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 
 import java.util.Calendar;
 
+/**
+ * ClassName:      RecordSearchLayout
+ * Description:    搜索记录的布局类Layout
+ * Author:         chenm
+ * CreateDate:     2019/11/10 下午5:34
+ */
 public class RecordSearchLayout extends LinearLayout {
     private RecordExplorerActivity activity;
 
@@ -31,6 +37,8 @@ public class RecordSearchLayout extends LinearLayout {
 
         etFilterStr = view.findViewById(R.id.et_note_filter_string);
         etStartDate = view.findViewById(R.id.et_start_date);
+
+        // 设置当前日期
         Calendar calendar = Calendar.getInstance();
         year = calendar.get(Calendar.YEAR);
         month = calendar.get(Calendar.MONTH);

@@ -54,14 +54,14 @@ import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
   * CreateDate:     2018/11/10 下午5:34
   * UpdateUser:     chenm
   * UpdateDate:     2019/4/12 下午5:34
-  * UpdateRemark:   制作类图，优化代码
+  * UpdateRemark:   优化代码
   * Version:        1.0
  */
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
     private static final int RC_OPEN_RECORD = 1; // 打开记录返回码
-    private static final int DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME = 20; // 每次要下载的记录数
+    private static final int DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME = 20; // 缺省单次要下载的记录数
 
     private final List<BasicRecord> recordList = new ArrayList<>(); //  record List
 
@@ -72,7 +72,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private RecordSearchLayout searchLayout; // 搜索记录的Layout
 
     private RecordType recordType = null; // 当前浏览的记录类型
-    private String filterStr = ""; // 过滤的备注字符串
+    private String filterStr = ""; // 过滤的备注中包含的字符串
     private long filterTime = new Date().getTime(); // 过滤的记录时间
 
 
