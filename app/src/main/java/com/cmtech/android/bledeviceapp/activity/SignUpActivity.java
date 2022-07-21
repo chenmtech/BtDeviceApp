@@ -1,12 +1,12 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +14,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -28,8 +31,6 @@ import java.util.regex.Pattern;
 
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
-
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 public class SignUpActivity extends AppCompatActivity {
     private static final String CHINA_PHONE_NUMBER = "86";
@@ -106,7 +107,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        // 注册一个事件回调，用于处理SMSSDK接口请求的结果 
+        // 注册一个事件回调，用于处理SMSSDK接口请求的结果
         SMSSDK.registerEventHandler(eventHandler);
 
         etUserName = findViewById(R.id.et_user_name);
@@ -162,7 +163,7 @@ public class SignUpActivity extends AppCompatActivity {
         if (!granted) {
             Toast.makeText(this, R.string.pls_check_privacy, Toast.LENGTH_SHORT).show();
         }
-        MobSDK.submitPolicyGrantResult(granted, null);
+        MobSDK.submitPolicyGrantResult(granted);
         return granted;
     }
 
@@ -172,7 +173,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
 
         SMSSDK.unregisterEventHandler(eventHandler);
