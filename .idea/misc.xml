@@ -22,6 +22,8 @@
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.196875" />
         <entry key="app/src/main/res/layout/activity_person_info.xml" value="0.196875" />
         <entry key="app/src/main/res/layout/activity_record_ecg.xml" value="0.21875" />
+        <entry key="app/src/main/res/layout/activity_sign_up.xml" value="0.2375" />
+        <entry key="app/src/main/res/layout/activity_splash.xml" value="0.4469086021505376" />
         <entry key="app/src/main/res/layout/layout_ecg_report_output.xml" value="0.196875" />
         <entry key="app/src/main/res/layout/layout_record_report.xml" value="0.21875" />
       </map>

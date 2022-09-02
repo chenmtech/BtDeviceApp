@@ -6,15 +6,20 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
+import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 
 import java.util.Locale;
@@ -24,8 +29,21 @@ import java.util.regex.Pattern;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 
+import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkPassword;
+import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkUserName;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
+/**
+ *
+ * ClassName:      SplashActivity
+ * Description:    修改密码界面Activity
+ * Author:         chenm
+ * CreateDate:     2018/10/27 09:18
+ * UpdateUser:     chenm
+ * UpdateDate:     2019-04-24 09:18
+ * UpdateRemark:   更新说明
+ * Version:        1.0
+ */
 public class ChangePasswordActivity extends AppCompatActivity {
     private static final String CHINA_PHONE_NUMBER = "86";
     private static final int MSG_COUNT_DOWN_SECOND = 1;
@@ -33,6 +51,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText etPassword;
     private Button btnChangePassword;
     private Button btnGetVeriCode;
+    private CheckBox cbGrant;
 
     private String userNameVerifing; // 等待验证的用户名
     private String userNameVerified; // 已验证的用户名，即手机号
@@ -94,13 +113,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
         }
     });
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
 
-        // 注册一个事件回调，用于处理SMSSDK接口请求的结果 
+        // 注册一个事件回调，用于处理SMSSDK接口请求的结果
         SMSSDK.registerEventHandler(eventHandler);
 
         etUserName = findViewById(R.id.et_user_name);
@@ -110,6 +128,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         btnGetVeriCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!isPrivacyGrantChecked()) return;
                 userNameVerifing = etUserName.getText().toString().trim();
                 if(checkUserName(userNameVerifing)) {
                     SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, userNameVerifing); // 获取验证码
@@ -125,6 +144,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         btnChangePassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!isPrivacyGrantChecked()) return;
                 String userName = etUserName.getText().toString().trim();
                 if(ChangePasswordActivity.this.userNameVerified == null || !ChangePasswordActivity.this.userNameVerified.equals(userName)) {
                     Toast.makeText(ChangePasswordActivity.this, "请先获取手机号验证码。", Toast.LENGTH_SHORT).show();
@@ -140,6 +160,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 }
             }
         });
+
+        cbGrant = findViewById(R.id.cb_privacy_grant);
+        cbGrant.setChecked(MobSDK.getPrivacyGrantedStatus()==1);
+
+        TextView tvPrivacy = findViewById(R.id.tv_privacy);
+        tvPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView tvAgreement = findViewById(R.id.tv_agreement);
+        tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @Override
@@ -174,18 +203,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
         });
     }
 
-    private static boolean checkPassword(String str) {
-        String regex = "([a-zA-Z0-9]{5,10})";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(str);
-        return m.matches();
-    }
-
-    private static boolean checkUserName(String str) {
-        String regex = "^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(str);
-        return m.find();
+    private boolean isPrivacyGrantChecked() {
+        boolean granted = cbGrant.isChecked();
+        if (!granted) {
+            Toast.makeText(this, R.string.pls_check_privacy, Toast.LENGTH_SHORT).show();
+        }
+        MobSDK.submitPolicyGrantResult(granted);
+        return granted;
     }
 
     private void startCountDownTimer() {

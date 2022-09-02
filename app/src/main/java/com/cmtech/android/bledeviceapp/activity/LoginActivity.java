@@ -4,27 +4,46 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
+import com.mob.MobSDK;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkPassword;
+import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkUserName;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
+/**
+ *
+ * ClassName:      SplashActivity
+ * Description:    登录界面Activity
+ * Author:         chenm
+ * CreateDate:     2018/10/27 09:18
+ * UpdateUser:     chenm
+ * UpdateDate:     2019-04-24 09:18
+ * UpdateRemark:   更新说明
+ * Version:        1.0
+ */
 public class LoginActivity extends AppCompatActivity {
     private EditText etUserName;
     private EditText etPassword;
     private Button btnLogin;
     private Button btnSignUp;
     private Button btnForgetPassword;
+    private CheckBox cbGrant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,19 +60,12 @@ public class LoginActivity extends AppCompatActivity {
         etUserName.setText(MyApplication.getAccount().getUserName());
         etPassword = findViewById(R.id.et_password);
 
-        btnSignUp = findViewById(R.id.btn_signup);
-        btnSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
-                startActivity(intent);
-            }
-        });
 
         btnLogin = findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!isPrivacyGrantChecked()) return;
                 String userName = etUserName.getText().toString().trim();
                 String password = etPassword.getText().toString().trim();
                 if(checkUserName(userName) && checkPassword(password))
@@ -64,14 +76,38 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        btnSignUp = findViewById(R.id.btn_signup);
+        btnSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+                startActivityForResult(intent, 1);
+            }
+        });
+
         btnForgetPassword = findViewById(R.id.btn_forget_password);
         btnForgetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, ChangePasswordActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 2);
             }
         });
+
+        cbGrant = findViewById(R.id.cb_privacy_grant);
+        cbGrant.setChecked(MobSDK.getPrivacyGrantedStatus()==1);
+
+        TextView tvPrivacy = findViewById(R.id.tv_privacy);
+        tvPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView tvAgreement = findViewById(R.id.tv_agreement);
+        tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        cbGrant.setChecked(MobSDK.getPrivacyGrantedStatus()==1);
     }
 
     @Override
@@ -103,17 +139,12 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    private static boolean checkPassword(String str) {
-        String regex = "([a-zA-Z0-9]{5,10})";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(str);
-        return m.matches();
-    }
-
-    private static boolean checkUserName(String str) {
-        String regex = "^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(str);
-        return m.find();
+    private boolean isPrivacyGrantChecked() {
+        boolean granted = cbGrant.isChecked();
+        if (!granted) {
+            Toast.makeText(this, R.string.pls_check_privacy, Toast.LENGTH_SHORT).show();
+        }
+        MobSDK.submitPolicyGrantResult(granted);
+        return granted;
     }
 }

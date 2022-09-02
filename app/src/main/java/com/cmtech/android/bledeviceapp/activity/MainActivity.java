@@ -643,7 +643,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnCommonD
         }).show();
     }
 
-    // 修改设备注册信息 
+    // 修改设备注册信息
     public void modifyDeviceInfo(final IDevice device) {
         Intent intent = new Intent(this, DeviceInfoActivity.class);
         intent.putExtra(DEVICE_INFO, device.getCommonInfo());

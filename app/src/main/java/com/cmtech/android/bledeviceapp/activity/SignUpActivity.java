@@ -32,6 +32,17 @@ import java.util.regex.Pattern;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 
+/**
+ *
+ * ClassName:      SplashActivity
+ * Description:    注册界面Activity
+ * Author:         chenm
+ * CreateDate:     2018/10/27 09:18
+ * UpdateUser:     chenm
+ * UpdateDate:     2019-04-24 09:18
+ * UpdateRemark:   更新说明
+ * Version:        1.0
+ */
 public class SignUpActivity extends AppCompatActivity {
     private static final String CHINA_PHONE_NUMBER = "86";
     private static final int MSG_COUNT_DOWN_SECOND = 1;
@@ -101,7 +112,6 @@ public class SignUpActivity extends AppCompatActivity {
         }
     });
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +127,7 @@ public class SignUpActivity extends AppCompatActivity {
         btnGetVeriCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!isPrivacyGrantChecked()) return;
                 userNameVerifing = etUserName.getText().toString().trim();
                 if(checkUserName(userNameVerifing)) {
                     SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, userNameVerifing); // 获取验证码
@@ -150,6 +161,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         cbGrant = findViewById(R.id.cb_privacy_grant);
+        cbGrant.setChecked(MobSDK.getPrivacyGrantedStatus()==1);
 
         TextView tvPrivacy = findViewById(R.id.tv_privacy);
         tvPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
@@ -199,18 +211,67 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    private static boolean checkPassword(String str) {
+    // 验证密码是否合法
+    public static boolean checkPassword(String str) {
         String regex = "([a-zA-Z0-9]{5,10})";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(str);
         return m.matches();
     }
 
-    private static boolean checkUserName(String str) {
-        String regex = "^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(str);
-        return m.find();
+    // 验证用户名是否合法
+    public static boolean checkUserName(String str) {
+        return isMobileNO(str);
+    }
+
+    //验证手机号是否合法
+    private static boolean isMobileNO(String mobile){
+        if (mobile.length() != 11)
+        {
+            return false;
+        }else{
+            /*
+              移动号段正则表达式
+             */
+            String pat1 = "^((13[4-9])|(147)|(15[0-2,7-9])|(178)|(18[2-4,7-8]))\\d{8}|(1705)\\d{7}$";
+            /*
+              联通号段正则表达式
+             */
+            String pat2  = "^((13[0-2])|(145)|(15[5-6])|(176)|(18[5,6]))\\d{8}|(1709)\\d{7}$";
+            /*
+              电信号段正则表达式
+             */
+            String pat3  = "^((133)|(153)|(177)|(18[0,1,9])|(149))\\d{8}$";
+            /*
+              虚拟运营商正则表达式
+             */
+            String pat4 = "^((170))\\d{8}|(1718)|(1719)\\d{7}$";
+            Pattern pattern1 = Pattern.compile(pat1);
+            Matcher match1 = pattern1.matcher(mobile);
+            boolean isMatch1 = match1.matches();
+            if(isMatch1){
+                return true;
+            }
+            Pattern pattern2 = Pattern.compile(pat2);
+            Matcher match2 = pattern2.matcher(mobile);
+            boolean isMatch2 = match2.matches();
+            if(isMatch2){
+                return true;
+            }
+            Pattern pattern3 = Pattern.compile(pat3);
+            Matcher match3 = pattern3.matcher(mobile);
+            boolean isMatch3 = match3.matches();
+            if(isMatch3){
+                return true;
+            }
+            Pattern pattern4 = Pattern.compile(pat4);
+            Matcher match4 = pattern4.matcher(mobile);
+            boolean isMatch4 = match4.matches();
+            if(isMatch4){
+                return true;
+            }
+            return false;
+        }
     }
 
     private void startCountDownTimer() {
