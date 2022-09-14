@@ -1,5 +1,13 @@
 package com.cmtech.android.bledevice.hrm.model;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+
 import android.content.Context;
 import android.widget.Toast;
 
@@ -11,10 +19,10 @@ import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceConnectState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
@@ -26,14 +34,6 @@ import org.litepal.LitePal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
-
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -115,8 +115,13 @@ public class HrmDevice extends AbstractDevice {
 
     private boolean battService = false; // does it include battery service?
     private boolean hrMode = true; // does it work in HR Mode?
-    private boolean hrRecording = false; // is HR being recorded
-    private boolean ecgRecording = false; // is ECG being recorded
+
+    // HR记录状态
+    private boolean hrRecordStatus = false; // is HR being recorded
+
+    // ECG信号记录状态
+    private boolean ecgRecordStatus = false; // is ECG being recorded
+
     private boolean ecgOn = false; // is ecg function on
 
     private final HrmCfg config; // HRM device configuration
@@ -139,10 +144,11 @@ public class HrmDevice extends AbstractDevice {
         this.config = config;
     }
 
+    // 设置心率记录状态
     public void setHrRecord(boolean record) {
-        if(this.hrRecording == record) return;
+        if(this.hrRecordStatus == record) return;
 
-        this.hrRecording = record;
+        this.hrRecordStatus = record;
         if(record) {
             hrRecord = (BleHrRecord) RecordFactory.create(HR, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
             if(listener != null && hrRecord != null) {
@@ -173,12 +179,13 @@ public class HrmDevice extends AbstractDevice {
             ViseLog.e(hrRecord);
         }
         if(listener != null) {
-            listener.onHrRecordStatusUpdated(this.hrRecording);
+            listener.onHrRecordStatusUpdated(this.hrRecordStatus);
         }
     }
 
+    // 设置ECG信号记录状态
     public void setEcgRecord(boolean record) {
-        if(this.ecgRecording == record) return;
+        if(this.ecgRecordStatus == record) return;
 
         if(record && !ecgOn) {
             ThreadUtil.showToastInMainThread(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT);
@@ -188,7 +195,7 @@ public class HrmDevice extends AbstractDevice {
             return;
         }
 
-        this.ecgRecording = record;
+        this.ecgRecordStatus = record;
         if(record) {
             ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
             if(ecgRecord != null) {
@@ -220,7 +227,7 @@ public class HrmDevice extends AbstractDevice {
             }
         }
         if(listener != null) {
-            listener.onEcgSignalRecordStatusUpdated(this.ecgRecording);
+            listener.onEcgSignalRecordStatusUpdated(this.ecgRecordStatus);
         }
     }
 
@@ -248,7 +255,7 @@ public class HrmDevice extends AbstractDevice {
             return;
         }
 
-        if(ecgRecording && !ecgOn) {
+        if(ecgRecordStatus && !ecgOn) {
             ThreadUtil.showToastInMainThread(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT);
             if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
@@ -291,11 +298,11 @@ public class HrmDevice extends AbstractDevice {
     public void close() {
         super.close();
 
-        if(hrRecording) {
+        if(hrRecordStatus) {
             setHrRecord(false);
         }
 
-        if(ecgRecording) {
+        if(ecgRecordStatus) {
             setEcgRecord(false);
         }
 
@@ -361,7 +368,10 @@ public class HrmDevice extends AbstractDevice {
 
         speaker.stop();
 
-        setEcgRecord(false);
+        if(ecgRecordStatus && ecgRecord != null) {
+            ecgRecord.setInterrupt(true);
+        }
+        //setEcgRecord(false);
         //setEcgOn(false);
     }
 
@@ -373,7 +383,10 @@ public class HrmDevice extends AbstractDevice {
 
         speaker.stop();
 
-        setEcgRecord(false);
+        if(ecgRecordStatus && ecgRecord != null) {
+            ecgRecord.setInterrupt(true);
+        }
+        //setEcgRecord(false);
 
         //setEcgOn(false);
     }
@@ -382,7 +395,7 @@ public class HrmDevice extends AbstractDevice {
     public void disconnect(final boolean forever) {
         setHRMeasure(false);
         setBatteryMeasure(false);
-        setEcgRecord(false);
+
         //setEcgOn(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
@@ -419,11 +432,11 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public boolean isEcgRecording() {
-        return ecgRecording;
+        return ecgRecordStatus;
     }
 
     public final boolean isHrRecording() {
-        return hrRecording;
+        return hrRecordStatus;
     }
 
     public final HrmCfg getConfig() {
@@ -520,7 +533,7 @@ public class HrmDevice extends AbstractDevice {
                         setNotificationInfo(currentHr);
                         speaker.speak(bpm);
 
-                        boolean hrStatisticUpdated = (hrRecording && hrRecord.record((short) bpm, heartRateData.getTime()));
+                        boolean hrStatisticUpdated = (hrRecordStatus && hrRecord.record((short) bpm, heartRateData.getTime()));
                         if (!MyApplication.isRunInBackground()) {
                             if (listener != null) {
                                 listener.onHRUpdated(heartRateData);
@@ -664,14 +677,11 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void recordEcgSignal(int ecgSignal) {
-        if(ecgRecording && ecgRecord != null) {
+        if(ecgRecordStatus && ecgRecord != null) {
             ecgRecord.process((short)ecgSignal);
             if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
                 int second = ecgRecord.getDataNum()/sampleRate;
                 listener.onEcgRecordTimeUpdated(second);
-                if(second >= ECG_RECORD_MAX_SECOND) {
-                    setEcgRecord(false);
-                }
             }
         }
     }

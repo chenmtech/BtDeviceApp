@@ -56,7 +56,7 @@ public class PpgRecordFragment extends Fragment {
             }
         });
 
-        etTimeLength = view.findViewById(R.id.et_time_length);
+        etTimeLength = view.findViewById(R.id.et_record_time);
 
         tvRecordStatus = view.findViewById(R.id.tv_record_status);
     }

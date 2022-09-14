@@ -34,7 +34,7 @@
             android:textSize="@dimen/big_font"/>
 
         <EditText
-            android:id="@+id/et_time_length"
+            android:id="@+id/et_record_time"
             style="@style/edittext_circle_gray_no_focusable_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

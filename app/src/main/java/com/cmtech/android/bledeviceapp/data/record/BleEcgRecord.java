@@ -43,6 +43,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     private int aveHr = INVALID_HR;
     @Column(ignore = true)
     private int pos = 0; // current position of the ecgData in this record
+    @Column(ignore = true)
+    private boolean interrupt = false;
+
 
     private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(ECG, ver, createTime, devAddress, creatorId);
@@ -112,6 +115,14 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.aveHr = aveHr;
     }
 
+    public boolean isInterrupt() {
+        return interrupt;
+    }
+
+    public void setInterrupt(boolean interrupt) {
+        this.interrupt = interrupt;
+    }
+
     @Override
     public boolean isEOD() {
         return (pos >= ecgData.size());
@@ -140,6 +151,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      */
     public boolean process(short ecg) {
         ecgData.add(ecg);
+        if(interrupt) {
+            setInterrupt(false);
+        }
         return true;
     }
 

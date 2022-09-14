@@ -1,9 +1,8 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.secToTime;
+
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,13 +10,16 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.cmtech.android.bledeviceapp.R;
 
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.hrmonitor.view
  * ClassName:      EcgRecordFragment
- * Description:    java类作用描述
+ * Description:    ECG信号记录操作面板
  * Author:         作者名
  * CreateDate:     2020/3/28 上午6:48
  * UpdateUser:     更新者
@@ -28,11 +30,17 @@ import com.cmtech.android.bledeviceapp.R;
 public class EcgRecordFragment extends Fragment {
     public static final int TITLE_ID = R.string.ecg_record;
 
+    // 记录控制按钮
     ImageButton ibRecord;
-    EditText etTimeLength;
+
+    // 记录状态tv
     TextView tvRecordStatus;
 
-    boolean isRecord = false;
+    // 记录时长
+    EditText etRecordTime;
+
+    // 当前是否在记录
+    boolean record = false;
 
     @Nullable
     @Override
@@ -49,16 +57,20 @@ public class EcgRecordFragment extends Fragment {
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!record)
+                    setEcgRecordTime(0);
+
                 assert getParentFragment() != null;
-                ((HrmFragment)getParentFragment()).setEcgRecord(!isRecord);
+                ((HrmFragment)getParentFragment()).setEcgRecord(!record);
             }
         });
 
-        etTimeLength = view.findViewById(R.id.et_time_length);
+        etRecordTime = view.findViewById(R.id.et_record_time);
 
         tvRecordStatus = view.findViewById(R.id.tv_record_status);
     }
 
+    // 更新记录状态
     public void updateRecordStatus(boolean record) {
         if(record) {
             ibRecord.setImageResource(R.mipmap.ic_stop_32px);
@@ -67,10 +79,11 @@ public class EcgRecordFragment extends Fragment {
             ibRecord.setImageResource(R.mipmap.ic_start_32px);
             tvRecordStatus.setText(R.string.start_record);
         }
-        this.isRecord = record;
+        this.record = record;
     }
 
+    // 设置记录时长
     public void setEcgRecordTime(final int second) {
-        etTimeLength.setText(String.valueOf(30-second));
+        etRecordTime.setText(secToTime(second));
     }
 }

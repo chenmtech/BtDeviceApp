@@ -18,34 +18,30 @@
         android:layout_below="@id/ib_record"
         android:layout_centerHorizontal="true"
         android:text="@string/start_record"
-        android:textSize="@dimen/big_font"/>
+        android:textSize="@dimen/big_font" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/ib_record"
         android:layout_centerHorizontal="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="30秒倒计时："
+            android:visibility="gone"
+            android:text="记录时长:"
             android:textSize="@dimen/big_font"/>
 
         <EditText
-            android:id="@+id/et_time_length"
+            android:id="@+id/et_record_time"
             style="@style/edittext_circle_gray_no_focusable_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/ellipsis"
+            android:text="00:00:00"
             android:textSize="@dimen/bigger_font"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/second"
-            android:textSize="@dimen/big_font"/>
     </LinearLayout>
 
 </RelativeLayout>

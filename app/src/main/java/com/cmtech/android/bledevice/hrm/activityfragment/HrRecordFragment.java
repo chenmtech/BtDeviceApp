@@ -1,12 +1,11 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
+import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
+import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
+
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,20 +13,21 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledeviceapp.view.MyLineChart;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.view.MyLineChart;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
-import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
-
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.ecgmonitor.activity
- * ClassName:      HrSequenceFragment
- * Description:    Ecg心率统计Fragment
+ * ClassName:      HrRecordFragment
+ * Description:    心率记录操作面板
  * Author:         chenm
  * CreateDate:     2019/4/15 上午5:40
  * UpdateUser:     更新者
@@ -37,6 +37,7 @@ import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILT
  */
 public class HrRecordFragment extends Fragment {
     public static final int TITLE_ID = R.string.hr_record;
+
     private EditText etHrAve; // average heart rate value
     private EditText etHrMax; // max heart rate value
     private MyLineChart hrLineChart; // heart rate line chart
