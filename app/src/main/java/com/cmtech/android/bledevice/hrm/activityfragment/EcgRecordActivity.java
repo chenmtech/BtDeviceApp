@@ -62,6 +62,9 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     // 当前回放时刻点
     private TextView tvCurrentTime;
 
+    // 当前回放长时刻点
+    private TextView tvCurrentLongTime;
+
     // 回放条
     private SeekBar sbReplay;
 
@@ -105,6 +108,9 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
+
+        tvCurrentLongTime = findViewById(R.id.tv_current_long_time);
+        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getPosDatumTime()));
 
         tvTimeLength = findViewById(R.id.tv_time_length);
         int timeLength = record.getRecordSecond();
@@ -292,6 +298,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     @Override
     public void onDataLocationUpdated(long location, int second) {
         tvCurrentTime.setText(DateTimeUtil.secToMinute(second));
+        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getPosDatumTime()));
         sbReplay.setProgress(second);
     }
 

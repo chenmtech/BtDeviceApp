@@ -1,12 +1,11 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DONE;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;

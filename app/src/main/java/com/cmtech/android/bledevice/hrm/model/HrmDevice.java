@@ -210,9 +210,10 @@ public class HrmDevice extends AbstractDevice {
                 if (recordSecond < RECORD_MIN_SECOND) {
                     ThreadUtil.showToastInMainThread(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT);
                 } else {
-                    ecgRecord.setCreateTime(new Date().getTime());
+                    //ecgRecord.setCreateTime(new Date().getTime());
                     ecgRecord.setRecordSecond(recordSecond);
                     ecgRecord.save();
+                    ViseLog.e(ecgRecord);
                     new Thread(new Runnable() {
                         @Override
                         public void run() {

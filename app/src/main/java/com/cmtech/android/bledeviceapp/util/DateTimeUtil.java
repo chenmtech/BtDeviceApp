@@ -15,8 +15,8 @@ public class DateTimeUtil {
         return new SimpleDateFormat("yy-MM-dd HH:mm", Locale.CHINA).format(new Date(timeInMillis));
     }
 
-    public static String timeToShortStringWithTodayYesterday(long timeInMillis) {
-        return todayYesterday(timeInMillis) + new SimpleDateFormat(" HH:mm", Locale.CHINA).format(timeInMillis);
+    public static String timeToStringWithTodayYesterday(long timeInMillis) {
+        return todayYesterday(timeInMillis) + new SimpleDateFormat(" HH:mm:ss", Locale.CHINA).format(timeInMillis);
     }
 
     // a integer to xx:xx:xx

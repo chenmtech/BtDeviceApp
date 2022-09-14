@@ -1,11 +1,8 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -13,19 +10,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity;
+import androidx.annotation.Nullable;
+
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
-import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -127,7 +121,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
             }
         }
 
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
+        String createTime = DateTimeUtil.timeToStringWithTodayYesterday(record.getCreateTime());
         tvCreateTime.setText(createTime);
 
         int length = record.getDevAddress().length();

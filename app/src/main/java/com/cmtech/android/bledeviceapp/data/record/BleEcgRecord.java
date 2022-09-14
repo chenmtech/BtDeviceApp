@@ -13,6 +13,7 @@ import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
+import com.vise.log.ViseLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +22,7 @@ import org.litepal.annotation.Column;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -41,6 +43,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     private int leadTypeCode = 0; // lead type code
     private final List<Short> ecgData = new ArrayList<>(); // ecg data
     private int aveHr = INVALID_HR;
+    private final List<Integer> breakPos = new ArrayList<>();
+    private final List<Long> breakTime = new ArrayList<>();
     @Column(ignore = true)
     private int pos = 0; // current position of the ecgData in this record
     @Column(ignore = true)
@@ -59,6 +63,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         leadTypeCode = json.getInt("leadTypeCode");
         aveHr = json.getInt("aveHr");
         ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
+        if(json.has("breakPos"))
+            ListStringUtil.stringToList(json.getString("breakPos"), breakPos, Integer.class);
+        if(json.has("breakTime"))
+            ListStringUtil.stringToList(json.getString("breakTime"), breakTime, Long.class);
     }
 
     @Override
@@ -69,6 +77,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         json.put("leadTypeCode", leadTypeCode);
         json.put("aveHr", aveHr);
         json.put("ecgData", ListStringUtil.listToString(ecgData));
+        json.put("breakPos", ListStringUtil.listToString(breakPos));
+        json.put("breakTime", ListStringUtil.listToString(breakTime));
         return json;
     }
 
@@ -120,6 +130,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     public void setInterrupt(boolean interrupt) {
+        ViseLog.e("hi " + interrupt);
         this.interrupt = interrupt;
     }
 
@@ -144,6 +155,19 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return ecgData.size();
     }
 
+    // 获取当前数据位置对应的时间
+    public long getPosDatumTime() {
+        int i;
+        for(i = 0; i < breakPos.size(); i++) {
+            if(breakPos.get(i) > pos) break;
+        }
+        i--;
+        if(i < 0)
+            return getCreateTime()+pos* 1000L /sampleRate;
+        else
+            return breakTime.get(i) + (pos - breakPos.get(i))*1000L/sampleRate;
+    }
+
     /**
      * 处理一个ECG信号值
      * @param ecg
@@ -152,7 +176,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     public boolean process(short ecg) {
         ecgData.add(ecg);
         if(interrupt) {
-            setInterrupt(false);
+            breakPos.add(ecgData.size());
+            breakTime.add(new Date().getTime());
+            interrupt = false;
+            ViseLog.e(breakPos + "-" + breakTime);
         }
         return true;
     }
@@ -160,7 +187,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgData;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgData +
+                "-" + breakPos + "-" + breakTime;
     }
 
     @Override
