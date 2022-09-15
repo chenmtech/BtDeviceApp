@@ -13,7 +13,6 @@ import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
-import com.vise.log.ViseLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -130,7 +129,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     public void setInterrupt(boolean interrupt) {
-        ViseLog.e("hi " + interrupt);
         this.interrupt = interrupt;
     }
 
@@ -156,7 +154,12 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     // 获取当前数据位置对应的时间
-    public long getPosDatumTime() {
+    public long getCurrentPosTime() {
+        return getPosTime(pos);
+    }
+
+    // 获取pos指定数据位置对应的时间点
+    private long getPosTime(int pos) {
         int i;
         for(i = 0; i < breakPos.size(); i++) {
             if(breakPos.get(i) > pos) break;
@@ -179,7 +182,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             breakPos.add(ecgData.size());
             breakTime.add(new Date().getTime());
             interrupt = false;
-            ViseLog.e(breakPos + "-" + breakTime);
         }
         return true;
     }

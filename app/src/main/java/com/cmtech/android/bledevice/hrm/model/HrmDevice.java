@@ -213,7 +213,6 @@ public class HrmDevice extends AbstractDevice {
                     //ecgRecord.setCreateTime(new Date().getTime());
                     ecgRecord.setRecordSecond(recordSecond);
                     ecgRecord.save();
-                    ViseLog.e(ecgRecord);
                     new Thread(new Runnable() {
                         @Override
                         public void run() {

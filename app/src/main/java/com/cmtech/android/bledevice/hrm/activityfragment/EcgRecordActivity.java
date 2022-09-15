@@ -95,6 +95,8 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     public void initUI() {
         super.initUI();
 
+        ViseLog.e(record);
+
         reportLayout = findViewById(R.id.layout_record_report);
         reportLayout.setRecord((BleEcgRecord) record);
         reportLayout.updateView();
@@ -110,7 +112,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
 
         tvCurrentLongTime = findViewById(R.id.tv_current_long_time);
-        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getPosDatumTime()));
+        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getCurrentPosTime()));
 
         tvTimeLength = findViewById(R.id.tv_time_length);
         int timeLength = record.getRecordSecond();
@@ -298,7 +300,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     @Override
     public void onDataLocationUpdated(long location, int second) {
         tvCurrentTime.setText(DateTimeUtil.secToMinute(second));
-        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getPosDatumTime()));
+        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getCurrentPosTime()));
         sbReplay.setProgress(second);
     }
 
