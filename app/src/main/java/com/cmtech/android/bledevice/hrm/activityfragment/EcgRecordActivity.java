@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -34,6 +35,7 @@ import com.vise.log.ViseLog;
 import com.vise.utils.view.BitmapUtil;
 
 import org.litepal.LitePal;
+import org.litepal.crud.callback.FindCallback;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -81,14 +83,32 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         setContentView(R.layout.activity_record_ecg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BleEcgRecord.class, recordId, true);
+/*        record = LitePal.find(BleEcgRecord.class, recordId, true);
 
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
         } else {
             initUI();
-        }
+        }*/
+
+        LitePal.findAsync(BleEcgRecord.class, recordId, true).listen(new FindCallback<BleEcgRecord>() {
+            @Override
+            public void onFinish(BleEcgRecord bleEcgRecord) {
+                record = bleEcgRecord;
+                if(record.noSignal()) {
+                    record.download(EcgRecordActivity.this, code -> {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            initUI();
+                        } else {
+                            Toast.makeText(EcgRecordActivity.this, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    initUI();
+                }
+            }
+        });
     }
 
     @Override

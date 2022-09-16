@@ -70,7 +70,8 @@ public abstract class RecordActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        noteLayout.saveNote();
+        if(noteLayout != null)
+            noteLayout.saveNote();
         setResult(RESULT_OK);
         finish();
     }

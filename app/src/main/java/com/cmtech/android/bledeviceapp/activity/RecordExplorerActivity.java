@@ -209,24 +209,14 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     // 打开记录
     public void openRecord(int index) {
-        BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId(), true);
-        recordList.set(index, record);
+        //BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId());
+        //recordList.set(index, record);
         recordAdapter.setSelectedRecord(index);
         updateView();
 
-        if(record != null) {
-            if(record.noSignal()) {
-                record.download(this, code -> {
-                    if (code == RETURN_CODE_SUCCESS) {
-                        doOpenRecord(record);
-                    } else {
-                        Toast.makeText(this, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            } else {
-                doOpenRecord(record);
-            }
-        }
+        //if(record != null) {
+            doOpenRecord(recordList.get(index));
+        //}
     }
 
     private void doOpenRecord(BasicRecord record) {
