@@ -30,6 +30,7 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
+import org.litepal.crud.callback.SaveCallback;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -206,28 +207,52 @@ public class HrmDevice extends AbstractDevice {
             }
         } else {
             if(ecgRecord != null) {
-                int recordSecond = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
-                if (recordSecond < RECORD_MIN_SECOND) {
-                    ThreadUtil.showToastInMainThread(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT);
-                } else {
-                    //ecgRecord.setCreateTime(new Date().getTime());
-                    ecgRecord.setRecordSecond(recordSecond);
-                    ecgRecord.save();
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
+                int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
+                ecgRecord.setRecordSecond(second);
+                ecgRecord.saveAsync().listen(new SaveCallback() {
+                    @Override
+                    public void onFinish(boolean success) {
+                        if(success)
                             ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+                    }
+                });
 
-                            ecgRecord.localDiagnose();
+                /*new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
 
-                            ThreadUtil.showToastInMainThread(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT);
-                        }
-                    }).start();
-                }
+                        ecgRecord.localDiagnose();
+
+                        ThreadUtil.showToastInMainThread(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT);
+                    }
+                }).start();*/
             }
         }
         if(listener != null) {
             listener.onEcgSignalRecordStatusUpdated(this.ecgRecordStatus);
+        }
+    }
+
+    // 记录一个心电信号数据
+    public void recordEcgSignal(int ecgSignal) {
+        if(ecgRecordStatus && ecgRecord != null) {
+            ecgRecord.process((short)ecgSignal);
+            if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
+                int second = ecgRecord.getDataNum()/sampleRate;
+                listener.onEcgRecordTimeUpdated(second);
+                // 每分钟自动保存一次
+                /*if(second % 60 == 0) {
+                    ecgRecord.setRecordSecond(second);
+                    ecgRecord.saveAsync().listen(new SaveCallback() {
+                        @Override
+                        public void onFinish(boolean success) {
+                            if(success)
+                                ViseLog.e(second);
+                        }
+                    });
+                }*/
+            }
         }
     }
 
@@ -676,13 +701,4 @@ public class HrmDevice extends AbstractDevice {
         }
     }
 
-    public void recordEcgSignal(int ecgSignal) {
-        if(ecgRecordStatus && ecgRecord != null) {
-            ecgRecord.process((short)ecgSignal);
-            if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
-                int second = ecgRecord.getDataNum()/sampleRate;
-                listener.onEcgRecordTimeUpdated(second);
-            }
-        }
-    }
 }

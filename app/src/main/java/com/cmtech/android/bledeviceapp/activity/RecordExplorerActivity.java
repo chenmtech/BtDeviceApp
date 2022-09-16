@@ -1,17 +1,14 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +17,15 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
@@ -41,11 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
-
 /**
   *
   * ClassName:      RecordExplorerActivity
@@ -60,10 +61,15 @@ import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
-    private static final int RC_OPEN_RECORD = 1; // 打开记录返回码
-    private static final int DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME = 20; // 缺省单次要下载的记录数
 
-    private final List<BasicRecord> recordList = new ArrayList<>(); //  record List
+    // 打开记录返回码
+    private static final int RC_OPEN_RECORD = 1;
+
+    // 缺省单次要下载的记录数
+    private static final int DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME = 20;
+
+    // 记录列表
+    private final List<BasicRecord> recordList = new ArrayList<>();
 
     private RecordListAdapter recordAdapter; // Adapter
     private RecyclerView recordView; // RecycleView

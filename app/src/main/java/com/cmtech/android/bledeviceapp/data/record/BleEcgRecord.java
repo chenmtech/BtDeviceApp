@@ -179,7 +179,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     public boolean process(short ecg) {
         ecgData.add(ecg);
         if(interrupt) {
-            breakPos.add(ecgData.size());
+            breakPos.add(ecgData.size()-1);
             breakTime.add(new Date().getTime());
             interrupt = false;
         }
