@@ -37,10 +37,17 @@ import java.util.List;
  * Version:        1.0
  */
 public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
-    private int sampleRate = 0; // sample rate
-    private int caliValue = 0; // calibration value of 1mV
-    private int leadTypeCode = 0; // lead type code
-    private final List<Short> ecgData = new ArrayList<>(); // ecg data
+    // 采样率
+    private int sampleRate = 0;
+
+    // 1mV标定值
+    private int caliValue = 0;
+
+    // 导联码
+    private int leadTypeCode = 0;
+
+    // 心电数据
+    private final List<Short> ecgData = new ArrayList<>();
     private int aveHr = INVALID_HR;
     private final List<Integer> breakPos = new ArrayList<>();
     private final List<Long> breakTime = new ArrayList<>();

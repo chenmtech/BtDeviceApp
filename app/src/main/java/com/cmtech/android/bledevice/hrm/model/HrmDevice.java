@@ -38,9 +38,9 @@ import java.util.UUID;
 
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.hrmonitor.model
- * ClassName:      HRMonitorDevice
- * Description:    BLE heart rate monitor device
+ * Package:        com.cmtech.android.bledevice.hrm.model
+ * ClassName:      HrmDevice
+ * Description:    心率计设备类
  * Author:         chenm
  * CreateDate:     2020-02-04 06:16
  * UpdateUser:     chenm
@@ -49,16 +49,29 @@ import java.util.UUID;
  * Version:        1.0
  */
 public class HrmDevice extends AbstractDevice {
+    // 无效心率值
     public static final short INVALID_HEART_RATE = -1;
+
+    // 心电信号最大记录时间：秒
     private static final int ECG_RECORD_MAX_SECOND = 30;
-    private static final int RECORD_MIN_SECOND = 5;
 
-    private static final int DEFAULT_CALI_1MV = 164; // default 1mV calibration value
-    private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
-    private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // default lead type
+    // 心率最短记录时间：秒
+    private static final int HR_RECORD_MIN_SECOND = 5;
 
-    private static final byte HR_MODE = (byte)0x00; // heart rate mode
-    private static final byte ECG_MODE = (byte)0x01; // ecg mode
+    // 缺省1mV标定值
+    private static final int DEFAULT_CALI_1MV = 164;
+
+    // 缺省采样率: Hz
+    private static final int DEFAULT_SAMPLE_RATE = 125;
+
+    // 缺省导联
+    private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I;
+
+    // 设备工作模式：心率模式
+    private static final byte HR_MODE = (byte)0x00;
+
+    // 设备工作模式：心电模式
+    private static final byte ECG_MODE = (byte)0x01;
 
     // heart rate measurement service
     private static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
@@ -158,7 +171,7 @@ public class HrmDevice extends AbstractDevice {
             }
         } else {
             if(hrRecord != null) {
-                if (hrRecord.getHrList().size() < RECORD_MIN_SECOND) {
+                if (hrRecord.getHrList().size() < HR_RECORD_MIN_SECOND) {
                     Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
