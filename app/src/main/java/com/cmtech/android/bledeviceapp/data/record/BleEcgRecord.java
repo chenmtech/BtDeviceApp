@@ -46,19 +46,59 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     // 导联码
     private int leadTypeCode = 0;
 
-    // 心电数据
-    private final List<Short> ecgData = new ArrayList<>();
+    // 平均心率值
     private int aveHr = INVALID_HR;
+
+    // 心电采集时中断的位置值列表
     private final List<Integer> breakPos = new ArrayList<>();
+
+    // 心电采集时中断的位置对应的时刻点列表
     private final List<Long> breakTime = new ArrayList<>();
+
     @Column(ignore = true)
-    private int pos = 0; // current position of the ecgData in this record
+    private RecordFile sigFile;
+
+    // 心电数据
+    @Column(ignore = true)
+    private final List<Short> ecgData = new ArrayList<>();
+
+    // 采集是否中断
     @Column(ignore = true)
     private boolean interrupt = false;
 
-
+    // 由RecordFactory工厂类通过反射调用来创建对象
     private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(ECG, ver, createTime, devAddress, creatorId);
+    }
+
+    public void createSigFile() {
+        String fileName = getDevAddress().replace(":", "")+getCreateTime();
+        try {
+            sigFile = new RecordFile(fileName, "c");
+        } catch (IOException e) {
+            e.printStackTrace();
+            sigFile = null;
+        }
+    }
+
+    public void openSigFile() {
+        String fileName = getDevAddress().replace(":", "")+getCreateTime();
+        try {
+            sigFile = new RecordFile(fileName, "o");
+        } catch (IOException e) {
+            e.printStackTrace();
+            sigFile = null;
+        }
+    }
+
+    public void closeSigFile() {
+        if(sigFile != null) {
+            try {
+                sigFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -90,7 +130,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public boolean noSignal() {
-        return ecgData.isEmpty();
+        return (sigFile==null)||(sigFile.size()==0);
     }
 
     public List<Short> getEcgData() {
@@ -141,28 +181,51 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public boolean isEOD() {
-        return (pos >= ecgData.size());
+        if(sigFile != null) {
+            try {
+                return sigFile.isEof();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
     @Override
     public void seekData(int pos) {
-        this.pos = pos;
+        if(sigFile!= null) {
+            try {
+                sigFile.seekData(pos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public int readData() throws IOException {
-        if(pos >= ecgData.size()) throw new IOException();
-        return ecgData.get(pos++);
+        return sigFile.readData();
     }
 
     @Override
     public int getDataNum() {
-        return ecgData.size();
+        return sigFile.size();
     }
 
     // 获取当前数据位置对应的时间
     public long getCurrentPosTime() {
-        return getPosTime(pos);
+        if(sigFile == null)
+            return -1;
+        int pos = 0;
+        try {
+            pos = (int) (sigFile.getFilePointer()/2);
+            return getPosTime(pos);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     // 获取pos指定数据位置对应的时间点
@@ -184,13 +247,18 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      * @return
      */
     public boolean process(short ecg) {
-        ecgData.add(ecg);
-        if(interrupt) {
-            breakPos.add(ecgData.size()-1);
-            breakTime.add(new Date().getTime());
-            interrupt = false;
+        try {
+            sigFile.writeData(ecg);
+            if(interrupt) {
+                breakPos.add(sigFile.size()-1);
+                breakTime.add(new Date().getTime());
+                interrupt = false;
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
-        return true;
     }
 
     @NonNull

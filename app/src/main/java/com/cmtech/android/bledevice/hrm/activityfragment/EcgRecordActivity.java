@@ -95,6 +95,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         LitePal.findAsync(BleEcgRecord.class, recordId, true).listen(new FindCallback<BleEcgRecord>() {
             @Override
             public void onFinish(BleEcgRecord bleEcgRecord) {
+                bleEcgRecord.openSigFile();
                 record = bleEcgRecord;
                 if(record.noSignal()) {
                     record.download(EcgRecordActivity.this, code -> {

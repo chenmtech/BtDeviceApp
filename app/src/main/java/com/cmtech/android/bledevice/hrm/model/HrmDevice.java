@@ -216,6 +216,7 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);
                 ecgRecord.setLeadTypeCode(leadType.getCode());
+                ecgRecord.createSigFile();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
@@ -225,8 +226,10 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.saveAsync().listen(new SaveCallback() {
                     @Override
                     public void onFinish(boolean success) {
-                        if(success)
+                        if(success) {
+                            ecgRecord.closeSigFile();
                             ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+                        }
                     }
                 });
 
