@@ -72,9 +72,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     public void createSigFile() {
-        String fileName = getDevAddress().replace(":", "")+getCreateTime();
         try {
-            sigFile = new RecordFile(fileName, "c");
+            sigFile = new RecordFile(getSigFileName(), "c");
         } catch (IOException e) {
             e.printStackTrace();
             sigFile = null;
@@ -82,9 +81,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     public void openSigFile() {
-        String fileName = getDevAddress().replace(":", "")+getCreateTime();
         try {
-            sigFile = new RecordFile(fileName, "o");
+            sigFile = new RecordFile(getSigFileName(), "o");
         } catch (IOException e) {
             e.printStackTrace();
             sigFile = null;
@@ -99,6 +97,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                 e.printStackTrace();
             }
         }
+    }
+
+    public String getSigFileName() {
+        return getDevAddress().replace(":", "")+getCreateTime();
     }
 
     @Override
@@ -130,7 +132,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public boolean noSignal() {
-        return (sigFile==null)||(sigFile.size()==0);
+        return (sigFile==null);
     }
 
     public List<Short> getEcgData() {

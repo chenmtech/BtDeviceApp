@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
@@ -26,12 +27,14 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout;
 import com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import org.litepal.LitePal;
@@ -177,6 +180,18 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         });
 
         ecgView.startShow();
+    }
+
+    @Override
+    public void uploadRecord() {
+        //ViseLog.e("上传记录");
+        File sigFile = FileUtil.getFile(DIR_DOC, ((BleEcgRecord)record).getSigFileName());
+        UploadDownloadFileUtil.uploadFile(this, sigFile);
+    }
+
+    @Override
+    public void downloadRecord() {
+
     }
 
     /*
