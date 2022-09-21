@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.util;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
 
 import android.app.ProgressDialog;
@@ -18,16 +17,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class UploadDownloadFileUtil {
     private static final int TIME_OUT = 10000; // 超时时间
     private static final String CHARSET = "utf-8"; // 设置编码
-    public static final String SUCCESS = "1";
-    public static final String FAILURE = "0";
+    private static final String FILE_SERVLET_URL = "File?";
 
     // 上传文件
-    public static String uploadFile(Context context, File file) {
+    public static boolean uploadFile(Context context, String sigType, File file) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -35,12 +35,13 @@ public class UploadDownloadFileUtil {
         pBar.setMessage("正在上传文件，请稍候...");
         pBar.setProgress(0);
         pBar.show();
-        new Thread() {
+        final boolean[] success = {false};
+        Thread uploadThread = new Thread() {
             public void run() {
                 String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
                 String PREFIX = "--", LINE_END = "\r\n";
                 String CONTENT_TYPE = "multipart/form-data"; // 内容类型
-                String RequestURL = KMIC_URL + "File";
+                String RequestURL = KMIC_URL + FILE_SERVLET_URL;
                 try {
                     URL url = new URL(RequestURL);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -55,21 +56,16 @@ public class UploadDownloadFileUtil {
                     conn.setRequestProperty("Content-Type", CONTENT_TYPE + ";boundary="
                             + BOUNDARY);
                     if (file != null) {
-                        //ViseLog.e("hi");
                         OutputStream outputSteam = conn.getOutputStream();
                         DataOutputStream dos = new DataOutputStream(outputSteam);
                         StringBuilder sb = new StringBuilder();
                         sb.append(PREFIX);
                         sb.append(BOUNDARY);
                         sb.append(LINE_END);
-                        /*
-                         * 这里重点注意： name里面的值为服务器端需要key 只有这个key 才可以得到对应的文件
-                         * filename是文件的名字，包含后缀名的 比如:abc.png
-                         */
-                        sb.append("Content-Disposition: form-data; name=\"ECG\"; filename=\""
-                                + file.getName() + "\"" + LINE_END);
-                        sb.append("Content-Type: application/octet-stream; charset="
-                                + CHARSET + LINE_END);
+
+                        String type = "\""+sigType+"\"";
+                        sb.append("Content-Disposition: form-data; name=").append(type).append("; filename=\"").append(file.getName()).append("\"").append(LINE_END);
+                        sb.append("Content-Type: application/octet-stream; charset=" + CHARSET).append(LINE_END);
                         sb.append(LINE_END);
                         dos.write(sb.toString().getBytes());
 
@@ -92,7 +88,8 @@ public class UploadDownloadFileUtil {
                         int res = conn.getResponseCode();
                         ViseLog.e(res);
                         if (res == 200) {
-                            ViseLog.e(dealResponseResult(conn.getInputStream()));
+                            success[0] = true;
+                            //ViseLog.e(dealResponseResult(conn.getInputStream()));
                         }
                     }
                 } catch (IOException e) {
@@ -106,30 +103,19 @@ public class UploadDownloadFileUtil {
                         }
                     });
                 }
-                //return FAILURE;
             }
-        }.start();
-        return null;
-    }
-
-    private static String dealResponseResult(InputStream inputStream) {
-        String resultData = null;
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byte[] data = new byte[1024];
-        int len = 0;
+        };
+        uploadThread.start();
         try {
-            while ((len = inputStream.read(data)) != -1) {
-                byteArrayOutputStream.write(data, 0, len);
-            }
-        } catch (IOException e) {
+            uploadThread.join();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        resultData = byteArrayOutputStream.toString();
-        return resultData;
+        return success[0];
     }
 
     // 下载文件
-    public static void downloadFile(Context context, String fileName) {
+    public static boolean downloadFile(Context context, String sigType, String fileName, File toPath) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -137,9 +123,13 @@ public class UploadDownloadFileUtil {
         pBar.setMessage("正在下载文件，请稍候...");
         pBar.setProgress(0);
         pBar.show();
-        new Thread() {
+        boolean[] success = {false};
+        Thread downloadThread = new Thread() {
             public void run() {
-                String RequestURL = KMIC_URL + "File?fileName=" + fileName;
+                Map<String, String> data = new HashMap<>();
+                data.put("sigType", sigType);
+                data.put("fileName", fileName);
+                String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
                 ViseLog.e(RequestURL);
                 try {
                     URL url = new URL(RequestURL);
@@ -155,10 +145,9 @@ public class UploadDownloadFileUtil {
                         InputStream is = con.getInputStream();
                         pBar.setMax(100); // 设置进度条的总长度
                         FileOutputStream fos = null;
-                        File file = null;
                         if (is != null) {
-                            //将文件下载到DIR_DOC文件夹中
-                            file = new File(DIR_DOC, fileName);
+                            //将文件下载到指定路径中
+                            File file = new File(toPath, fileName);
                             if(file.exists()) file.delete();
                             fos = new FileOutputStream(file);
                             byte[] buf = new byte[1024];
@@ -169,6 +158,7 @@ public class UploadDownloadFileUtil {
                                 process += ch;
                                 pBar.setProgress((int)(process*100.0/length)); // 实时更新进度了
                             }
+                            success[0] = true;
                         }
                         if (fos != null) {
                             fos.flush();
@@ -186,7 +176,31 @@ public class UploadDownloadFileUtil {
                     });
                 }
             }
-        }.start();
+        };
+        downloadThread.start();
+        try {
+            downloadThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return success[0];
+    }
+
+
+    private static String dealResponseResult(InputStream inputStream) {
+        String resultData = null;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] data = new byte[1024];
+        int len = 0;
+        try {
+            while ((len = inputStream.read(data)) != -1) {
+                byteArrayOutputStream.write(data, 0, len);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        resultData = byteArrayOutputStream.toString();
+        return resultData;
     }
 
 }

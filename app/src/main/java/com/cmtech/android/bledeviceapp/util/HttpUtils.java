@@ -75,7 +75,7 @@ public class HttpUtils {
         return client.newCall(request).execute();
     }
 
-    private static String convertToString(Map<String, String> data) {
+    public static String convertToString(Map<String, String> data) {
         if (data == null || data.isEmpty()) return "";
 
         StringBuilder builder = new StringBuilder();

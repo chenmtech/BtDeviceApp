@@ -185,13 +185,19 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     @Override
     public void uploadRecord() {
         //ViseLog.e("上传记录");
+        assert DIR_DOC != null;
         File sigFile = FileUtil.getFile(DIR_DOC, ((BleEcgRecord)record).getSigFileName());
-        UploadDownloadFileUtil.uploadFile(this, sigFile);
+        boolean success = UploadDownloadFileUtil.uploadFile(this, "ECG", sigFile);
+        String str = success ? "上传成功" : "上传失败";
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void downloadRecord() {
-        UploadDownloadFileUtil.downloadFile(this, ((BleEcgRecord)record).getSigFileName());
+        boolean success = UploadDownloadFileUtil.downloadFile(this, "ECG",
+                ((BleEcgRecord)record).getSigFileName(), DIR_DOC);
+        String str = success ? "下载成功" : "下载失败";
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
     }
 
     /*
