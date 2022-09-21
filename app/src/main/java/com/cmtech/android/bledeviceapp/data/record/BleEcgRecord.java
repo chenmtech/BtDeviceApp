@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 import android.content.Context;
@@ -11,13 +12,17 @@ import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgArrhythmiaDetector;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
+import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
+import com.vise.utils.file.FileUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.annotation.Column;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -275,5 +280,33 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         setAveHr(rtnReport.getAveHr());
         //setNeedUpload(true);
         save();
+    }
+
+    @Override
+    public void download(Context context, ICodeCallback callback) {
+        boolean success = true;
+        File file = FileUtil.getFile(DIR_DOC, getSigFileName());
+        if(!file.exists())
+            success = UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), DIR_DOC);
+
+        if(success) {
+            super.download(context, callback);
+        } else {
+            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
+        }
+    }
+
+    @Override
+    public void upload(Context context, ICodeCallback callback) {
+        boolean success = true;
+        File sigFile = FileUtil.getFile(DIR_DOC, getSigFileName());
+        if(sigFile.exists())
+            success = UploadDownloadFileUtil.uploadFile(context, "ECG", sigFile);
+
+        if(success) {
+            super.upload(context, callback);
+        } else {
+            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+        }
     }
 }

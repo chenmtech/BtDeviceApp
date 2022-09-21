@@ -1,9 +1,15 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
+import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -25,11 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -313,7 +314,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param callback
      */
     @Override
-    public final void upload(Context context, ICodeCallback callback) {
+    public void upload(Context context, ICodeCallback callback) {
         new RecordAsyncTask(context, "上传记录中，请稍等。", RecordAsyncTask.CMD_UPLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -333,7 +334,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param callback
      */
     @Override
-    public final void download(Context context, ICodeCallback callback) {
+    public void download(Context context, ICodeCallback callback) {
         new RecordAsyncTask(context, "下载记录中，请稍等。", CMD_DOWNLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -362,7 +363,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param callback
      */
     @Override
-    public final void delete(Context context, ICodeCallback callback) {
+    public void delete(Context context, ICodeCallback callback) {
         Class<? extends BasicRecord> recordClass = getClass();
         new RecordAsyncTask(context, "删除记录中，请稍等。", RecordAsyncTask.CMD_DELETE_RECORD, new IWebResponseCallback() {
             @Override
