@@ -19,10 +19,10 @@ import com.cmtech.android.bledeviceapp.interfac.ISimpleCallback;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -149,17 +149,21 @@ public class EcgReportOutputLayout extends LinearLayout {
         @Override
         protected Void doInBackground(BleEcgRecord... bleEcgRecords) {
             BleEcgRecord record = bleEcgRecords[0];
-            List<Short> ecgData = record.getEcgData();
+            record.seekData(0);
 
             int begin = 0;
             for (ScanEcgView scanEcgView : ECG_VIEWS) {
                 scanEcgView.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
                 int dataNum = scanEcgView.getWidth() / scanEcgView.getPixelPerData();
-                if (ecgData.size() > begin) {
+                if (record.getDataNum() > begin) {
                     scanEcgView.startShow();
-                    int end = Math.min(begin + dataNum, ecgData.size());
+                    int end = Math.min(begin + dataNum, record.getDataNum());
                     for (int j = begin; j < end; j++) {
-                        scanEcgView.addData(ecgData.get(j));
+                        try {
+                            scanEcgView.addData(record.readData());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     scanEcgView.stopShow();
                     begin = end;

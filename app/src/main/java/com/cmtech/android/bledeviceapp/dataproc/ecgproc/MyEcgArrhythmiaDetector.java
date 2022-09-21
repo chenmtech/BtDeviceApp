@@ -32,7 +32,7 @@ public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
     @Override
     public EcgReport process(BleEcgRecord record) {
         EcgPreProcessor preProcessor = new EcgPreProcessor();
-        preProcessor.process(record.getEcgData(), record.getSampleRate());
+        //preProcessor.process(record.getEcgData(), record.getSampleRate());
 
         int aveHr = preProcessor.getAverageHr();
         List<Double> RR = preProcessor.getRRIntervalInMs();

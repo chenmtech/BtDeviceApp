@@ -58,10 +58,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Column(ignore = true)
     private RecordFile sigFile;
 
-    // 心电数据
-    @Column(ignore = true)
-    private final List<Short> ecgData = new ArrayList<>();
-
     // 采集是否中断
     @Column(ignore = true)
     private boolean interrupt = false;
@@ -110,7 +106,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
         aveHr = json.getInt("aveHr");
-        ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
+        //ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
         if(json.has("breakPos"))
             ListStringUtil.stringToList(json.getString("breakPos"), breakPos, Integer.class);
         if(json.has("breakTime"))
@@ -124,7 +120,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
         json.put("aveHr", aveHr);
-        json.put("ecgData", ListStringUtil.listToString(ecgData));
+        //json.put("ecgData", ListStringUtil.listToString(ecgData));
         json.put("breakPos", ListStringUtil.listToString(breakPos));
         json.put("breakTime", ListStringUtil.listToString(breakTime));
         return json;
@@ -133,14 +129,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Override
     public boolean noSignal() {
         return (sigFile==null);
-    }
-
-    public List<Short> getEcgData() {
-        return ecgData;
-    }
-
-    public void setEcgData(List<Short> ecgData) {
-        this.ecgData.addAll(ecgData);
     }
 
     @Override
@@ -266,7 +254,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgData +
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode +
                 "-" + breakPos + "-" + breakTime;
     }
 

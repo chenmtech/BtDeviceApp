@@ -31,8 +31,8 @@ public class UploadDownloadFileUtil {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
-        pBar.setTitle("上传文件");
-        pBar.setMessage("正在上传文件，请稍候...");
+        pBar.setTitle("上传信号");
+        pBar.setMessage("正在上传信号，请稍候...");
         pBar.setProgress(0);
         pBar.show();
         final boolean[] success = {false};
@@ -119,8 +119,8 @@ public class UploadDownloadFileUtil {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
-        pBar.setTitle("下载文件");
-        pBar.setMessage("正在下载文件，请稍候...");
+        pBar.setTitle("下载信号");
+        pBar.setMessage("正在下载信号，请稍候...");
         pBar.setProgress(0);
         pBar.show();
         boolean[] success = {false};
@@ -131,6 +131,7 @@ public class UploadDownloadFileUtil {
                 data.put("fileName", fileName);
                 String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
                 ViseLog.e(RequestURL);
+                File file = null;
                 try {
                     URL url = new URL(RequestURL);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -147,7 +148,7 @@ public class UploadDownloadFileUtil {
                         FileOutputStream fos = null;
                         if (is != null) {
                             //将文件下载到指定路径中
-                            File file = new File(toPath, fileName);
+                            file = new File(toPath, fileName);
                             if(file.exists()) file.delete();
                             fos = new FileOutputStream(file);
                             byte[] buf = new byte[1024];
@@ -168,6 +169,9 @@ public class UploadDownloadFileUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
+                    if(!success[0] && file != null && file.exists())
+                        file.delete();
+
                     ThreadUtil.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

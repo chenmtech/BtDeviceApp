@@ -1,7 +1,8 @@
 package com.cmtech.android.bledevice.ptt.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -19,12 +20,8 @@ import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
 import com.cmtech.android.bledeviceapp.view.RollPpgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
-import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
-import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 
 import org.litepal.LitePal;
-
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 public class PttRecordActivity extends RecordActivity implements OnRollWaveViewListener {
     private RollEcgView ecgView; // ecgView
@@ -57,7 +54,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         BleEcgRecord ecgRecord = (BleEcgRecord) RecordFactory.create(RecordType.ECG, BasicRecord.DEFAULT_RECORD_VER, record.getCreateTime(), record.getDevAddress(), record.getCreatorId());
         ecgRecord.setSampleRate(((BlePttRecord)record).getSampleRate());
         ecgRecord.setCaliValue(((BlePttRecord)record).getEcgCaliValue());
-        ecgRecord.setEcgData(((BlePttRecord)record).getEcgData());
+        //ecgRecord.setEcgData(((BlePttRecord)record).getEcgData());
         ecgView.setup(ecgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
         ecgView.setGestureDetector(null);
 
