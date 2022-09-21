@@ -191,7 +191,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
     @Override
     public void downloadRecord() {
-
+        UploadDownloadFileUtil.downloadFile(this, ((BleEcgRecord)record).getSigFileName());
     }
 
     /*

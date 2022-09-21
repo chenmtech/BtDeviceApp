@@ -66,7 +66,7 @@ public class UploadDownloadFileUtil {
                          * 这里重点注意： name里面的值为服务器端需要key 只有这个key 才可以得到对应的文件
                          * filename是文件的名字，包含后缀名的 比如:abc.png
                          */
-                        sb.append("Content-Disposition: form-data; name=\"img\"; filename=\""
+                        sb.append("Content-Disposition: form-data; name=\"ECG\"; filename=\""
                                 + file.getName() + "\"" + LINE_END);
                         sb.append("Content-Type: application/octet-stream; charset="
                                 + CHARSET + LINE_END);
@@ -91,7 +91,6 @@ public class UploadDownloadFileUtil {
                         dos.flush();
                         int res = conn.getResponseCode();
                         ViseLog.e(res);
-                        ViseLog.e(conn.getResponseMessage());
                         if (res == 200) {
                             ViseLog.e(dealResponseResult(conn.getInputStream()));
                         }
@@ -130,7 +129,7 @@ public class UploadDownloadFileUtil {
     }
 
     // 下载文件
-    public void downloadFile(Context context, String fileName) {
+    public static void downloadFile(Context context, String fileName) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -140,14 +139,18 @@ public class UploadDownloadFileUtil {
         pBar.show();
         new Thread() {
             public void run() {
+                String RequestURL = KMIC_URL + "File?fileName=" + fileName;
+                ViseLog.e(RequestURL);
                 try {
-                    URL url = new URL(KMIC_URL+"ecg"+File.separator+fileName);
+                    URL url = new URL(RequestURL);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
                     con.setReadTimeout(TIME_OUT);
                     con.setConnectTimeout(TIME_OUT);
                     con.setRequestProperty("Charset", CHARSET);
                     con.setRequestMethod("GET");
-                    if (con.getResponseCode() == 200) {
+                    int res = con.getResponseCode();
+                    ViseLog.e(res);
+                    if (res == 200) {
                         int length = con.getContentLength();// 获取文件大小
                         InputStream is = con.getInputStream();
                         pBar.setMax(100); // 设置进度条的总长度
@@ -156,6 +159,7 @@ public class UploadDownloadFileUtil {
                         if (is != null) {
                             //将文件下载到DIR_DOC文件夹中
                             file = new File(DIR_DOC, fileName);
+                            if(file.exists()) file.delete();
                             fos = new FileOutputStream(file);
                             byte[] buf = new byte[1024];
                             int ch;
