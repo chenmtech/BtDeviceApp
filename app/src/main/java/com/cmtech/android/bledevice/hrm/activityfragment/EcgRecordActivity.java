@@ -96,16 +96,19 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             @Override
             public void onFinish(BleEcgRecord bleEcgRecord) {
                 bleEcgRecord.openSigFile();
-                record = bleEcgRecord;
-                if(record.noSignal()) {
-                    record.download(EcgRecordActivity.this, code -> {
+                if(bleEcgRecord.noSignal()) {
+                    bleEcgRecord.closeSigFile();
+                    bleEcgRecord.download(EcgRecordActivity.this, code -> {
                         if (code == RETURN_CODE_SUCCESS) {
+                            bleEcgRecord.openSigFile();
+                            record = bleEcgRecord;
                             initUI();
                         } else {
-                            Toast.makeText(EcgRecordActivity.this, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EcgRecordActivity.this, "记录已损坏。", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
+                    record = bleEcgRecord;
                     initUI();
                 }
             }

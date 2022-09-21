@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
@@ -27,6 +28,7 @@ import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,6 +60,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     // 缺省报告提供者
     public static final String DEFAULT_REPORT_PROVIDER = "";
+
+    // 信号数据文件的保存路径
+    public static final File SIG_PATH = DIR_DOC;
 
     public static final int DONE = 0;
     public static final int PROCESS = 1;

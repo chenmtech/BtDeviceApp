@@ -1,7 +1,6 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 import android.content.Context;
@@ -201,11 +200,13 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public int readData() throws IOException {
+        if(sigFile == null) throw new IOException();
         return sigFile.readData();
     }
 
     @Override
     public int getDataNum() {
+        if(sigFile == null) return 0;
         return sigFile.size();
     }
 
@@ -242,18 +243,21 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      * @return
      */
     public boolean process(short ecg) {
+        boolean success = false;
         try {
-            sigFile.writeData(ecg);
-            if(interrupt) {
-                breakPos.add(sigFile.size()-1);
-                breakTime.add(new Date().getTime());
-                interrupt = false;
+            if(sigFile != null) {
+                sigFile.writeData(ecg);
+                if (interrupt) {
+                    breakPos.add(sigFile.size() - 1);
+                    breakTime.add(new Date().getTime());
+                    interrupt = false;
+                }
+                success = true;
             }
-            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            return false;
         }
+        return success;
     }
 
     @NonNull
@@ -285,9 +289,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Override
     public void download(Context context, ICodeCallback callback) {
         boolean success = true;
-        File file = FileUtil.getFile(DIR_DOC, getSigFileName());
+        File file = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
         if(!file.exists())
-            success = UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), DIR_DOC);
+            success = UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), BasicRecord.SIG_PATH);
 
         if(success) {
             super.download(context, callback);
@@ -299,7 +303,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Override
     public void upload(Context context, ICodeCallback callback) {
         boolean success = true;
-        File sigFile = FileUtil.getFile(DIR_DOC, getSigFileName());
+        File sigFile = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
         if(sigFile.exists())
             success = UploadDownloadFileUtil.uploadFile(context, "ECG", sigFile);
 
@@ -308,5 +312,22 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         } else {
             callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
         }
+    }
+
+    @Override
+    public void delete(Context context, ICodeCallback callback) {
+        ICodeCallback cb = new ICodeCallback() {
+            @Override
+            public void onFinish(int code) {
+                if(code==RETURN_CODE_SUCCESS) {
+                    File sigFile = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
+                    if(sigFile.exists()) {
+                        sigFile.delete();
+                    }
+                }
+                callback.onFinish(code);
+            }
+        };
+        super.delete(context, cb);
     }
 }

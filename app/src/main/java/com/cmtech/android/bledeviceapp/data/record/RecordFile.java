@@ -1,7 +1,5 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
-
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
@@ -15,7 +13,7 @@ public class RecordFile {
 
     public RecordFile(String fileName, String mode) throws IOException {
         if(mode.equals("o")) {
-            File file = FileUtil.getFile(DIR_DOC, fileName);
+            File file = FileUtil.getFile(BasicRecord.SIG_PATH, fileName);
             if (file.exists() && file.renameTo(file)) {
                 this.file = file;
                 raf = new RandomAccessFile(file, "rw");
@@ -24,7 +22,7 @@ public class RecordFile {
                 throw new IOException("The file can't be opened.");
             }
         } else if(mode.equals("c")) {
-            File file = FileUtil.getFile(DIR_DOC, fileName);
+            File file = FileUtil.getFile(BasicRecord.SIG_PATH, fileName);
             if(!file.exists()) {
                 this.file = file;
                 if(!file.createNewFile()) {
