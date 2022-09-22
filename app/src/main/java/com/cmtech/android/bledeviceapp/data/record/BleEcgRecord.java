@@ -71,6 +71,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         super(ECG, ver, createTime, devAddress, creatorId);
     }
 
+    // 创建信号文件
     public void createSigFile() {
         try {
             sigFile = new RecordFile(getSigFileName(), "c");
@@ -80,6 +81,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
     }
 
+    // 打开信号文件
     public void openSigFile() {
         try {
             sigFile = new RecordFile(getSigFileName(), "o");
@@ -89,6 +91,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
     }
 
+    // 关闭信号文件
     public void closeSigFile() {
         if(sigFile != null) {
             try {
@@ -99,10 +102,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
     }
 
-    public String getSigFileName() {
-        return getDevAddress().replace(":", "")+getCreateTime();
-    }
-
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
@@ -110,7 +109,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
         aveHr = json.getInt("aveHr");
-        //ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
         if(json.has("breakPos"))
             ListStringUtil.stringToList(json.getString("breakPos"), breakPos, Integer.class);
         if(json.has("breakTime"))
@@ -124,12 +122,12 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
         json.put("aveHr", aveHr);
-        //json.put("ecgData", ListStringUtil.listToString(ecgData));
         json.put("breakPos", ListStringUtil.listToString(breakPos));
         json.put("breakTime", ListStringUtil.listToString(breakTime));
         return json;
     }
 
+    // 当前记录是否有信号
     @Override
     public boolean noSignal() {
         return (sigFile==null);
@@ -173,6 +171,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.interrupt = interrupt;
     }
 
+    // 是否到达信号末尾
     @Override
     public boolean isEOD() {
         if(sigFile != null) {
@@ -214,10 +213,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     public long getCurrentPosTime() {
         if(sigFile == null)
             return -1;
-        int pos = 0;
         try {
-            pos = (int) (sigFile.getFilePointer()/2);
-            return getPosTime(pos);
+            return getPosTime(sigFile.getCurrentPos());
         } catch (IOException e) {
             e.printStackTrace();
             return -1;
@@ -226,15 +223,20 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     // 获取pos指定数据位置对应的时间点
     private long getPosTime(int pos) {
-        int i;
-        for(i = 0; i < breakPos.size(); i++) {
-            if(breakPos.get(i) > pos) break;
+        int startPos;
+        long startTime;
+        if(breakPos.isEmpty()) {
+            startPos = 0;
+            startTime = getCreateTime();
+        } else {
+            int i;
+            for (i = 0; i < breakPos.size(); i++) {
+                if (breakPos.get(i) > pos) break;
+            }
+            startPos = breakPos.get(i-1);
+            startTime = breakTime.get(i-1);
         }
-        i--;
-        if(i < 0)
-            return getCreateTime()+pos* 1000L /sampleRate;
-        else
-            return breakTime.get(i) + (pos - breakPos.get(i))*1000L/sampleRate;
+        return startTime + (pos - startPos)*1000L/sampleRate;
     }
 
     /**

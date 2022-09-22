@@ -61,7 +61,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // 缺省报告提供者
     public static final String DEFAULT_REPORT_PROVIDER = "";
 
-    // 信号数据文件的保存路径
+    // 信号文件的保存路径
     public static final File SIG_PATH = DIR_DOC;
 
     public static final int DONE = 0;
@@ -234,6 +234,10 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     public void setNeedUpload(boolean needUpload) {
         this.needUpload = needUpload;
+    }
+
+    public String getSigFileName() {
+        return getDevAddress().replace(":", "")+getCreateTime();
     }
 
     @Override

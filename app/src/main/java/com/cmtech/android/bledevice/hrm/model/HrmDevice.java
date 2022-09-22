@@ -216,6 +216,7 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);
                 ecgRecord.setLeadTypeCode(leadType.getCode());
+                ecgRecord.setInterrupt(true);
                 ecgRecord.createSigFile();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }

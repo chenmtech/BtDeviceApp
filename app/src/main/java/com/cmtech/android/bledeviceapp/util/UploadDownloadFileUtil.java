@@ -27,7 +27,7 @@ public class UploadDownloadFileUtil {
     private static final String FILE_SERVLET_URL = "File?";
 
     // 上传文件
-    public static boolean uploadFile(Context context, String sigType, File file) {
+    public static boolean uploadFile(Context context, String fileType, File file) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -63,7 +63,7 @@ public class UploadDownloadFileUtil {
                         sb.append(BOUNDARY);
                         sb.append(LINE_END);
 
-                        String type = "\""+sigType+"\"";
+                        String type = "\""+fileType+"\"";
                         sb.append("Content-Disposition: form-data; name=").append(type).append("; filename=\"").append(file.getName()).append("\"").append(LINE_END);
                         sb.append("Content-Type: application/octet-stream; charset=" + CHARSET).append(LINE_END);
                         sb.append(LINE_END);
@@ -115,7 +115,7 @@ public class UploadDownloadFileUtil {
     }
 
     // 下载文件
-    public static boolean downloadFile(Context context, String sigType, String fileName, File toPath) {
+    public static boolean downloadFile(Context context, String fileType, String fileName, File toPath) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -127,7 +127,7 @@ public class UploadDownloadFileUtil {
         Thread downloadThread = new Thread() {
             public void run() {
                 Map<String, String> data = new HashMap<>();
-                data.put("sigType", sigType);
+                data.put("fileType", fileType);
                 data.put("fileName", fileName);
                 String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
                 ViseLog.e(RequestURL);

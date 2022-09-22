@@ -209,14 +209,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     // 打开记录
     public void openRecord(int index) {
-        //BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId());
-        //recordList.set(index, record);
         recordAdapter.setSelectedRecord(index);
         updateView();
-
-        //if(record != null) {
-            doOpenRecord(recordList.get(index));
-        //}
+        doOpenRecord(recordList.get(index));
     }
 
     private void doOpenRecord(BasicRecord record) {
@@ -262,6 +257,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onFinish(int code) {
                 if (code == RETURN_CODE_SUCCESS) {
+                    Toast.makeText(RecordExplorerActivity.this, "记录已上传", Toast.LENGTH_SHORT).show();
                     updateView();
                 } else {
                     Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();

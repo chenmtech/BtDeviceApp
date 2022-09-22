@@ -83,21 +83,12 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         setContentView(R.layout.activity_record_ecg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-/*        record = LitePal.find(BleEcgRecord.class, recordId, true);
-
-        if(record == null) {
-            setResult(RESULT_CANCELED);
-            finish();
-        } else {
-            initUI();
-        }*/
 
         LitePal.findAsync(BleEcgRecord.class, recordId, true).listen(new FindCallback<BleEcgRecord>() {
             @Override
             public void onFinish(BleEcgRecord bleEcgRecord) {
                 bleEcgRecord.openSigFile();
                 if(bleEcgRecord.noSignal()) {
-                    bleEcgRecord.closeSigFile();
                     bleEcgRecord.download(EcgRecordActivity.this, code -> {
                         if (code == RETURN_CODE_SUCCESS) {
                             bleEcgRecord.openSigFile();
@@ -362,6 +353,9 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     public void onBackPressed() {
         if(ecgView != null)
             ecgView.stopShow();
+
+        if(record != null)
+            ((BleEcgRecord)record).closeSigFile();
 
         super.onBackPressed();
     }
