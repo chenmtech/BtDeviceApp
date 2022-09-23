@@ -1,10 +1,14 @@
 package com.cmtech.android.bledeviceapp.util;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DOWNLOAD_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_UPLOAD_ERR;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.vise.log.ViseLog;
 
 import java.io.ByteArrayOutputStream;
@@ -27,7 +31,7 @@ public class UploadDownloadFileUtil {
     private static final String FILE_SERVLET_URL = "File?";
 
     // 上传文件
-    public static boolean uploadFile(Context context, String fileType, File file) {
+    public static void uploadFile(Context context, String fileType, File file, ICodeCallback cb) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -35,7 +39,7 @@ public class UploadDownloadFileUtil {
         pBar.setMessage("正在上传信号，请稍候...");
         pBar.setProgress(0);
         pBar.show();
-        final boolean[] success = {false};
+        final int[] rtnCode = {RETURN_CODE_UPLOAD_ERR};
         Thread uploadThread = new Thread() {
             public void run() {
                 String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
@@ -88,7 +92,7 @@ public class UploadDownloadFileUtil {
                         int res = conn.getResponseCode();
                         ViseLog.e(res);
                         if (res == 200) {
-                            success[0] = true;
+                            rtnCode[0] = RETURN_CODE_SUCCESS;
                             //ViseLog.e(dealResponseResult(conn.getInputStream()));
                         }
                     }
@@ -100,22 +104,19 @@ public class UploadDownloadFileUtil {
                         @Override
                         public void run() {
                             pBar.dismiss();
+                            if(cb!=null) {
+                                cb.onFinish(rtnCode[0]);
+                            }
                         }
                     });
                 }
             }
         };
         uploadThread.start();
-        try {
-            uploadThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return success[0];
     }
 
     // 下载文件
-    public static boolean downloadFile(Context context, String fileType, String fileName, File toPath) {
+    public static void downloadFile(Context context, String fileType, String fileName, File toPath, ICodeCallback cb) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -123,10 +124,11 @@ public class UploadDownloadFileUtil {
         pBar.setMessage("正在下载信号，请稍候...");
         pBar.setProgress(0);
         pBar.show();
-        boolean[] success = {false};
+        final int[] rtnCode = {RETURN_CODE_DOWNLOAD_ERR};
         Thread downloadThread = new Thread() {
             public void run() {
                 Map<String, String> data = new HashMap<>();
+                data.put("cmd", "download");
                 data.put("fileType", fileType);
                 data.put("fileName", fileName);
                 String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
@@ -159,7 +161,7 @@ public class UploadDownloadFileUtil {
                                 process += ch;
                                 pBar.setProgress((int)(process*100.0/length)); // 实时更新进度了
                             }
-                            success[0] = true;
+                            rtnCode[0] = RETURN_CODE_SUCCESS;
                         }
                         if (fos != null) {
                             fos.flush();
@@ -169,27 +171,56 @@ public class UploadDownloadFileUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
-                    if(!success[0] && file != null && file.exists())
-                        file.delete();
-
                     ThreadUtil.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             pBar.dismiss();
+                            if(cb!=null) {
+                                cb.onFinish(rtnCode[0]);
+                            }
                         }
                     });
                 }
             }
         };
         downloadThread.start();
+    }
+
+    // 判断远程文件是否存在
+    public static boolean isFileExist(String fileType, String fileName) {
+        boolean[] success = {false};
+        Thread findThread = new Thread() {
+            public void run() {
+                Map<String, String> data = new HashMap<>();
+                data.put("cmd", "find");
+                data.put("fileType", fileType);
+                data.put("fileName", fileName);
+                String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
+                ViseLog.e(RequestURL);
+                try {
+                    URL url = new URL(RequestURL);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setReadTimeout(TIME_OUT);
+                    con.setConnectTimeout(TIME_OUT);
+                    con.setRequestProperty("Charset", CHARSET);
+                    con.setRequestMethod("GET");
+                    int res = con.getResponseCode();
+                    if (res == 200) {
+                        success[0] = true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        findThread.start();
         try {
-            downloadThread.join();
+            findThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         return success[0];
     }
-
 
     private static String dealResponseResult(InputStream inputStream) {
         String resultData = null;

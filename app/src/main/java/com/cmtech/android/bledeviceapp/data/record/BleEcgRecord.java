@@ -290,29 +290,47 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public void download(Context context, ICodeCallback callback) {
-        boolean success = true;
         File file = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
-        if(!file.exists())
-            success = UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), BasicRecord.SIG_PATH);
-
-        if(success) {
-            super.download(context, callback);
+        if(!file.exists()) {
+            if(UploadDownloadFileUtil.isFileExist("ECG", getSigFileName())) {
+                UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), BasicRecord.SIG_PATH, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if(code==RETURN_CODE_SUCCESS) {
+                            BleEcgRecord.super.download(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+            }
         } else {
-            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
+            super.download(context, callback);
         }
     }
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        boolean success = true;
         File sigFile = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
-        if(sigFile.exists())
-            success = UploadDownloadFileUtil.uploadFile(context, "ECG", sigFile);
-
-        if(success) {
-            super.upload(context, callback);
+        if(sigFile.exists()) {
+            if(!UploadDownloadFileUtil.isFileExist("ECG", getSigFileName())) {
+                UploadDownloadFileUtil.uploadFile(context, "ECG", sigFile, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            BleEcgRecord.super.upload(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                super.upload(context, callback);
+            }
         } else {
-            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
         }
     }
 

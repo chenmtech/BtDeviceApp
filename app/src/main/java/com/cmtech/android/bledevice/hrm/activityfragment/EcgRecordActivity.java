@@ -92,6 +92,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
                     bleEcgRecord.download(EcgRecordActivity.this, code -> {
                         if (code == RETURN_CODE_SUCCESS) {
                             bleEcgRecord.openSigFile();
+                            bleEcgRecord.setRecordSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
                             record = bleEcgRecord;
                             initUI();
                         } else {
@@ -99,6 +100,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
                         }
                     });
                 } else {
+                    bleEcgRecord.setRecordSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
                     record = bleEcgRecord;
                     initUI();
                 }

@@ -60,6 +60,8 @@ public abstract class RecordActivity extends AppCompatActivity {
             if (code == RETURN_CODE_SUCCESS) {
                 if (record.getReportVer().compareTo(reportVer) > 0) {
                     Toast.makeText(this, "诊断报告已更新。", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "记录已下载。", Toast.LENGTH_SHORT).show();
                 }
                 initUI();
             } else {
