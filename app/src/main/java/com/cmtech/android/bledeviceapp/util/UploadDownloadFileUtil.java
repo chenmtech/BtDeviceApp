@@ -30,8 +30,14 @@ public class UploadDownloadFileUtil {
     private static final String CHARSET = "utf-8"; // 设置编码
     private static final String FILE_SERVLET_URL = "File?";
 
-    // 上传文件
-    public static void uploadFile(Context context, String fileType, File file, ICodeCallback cb) {
+    /**
+     * 上传信号文件
+     * @param context
+     * @param sigType：信号类型字符串
+     * @param file: 信号文件
+     * @param cb：结束后的回调
+     */
+    public static void uploadFile(Context context, String sigType, File file, ICodeCallback cb) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -46,6 +52,8 @@ public class UploadDownloadFileUtil {
                 String PREFIX = "--", LINE_END = "\r\n";
                 String CONTENT_TYPE = "multipart/form-data"; // 内容类型
                 String RequestURL = KMIC_URL + FILE_SERVLET_URL;
+                InputStream fis = null;
+                DataOutputStream dos = null;
                 try {
                     URL url = new URL(RequestURL);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -57,38 +65,42 @@ public class UploadDownloadFileUtil {
                     conn.setRequestMethod("POST"); // 请求方式
                     conn.setRequestProperty("Charset", CHARSET); // 设置编码
                     conn.setRequestProperty("connection", "keep-alive");
-                    conn.setRequestProperty("Content-Type", CONTENT_TYPE + ";boundary="
-                            + BOUNDARY);
+                    conn.setRequestProperty("Content-Type", CONTENT_TYPE + ";boundary=" + BOUNDARY);
                     if (file != null) {
                         OutputStream outputSteam = conn.getOutputStream();
-                        DataOutputStream dos = new DataOutputStream(outputSteam);
+                        dos = new DataOutputStream(outputSteam);
                         StringBuilder sb = new StringBuilder();
-                        sb.append(PREFIX);
-                        sb.append(BOUNDARY);
-                        sb.append(LINE_END);
+                        sb.append(PREFIX).append(BOUNDARY).append(LINE_END);
 
-                        String type = "\""+fileType+"\"";
-                        sb.append("Content-Disposition: form-data; name=").append(type).append("; filename=\"").append(file.getName()).append("\"").append(LINE_END);
+                        /*sb.append("Content-Disposition: form-data; name=\"sigType\" ").append(sigType).append(LINE_END);
+                        sb.append(PREFIX).append(BOUNDARY).append(LINE_END);
+                        sb.append(LINE_END);
+                        dos.write(sb.toString().getBytes());
+
+                        sb = new StringBuilder();*/
+                        String sigTypeStr = "\""+sigType+"\"";
+                        sb.append("Content-Disposition: form-data; name=").append(sigTypeStr).append("; filename=\"").append(file.getName()).append("\"").append(LINE_END);
                         sb.append("Content-Type: application/octet-stream; charset=" + CHARSET).append(LINE_END);
                         sb.append(LINE_END);
                         dos.write(sb.toString().getBytes());
 
-                        InputStream is = new FileInputStream(file);
+                        fis = new FileInputStream(file);
                         byte[] bytes = new byte[1024];
                         int len = 0;
                         int process = 0;
                         int length = (int) file.length();
-                        while ((len = is.read(bytes)) != -1) {
+                        while ((len = fis.read(bytes)) != -1) {
                             dos.write(bytes, 0, len);
                             process += len;
                             pBar.setProgress((int)(process*100.0/length)); // 实时更新进度了
                         }
-                        is.close();
+                        fis.close();
                         dos.write(LINE_END.getBytes());
                         byte[] end_data = (PREFIX + BOUNDARY + PREFIX + LINE_END)
                                 .getBytes();
                         dos.write(end_data);
                         dos.flush();
+                        dos.close();
                         int res = conn.getResponseCode();
                         ViseLog.e(res);
                         if (res == 200) {
@@ -100,6 +112,20 @@ public class UploadDownloadFileUtil {
                     e.printStackTrace();
                     ViseLog.e(e);
                 } finally {
+                    if(fis!=null) {
+                        try {
+                            fis.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(dos!= null) {
+                        try {
+                            dos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     ThreadUtil.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -115,8 +141,15 @@ public class UploadDownloadFileUtil {
         uploadThread.start();
     }
 
-    // 下载文件
-    public static void downloadFile(Context context, String fileType, String fileName, File toPath, ICodeCallback cb) {
+    /**
+     * 下载信号文件
+     * @param context
+     * @param sigType：信号类型字符串
+     * @param fileName: 文件名字符串
+     * @param toPath：下载后的文件保存路径
+     * @param cb：结束后的回调
+     */
+    public static void downloadFile(Context context, String sigType, String fileName, File toPath, ICodeCallback cb) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -129,11 +162,12 @@ public class UploadDownloadFileUtil {
             public void run() {
                 Map<String, String> data = new HashMap<>();
                 data.put("cmd", "download");
-                data.put("fileType", fileType);
+                data.put("sigType", sigType);
                 data.put("fileName", fileName);
                 String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
                 ViseLog.e(RequestURL);
-                File file = null;
+                InputStream is = null;
+                FileOutputStream fos = null;
                 try {
                     URL url = new URL(RequestURL);
                     HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -145,12 +179,11 @@ public class UploadDownloadFileUtil {
                     ViseLog.e(res);
                     if (res == 200) {
                         int length = con.getContentLength();// 获取文件大小
-                        InputStream is = con.getInputStream();
+                        is = con.getInputStream();
                         pBar.setMax(100); // 设置进度条的总长度
-                        FileOutputStream fos = null;
                         if (is != null) {
                             //将文件下载到指定路径中
-                            file = new File(toPath, fileName);
+                            File file = new File(toPath, fileName);
                             if(file.exists()) file.delete();
                             fos = new FileOutputStream(file);
                             byte[] buf = new byte[1024];
@@ -161,6 +194,7 @@ public class UploadDownloadFileUtil {
                                 process += ch;
                                 pBar.setProgress((int)(process*100.0/length)); // 实时更新进度了
                             }
+                            is.close();
                             rtnCode[0] = RETURN_CODE_SUCCESS;
                         }
                         if (fos != null) {
@@ -171,6 +205,20 @@ public class UploadDownloadFileUtil {
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
+                    if(is!= null) {
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(fos!=null) {
+                        try {
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     ThreadUtil.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -187,13 +235,13 @@ public class UploadDownloadFileUtil {
     }
 
     // 判断远程文件是否存在
-    public static boolean isFileExist(String fileType, String fileName) {
+    public static boolean isFileExist(String sigType, String fileName) {
         boolean[] success = {false};
         Thread findThread = new Thread() {
             public void run() {
                 Map<String, String> data = new HashMap<>();
                 data.put("cmd", "find");
-                data.put("fileType", fileType);
+                data.put("sigType", sigType);
                 data.put("fileName", fileName);
                 String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
                 ViseLog.e(RequestURL);
