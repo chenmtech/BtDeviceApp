@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * 文件远程操作服务类
+ */
 public class UploadDownloadFileUtil {
     private static final int TIME_OUT = 10000; // 超时时间
     private static final String CHARSET = "utf-8"; // 设置编码
@@ -33,11 +36,11 @@ public class UploadDownloadFileUtil {
     /**
      * 上传信号文件
      * @param context
-     * @param sigType：信号类型字符串
+     * @param type：文件类型字符串
      * @param file: 信号文件
      * @param cb：结束后的回调
      */
-    public static void uploadFile(Context context, String sigType, File file, ICodeCallback cb) {
+    public static void uploadFile(Context context, String type, File file, ICodeCallback cb) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -72,14 +75,14 @@ public class UploadDownloadFileUtil {
                         StringBuilder sb = new StringBuilder();
                         sb.append(PREFIX).append(BOUNDARY).append(LINE_END);
 
-                        /*sb.append("Content-Disposition: form-data; name=\"sigType\" ").append(sigType).append(LINE_END);
+                        /*sb.append("Content-Disposition: form-data; name=\"type\" ").append(type).append(LINE_END);
                         sb.append(PREFIX).append(BOUNDARY).append(LINE_END);
                         sb.append(LINE_END);
                         dos.write(sb.toString().getBytes());
 
                         sb = new StringBuilder();*/
-                        String sigTypeStr = "\""+sigType+"\"";
-                        sb.append("Content-Disposition: form-data; name=").append(sigTypeStr).append("; filename=\"").append(file.getName()).append("\"").append(LINE_END);
+                        String typeStr = "\""+type+"\"";
+                        sb.append("Content-Disposition: form-data; name=").append(typeStr).append("; filename=\"").append(file.getName()).append("\"").append(LINE_END);
                         sb.append("Content-Type: application/octet-stream; charset=" + CHARSET).append(LINE_END);
                         sb.append(LINE_END);
                         dos.write(sb.toString().getBytes());
@@ -144,12 +147,12 @@ public class UploadDownloadFileUtil {
     /**
      * 下载信号文件
      * @param context
-     * @param sigType：信号类型字符串
+     * @param type：文件类型字符串
      * @param fileName: 文件名字符串
      * @param toPath：下载后的文件保存路径
      * @param cb：结束后的回调
      */
-    public static void downloadFile(Context context, String sigType, String fileName, File toPath, ICodeCallback cb) {
+    public static void downloadFile(Context context, String type, String fileName, File toPath, ICodeCallback cb) {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
@@ -162,7 +165,7 @@ public class UploadDownloadFileUtil {
             public void run() {
                 Map<String, String> data = new HashMap<>();
                 data.put("cmd", "download");
-                data.put("sigType", sigType);
+                data.put("type", type);
                 data.put("fileName", fileName);
                 String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
                 ViseLog.e(RequestURL);
@@ -187,11 +190,11 @@ public class UploadDownloadFileUtil {
                             if(file.exists()) file.delete();
                             fos = new FileOutputStream(file);
                             byte[] buf = new byte[1024];
-                            int ch;
+                            int len;
                             int process = 0;
-                            while ((ch = is.read(buf)) != -1) {
-                                fos.write(buf, 0, ch);
-                                process += ch;
+                            while ((len = is.read(buf)) != -1) {
+                                fos.write(buf, 0, len);
+                                process += len;
                                 pBar.setProgress((int)(process*100.0/length)); // 实时更新进度了
                             }
                             is.close();
@@ -234,14 +237,19 @@ public class UploadDownloadFileUtil {
         downloadThread.start();
     }
 
-    // 判断远程文件是否存在
-    public static boolean isFileExist(String sigType, String fileName) {
+    /**
+     * 判断远程文件是否存在
+     * @param type：文件类型字符串
+     * @param fileName：文件名
+     * @return：文件是否存在
+     */
+    public static boolean isFileExist(String type, String fileName) {
         boolean[] success = {false};
         Thread findThread = new Thread() {
             public void run() {
                 Map<String, String> data = new HashMap<>();
                 data.put("cmd", "find");
-                data.put("sigType", sigType);
+                data.put("type", type);
                 data.put("fileName", fileName);
                 String RequestURL = KMIC_URL + FILE_SERVLET_URL + HttpUtils.convertToString(data);
                 ViseLog.e(RequestURL);
