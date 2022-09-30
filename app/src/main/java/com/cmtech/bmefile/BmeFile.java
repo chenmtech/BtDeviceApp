@@ -1,5 +1,7 @@
 package com.cmtech.bmefile;
 
+import static com.cmtech.bmefile.BmeFileHead.INVALID_SAMPLE_RATE;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
@@ -7,8 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-
-import static com.cmtech.bmefile.BmeFileHead.INVALID_SAMPLE_RATE;
 
 /**
  * BmeFile: Bme文件

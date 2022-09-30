@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
+
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
@@ -12,8 +14,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -44,7 +44,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
-        ListStringUtil.stringToList(json.getString("ppgData"), ppgData, Integer.class);
+        //ListStringUtil.stringToList(json.getString("ppgData"), ppgData, Integer.class);
     }
 
     @Override

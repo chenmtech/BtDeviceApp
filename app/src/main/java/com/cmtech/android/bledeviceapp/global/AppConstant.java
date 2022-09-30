@@ -1,5 +1,13 @@
 package com.cmtech.android.bledeviceapp.global;
 
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.ALL;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.THERMO;
+
 import android.os.Environment;
 
 import com.cmtech.android.ble.utils.UuidUtil;
@@ -23,14 +31,6 @@ import java.util.UUID;
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
 
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.ALL;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.THERMO;
-
 /**
  * AppConstant: App constant
  * Created by bme on 2018/3/1.
@@ -45,6 +45,7 @@ public class AppConstant {
     public static final int RECONNECT_INTERVAL = 6000; // reconnect interval, unit: millisecond
     public static final int SCAN_DURATION = 20000; // scan duration, unit: millisecond
     public static final File DIR_IMAGE = MyApplication.getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES); // image file directory
+    public static final File DIR_DOC = MyApplication.getContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS); // documents file directory
     public static final File DIR_CACHE = MyApplication.getContext().getExternalCacheDir(); // file cache directory
     public static final int SPLASH_ACTIVITY_COUNT_DOWN_SECOND = 3; // count down second in splash activity
     public static final String KMIC_STORE_URI = "https://decathlon.tmall.com/shop/view_shop.htm?spm=a21bo.2017.201863-1.d2.6dd211d9AzJgBt&user_number_id=352469034&pvid=067004f4-d493-413a-a4f7-003e62637549&pos=2&brandId=44506&acm=03014.1003.1.765824&scm=1007.13143.56636.100200300000000";

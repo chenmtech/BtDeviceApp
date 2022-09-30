@@ -4,10 +4,11 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import androidx.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+
+import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.data.record.ISignalRecord;
 import com.vise.log.ViseLog;
@@ -18,12 +19,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * RollRecordView: 用于播放信号记录的卷轴滚动式的波形显示视图
+ * RollRecordView: 用于播放信号的卷轴滚动式的波形显示视图
  * Created by bme on 2018/12/06.
  */
 
 public class RollRecordView extends RollWaveView {
-    private static final int MIN_TIME_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
+    // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
+    private static final int MIN_TIME_INTERVAL = 30;
+
+
     private static final int MSG_UPDATE_VIEW = 1;
     private static final int MSG_UPDATE_SHOW_STATE = 2;
     private static final int MSG_STOP_SHOW = 3;
@@ -54,7 +58,7 @@ public class RollRecordView extends RollWaveView {
         }
     });
 
-    // 定时周期显示任务
+    // 周期定时显示任务
     private class ShowTask implements Runnable {
         @Override
         public void run() {

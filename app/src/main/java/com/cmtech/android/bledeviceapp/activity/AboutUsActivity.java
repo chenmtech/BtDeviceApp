@@ -1,14 +1,15 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.cmtech.android.bledeviceapp.R;
 
@@ -36,7 +37,7 @@ public class AboutUsActivity extends AppCompatActivity {
             }
         });
 
-        mWebview.loadUrl("http://203.195.137.198/");
+        mWebview.loadUrl("http://kmic.xyz");
 
     }
 

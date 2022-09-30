@@ -11,13 +11,17 @@ import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgArrhythmiaDetector;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgArrhythmiaDetector;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
+import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
+import com.vise.utils.file.FileUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.annotation.Column;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,19 +50,56 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     // 导联码
     private int leadTypeCode = 0;
 
-    // 心电数据
-    private final List<Short> ecgData = new ArrayList<>();
+    // 平均心率值
     private int aveHr = INVALID_HR;
+
+    // 心电采集时中断的位置值列表
     private final List<Integer> breakPos = new ArrayList<>();
+
+    // 心电采集时中断的位置对应的时刻点列表
     private final List<Long> breakTime = new ArrayList<>();
+
     @Column(ignore = true)
-    private int pos = 0; // current position of the ecgData in this record
+    private RecordFile sigFile;
+
+    // 采集是否中断
     @Column(ignore = true)
     private boolean interrupt = false;
 
-
+    // 由RecordFactory工厂类通过反射调用来创建对象
     private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(ECG, ver, createTime, devAddress, creatorId);
+    }
+
+    // 创建信号文件
+    public void createSigFile() {
+        try {
+            sigFile = new RecordFile(getSigFileName(), "c");
+        } catch (IOException e) {
+            e.printStackTrace();
+            sigFile = null;
+        }
+    }
+
+    // 打开信号文件
+    public void openSigFile() {
+        try {
+            sigFile = new RecordFile(getSigFileName(), "o");
+        } catch (IOException e) {
+            e.printStackTrace();
+            sigFile = null;
+        }
+    }
+
+    // 关闭信号文件
+    public void closeSigFile() {
+        if(sigFile != null) {
+            try {
+                sigFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -68,7 +109,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
         aveHr = json.getInt("aveHr");
-        ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
         if(json.has("breakPos"))
             ListStringUtil.stringToList(json.getString("breakPos"), breakPos, Integer.class);
         if(json.has("breakTime"))
@@ -82,23 +122,15 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
         json.put("aveHr", aveHr);
-        json.put("ecgData", ListStringUtil.listToString(ecgData));
         json.put("breakPos", ListStringUtil.listToString(breakPos));
         json.put("breakTime", ListStringUtil.listToString(breakTime));
         return json;
     }
 
+    // 当前记录是否有信号
     @Override
     public boolean noSignal() {
-        return ecgData.isEmpty();
-    }
-
-    public List<Short> getEcgData() {
-        return ecgData;
-    }
-
-    public void setEcgData(List<Short> ecgData) {
-        this.ecgData.addAll(ecgData);
+        return (sigFile==null);
     }
 
     @Override
@@ -139,43 +171,72 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.interrupt = interrupt;
     }
 
+    // 是否到达信号末尾
     @Override
     public boolean isEOD() {
-        return (pos >= ecgData.size());
+        if(sigFile != null) {
+            try {
+                return sigFile.isEof();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return true;
+            }
+        } else {
+            return true;
+        }
     }
 
     @Override
     public void seekData(int pos) {
-        this.pos = pos;
+        if(sigFile!= null) {
+            try {
+                sigFile.seekData(pos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public int readData() throws IOException {
-        if(pos >= ecgData.size()) throw new IOException();
-        return ecgData.get(pos++);
+        if(sigFile == null) throw new IOException();
+        return sigFile.readData();
     }
 
     @Override
     public int getDataNum() {
-        return ecgData.size();
+        if(sigFile == null) return 0;
+        return sigFile.size();
     }
 
     // 获取当前数据位置对应的时间
     public long getCurrentPosTime() {
-        return getPosTime(pos);
+        if(sigFile == null)
+            return -1;
+        try {
+            return getPosTime(sigFile.getCurrentPos());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     // 获取pos指定数据位置对应的时间点
     private long getPosTime(int pos) {
-        int i;
-        for(i = 0; i < breakPos.size(); i++) {
-            if(breakPos.get(i) > pos) break;
+        int startPos;
+        long startTime;
+        if(breakPos.isEmpty()) {
+            startPos = 0;
+            startTime = getCreateTime();
+        } else {
+            int i;
+            for (i = 0; i < breakPos.size(); i++) {
+                if (breakPos.get(i) > pos) break;
+            }
+            startPos = breakPos.get(i-1);
+            startTime = breakTime.get(i-1);
         }
-        i--;
-        if(i < 0)
-            return getCreateTime()+pos* 1000L /sampleRate;
-        else
-            return breakTime.get(i) + (pos - breakPos.get(i))*1000L/sampleRate;
+        return startTime + (pos - startPos)*1000L/sampleRate;
     }
 
     /**
@@ -184,19 +245,27 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      * @return
      */
     public boolean process(short ecg) {
-        ecgData.add(ecg);
-        if(interrupt) {
-            breakPos.add(ecgData.size()-1);
-            breakTime.add(new Date().getTime());
-            interrupt = false;
+        boolean success = false;
+        try {
+            if(sigFile != null) {
+                sigFile.writeData(ecg);
+                if (interrupt) {
+                    breakPos.add(sigFile.size() - 1);
+                    breakTime.add(new Date().getTime());
+                    interrupt = false;
+                }
+                success = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return true;
+        return success;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgData +
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode +
                 "-" + breakPos + "-" + breakTime;
     }
 
@@ -217,5 +286,68 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         setAveHr(rtnReport.getAveHr());
         //setNeedUpload(true);
         save();
+    }
+
+    @Override
+    public void download(Context context, ICodeCallback callback) {
+        File file = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
+        if(!file.exists()) {
+            if(UploadDownloadFileUtil.isFileExist("ECG", getSigFileName())) {
+                UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), BasicRecord.SIG_PATH, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if(code==RETURN_CODE_SUCCESS) {
+                            BleEcgRecord.super.download(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+            }
+        } else {
+            super.download(context, callback);
+        }
+    }
+
+    @Override
+    public void upload(Context context, ICodeCallback callback) {
+        File sigFile = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
+        if(sigFile.exists()) {
+            if(!UploadDownloadFileUtil.isFileExist("ECG", getSigFileName())) {
+                UploadDownloadFileUtil.uploadFile(context, "ECG", sigFile, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            BleEcgRecord.super.upload(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                super.upload(context, callback);
+            }
+        } else {
+            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
+        }
+    }
+
+    @Override
+    public void delete(Context context, ICodeCallback callback) {
+        ICodeCallback cb = new ICodeCallback() {
+            @Override
+            public void onFinish(int code) {
+                if(code==RETURN_CODE_SUCCESS) {
+                    File sigFile = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
+                    if(sigFile.exists()) {
+                        sigFile.delete();
+                    }
+                }
+                callback.onFinish(code);
+            }
+        };
+        super.delete(context, cb);
     }
 }

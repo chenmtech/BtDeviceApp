@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
+
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
@@ -12,8 +14,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -46,7 +46,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
-        ListStringUtil.stringToList(json.getString("eegData"), eegData, Integer.class);
+        //ListStringUtil.stringToList(json.getString("eegData"), eegData, Integer.class);
     }
 
     @Override

@@ -112,7 +112,7 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
                     filterStr = (String) params[1];
                     filterTime = (Long) params[2];
                 }
-                response = KMWebServiceUtil.downloadBasicRecords(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
+                response = KMWebServiceUtil.downloadRecordList(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
                 break;
 
             default:

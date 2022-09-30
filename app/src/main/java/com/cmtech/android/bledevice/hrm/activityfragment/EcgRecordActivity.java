@@ -83,28 +83,25 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         setContentView(R.layout.activity_record_ecg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-/*        record = LitePal.find(BleEcgRecord.class, recordId, true);
-
-        if(record == null) {
-            setResult(RESULT_CANCELED);
-            finish();
-        } else {
-            initUI();
-        }*/
 
         LitePal.findAsync(BleEcgRecord.class, recordId, true).listen(new FindCallback<BleEcgRecord>() {
             @Override
             public void onFinish(BleEcgRecord bleEcgRecord) {
-                record = bleEcgRecord;
-                if(record.noSignal()) {
-                    record.download(EcgRecordActivity.this, code -> {
+                bleEcgRecord.openSigFile();
+                if(bleEcgRecord.noSignal()) {
+                    bleEcgRecord.download(EcgRecordActivity.this, code -> {
                         if (code == RETURN_CODE_SUCCESS) {
+                            bleEcgRecord.openSigFile();
+                            bleEcgRecord.setRecordSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
+                            record = bleEcgRecord;
                             initUI();
                         } else {
-                            Toast.makeText(EcgRecordActivity.this, "无法打开记录，请检查网络是否正常。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EcgRecordActivity.this, "记录已损坏。", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
+                    bleEcgRecord.setRecordSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
+                    record = bleEcgRecord;
                     initUI();
                 }
             }
@@ -129,14 +126,14 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         ecgView.setup((BleEcgRecord) record, RollWaveView.DEFAULT_ZERO_LOCATION);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
-        tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
+        tvCurrentTime.setText(DateTimeUtil.secToTime(0));
 
         tvCurrentLongTime = findViewById(R.id.tv_current_long_time);
         tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getCurrentPosTime()));
 
         tvTimeLength = findViewById(R.id.tv_time_length);
         int timeLength = record.getRecordSecond();
-        tvTimeLength.setText(DateTimeUtil.secToMinute(timeLength));
+        tvTimeLength.setText(DateTimeUtil.secToTime(timeLength));
 
         sbReplay = findViewById(R.id.sb_replay);
         sbReplay.setMax(timeLength);
@@ -179,6 +176,31 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     }
 
     /*
+    @Override
+    public void uploadRecord() {
+        //ViseLog.e("上传记录信号");
+        assert DIR_DOC != null;
+        File sigFile = FileUtil.getFile(DIR_DOC, ((BleEcgRecord)record).getSigFileName());
+        boolean success = UploadDownloadFileUtil.uploadFile(this, "ECG", sigFile);
+        if(success) {
+            super.uploadRecord();
+        } else {
+            Toast.makeText(this, "上传失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void downloadRecord() {
+        boolean success = UploadDownloadFileUtil.downloadFile(this, "ECG",
+                ((BleEcgRecord)record).getSigFileName(), DIR_DOC);
+        if(success) {
+            super.downloadRecord();
+        } else {
+            Toast.makeText(this, "下载失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     private void showPopupMenu(View view) {
         // View当前PopupMenu显示的相对View的位置
         PopupMenu popupMenu = new PopupMenu(this, view);
@@ -319,7 +341,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
     @Override
     public void onDataLocationUpdated(long location, int second) {
-        tvCurrentTime.setText(DateTimeUtil.secToMinute(second));
+        tvCurrentTime.setText(DateTimeUtil.secToTime(second));
         tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getCurrentPosTime()));
         sbReplay.setProgress(second);
     }
@@ -333,6 +355,9 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     public void onBackPressed() {
         if(ecgView != null)
             ecgView.stopShow();
+
+        if(record != null)
+            ((BleEcgRecord)record).closeSigFile();
 
         super.onBackPressed();
     }

@@ -209,14 +209,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     // 打开记录
     public void openRecord(int index) {
-        //BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId());
-        //recordList.set(index, record);
         recordAdapter.setSelectedRecord(index);
         updateView();
-
-        //if(record != null) {
-            doOpenRecord(recordList.get(index));
-        //}
+        doOpenRecord(recordList.get(index));
     }
 
     private void doOpenRecord(BasicRecord record) {
@@ -262,6 +257,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onFinish(int code) {
                 if (code == RETURN_CODE_SUCCESS) {
+                    Toast.makeText(RecordExplorerActivity.this, "记录已上传", Toast.LENGTH_SHORT).show();
                     updateView();
                 } else {
                     Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
@@ -297,8 +293,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
             return;
         }
 
-        // 从服务器查询记录，并将得到的记录保存到本地数据库
-        record.retrieveList(this, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME, filterStr, filterTime, new ICodeCallback() {
+        // 从服务器下载满足条件的记录保存到本地数据库，之后再从本地数据库中读取满足条件的记录
+        record.downloadRecordList(this, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME, filterStr, filterTime, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code != RETURN_CODE_SUCCESS) {
@@ -306,7 +302,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 }
 
                 // 从本地读取记录
-                List<? extends BasicRecord> records = BasicRecord.retrieveListFromLocalDb(recordType, MyApplication.getAccount(), filterTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME);
+                List<? extends BasicRecord> records = BasicRecord.readRecordsFromLocalDb(recordType, MyApplication.getAccount(), filterTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME);
 
                 if(records == null) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();

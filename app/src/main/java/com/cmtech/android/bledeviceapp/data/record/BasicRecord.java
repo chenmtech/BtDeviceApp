@@ -1,9 +1,16 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
+import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+
 import android.content.Context;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -21,15 +28,11 @@ import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -45,7 +48,8 @@ import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
  */
 public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
     public static final String DEFAULT_RECORD_VER = "1.0";
-    private static final String[] basicItems = {"id", "createTime", "devAddress",
+
+    private static final String[] BASIC_PROPERTIES = {"id", "createTime", "devAddress",
             "creatorId", "ver", "note", "recordSecond", "needUpload",
             "reportVer", "reportProvider", "reportTime", "reportContent", "reportStatus"};
 
@@ -57,6 +61,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     // 缺省报告提供者
     public static final String DEFAULT_REPORT_PROVIDER = "";
+
+    // 信号文件的保存路径
+    public static final File SIG_PATH = DIR_DOC;
 
     public static final int DONE = 0;
     public static final int PROCESS = 1;
@@ -230,12 +237,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.needUpload = needUpload;
     }
 
-    @Override
-    public void fromJson(JSONObject json) throws JSONException{
-        basicRecordFromJson(json);
+    public String getSigFileName() {
+        return getDevAddress().replace(":", "")+getCreateTime();
     }
 
-    public void basicRecordFromJson(JSONObject json) throws JSONException{
+    @Override
+    public void fromJson(JSONObject json) throws JSONException{
         note = json.getString("note");
         recordSecond = json.getInt("recordSecond");
         reportVer = json.getString("reportVer");
@@ -268,14 +275,14 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     /**
-     * 从服务器端获取符合条件的BasicRecord对象字段信息，保存到本地数据库中。仅获取BasicRecord的字段
+     * 从服务器端获取满足条件的记录字段信息，保存到本地数据库中。记录信息不包含信号文件数据
      * @param context
      * @param num：获取记录数
      * @param filterStr：过滤的字符串
      * @param filterTime：过滤的起始时间
      * @param callback：返回回调
      */
-    public final void retrieveList(Context context, int num, String filterStr, long filterTime, ICodeCallback callback) {
+    public final void downloadRecordList(Context context, int num, String filterStr, long filterTime, ICodeCallback callback) {
         new RecordAsyncTask(context, "获取记录中，请稍等。", RecordAsyncTask.CMD_DOWNLOAD_RECORD_LIST, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -293,7 +300,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             int creatorId = json.getInt("creatorId");
                             BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, creatorId);
                             if (record != null) {
-                                record.basicRecordFromJson(json);
+                                record.fromJson(json);
                                 record.setNeedUpload(false);
                                 record.saveIfNotExist("createTime = ? and devAddress = ?", "" + record.getCreateTime(), record.getDevAddress());
                             }
@@ -313,7 +320,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param callback
      */
     @Override
-    public final void upload(Context context, ICodeCallback callback) {
+    public void upload(Context context, ICodeCallback callback) {
         new RecordAsyncTask(context, "上传记录中，请稍等。", RecordAsyncTask.CMD_UPLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -333,7 +340,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param callback
      */
     @Override
-    public final void download(Context context, ICodeCallback callback) {
+    public void download(Context context, ICodeCallback callback) {
         new RecordAsyncTask(context, "下载记录中，请稍等。", CMD_DOWNLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -362,7 +369,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param callback
      */
     @Override
-    public final void delete(Context context, ICodeCallback callback) {
+    public void delete(Context context, ICodeCallback callback) {
         Class<? extends BasicRecord> recordClass = getClass();
         new RecordAsyncTask(context, "删除记录中，请稍等。", RecordAsyncTask.CMD_DELETE_RECORD, new IWebResponseCallback() {
             @Override
@@ -378,15 +385,15 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     /**
-     * 静态函数，从本地数据库获取满足条件的BasicRecord对象字段信息，仅获取BasicRecord字段
+     * 从本地数据库读取满足条件的记录字段信息
      * @param type：记录类型，如果是ALL，则包含所有记录类型
      * @param creator：记录创建者
      * @param filterTime：过滤的起始时间
      * @param filterStr：过滤的字符串
      * @param num：记录数
-     * @return 查询到的BasicRecord对象列表
+     * @return 查询到的记录对象列表
      */
-    public static List<? extends BasicRecord> retrieveListFromLocalDb(RecordType type, Account creator, long filterTime, String filterStr, int num) {
+    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, Account creator, long filterTime, String filterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
             for(RecordType t : SUPPORT_RECORD_TYPES) {
@@ -402,14 +409,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         for(RecordType t : types) {
             Class<? extends BasicRecord> recordClass = t.getRecordClass();
             if (recordClass != null) {
-                //ViseLog.e(recordClass);
                 if(TextUtils.isEmpty(filterStr)) {
-                    records.addAll(LitePal.select(basicItems)
-                            .where("creatorId = ? and createTime < ?", ""+creator.getAccountId(), ""+filterTime)
+                    records.addAll(LitePal.where("creatorId = ? and createTime < ?",
+                                    ""+creator.getAccountId(), ""+filterTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
-                    records.addAll(LitePal.select(basicItems)
-                            .where("creatorId = ? and createTime < ? and note like ?", ""+creator.getAccountId(), ""+filterTime, "%"+filterStr+"%")
+                    records.addAll(LitePal.where("creatorId = ? and createTime < ? and note like ?",
+                                    ""+creator.getAccountId(), ""+filterTime, "%"+filterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }
