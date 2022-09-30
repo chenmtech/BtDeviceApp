@@ -1,5 +1,8 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
+import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
+
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.dataproc.hrproc.HRProcessor;
@@ -13,9 +16,6 @@ import org.litepal.annotation.Column;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -69,7 +69,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
         ListStringUtil.stringToList(json.getString("hrList"), hrList, Short.class);
         hrMax = (short)json.getInt("hrMax");
         hrAve = (short)json.getInt("hrAve");
-        ListStringUtil.stringToList(json.getString("hrHist"), hrHist, Integer.class);
+        //ListStringUtil.stringToList(json.getString("hrHist"), hrHist, Integer.class);
 
         createHistogramFromHrHist();
     }

@@ -48,7 +48,8 @@ import java.util.List;
  */
 public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
     public static final String DEFAULT_RECORD_VER = "1.0";
-    private static final String[] basicItems = {"id", "createTime", "devAddress",
+
+    private static final String[] BASIC_PROPERTIES = {"id", "createTime", "devAddress",
             "creatorId", "ver", "note", "recordSecond", "needUpload",
             "reportVer", "reportProvider", "reportTime", "reportContent", "reportStatus"};
 
@@ -242,10 +243,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     @Override
     public void fromJson(JSONObject json) throws JSONException{
-        basicRecordFromJson(json);
-    }
-
-    public void basicRecordFromJson(JSONObject json) throws JSONException{
         note = json.getString("note");
         recordSecond = json.getInt("recordSecond");
         reportVer = json.getString("reportVer");
@@ -278,14 +275,14 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     /**
-     * 从服务器端获取符合条件的BasicRecord对象字段信息，保存到本地数据库中。仅获取BasicRecord的字段
+     * 从服务器端获取满足条件的记录字段信息，保存到本地数据库中。记录信息不包含信号文件数据
      * @param context
      * @param num：获取记录数
      * @param filterStr：过滤的字符串
      * @param filterTime：过滤的起始时间
      * @param callback：返回回调
      */
-    public final void retrieveList(Context context, int num, String filterStr, long filterTime, ICodeCallback callback) {
+    public final void downloadRecordList(Context context, int num, String filterStr, long filterTime, ICodeCallback callback) {
         new RecordAsyncTask(context, "获取记录中，请稍等。", RecordAsyncTask.CMD_DOWNLOAD_RECORD_LIST, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -303,7 +300,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             int creatorId = json.getInt("creatorId");
                             BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, creatorId);
                             if (record != null) {
-                                record.basicRecordFromJson(json);
+                                record.fromJson(json);
                                 record.setNeedUpload(false);
                                 record.saveIfNotExist("createTime = ? and devAddress = ?", "" + record.getCreateTime(), record.getDevAddress());
                             }
@@ -388,15 +385,15 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     /**
-     * 静态函数，从本地数据库获取满足条件的BasicRecord对象字段信息，仅获取BasicRecord字段
+     * 从本地数据库读取满足条件的记录字段信息
      * @param type：记录类型，如果是ALL，则包含所有记录类型
      * @param creator：记录创建者
      * @param filterTime：过滤的起始时间
      * @param filterStr：过滤的字符串
      * @param num：记录数
-     * @return 查询到的BasicRecord对象列表
+     * @return 查询到的记录对象列表
      */
-    public static List<? extends BasicRecord> retrieveListFromLocalDb(RecordType type, Account creator, long filterTime, String filterStr, int num) {
+    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, Account creator, long filterTime, String filterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
             for(RecordType t : SUPPORT_RECORD_TYPES) {
@@ -412,14 +409,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         for(RecordType t : types) {
             Class<? extends BasicRecord> recordClass = t.getRecordClass();
             if (recordClass != null) {
-                //ViseLog.e(recordClass);
                 if(TextUtils.isEmpty(filterStr)) {
-                    records.addAll(LitePal.select(basicItems)
-                            .where("creatorId = ? and createTime < ?", ""+creator.getAccountId(), ""+filterTime)
+                    records.addAll(LitePal.where("creatorId = ? and createTime < ?",
+                                    ""+creator.getAccountId(), ""+filterTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
-                    records.addAll(LitePal.select(basicItems)
-                            .where("creatorId = ? and createTime < ? and note like ?", ""+creator.getAccountId(), ""+filterTime, "%"+filterStr+"%")
+                    records.addAll(LitePal.where("creatorId = ? and createTime < ? and note like ?",
+                                    ""+creator.getAccountId(), ""+filterTime, "%"+filterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }
