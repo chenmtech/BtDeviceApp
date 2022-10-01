@@ -29,6 +29,7 @@ import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,11 +48,9 @@ import java.util.List;
  * Version:        1.0
  */
 public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
+    //-----------------------------------------常量
+    // 缺省记录版本号
     public static final String DEFAULT_RECORD_VER = "1.0";
-
-    private static final String[] BASIC_PROPERTIES = {"id", "createTime", "devAddress",
-            "creatorId", "ver", "note", "recordSecond", "needUpload",
-            "reportVer", "reportProvider", "reportTime", "reportContent", "reportStatus"};
 
     // 缺省报告内容
     public static final String DEFAULT_REPORT_CONTENT = "";
@@ -63,31 +62,116 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     public static final String DEFAULT_REPORT_PROVIDER = "";
 
     // 信号文件的保存路径
-    public static final File SIG_PATH = DIR_DOC;
+    public static final File SIG_FILE_PATH = DIR_DOC;
 
-    public static final int DONE = 0;
-    public static final int PROCESS = 1;
+    // 诊断报告状态
+    public static final int DONE = 0; // 已完成
+    public static final int PROCESSING = 1; // 处理中
 
+
+    //-----------------------------------------实例变量
+
+    // ID号
     private int id;
+
+    // 记录类型
     @Column(ignore = true)
-    private final RecordType type; // record type
-    private long createTime; // create time
-    private final String devAddress; // device address
-    private String ver = DEFAULT_RECORD_VER; // record version
-    private int creatorId = INVALID_ID; // creator plat ID
+    private final RecordType type;
 
-    private String note = ""; // note
-    private int recordSecond = 0; // unit: s
+    // 创建时间
+    private long createTime;
 
-    // 报告相关字段
-    private String reportVer = DEFAULT_REPORT_VER; // 报告版本号
-    private String reportProvider = DEFAULT_REPORT_PROVIDER; // 报告提供者
-    private long reportTime = INVALID_TIME; // 报告产生时间
-    private String reportContent = DEFAULT_REPORT_CONTENT; // 报告内容
-    private int reportStatus = DONE; // 报告状态
+    // 创建设备地址
+    private final String devAddress;
 
-    private boolean needUpload = true; // need uploaded
+    // 记录版本号
+    private String ver = DEFAULT_RECORD_VER;
 
+    // 记录创建者ID号
+    private int creatorId = INVALID_ID;
+
+    // 备注
+    private String note = "";
+
+    // 记录信号长度，单位:秒
+    private int recordSecond = 0;
+
+    @Column(ignore = true)
+    protected RecordFile sigFile;
+
+    // ----------------------------------------------诊断报告相关字段
+    // 报告版本号
+    private String reportVer = DEFAULT_REPORT_VER;
+
+    // 报告提供者
+    private String reportProvider = DEFAULT_REPORT_PROVIDER;
+
+    // 报告产生时间
+    private long reportTime = INVALID_TIME;
+
+    // 报告内容
+    private String reportContent = DEFAULT_REPORT_CONTENT;
+
+    // 报告状态
+    private int reportStatus = DONE;
+
+    // 是否需要上传
+    private boolean needUpload = true;
+
+    //-----------------------------------------静态函数
+    /**
+     * 从本地数据库读取满足条件的记录字段信息
+     * @param type：记录类型，如果是ALL，则包含所有记录类型
+     * @param creator：记录创建者
+     * @param filterTime：过滤的起始时间
+     * @param filterStr：过滤的字符串
+     * @param num：记录数
+     * @return 查询到的记录对象列表
+     */
+    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, Account creator, long filterTime, String filterStr, int num) {
+        List<RecordType> types = new ArrayList<>();
+        if(type == RecordType.ALL) {
+            for(RecordType t : SUPPORT_RECORD_TYPES) {
+                if(t != RecordType.ALL) {
+                    types.add(t);
+                }
+            }
+        }
+        else
+            types.add(type);
+
+        List<BasicRecord> records = new ArrayList<>();
+        for(RecordType t : types) {
+            Class<? extends BasicRecord> recordClass = t.getRecordClass();
+            if (recordClass != null) {
+                if(TextUtils.isEmpty(filterStr)) {
+                    records.addAll(LitePal.where("creatorId = ? and createTime < ?",
+                                    ""+creator.getAccountId(), ""+filterTime)
+                            .order("createTime desc").limit(num).find(recordClass, true));
+                } else {
+                    records.addAll(LitePal.where("creatorId = ? and createTime < ? and note like ?",
+                                    ""+creator.getAccountId(), ""+filterTime, "%"+filterStr+"%")
+                            .order("createTime desc").limit(num).find(recordClass, true));
+                }
+            }
+        }
+        if(records.isEmpty()) return null;
+
+        Collections.sort(records, new Comparator<BasicRecord>() {
+            @Override
+            public int compare(BasicRecord o1, BasicRecord o2) {
+                int rlt = 0;
+                if(o2.getCreateTime() > o1.getCreateTime()) rlt = 1;
+                else if(o2.getCreateTime() < o1.getCreateTime()) rlt = -1;
+                return rlt;
+            }
+        });
+        return records.subList(0, Math.min(records.size(), num));
+    }
+
+
+
+    //-----------------------------------------构造器
     BasicRecord(RecordType type, String ver, long createTime, String devAddress, int creatorId) {
         this.type = type;
         this.ver = ver;
@@ -96,6 +180,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.creatorId = creatorId;
     }
 
+    //-----------------------------------------实例方法
     public int getId() {
         return id;
     }
@@ -241,6 +326,37 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         return getDevAddress().replace(":", "")+getCreateTime();
     }
 
+    // 创建信号文件
+    public void createSigFile(int bpd) {
+        try {
+            sigFile = new RecordFile(getSigFileName(), bpd, "c");
+        } catch (IOException e) {
+            e.printStackTrace();
+            sigFile = null;
+        }
+    }
+
+    // 打开信号文件
+    public void openSigFile(int bpd) {
+        try {
+            sigFile = new RecordFile(getSigFileName(), bpd, "o");
+        } catch (IOException e) {
+            e.printStackTrace();
+            sigFile = null;
+        }
+    }
+
+    // 关闭信号文件
+    public void closeSigFile() {
+        if(sigFile != null) {
+            try {
+                sigFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         note = json.getString("note");
@@ -271,7 +387,36 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public boolean noSignal() {
-        return true;
+        return (sigFile==null);
+    }
+
+    // 是否到达信号末尾
+    public boolean isEOD() {
+        if(sigFile != null) {
+            try {
+                return sigFile.isEof();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return true;
+            }
+        } else {
+            return true;
+        }
+    }
+
+    public void seekData(int pos) {
+        if(sigFile!= null) {
+            try {
+                sigFile.seekData(pos);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public int getDataNum() {
+        if(sigFile == null) return 0;
+        return sigFile.size();
     }
 
     /**
@@ -382,56 +527,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                 callback.onFinish(code);
             }
         }).execute(this);
-    }
-
-    /**
-     * 从本地数据库读取满足条件的记录字段信息
-     * @param type：记录类型，如果是ALL，则包含所有记录类型
-     * @param creator：记录创建者
-     * @param filterTime：过滤的起始时间
-     * @param filterStr：过滤的字符串
-     * @param num：记录数
-     * @return 查询到的记录对象列表
-     */
-    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, Account creator, long filterTime, String filterStr, int num) {
-        List<RecordType> types = new ArrayList<>();
-        if(type == RecordType.ALL) {
-            for(RecordType t : SUPPORT_RECORD_TYPES) {
-                if(t != RecordType.ALL) {
-                    types.add(t);
-                }
-            }
-        }
-        else
-            types.add(type);
-
-        List<BasicRecord> records = new ArrayList<>();
-        for(RecordType t : types) {
-            Class<? extends BasicRecord> recordClass = t.getRecordClass();
-            if (recordClass != null) {
-                if(TextUtils.isEmpty(filterStr)) {
-                    records.addAll(LitePal.where("creatorId = ? and createTime < ?",
-                                    ""+creator.getAccountId(), ""+filterTime)
-                            .order("createTime desc").limit(num).find(recordClass, true));
-                } else {
-                    records.addAll(LitePal.where("creatorId = ? and createTime < ? and note like ?",
-                                    ""+creator.getAccountId(), ""+filterTime, "%"+filterStr+"%")
-                            .order("createTime desc").limit(num).find(recordClass, true));
-                }
-            }
-        }
-        if(records.isEmpty()) return null;
-
-        Collections.sort(records, new Comparator<BasicRecord>() {
-            @Override
-            public int compare(BasicRecord o1, BasicRecord o2) {
-                int rlt = 0;
-                if(o2.getCreateTime() > o1.getCreateTime()) rlt = 1;
-                else if(o2.getCreateTime() < o1.getCreateTime()) rlt = -1;
-                return rlt;
-            }
-        });
-        return records.subList(0, Math.min(records.size(), num));
     }
 
     @NonNull

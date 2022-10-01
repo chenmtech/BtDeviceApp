@@ -182,7 +182,8 @@ public class PpgDevice extends AbstractDevice {
             if(this.record == null) return;
 
             this.record.setCreateTime(new Date().getTime());
-            this.record.setRecordSecond(this.record.getPpgData().size()/sampleRate);
+            int second = this.record.getDataNum() / this.record.getSampleRate();
+            this.record.setRecordSecond(second);
             this.record.save();
             ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
         }

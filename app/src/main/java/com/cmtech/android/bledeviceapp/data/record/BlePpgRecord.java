@@ -13,6 +13,7 @@ import org.litepal.annotation.Column;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,15 +29,26 @@ import java.util.List;
  * Version:        1.0
  */
 public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializable {
+    //-----------------------------------------常量
+    // 记录每个数据的字节数
+    private static final int BYTES_PER_DATUM = 4;
+
     private int sampleRate = 0; // sample rate
     private int caliValue = 0; // calibration value
-    private final List<Integer> ppgData = new ArrayList<>(); // ppg data
-
-    @Column(ignore = true)
-    private int pos = 0;
+    //private final List<Integer> ppgData = new ArrayList<>(); // ppg data
 
     private BlePpgRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(PPG, ver, createTime, devAddress, creatorId);
+    }
+
+    // 创建信号文件
+    public void createSigFile() {
+        super.createSigFile(BYTES_PER_DATUM);
+    }
+
+    // 打开信号文件
+    public void openSigFile() {
+        super.openSigFile(BYTES_PER_DATUM);
     }
 
     @Override
@@ -52,15 +64,11 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         JSONObject json = super.toJson();
         json.put("sampleRate", sampleRate);
         json.put("caliValue", caliValue);
-        json.put("ppgData", ListStringUtil.listToString(ppgData));
+        //json.put("ppgData", ListStringUtil.listToString(ppgData));
         return json;
     }
 
-    @Override
-    public boolean noSignal() {
-        return ppgData.isEmpty();
-    }
-
+    /*
     public List<Integer> getPpgData() {
         return ppgData;
     }
@@ -68,6 +76,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     public void setPpgData(List<Integer> ppgData) {
         this.ppgData.addAll(ppgData);
     }
+    */
 
     @Override
     public int getSampleRate() {
@@ -87,36 +96,28 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         this.caliValue = caliValue;
     }
 
-
-    @Override
-    public boolean isEOD() {
-        return (pos >= ppgData.size());
-    }
-
-    @Override
-    public void seekData(int pos) {
-        this.pos = pos;
-    }
-
     @Override
     public int readData() throws IOException {
-        if(pos >= ppgData.size()) throw new IOException();
-        return ppgData.get(pos++);
-    }
-
-    @Override
-    public int getDataNum() {
-        return ppgData.size();
+        if(sigFile == null) throw new IOException();
+        return sigFile.readInt();
     }
 
     public boolean process(int ppg) {
-        ppgData.add(ppg);
-        return true;
+        boolean success = false;
+        try {
+            if(sigFile != null) {
+                sigFile.writeInt(ppg);
+                success = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return success;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + ppgData;
+        return super.toString() + "-" + sampleRate + "-" + caliValue;
     }
 }

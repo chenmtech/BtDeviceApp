@@ -63,7 +63,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         BlePpgRecord ppgRecord = (BlePpgRecord) RecordFactory.create(RecordType.PPG, BasicRecord.DEFAULT_RECORD_VER, record.getCreateTime(), record.getDevAddress(), record.getCreatorId());
         ppgRecord.setSampleRate(((BlePttRecord)record).getSampleRate());
         ppgRecord.setCaliValue(((BlePttRecord)record).getPpgCaliValue());
-        ppgRecord.setPpgData(((BlePttRecord)record).getPpgData());
+        //ppgRecord.setPpgData(((BlePttRecord)record).getPpgData());
         ppgView.setup(ppgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
         ppgView.setGestureDetector(null);
 

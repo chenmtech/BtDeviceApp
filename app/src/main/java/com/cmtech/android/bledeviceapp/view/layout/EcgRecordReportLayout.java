@@ -1,8 +1,5 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DONE;
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.PROCESS;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.content.Context;
@@ -12,18 +9,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
-import com.cmtech.android.bledeviceapp.data.report.EcgReport;
-import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.cmtech.android.bledeviceapp.model.WebResponse;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

@@ -41,6 +41,10 @@ import java.util.List;
  * Version:        1.0
  */
 public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
+    //-----------------------------------------常量
+    // 记录每个数据的字节数
+    private static final int BYTES_PER_DATUM = 2;
+
     // 采样率
     private int sampleRate = 0;
 
@@ -59,9 +63,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     // 心电采集时中断的位置对应的时刻点列表
     private final List<Long> breakTime = new ArrayList<>();
 
-    @Column(ignore = true)
-    private RecordFile sigFile;
-
     // 采集是否中断
     @Column(ignore = true)
     private boolean interrupt = false;
@@ -73,36 +74,14 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     // 创建信号文件
     public void createSigFile() {
-        try {
-            sigFile = new RecordFile(getSigFileName(), "c");
-        } catch (IOException e) {
-            e.printStackTrace();
-            sigFile = null;
-        }
+        super.createSigFile(BYTES_PER_DATUM);
     }
 
     // 打开信号文件
     public void openSigFile() {
-        try {
-            sigFile = new RecordFile(getSigFileName(), "o");
-        } catch (IOException e) {
-            e.printStackTrace();
-            sigFile = null;
-        }
+        super.openSigFile(BYTES_PER_DATUM);
     }
 
-    // 关闭信号文件
-    public void closeSigFile() {
-        if(sigFile != null) {
-            try {
-                sigFile.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Override
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
@@ -125,12 +104,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         json.put("breakPos", ListStringUtil.listToString(breakPos));
         json.put("breakTime", ListStringUtil.listToString(breakTime));
         return json;
-    }
-
-    // 当前记录是否有信号
-    @Override
-    public boolean noSignal() {
-        return (sigFile==null);
     }
 
     @Override
@@ -171,42 +144,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.interrupt = interrupt;
     }
 
-    // 是否到达信号末尾
-    @Override
-    public boolean isEOD() {
-        if(sigFile != null) {
-            try {
-                return sigFile.isEof();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return true;
-            }
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void seekData(int pos) {
-        if(sigFile!= null) {
-            try {
-                sigFile.seekData(pos);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     @Override
     public int readData() throws IOException {
         if(sigFile == null) throw new IOException();
-        return sigFile.readData();
-    }
-
-    @Override
-    public int getDataNum() {
-        if(sigFile == null) return 0;
-        return sigFile.size();
+        return sigFile.readShort();
     }
 
     // 获取当前数据位置对应的时间
@@ -248,7 +189,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         boolean success = false;
         try {
             if(sigFile != null) {
-                sigFile.writeData(ecg);
+                sigFile.writeShort(ecg);
                 if (interrupt) {
                     breakPos.add(sigFile.size() - 1);
                     breakTime.add(new Date().getTime());
@@ -290,10 +231,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public void download(Context context, ICodeCallback callback) {
-        File file = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
+        File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
         if(!file.exists()) {
             if(UploadDownloadFileUtil.isFileExist("ECG", getSigFileName())) {
-                UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), BasicRecord.SIG_PATH, new ICodeCallback() {
+                UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), BasicRecord.SIG_FILE_PATH, new ICodeCallback() {
                     @Override
                     public void onFinish(int code) {
                         if(code==RETURN_CODE_SUCCESS) {
@@ -313,7 +254,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        File sigFile = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
+        File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
         if(sigFile.exists()) {
             if(!UploadDownloadFileUtil.isFileExist("ECG", getSigFileName())) {
                 UploadDownloadFileUtil.uploadFile(context, "ECG", sigFile, new ICodeCallback() {
@@ -340,7 +281,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             @Override
             public void onFinish(int code) {
                 if(code==RETURN_CODE_SUCCESS) {
-                    File sigFile = FileUtil.getFile(BasicRecord.SIG_PATH, getSigFileName());
+                    File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
                     if(sigFile.exists()) {
                         sigFile.delete();
                     }
