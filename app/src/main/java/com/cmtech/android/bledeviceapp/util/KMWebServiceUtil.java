@@ -60,7 +60,7 @@ public class KMWebServiceUtil {
     private static final String CMD_DELETE = "delete";
 
     // 下载记录列表
-    private static final String CMD_DOWNLOAD_RECORD_LIST = "downloadRecordList";
+    private static final String CMD_DOWNLOAD_RECORDS = "downloadRecords";
 
     // 获取记录的诊断报告
     private static final String CMD_RETRIEVE_DIAGNOSE_REPORT = "retrieveDiagnoseReport";
@@ -190,13 +190,13 @@ public class KMWebServiceUtil {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
-    public static WebResponse downloadRecordList(Account account, BasicRecord record, long fromTime, int num, String filterStr) {
+    public static WebResponse downloadRecords(Account account, BasicRecord record, long fromTime, int num, String filterStr) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
-            json.put("cmd", CMD_DOWNLOAD_RECORD_LIST);
+            json.put("cmd", CMD_DOWNLOAD_RECORDS);
             json.put("accountId", account.getAccountId());
 
             RecordType type = record.getType();

@@ -1,10 +1,13 @@
 package com.cmtech.android.bledevice.ppg.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
@@ -13,12 +16,9 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollPpgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
-import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
-import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 
 import org.litepal.LitePal;
-
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import org.litepal.crud.callback.FindCallback;
 
 public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewListener {
     private RollPpgView ppgView; // ppg View
@@ -33,13 +33,29 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
         setContentView(R.layout.activity_record_ppg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BlePpgRecord.class, recordId, true);
-        if(record == null) {
-            setResult(RESULT_CANCELED);
-            finish();
-        } else {
-            initUI();
-        }
+
+        LitePal.findAsync(BlePpgRecord.class, recordId, true).listen(new FindCallback<BlePpgRecord>() {
+            @Override
+            public void onFinish(BlePpgRecord blePpgRecord) {
+                blePpgRecord.openSigFile();
+                if(blePpgRecord.noSignal()) {
+                    blePpgRecord.download(PpgRecordActivity.this, code -> {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            blePpgRecord.openSigFile();
+                            blePpgRecord.setRecordSecond(blePpgRecord.getDataNum()/blePpgRecord.getSampleRate());
+                            record = blePpgRecord;
+                            initUI();
+                        } else {
+                            Toast.makeText(PpgRecordActivity.this, "记录已损坏。", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    blePpgRecord.setRecordSecond(blePpgRecord.getDataNum()/blePpgRecord.getSampleRate());
+                    record = blePpgRecord;
+                    initUI();
+                }
+            }
+        });
     }
 
     public void initUI() {

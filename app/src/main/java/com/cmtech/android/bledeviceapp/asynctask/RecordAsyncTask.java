@@ -33,7 +33,7 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
     public static final int CMD_UPLOAD_RECORD = 2; // upload record command
     public static final int CMD_DOWNLOAD_RECORD = 3; // download record command
     public static final int CMD_DELETE_RECORD = 4; // delete record command
-    public static final int CMD_DOWNLOAD_RECORD_LIST = 5; // download basic record information command
+    public static final int CMD_DOWNLOAD_RECORDS = 5; // download records command
 
     private static final int DEFAULT_DOWNLOAD_NUM = 10; // default download record num per time
 
@@ -96,7 +96,7 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
                 break;
 
             // DOWNLOAD RECORD LIST
-            case CMD_DOWNLOAD_RECORD_LIST:
+            case CMD_DOWNLOAD_RECORDS:
                 int downloadNum = 0;
                 String filterStr = "";
                 long filterTime = new Date().getTime();
@@ -112,7 +112,7 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
                     filterStr = (String) params[1];
                     filterTime = (Long) params[2];
                 }
-                response = KMWebServiceUtil.downloadRecordList(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
+                response = KMWebServiceUtil.downloadRecords(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
                 break;
 
             default:

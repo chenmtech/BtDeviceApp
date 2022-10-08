@@ -1,8 +1,12 @@
 package com.cmtech.android.bledevice.ppg.model;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -20,14 +24,10 @@ import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
+import org.litepal.crud.callback.SaveCallback;
+
 import java.util.Date;
 import java.util.UUID;
-
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -176,16 +176,24 @@ public class PpgDevice extends AbstractDevice {
             if(this.record != null) {
                 this.record.setSampleRate(sampleRate);
                 this.record.setCaliValue(caliValue);
+                this.record.createSigFile();
+                this.record.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(this.record == null) return;
 
-            this.record.setCreateTime(new Date().getTime());
             int second = this.record.getDataNum() / this.record.getSampleRate();
             this.record.setRecordSecond(second);
-            this.record.save();
-            ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+            this.record.saveAsync().listen(new SaveCallback() {
+                @Override
+                public void onFinish(boolean success) {
+                    if(success) {
+                        PpgDevice.this.record.closeSigFile();
+                        ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+                    }
+                }
+            });
         }
 
         if(listener != null) {

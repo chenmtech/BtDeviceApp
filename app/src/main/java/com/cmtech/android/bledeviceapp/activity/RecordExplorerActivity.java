@@ -1,9 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -30,14 +28,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
-import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.KeyBoardUtil;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.layout.RecordSearchLayout;
-import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
@@ -215,12 +211,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void doOpenRecord(BasicRecord record) {
-        Intent intent = null;
         Class<? extends Activity> actClass = RecordType.fromCode(record.getTypeCode()).getActivityClass();
         if (actClass != null) {
-            intent = new Intent(RecordExplorerActivity.this, actClass);
-        }
-        if (intent != null) {
+            Intent intent = new Intent(RecordExplorerActivity.this, actClass);
             intent.putExtra("record_id", record.getId());
             startActivityForResult(intent, RC_OPEN_RECORD);
         }
@@ -287,14 +280,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private void updateRecordList() {
         KeyBoardUtil.closeKeybord(this);
 
-        BasicRecord record = RecordFactory.create(recordType, DEFAULT_RECORD_VER, INVALID_TIME, null, MyApplication.getAccountId());
-        if(record == null) {
-            ViseLog.e("The record type is not supported.");
-            return;
-        }
-
         // 从服务器下载满足条件的记录保存到本地数据库，之后再从本地数据库中读取满足条件的记录
-        record.downloadRecordList(this, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME, filterStr, filterTime, new ICodeCallback() {
+        BasicRecord.downloadRecords(this, recordType, MyApplication.getAccountId(),
+                DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME, filterStr, filterTime, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code != RETURN_CODE_SUCCESS) {
@@ -302,7 +290,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 }
 
                 // 从本地读取记录
-                List<? extends BasicRecord> records = BasicRecord.readRecordsFromLocalDb(recordType, MyApplication.getAccount(), filterTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME);
+                List<? extends BasicRecord> records = BasicRecord.readRecordsFromLocalDb(recordType, MyApplication.getAccountId(), filterTime, filterStr, DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME);
 
                 if(records == null) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();

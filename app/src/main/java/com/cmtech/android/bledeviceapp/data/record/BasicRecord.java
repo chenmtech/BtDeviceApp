@@ -20,6 +20,8 @@ import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
+import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -122,13 +124,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     /**
      * 从本地数据库读取满足条件的记录字段信息
      * @param type：记录类型，如果是ALL，则包含所有记录类型
-     * @param creator：记录创建者
+     * @param creatorId：记录创建者ID
      * @param filterTime：过滤的起始时间
      * @param filterStr：过滤的字符串
      * @param num：记录数
      * @return 查询到的记录对象列表
      */
-    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, Account creator, long filterTime, String filterStr, int num) {
+    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, int creatorId, long filterTime, String filterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
             for(RecordType t : SUPPORT_RECORD_TYPES) {
@@ -146,11 +148,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             if (recordClass != null) {
                 if(TextUtils.isEmpty(filterStr)) {
                     records.addAll(LitePal.where("creatorId = ? and createTime < ?",
-                                    ""+creator.getAccountId(), ""+filterTime)
+                                    ""+creatorId, ""+filterTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
                     records.addAll(LitePal.where("creatorId = ? and createTime < ? and note like ?",
-                                    ""+creator.getAccountId(), ""+filterTime, "%"+filterStr+"%")
+                                    ""+creatorId, ""+filterTime, "%"+filterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }
@@ -168,6 +170,53 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         });
         return records.subList(0, Math.min(records.size(), num));
     }
+
+    /**
+     * 从服务器端获取满足条件的记录信息，保存到本地数据库中，记录信息不包含信号文件数据
+     * @param context
+     * @param num：获取记录数
+     * @param filterStr：过滤的字符串
+     * @param filterTime：过滤的起始时间
+     * @param callback：返回回调
+     */
+    public static void downloadRecords(Context context, RecordType type, int creatorId, int num, String filterStr, long filterTime, ICodeCallback callback) {
+        BasicRecord record = RecordFactory.create(type, DEFAULT_RECORD_VER, INVALID_TIME, null, creatorId);
+        if(record == null) {
+            ViseLog.e("The record type is not supported.");
+            return;
+        }
+
+        new RecordAsyncTask(context, "获取记录中，请稍等。", RecordAsyncTask.CMD_DOWNLOAD_RECORDS, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                JSONArray jsonArr = (JSONArray) response.getContent();
+                if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
+                    for (int i = 0; i < jsonArr.length(); i++) {
+                        try {
+                            JSONObject json = (JSONObject) jsonArr.get(i);
+                            if(json == null) continue;
+                            RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
+                            String ver = json.getString("ver");
+                            long createTime = json.getLong("createTime");
+                            String devAddress = json.getString("devAddress");
+                            int creatorId = json.getInt("creatorId");
+                            BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, creatorId);
+                            if (record != null) {
+                                record.fromJson(json);
+                                record.setNeedUpload(false);
+                                record.saveIfNotExist("createTime = ? and devAddress = ?", "" + record.getCreateTime(), record.getDevAddress());
+                            }
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+                callback.onFinish(code);
+            }
+        }).execute(record);
+    }
+
 
 
 
@@ -327,9 +376,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     // 创建信号文件
-    public void createSigFile(int bpd) {
+    public void createSigFile(int datumByteNum) {
         try {
-            sigFile = new RecordFile(getSigFileName(), bpd, "c");
+            sigFile = new RecordFile(getSigFileName(), datumByteNum, "c");
         } catch (IOException e) {
             e.printStackTrace();
             sigFile = null;
@@ -337,9 +386,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     // 打开信号文件
-    public void openSigFile(int bpd) {
+    public void openSigFile(int datumByteNum) {
         try {
-            sigFile = new RecordFile(getSigFileName(), bpd, "o");
+            sigFile = new RecordFile(getSigFileName(), datumByteNum, "o");
         } catch (IOException e) {
             e.printStackTrace();
             sigFile = null;
@@ -420,46 +469,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     /**
-     * 从服务器端获取满足条件的记录字段信息，保存到本地数据库中。记录信息不包含信号文件数据
-     * @param context
-     * @param num：获取记录数
-     * @param filterStr：过滤的字符串
-     * @param filterTime：过滤的起始时间
-     * @param callback：返回回调
-     */
-    public final void downloadRecordList(Context context, int num, String filterStr, long filterTime, ICodeCallback callback) {
-        new RecordAsyncTask(context, "获取记录中，请稍等。", RecordAsyncTask.CMD_DOWNLOAD_RECORD_LIST, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                JSONArray jsonArr = (JSONArray) response.getContent();
-                if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
-                    for (int i = 0; i < jsonArr.length(); i++) {
-                        try {
-                            JSONObject json = (JSONObject) jsonArr.get(i);
-                            if(json == null) continue;
-                            RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
-                            String ver = json.getString("ver");
-                            long createTime = json.getLong("createTime");
-                            String devAddress = json.getString("devAddress");
-                            int creatorId = json.getInt("creatorId");
-                            BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, creatorId);
-                            if (record != null) {
-                                record.fromJson(json);
-                                record.setNeedUpload(false);
-                                record.saveIfNotExist("createTime = ? and devAddress = ?", "" + record.getCreateTime(), record.getDevAddress());
-                            }
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-                callback.onFinish(code);
-            }
-        }).execute(this);
-    }
-
-    /**
      * 上传记录信息
      * @param context
      * @param callback
@@ -521,9 +530,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
                 if(code == RETURN_CODE_SUCCESS) {
+                    File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+                    if(sigFile.exists()) {
+                        sigFile.delete();
+                    }
+                    LitePal.delete(recordClass, getId());
                     Toast.makeText(context, "记录已删除", Toast.LENGTH_SHORT).show();
                 }
-                LitePal.delete(recordClass, getId());
                 callback.onFinish(code);
             }
         }).execute(this);

@@ -1,10 +1,13 @@
 package com.cmtech.android.bledevice.eeg.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
@@ -13,12 +16,9 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEegView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
-import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
-import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 
 import org.litepal.LitePal;
-
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import org.litepal.crud.callback.FindCallback;
 
 public class EegRecordActivity extends RecordActivity implements OnRollWaveViewListener {
     private RollEegView eegView; // eegView
@@ -33,13 +33,29 @@ public class EegRecordActivity extends RecordActivity implements OnRollWaveViewL
         setContentView(R.layout.activity_record_eeg);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BleEegRecord.class, recordId, true);
-        if(record == null) {
-            setResult(RESULT_CANCELED);
-            finish();
-        } else {
-            initUI();
-        }
+
+        LitePal.findAsync(BleEegRecord.class, recordId, true).listen(new FindCallback<BleEegRecord>() {
+            @Override
+            public void onFinish(BleEegRecord bleEegRecord) {
+                bleEegRecord.openSigFile();
+                if(bleEegRecord.noSignal()) {
+                    bleEegRecord.download(EegRecordActivity.this, code -> {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            bleEegRecord.openSigFile();
+                            bleEegRecord.setRecordSecond(bleEegRecord.getDataNum()/bleEegRecord.getSampleRate());
+                            record = bleEegRecord;
+                            initUI();
+                        } else {
+                            Toast.makeText(EegRecordActivity.this, "记录已损坏。", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    bleEegRecord.setRecordSecond(bleEegRecord.getDataNum()/bleEegRecord.getSampleRate());
+                    record = bleEegRecord;
+                    initUI();
+                }
+            }
+        });
     }
 
 

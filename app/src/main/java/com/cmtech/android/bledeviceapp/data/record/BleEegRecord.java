@@ -2,18 +2,20 @@ package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.util.ListStringUtil;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
+import com.vise.utils.file.FileUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.annotation.Column;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -28,16 +30,26 @@ import java.util.List;
  * Version:        1.0
  */
 public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializable {
+    //-----------------------------------------常量
+    // 记录每个数据的字节数
+    private static final int BYTES_PER_DATUM = 2;
+
     private int sampleRate = 0; // sample rate
     private int caliValue = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
-    private final List<Integer> eegData = new ArrayList<>(); // eeg data
-
-    @Column(ignore = true)
-    private int pos = 0;
 
     private BleEegRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(EEG, ver, createTime, devAddress, creatorId);
+    }
+
+    // 创建信号文件
+    public void createSigFile() {
+        super.createSigFile(BYTES_PER_DATUM);
+    }
+
+    // 打开信号文件
+    public void openSigFile() {
+        super.openSigFile(BYTES_PER_DATUM);
     }
 
     @Override
@@ -46,7 +58,6 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
-        //ListStringUtil.stringToList(json.getString("eegData"), eegData, Integer.class);
     }
 
     @Override
@@ -55,17 +66,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
         json.put("sampleRate", sampleRate);
         json.put("caliValue", caliValue);
         json.put("leadTypeCode", leadTypeCode);
-        json.put("eegData", ListStringUtil.listToString(eegData));
         return json;
-    }
-
-    @Override
-    public boolean noSignal() {
-        return eegData.isEmpty();
-    }
-
-    public List<Integer> getEegData() {
-        return eegData;
     }
 
     @Override
@@ -91,34 +92,74 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     @Override
-    public boolean isEOD() {
-        return (pos >= eegData.size());
-    }
-
-    @Override
-    public void seekData(int pos) {
-        this.pos = pos;
-    }
-
-    @Override
     public int readData() throws IOException {
-        if(pos >= eegData.size()) throw new IOException();
-        return eegData.get(pos++);
-    }
-
-    @Override
-    public int getDataNum() {
-        return eegData.size();
+        if(sigFile == null) throw new IOException();
+        return sigFile.readShort();
     }
 
     public boolean process(int eeg) {
-        eegData.add(eeg);
-        return true;
+        boolean success = false;
+        try {
+            if(sigFile != null) {
+                sigFile.writeShort((short) eeg);
+                success = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return success;
+    }
+
+
+    @Override
+    public void download(Context context, ICodeCallback callback) {
+        File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+        if(!file.exists()) {
+            if(UploadDownloadFileUtil.isFileExist("EEG", getSigFileName())) {
+                UploadDownloadFileUtil.downloadFile(context, "EEG", getSigFileName(), BasicRecord.SIG_FILE_PATH, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if(code==RETURN_CODE_SUCCESS) {
+                            BleEegRecord.super.download(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+            }
+        } else {
+            super.download(context, callback);
+        }
+    }
+
+    @Override
+    public void upload(Context context, ICodeCallback callback) {
+        File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+        if(sigFile.exists()) {
+            if(!UploadDownloadFileUtil.isFileExist("EEG", getSigFileName())) {
+                UploadDownloadFileUtil.uploadFile(context, "EEG", sigFile, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            BleEegRecord.super.upload(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                super.upload(context, callback);
+            }
+        } else {
+            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
+        }
     }
 
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + eegData;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode;
     }
 }

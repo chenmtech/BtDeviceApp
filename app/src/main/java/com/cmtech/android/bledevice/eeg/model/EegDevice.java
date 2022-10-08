@@ -1,8 +1,13 @@
 package com.cmtech.android.bledevice.eeg.model;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -12,23 +17,19 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
+import org.litepal.crud.callback.SaveCallback;
+
 import java.util.Date;
 import java.util.UUID;
 
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.eeg.model
@@ -207,14 +208,23 @@ public class EegDevice extends AbstractDevice {
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
+                eegRecord.createSigFile();
+                eegRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(eegRecord != null) {
-                eegRecord.setCreateTime(new Date().getTime());
-                eegRecord.setRecordSecond(eegRecord.getEegData().size()/sampleRate);
-                eegRecord.save();
-                ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+                int second = eegRecord.getDataNum() / eegRecord.getSampleRate();
+                eegRecord.setRecordSecond(second);
+                eegRecord.saveAsync().listen(new SaveCallback() {
+                    @Override
+                    public void onFinish(boolean success) {
+                        if(success) {
+                            eegRecord.closeSigFile();
+                            ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+                        }
+                    }
+                });
             }
         }
 

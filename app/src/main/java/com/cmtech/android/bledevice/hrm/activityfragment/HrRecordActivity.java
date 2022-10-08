@@ -1,8 +1,10 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+
 import android.graphics.Color;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -13,13 +15,9 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.view.HrHistogramChart;
 import com.cmtech.android.bledeviceapp.view.MyLineChart;
-import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
-import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-
-import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 public class HrRecordActivity extends RecordActivity {
     private EditText etMaxHr; // max HR
@@ -37,6 +35,8 @@ public class HrRecordActivity extends RecordActivity {
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
         record = LitePal.find(BleHrRecord.class, recordId, true);
+        ViseLog.e(record);
+
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();

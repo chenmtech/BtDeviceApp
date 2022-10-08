@@ -2,19 +2,20 @@ package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.PPG;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.util.ListStringUtil;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
+import com.vise.utils.file.FileUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.annotation.Column;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -31,11 +32,10 @@ import java.util.List;
 public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializable {
     //-----------------------------------------常量
     // 记录每个数据的字节数
-    private static final int BYTES_PER_DATUM = 4;
+    private static final int BYTES_PER_DATUM = 2;
 
     private int sampleRate = 0; // sample rate
     private int caliValue = 0; // calibration value
-    //private final List<Integer> ppgData = new ArrayList<>(); // ppg data
 
     private BlePpgRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(PPG, ver, createTime, devAddress, creatorId);
@@ -56,7 +56,6 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
-        //ListStringUtil.stringToList(json.getString("ppgData"), ppgData, Integer.class);
     }
 
     @Override
@@ -64,19 +63,8 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         JSONObject json = super.toJson();
         json.put("sampleRate", sampleRate);
         json.put("caliValue", caliValue);
-        //json.put("ppgData", ListStringUtil.listToString(ppgData));
         return json;
     }
-
-    /*
-    public List<Integer> getPpgData() {
-        return ppgData;
-    }
-
-    public void setPpgData(List<Integer> ppgData) {
-        this.ppgData.addAll(ppgData);
-    }
-    */
 
     @Override
     public int getSampleRate() {
@@ -99,7 +87,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     @Override
     public int readData() throws IOException {
         if(sigFile == null) throw new IOException();
-        return sigFile.readInt();
+        return sigFile.readShort();
     }
 
     public boolean process(int ppg) {
@@ -113,6 +101,52 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
             e.printStackTrace();
         }
         return success;
+    }
+
+    @Override
+    public void download(Context context, ICodeCallback callback) {
+        File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+        if(!file.exists()) {
+            if(UploadDownloadFileUtil.isFileExist("PPG", getSigFileName())) {
+                UploadDownloadFileUtil.downloadFile(context, "PPG", getSigFileName(), BasicRecord.SIG_FILE_PATH, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if(code==RETURN_CODE_SUCCESS) {
+                            BlePpgRecord.super.download(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+            }
+        } else {
+            super.download(context, callback);
+        }
+    }
+
+    @Override
+    public void upload(Context context, ICodeCallback callback) {
+        File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+        if(sigFile.exists()) {
+            if(!UploadDownloadFileUtil.isFileExist("PPG", getSigFileName())) {
+                UploadDownloadFileUtil.uploadFile(context, "PPG", sigFile, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            BlePpgRecord.super.upload(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                super.upload(context, callback);
+            }
+        } else {
+            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
+        }
     }
 
     @NonNull

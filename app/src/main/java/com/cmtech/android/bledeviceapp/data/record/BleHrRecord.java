@@ -32,8 +32,8 @@ import java.util.List;
 public class BleHrRecord extends BasicRecord implements Serializable {
     public static final int HR_MA_FILTER_SPAN = 10; // unit: second
 
-    private final List<Short> hrList = new ArrayList<>();; // filtered HR list
-    private final List<Integer> hrHist = new ArrayList<>();; // HR histogram value
+    private final List<Short> hrList = new ArrayList<>(); // filtered HR list
+    private final List<Integer> hrHist = new ArrayList<>(); // HR histogram value
     private short hrMax = INVALID_HEART_RATE; // HR max
     private short hrAve = INVALID_HEART_RATE; // HR average
 
@@ -69,7 +69,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
         ListStringUtil.stringToList(json.getString("hrList"), hrList, Short.class);
         hrMax = (short)json.getInt("hrMax");
         hrAve = (short)json.getInt("hrAve");
-        //ListStringUtil.stringToList(json.getString("hrHist"), hrHist, Integer.class);
+        ListStringUtil.stringToList(json.getString("hrHist"), hrHist, Integer.class);
 
         createHistogramFromHrHist();
     }

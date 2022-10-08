@@ -275,20 +275,4 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
     }
 
-    @Override
-    public void delete(Context context, ICodeCallback callback) {
-        ICodeCallback cb = new ICodeCallback() {
-            @Override
-            public void onFinish(int code) {
-                if(code==RETURN_CODE_SUCCESS) {
-                    File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
-                    if(sigFile.exists()) {
-                        sigFile.delete();
-                    }
-                }
-                callback.onFinish(code);
-            }
-        };
-        super.delete(context, cb);
-    }
 }

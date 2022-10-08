@@ -14,20 +14,20 @@ public class RecordFile {
     private RandomAccessFile raf;
 
     // 记录中每个数据占用的字节数bytes per datum
-    private final int bpd;
+    private final int datumByteNum;
 
     // 包含的数据个数
     private int size;
 
-    public RecordFile(String fileName, int bpd, String mode) throws IOException {
-        this.bpd = bpd;
+    public RecordFile(String fileName, int datumByteNum, String mode) throws IOException {
+        this.datumByteNum = datumByteNum;
 
         // 打开文件
         if(mode.equals("o")) {
             File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, fileName);
             if (file.exists() && file.renameTo(file)) {
                 raf = new RandomAccessFile(file, "r");
-                size = (int) (raf.length() / bpd);
+                size = (int) (raf.length() / datumByteNum);
             } else {
                 throw new IOException("The file can't be opened.");
             }
@@ -91,7 +91,7 @@ public class RecordFile {
 
     // 文件指针定位到某个数据
     public void seekData(int pos) throws IOException {
-        raf.seek((long) pos * bpd);
+        raf.seek((long) pos * datumByteNum);
     }
 
     // 文件是否为空
@@ -101,7 +101,7 @@ public class RecordFile {
 
     // 获取当前文件指针指向的数据位置
     public int getCurrentPos() throws IOException{
-        return (int) (raf.getFilePointer() / bpd);
+        return (int) (raf.getFilePointer() / datumByteNum);
     }
 
     // 关闭文件

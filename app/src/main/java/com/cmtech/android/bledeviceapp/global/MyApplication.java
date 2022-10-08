@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.global;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -17,8 +19,6 @@ import com.vise.log.inner.LogcatTree;
 import org.litepal.LitePal;
 
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 
 /**
  * MyApplication
