@@ -1,8 +1,12 @@
 package com.cmtech.android.bledevice.ptt.model;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Pair;
 import android.widget.Toast;
 
@@ -24,15 +28,10 @@ import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
 import org.litepal.LitePal;
+import org.litepal.crud.callback.SaveCallback;
 
 import java.util.Date;
 import java.util.UUID;
-
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -193,14 +192,23 @@ public class PttDevice extends AbstractDevice {
                 pttRecord.setSampleRate(sampleRate);
                 pttRecord.setEcgCaliValue(DEFAULT_ECG_CALI);
                 pttRecord.setPpgCaliValue(DEFAULT_PPG_CALI);
+                pttRecord.createSigFile();
+                pttRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(pttRecord != null) {
-                pttRecord.setCreateTime(new Date().getTime());
-                pttRecord.setRecordSecond(pttRecord.getEcgData().size()/sampleRate);
-                pttRecord.save();
-                ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+                int second = pttRecord.getDataNum() / pttRecord.getSampleRate();
+                pttRecord.setRecordSecond(second);
+                pttRecord.saveAsync().listen(new SaveCallback() {
+                    @Override
+                    public void onFinish(boolean success) {
+                        if (success) {
+                            pttRecord.closeSigFile();
+                            ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+                        }
+                    }
+                });
             }
         }
 

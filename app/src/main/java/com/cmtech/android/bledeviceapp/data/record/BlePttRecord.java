@@ -2,18 +2,20 @@ package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.util.ListStringUtil;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
+import com.vise.utils.file.FileUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.annotation.Column;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -28,17 +30,26 @@ import java.util.List;
  * Version:        1.0
  */
 public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializable {
+    //-----------------------------------------常量
+    // 记录每个数据的字节数
+    private static final int BYTES_PER_DATUM = 2;
+
     private int sampleRate = 0; // sample rate
     private int ecgCaliValue = 0; // ecg calibration value
-    private final List<Short> ecgData = new ArrayList<>(); // ecg data
     private int ppgCaliValue = 0; // ppg calibration value
-    private final List<Integer> ppgData = new ArrayList<>(); // ppg data
-
-    @Column(ignore = true)
-    private int pos = 0;
 
     private BlePttRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(PTT, ver, createTime, devAddress, creatorId);
+    }
+
+    // 创建信号文件
+    public void createSigFile() {
+        super.createSigFile(BYTES_PER_DATUM);
+    }
+
+    // 打开信号文件
+    public void openSigFile() {
+        super.openSigFile(BYTES_PER_DATUM);
     }
 
     @Override
@@ -46,9 +57,7 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
         ecgCaliValue = json.getInt("ecgCaliValue");
-        //ListStringUtil.stringToList(json.getString("ecgData"), ecgData, Short.class);
         ppgCaliValue = json.getInt("ppgCaliValue");
-        //ListStringUtil.stringToList(json.getString("ppgData"), ppgData, Integer.class);
     }
 
     @Override
@@ -56,23 +65,8 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
         JSONObject json = super.toJson();
         json.put("sampleRate", sampleRate);
         json.put("ecgCaliValue", ecgCaliValue);
-        json.put("ecgData", ListStringUtil.listToString(ecgData));
         json.put("ppgCaliValue", ppgCaliValue);
-        json.put("ppgData", ListStringUtil.listToString(ppgData));
         return json;
-    }
-
-    @Override
-    public boolean noSignal() {
-        return ecgData.isEmpty() || ppgData.isEmpty();
-    }
-
-    public List<Short> getEcgData() {
-        return ecgData;
-    }
-
-    public List<Integer> getPpgData() {
-        return ppgData;
     }
 
     @Override
@@ -110,44 +104,74 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     @Override
-    public boolean isEOD() {
-        return (pos >= ppgData.size() || pos >= ecgData.size());
-    }
-
-    @Override
-    public void seekData(int pos) {
-        this.pos = pos;
-    }
-
-    @Override
     public int readData() throws IOException {
-        throw new IOException();
-    }
-
-    public int readEcgData() throws IOException {
-        if(pos >= ecgData.size()) throw new IOException();
-        return ecgData.get(pos++);
-    }
-
-    public int readPpgData() throws IOException {
-        if(pos >= ppgData.size()) throw new IOException();
-        return ppgData.get(pos++);
-    }
-
-    @Override
-    public int getDataNum() {
-        return ppgData.size();
+        if(sigFile == null) throw new IOException();
+        return sigFile.readInt();
     }
 
     public boolean process(int ecg, int ppg) {
-        ecgData.add((short)ecg);
-        ppgData.add(ppg);
-        return true;
+        boolean success = false;
+        try {
+            if(sigFile != null) {
+                sigFile.writeShort((short) ecg);
+                sigFile.writeShort((short) ppg);
+                success = true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return success;
+    }
+
+    @Override
+    public void download(Context context, ICodeCallback callback) {
+        File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+        if(!file.exists()) {
+            if(UploadDownloadFileUtil.isFileExist("PTT", getSigFileName())) {
+                UploadDownloadFileUtil.downloadFile(context, "PTT", getSigFileName(), BasicRecord.SIG_FILE_PATH, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if(code==RETURN_CODE_SUCCESS) {
+                            BlePttRecord.super.download(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+            }
+        } else {
+            super.download(context, callback);
+        }
+    }
+
+    @Override
+    public void upload(Context context, ICodeCallback callback) {
+        File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+        if(sigFile.exists()) {
+            if(!UploadDownloadFileUtil.isFileExist("PTT", getSigFileName())) {
+                UploadDownloadFileUtil.uploadFile(context, "PTT", sigFile, new ICodeCallback() {
+                    @Override
+                    public void onFinish(int code) {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            BlePttRecord.super.upload(context, callback);
+                        } else {
+                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        }
+                    }
+                });
+            } else {
+                super.upload(context, callback);
+            }
+        } else {
+            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
+        }
     }
 
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + ecgCaliValue + "-" + ecgData + "-" + ppgCaliValue + "-" + ppgData;
+        return super.toString() + "-" + sampleRate + "-" + ecgCaliValue + "-" + ppgCaliValue;
     }
 }

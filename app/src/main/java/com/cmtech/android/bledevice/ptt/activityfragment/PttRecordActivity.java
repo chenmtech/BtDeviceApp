@@ -1,11 +1,13 @@
 package com.cmtech.android.bledevice.ptt.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
@@ -22,6 +24,7 @@ import com.cmtech.android.bledeviceapp.view.RollPpgView;
 import com.cmtech.android.bledeviceapp.view.RollWaveView;
 
 import org.litepal.LitePal;
+import org.litepal.crud.callback.FindCallback;
 
 public class PttRecordActivity extends RecordActivity implements OnRollWaveViewListener {
     private RollEcgView ecgView; // ecgView
@@ -37,13 +40,29 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         setContentView(R.layout.activity_record_ptt);
 
         int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
-        record = LitePal.find(BlePttRecord.class, recordId, true);
-        if(record == null) {
-            setResult(RESULT_CANCELED);
-            finish();
-        } else {
-            initUI();
-        }
+
+        LitePal.findAsync(BlePttRecord.class, recordId, true).listen(new FindCallback<BlePttRecord>() {
+            @Override
+            public void onFinish(BlePttRecord blePttRecord) {
+                blePttRecord.openSigFile();
+                if(blePttRecord.noSignal()) {
+                    blePttRecord.download(PttRecordActivity.this, code -> {
+                        if (code == RETURN_CODE_SUCCESS) {
+                            blePttRecord.openSigFile();
+                            blePttRecord.setRecordSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());
+                            record = blePttRecord;
+                            initUI();
+                        } else {
+                            Toast.makeText(PttRecordActivity.this, "记录已损坏。", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    blePttRecord.setRecordSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());
+                    record = blePttRecord;
+                    initUI();
+                }
+            }
+        });
     }
 
     public void initUI() {

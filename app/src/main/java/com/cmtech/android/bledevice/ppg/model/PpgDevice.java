@@ -67,7 +67,7 @@ public class PpgDevice extends AbstractDevice {
 
     private OnPpgListener listener; // device listener
 
-    private BlePpgRecord record;
+    private BlePpgRecord ppgRecord;
     private boolean isRecording = false; // is recording
 
     public PpgDevice(Context context, DeviceCommonInfo registerInfo) {
@@ -172,28 +172,28 @@ public class PpgDevice extends AbstractDevice {
 
         isRecording = isRecord;
         if(isRecord) {
-            this.record = (BlePpgRecord) RecordFactory.create(PPG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
-            if(this.record != null) {
-                this.record.setSampleRate(sampleRate);
-                this.record.setCaliValue(caliValue);
-                this.record.createSigFile();
-                this.record.save();
+            ppgRecord = (BlePpgRecord) RecordFactory.create(PPG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
+            if(ppgRecord != null) {
+                ppgRecord.setSampleRate(sampleRate);
+                ppgRecord.setCaliValue(caliValue);
+                ppgRecord.createSigFile();
+                ppgRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
-            if(this.record == null) return;
-
-            int second = this.record.getDataNum() / this.record.getSampleRate();
-            this.record.setRecordSecond(second);
-            this.record.saveAsync().listen(new SaveCallback() {
-                @Override
-                public void onFinish(boolean success) {
-                    if(success) {
-                        PpgDevice.this.record.closeSigFile();
-                        ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+            if(ppgRecord != null) {
+                int second = ppgRecord.getDataNum() / ppgRecord.getSampleRate();
+                ppgRecord.setRecordSecond(second);
+                ppgRecord.saveAsync().listen(new SaveCallback() {
+                    @Override
+                    public void onFinish(boolean success) {
+                        if (success) {
+                            ppgRecord.closeSigFile();
+                            ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         if(listener != null) {
@@ -208,10 +208,10 @@ public class PpgDevice extends AbstractDevice {
     }
 
     public void recordPpgSignal(int ppgSignal) {
-        if(isRecording && record != null) {
-            record.process(ppgSignal);
-            if(record.getDataNum() % sampleRate == 0 && listener != null) {
-                int second = record.getDataNum()/sampleRate;
+        if(isRecording && ppgRecord != null) {
+            ppgRecord.process(ppgSignal);
+            if(ppgRecord.getDataNum() % sampleRate == 0 && listener != null) {
+                int second = ppgRecord.getDataNum()/sampleRate;
                 listener.onPpgSignalRecordTimeUpdated(second);
                 if(second >= PPG_RECORD_MAX_SECOND) {
                     setRecord(false);
