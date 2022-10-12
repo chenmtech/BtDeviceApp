@@ -61,10 +61,11 @@ import ai.onnxruntime.OrtSession;
  * Version:        1.0
  */
 public class HrmDevice extends AbstractDevice {
+    //----------------------------------------------------常量
     // 无效心率值
     public static final short INVALID_HEART_RATE = -1;
 
-    // 心率最短记录时间：秒
+    // 心率记录最短时间：秒。在记录心率时，如果时长小于该值，就不会保存
     private static final int HR_RECORD_MIN_SECOND = 5;
 
     // 缺省1mV标定值
@@ -82,17 +83,20 @@ public class HrmDevice extends AbstractDevice {
     // 设备工作模式：心电模式
     private static final byte ECG_MODE = (byte)0x01;
 
-    // heart rate measurement service
-    private static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
+    //--------------------------------------------设备用到的蓝牙相关常量
+    // 心率测量的服务和特征值UUID字符串，数值见蓝牙相关协议文档
+    public static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
     private static final String hrMonitorMeasUuid = "2A37"; // 心率测量特征UUID
     private static final String hrMonitorSensLocUuid = "2A38"; // 测量位置UUID
     private static final String hrMonitorCtrlPtUuid = "2A39"; // 控制点UUID
 
+    // 心率测量的服务和特征值UUID
     private static final UUID hrMonitorServiceUUID = UuidUtil.stringToUUID(hrMonitorServiceUuid, STANDARD_BLE_UUID);
     private static final UUID hrMonitorMeasUUID = UuidUtil.stringToUUID(hrMonitorMeasUuid, STANDARD_BLE_UUID);
     private static final UUID hrMonitorSensLocUUID = UuidUtil.stringToUUID(hrMonitorSensLocUuid, STANDARD_BLE_UUID);
     private static final UUID hrMonitorCtrlPtUUID = UuidUtil.stringToUUID(hrMonitorCtrlPtUuid, STANDARD_BLE_UUID);
 
+    // 心率测量GATT Element, 见蓝牙相关协议文档
     private static final BleGattElement HRMONITORMEAS =
             new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasUUID, null, "heart rate measurement");
     private static final BleGattElement HRMONITORMEASCCC =
@@ -102,21 +106,26 @@ public class HrmDevice extends AbstractDevice {
     private static final BleGattElement HRMONITORCTRLPT =
             new BleGattElement(hrMonitorServiceUUID, hrMonitorCtrlPtUUID, null, "control point for energy expire");
 
-    // battery service
+    // 电池服务和特征值UUID字符串，数值见蓝牙相关协议文档
     private static final String battServiceUuid = "180F";
     private static final String battLevelUuid = "2A19";
+
+    // 电池服务和特征值UUID
     private static final UUID battServiceUUID = UuidUtil.stringToUUID(battServiceUuid, STANDARD_BLE_UUID);
     private static final UUID battLevelUUID = UuidUtil.stringToUUID(battLevelUuid, STANDARD_BLE_UUID);
+
+    // 电池GATT Element, 见蓝牙相关协议文档
     private static final BleGattElement BATTLEVEL = new BleGattElement(battServiceUUID, battLevelUUID, null, "Battery Level");
     private static final BleGattElement BATTLEVELCCC = new BleGattElement(battServiceUUID, battLevelUUID, CCC_UUID, "Battery Level CCC");
 
-    // ecg service
+    // 心电服务和特征值，该服务和特征值由我自己定义
     private static final String ecgServiceUuid = "AA40";
     private static final String ecgMeasUuid = "AA41";
     private static final String ecg1mVCaliUuid = "AA42";
     private static final String ecgSampleRateUuid = "AA43";
     private static final String ecgLeadTypeUuid = "AA44";
     private static final String modeStatusUuid = "AA45";
+
     private static final UUID ecgServiceUUID = UuidUtil.stringToUUID(ecgServiceUuid, MY_BASE_UUID);
     private static final UUID ecgMeasUUID = UuidUtil.stringToUUID(ecgMeasUuid, MY_BASE_UUID);
     private static final UUID ecg1mVCaliUUID = UuidUtil.stringToUUID(ecg1mVCaliUuid, MY_BASE_UUID);
@@ -131,40 +140,98 @@ public class HrmDevice extends AbstractDevice {
     private static final BleGattElement ECGLEADTYPE = new BleGattElement(ecgServiceUUID, ecgLeadTypeUUID, null, "ECG Lead Type");
     private static final BleGattElement MODESTATUS = new BleGattElement(ecgServiceUUID, modeStatusUUID, null, "Work Mode Status");
 
+    //------------------------------------------------------实例变量
+    // 采样率，单位Hz
+    private int sampleRate = DEFAULT_SAMPLE_RATE;
 
-    private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
+    // 1mV标定值
     private int caliValue = DEFAULT_CALI_1MV; // 1mV calibration value
-    private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
 
-    private boolean battService = false; // does it include battery service?
-    private boolean hrMode = true; // does it work in HR Mode?
+    // ECG导联类型
+    private EcgLeadType leadType = DEFAULT_LEAD_TYPE;
 
-    // HR记录状态
-    private boolean hrRecordStatus = false; // is HR being recorded
+    // 该设备是否包含电池服务
+    private boolean battService = false;
+
+    // 设备是否工作在心率模式
+    private boolean hrMode = true;
+
+    // HR心率记录状态
+    private boolean hrRecordStatus = false;
 
     // ECG信号记录状态
-    private boolean ecgRecordStatus = false; // is ECG being recorded
+    private boolean ecgRecordStatus = false;
 
-    private boolean ecgOn = false; // is ecg function on
+    // 心电功能是否已启动
+    private boolean ecgOn = false;
 
-    private final HrmCfg config; // HRM device configuration
-    private final HRSpeaker speaker = new HRSpeaker(); // HR Speaker
+    // HRM设备配置
+    private final HrmCfg config;
 
-    // ECG数据处理器
-    private EcgDataProcessor ecgDataProcessor;
+    // 心率播报器
+    private final HRSpeaker speaker = new HRSpeaker();
 
-    private BleHrRecord hrRecord; // HR record
-    private BleEcgRecord ecgRecord; // ECG record
+    // ECG数据包解析器
+    private EcgDataPacketParser ecgDataPacketParser;
 
-    private OnHrmListener listener; // HRM device listener
+    // 心率记录
+    private BleHrRecord hrRecord;
+
+    // 心电信号记录
+    private BleEcgRecord ecgRecord;
+
+    // HRM设备监听器
+    private OnHrmListener listener;
 
     // QRS波检测器，可以用来得到RR间隔或心率值
     private QrsDetector qrsDetector;
 
-    private OrtSession abnormalDetector;
+    // 心律检测器，由一个ORT机器学习模型构建ORT会话，由该会话来完成心律异常检测
+    private OrtSession rhythmDetector;
 
+    //-----------------------------------------------静态类
+    // 心率播报器类
+    private static class HRSpeaker {
+        private volatile boolean on = false;
+        private long speakPeriod = 0; // 播报周期，ms
+        private volatile long lastSpeakTime = 0; // 上次播报时间
+
+        public void start(int periodS) {
+            speakPeriod = periodS*60000L;
+            lastSpeakTime = new Date().getTime();
+            on = true;
+        }
+
+        public void stop() {
+            on = false;
+        }
+
+        public void speak(int hr) {
+            if(on) {
+                long currentTime = new Date().getTime();
+                if ((currentTime - lastSpeakTime) > speakPeriod) {
+                    String currentHr = MyApplication.getStr(R.string.current_hr) + hr;
+                    String currentStr = "现在时间" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "点"
+                            + Calendar.getInstance().get(Calendar.MINUTE) + "分";
+                    MyApplication.getTts().speak(currentHr + currentStr);
+                    lastSpeakTime = currentTime;
+                    ViseLog.e("speak: " + hr);
+                }
+            }
+        }
+    }
+
+    //---------------------------------------------------------构造器
+
+    /**
+     * HRM设备构造器
+     * @param context：上下文
+     * @param registerInfo：设备的注册信息
+     */
     public HrmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
+
+        // 获取或产生设备配置
         HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
         if (config == null) {
             config = new HrmCfg();
@@ -174,49 +241,72 @@ public class HrmDevice extends AbstractDevice {
         this.config = config;
     }
 
-    // 设置心率记录状态
+    //---------------------------------------------------公有方法
+
+    /**
+     * 设置心率记录状态
+     * @param record: 是否开始记录。true-开始记录，false-停止记录
+     */
     public void setHrRecord(boolean record) {
         if(this.hrRecordStatus == record) return;
 
         this.hrRecordStatus = record;
+        // 开始记录
         if(record) {
             hrRecord = (BleHrRecord) RecordFactory.create(HR, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
             if(listener != null && hrRecord != null) {
                 listener.onHRStatisticInfoUpdated(hrRecord);
                 Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
             }
-        } else {
+        }
+        // 停止记录
+        else {
             if(hrRecord != null) {
+                // 心率记录时长不够
                 if (hrRecord.getHrList().size() < HR_RECORD_MIN_SECOND) {
                     Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
-                } else {
-                    hrRecord.setCreateTime(new Date().getTime());
+                }
+                // 记录时长已够
+                else {
+                    //hrRecord.setCreateTime(new Date().getTime());
+
+                    // 生成心率区间直方图
                     hrRecord.getHrHist().clear();
                     for(int i = 0; i < hrRecord.getHrHistogram().size(); i++) {
                         hrRecord.getHrHist().add(hrRecord.getHrHistogram().get(i).getValue());
                     }
+
+                    // 获取总的记录时长
                     int sum = 0;
                     for(int num : hrRecord.getHrHist()) {
                         sum += num;
                     }
+
                     hrRecord.setRecordSecond(sum);
                     hrRecord.save();
                     Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
             }
         }
-        if(hrRecord != null) {
+
+        /*if(hrRecord != null) {
             ViseLog.e(hrRecord);
-        }
+        }*/
+
+        // 通知监听器更新心率记录状态
         if(listener != null) {
             listener.onHrRecordStatusUpdated(this.hrRecordStatus);
         }
     }
 
-    // 设置ECG信号记录状态
+    /**
+     * 设置ECG信号记录状态
+     * @param record: 是否开始记录。true-开始记录，false-停止记录
+     */
     public void setEcgRecord(boolean record) {
         if(this.ecgRecordStatus == record) return;
 
+        // 当请求开始记录心电，但是设备的心电功能没有启动，则不允许开始记录心电
         if(record && !ecgOn) {
             ThreadUtil.showToastInMainThread(getContext(), R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT);
             if(listener != null) {
@@ -226,6 +316,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         this.ecgRecordStatus = record;
+        // 开始记录
         if(record) {
             ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
             if(ecgRecord != null) {
@@ -237,7 +328,9 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
-        } else {
+        }
+        // 停止记录
+        else {
             if(ecgRecord != null) {
                 int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 ecgRecord.setRecordSecond(second);
@@ -250,39 +343,112 @@ public class HrmDevice extends AbstractDevice {
                         }
                     }
                 });
-
-                /*new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
-
-                        ecgRecord.localDiagnose();
-
-                        ThreadUtil.showToastInMainThread(getContext(), "报告已生成，请到记录列表中查看。", Toast.LENGTH_SHORT);
-                    }
-                }).start();*/
             }
         }
+
+        // 通知监听器，心电信号记录状态已更新
         if(listener != null) {
             listener.onEcgSignalRecordStatusUpdated(this.ecgRecordStatus);
         }
     }
 
-    // 记录一个心电信号数据
+    /**
+     * 设置设备工作模式
+     * @param isHrMode: 设置是否工作于心率模式，true-设置心率模式，false-设置心电模式
+     */
+    public void setMode(final boolean isHrMode) {
+        if(this.hrMode == isHrMode) return;
+
+        byte data = (isHrMode) ? HR_MODE : ECG_MODE;
+
+        ((BleConnector) connector).write(MODESTATUS, data, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                HrmDevice.this.hrMode = isHrMode;
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+            }
+        });
+    }
 
     /**
-     * 处理获取的一个心电信号值
-     * 包括记录信号值和进行信号处理
+     * 设置是否启动心电功能
+     * @param ecgOn：是否启动心电功能，true-启动，false-停止
+     */
+    public void setEcgOn(boolean ecgOn) {
+        // 如果设备工作在心率模式，则操作无效
+        if(hrMode) {
+            if(listener != null)
+                listener.onEcgOnStatusUpdated(false);
+            return;
+        }
+
+        // 如果想停止心电，但是此时正在记录心电，则操作无效
+        if(!ecgOn && ecgRecordStatus) {
+            ThreadUtil.showToastInMainThread(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT);
+            if(listener != null) listener.onEcgOnStatusUpdated(true);
+            return;
+        }
+
+        this.ecgOn = ecgOn;
+        // 启动心电功能
+        if(ecgOn) {
+            IBleDataCallback notifyCallback = new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    ecgDataPacketParser.parse(data);
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            };
+            ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
+        }
+        // 停止心电功能
+        else {
+            if(ecgDataPacketParser != null)
+                ecgDataPacketParser.stop();
+
+            ((BleConnector)connector).notify(ECGMEASCCC, false, null);
+        }
+
+        // 通知监听器，更新心电功能状态
+        if(listener != null) {
+            listener.onEcgOnStatusUpdated(this.ecgOn);
+        }
+    }
+
+    /**
+     * 显示一个心电信号值
+     * @param ecgSignal：一个心电信号值
+     */
+    public void showEcgSignal(int ecgSignal) {
+        if(!MyApplication.isRunInBackground()) {
+            if (listener != null) {
+                listener.onEcgSignalShowed(ecgSignal);
+            }
+        }
+    }
+
+    /**
+     * 处理一个心电信号值，包括记录信号值和进行信号处理
      * @param ecgSignal：得到的一个心电信号值
      */
     public void processEcgSignal(int ecgSignal) {
-        // 先处理记录事项
+        // 先记录信号
         if(ecgRecordStatus && ecgRecord != null) {
             ecgRecord.record((short)ecgSignal);
+
+            // 每记录一秒钟，就修改一次心电记录时间值
             if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
                 int second = ecgRecord.getDataNum()/sampleRate;
                 listener.onEcgRecordTimeUpdated(second);
-                // 每记录一分钟就自动保存一次，防止数据异常丢失
+
+                // 每记录一分钟就自动保存一次记录，防止数据异常丢失太多
                 if(second % 60 == 0) {
                     ecgRecord.setRecordSecond(second);
                     ecgRecord.save();
@@ -290,11 +456,11 @@ public class HrmDevice extends AbstractDevice {
             }
         }
 
-        // 再处理信号处理事项
+        // 再处理信号
         if(qrsDetector != null) {
             int rrInterval = qrsDetector.outputRRInterval(ecgSignal);
 
-            if(abnormalDetector != null && rrInterval != 0) {
+            if(rhythmDetector != null && rrInterval != 0) {
                 ViseLog.e("RRInterval:" + rrInterval);
                 Random random = new Random();
                 float[][] d = new float[1][64];
@@ -304,7 +470,7 @@ public class HrmDevice extends AbstractDevice {
                     OnnxTensor t = OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), d);
                     Map<String, OnnxTensor> inputs = new HashMap<>();
                     inputs.put("input_x", t);
-                    OrtSession.Result rlt = abnormalDetector.run(inputs);
+                    OrtSession.Result rlt = rhythmDetector.run(inputs);
                     long[] output = (long[]) rlt.get(0).getValue();
                     ViseLog.e("output:"+output[0]);
                 } catch (OrtException e) {
@@ -314,62 +480,6 @@ public class HrmDevice extends AbstractDevice {
         }
     }
 
-    public void setMode(final boolean workInHrMode) {
-        if(this.hrMode == workInHrMode) return;
-
-        byte data = (workInHrMode) ? HR_MODE : ECG_MODE;
-
-        ((BleConnector) connector).write(MODESTATUS, data, new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                HrmDevice.this.hrMode = workInHrMode;
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-            }
-        });
-    }
-
-    public void setEcgOn(boolean ecgOn) {
-        if(hrMode) {
-            if(listener != null)
-                listener.onEcgOnStatusUpdated(false);
-            return;
-        }
-
-        if(ecgRecordStatus && !ecgOn) {
-            ThreadUtil.showToastInMainThread(getContext(), R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT);
-            if(listener != null) listener.onEcgOnStatusUpdated(true);
-            return;
-        }
-
-        //((BleConnector)connector).notify(ECGMEASCCC, false, null);
-
-        this.ecgOn = ecgOn;
-        if(ecgOn) {
-            IBleDataCallback notifyCallback = new IBleDataCallback() {
-                @Override
-                public void onSuccess(byte[] data, BleGattElement element) {
-                    ecgDataProcessor.processData(data);
-                }
-
-                @Override
-                public void onFailure(BleException exception) {
-
-                }
-            };
-            ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
-        } else {
-            if(ecgDataProcessor != null)
-                ecgDataProcessor.stop();
-
-            ((BleConnector)connector).notify(ECGMEASCCC, false, null);
-        }
-        if(listener != null) {
-            listener.onEcgOnStatusUpdated(this.ecgOn);
-        }
-    }
 
     @Override
     public void open() {
@@ -391,10 +501,10 @@ public class HrmDevice extends AbstractDevice {
         if(speaker != null)
             speaker.stop();
 
-        if(abnormalDetector != null) {
+        if(rhythmDetector != null) {
             try {
-                abnormalDetector.close();
-                abnormalDetector = null;
+                rhythmDetector.close();
+                rhythmDetector = null;
             } catch (OrtException e) {
                 e.printStackTrace();
             }
@@ -453,8 +563,8 @@ public class HrmDevice extends AbstractDevice {
 
     @Override
     public void onConnectFailure() {
-        if(ecgDataProcessor != null) {
-            ecgDataProcessor.stop();
+        if(ecgDataPacketParser != null) {
+            ecgDataPacketParser.stop();
         }
 
         speaker.stop();
@@ -468,8 +578,8 @@ public class HrmDevice extends AbstractDevice {
 
     @Override
     public void onDisconnect() {
-        if(ecgDataProcessor != null) {
-            ecgDataProcessor.stop();
+        if(ecgDataPacketParser != null) {
+            ecgDataPacketParser.stop();
         }
 
         speaker.stop();
@@ -514,20 +624,8 @@ public class HrmDevice extends AbstractDevice {
         return caliValue;
     }
 
-    public final boolean inHrMode() {
+    public final boolean isHrMode() {
         return hrMode;
-    }
-
-    public boolean isEcgOn() {
-        return ecgOn;
-    }
-
-    public boolean isEcgRecording() {
-        return ecgRecordStatus;
-    }
-
-    public final boolean isHrRecording() {
-        return hrRecordStatus;
     }
 
     public final HrmCfg getConfig() {
@@ -555,36 +653,6 @@ public class HrmDevice extends AbstractDevice {
         this.listener = null;
     }
 
-
-    private static class HRSpeaker {
-        private volatile boolean on = false;
-        private long speakPeriod = 0; // 播报周期，ms
-        private volatile long lastSpeakTime = 0; // 上次播报时间
-
-        public void start(int periodS) {
-            speakPeriod = periodS*60000L;
-            lastSpeakTime = new Date().getTime();
-            on = true;
-        }
-
-        public void stop() {
-            on = false;
-        }
-
-        public void speak(int hr) {
-            if(on) {
-                long currentTime = new Date().getTime();
-                if ((currentTime - lastSpeakTime) > speakPeriod) {
-                    String currentHr = MyApplication.getStr(R.string.current_hr) + hr;
-                    String currentStr = "现在时间" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "点"
-                            + Calendar.getInstance().get(Calendar.MINUTE) + "分";
-                    MyApplication.getTts().speak(currentHr + currentStr);
-                    lastSpeakTime = currentTime;
-                    ViseLog.e("speak: " + hr);
-                }
-            }
-        }
-    }
 
     private void readSensorLocation() {
         ((BleConnector)connector).read(HRMONITORSENSLOC, new IBleDataCallback() {
@@ -715,15 +783,15 @@ public class HrmDevice extends AbstractDevice {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 // 生成并启动心电数据处理器
-                ecgDataProcessor = new EcgDataProcessor(HrmDevice.this);
-                ecgDataProcessor.start();
+                ecgDataPacketParser = new EcgDataPacketParser(HrmDevice.this);
+                ecgDataPacketParser.start();
 
                 // 生成QRS波检测器
                 qrsDetector = new QrsDetector(sampleRate);
 
                 // 启动心律异常检测器
-                if(abnormalDetector == null) {
-                    abnormalDetector = createOrtSession(R.raw.gausnb_digit_model);
+                if(rhythmDetector == null) {
+                    rhythmDetector = createOrtSession(R.raw.gausnb_digit_model);
                 }
 
                 // 更新设备监听器
@@ -778,32 +846,29 @@ public class HrmDevice extends AbstractDevice {
     }
 
     /**
-     * 让设备监听器显示一个心电信号值
-     * @param ecgSignal：一个心电信号值
-     */
-    public void showEcgSignal(int ecgSignal) {
-        if(!MyApplication.isRunInBackground()) {
-            if (listener != null) {
-                listener.onEcgSignalShowed(ecgSignal);
-            }
-        }
-    }
-
-    /**
      * 创建一个ORT模型的会话，该模型用来实现心律异常诊断
      * @param modelId：模型资源ID
      * @return：ORT会话
      */
     private OrtSession createOrtSession(int modelId){
+        BufferedInputStream buf = null;
         try {
             InputStream inputStream = getContext().getResources().openRawResource(modelId);
             byte[] modelOrt = new byte[inputStream.available()];
-            BufferedInputStream buf = new BufferedInputStream((inputStream));
-            buf.read(modelOrt, 0, modelOrt.length);
-            buf.close();
-            return OrtEnvironment.getEnvironment().createSession(modelOrt);
+            buf = new BufferedInputStream((inputStream));
+            int readLen = buf.read(modelOrt, 0, modelOrt.length);
+            if(readLen == modelOrt.length)
+                return OrtEnvironment.getEnvironment().createSession(modelOrt);
         } catch (OrtException | IOException e) {
             e.printStackTrace();
+        } finally {
+            if(buf != null) {
+                try {
+                    buf.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
     }

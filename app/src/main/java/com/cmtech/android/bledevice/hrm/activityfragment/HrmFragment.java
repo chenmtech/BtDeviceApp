@@ -110,7 +110,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         .setMessage(R.string.reconnect_after_disconnect)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                device.setMode(!device.inHrMode());
+                                device.setMode(!device.isHrMode());
                             }
                         }).show();
             }
@@ -175,7 +175,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                 @Override
                 public void run() {
                     int bpm = hrData.getBpm();
-                    if(device.inHrMode()) {
+                    if(device.isHrMode()) {
                         tvHrInHrMode.setText(String.valueOf(bpm));
                     } else {
                         tvHrInEcgMode.setText(String.valueOf(bpm));

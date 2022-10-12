@@ -47,7 +47,7 @@ public abstract class DeviceFactory {
 
         DeviceFactory factory;
         try {
-            Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(DeviceCommonInfo.class);
+            Constructor<?> constructor = Class.forName(factoryClassName).getDeclaredConstructor(DeviceCommonInfo.class);
             constructor.setAccessible(true);
             factory = (DeviceFactory) constructor.newInstance(info);
         } catch (Exception e) {
