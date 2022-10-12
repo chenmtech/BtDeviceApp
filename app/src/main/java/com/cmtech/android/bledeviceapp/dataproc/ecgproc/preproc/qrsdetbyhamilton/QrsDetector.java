@@ -69,7 +69,9 @@ public class QrsDetector {
 	private int lastDatum = 0;
 	
 	int RRCount = 0;
-	boolean firstPeak = true; // does the first peak occur
+
+    // 如果找到R波，是否是第一个
+	boolean firstPeak = true;
 	
 	public QrsDetector(int sampleRate) {
 		this.sampleRate = sampleRate;
@@ -121,9 +123,13 @@ public class QrsDetector {
 		RRCount = 0;
 		firstPeak = true;
 	}
-	
-	// input one datum
-	// return HR value if a QRS wave is detected, or 0
+
+    /**
+     * 计算心电信号的心率值
+     * @param datum：输入一个心电信号
+     * @return：如果没有找到R波，或者仅仅找到第一个R波，则返回0；
+     *          如果找到不是第一个R波，则用该R波与前一个R波之间的间隔计算心率值
+     */
 	public int outputHR(int datum) {
 		int RRInterval = outputRRInterval(datum);
 		if(RRInterval != 0) {
@@ -132,9 +138,12 @@ public class QrsDetector {
 			return 0;
 		}
 	}
-	
-	// input one datum
-	// return two R wave interval if a new R wave is detected after the old R wave was detected, or 0
+
+    /**
+     * 计算心电信号的RR间隔
+     * @param datum：输入一个心电信号
+     * @return：如果没有找到R波，或者仅仅找到第一个R波，则返回0；如果找到不是第一个R波，则返回该R波与前一个R波之间的间隔（以数据点数为单位）
+     */
 	public int outputRRInterval(int datum) {
 		int RRInterval = 0;
 		

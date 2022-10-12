@@ -70,27 +70,35 @@ public class EcgDataProcessor {
 
     private void processPacket(byte[] packet) {
         int packageNum = UnsignedUtil.getUnsignedByte(packet[0]);
-        if (packageNum == nextPackNum) { // good packet
-            int[] pack = resolvePacket(packet, 1);
+
+        // 包号是正确的
+        if (packageNum == nextPackNum) {
+            int[] pack = processGoodPacket(packet, 1);
             ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
             nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum + 1;
-        } else if (nextPackNum != INVALID_PACKET_NUM) { // bad packet, force disconnect
+        }
+        // 坏包，强制断开设备连接
+        else if (nextPackNum != INVALID_PACKET_NUM) {
             ViseLog.e("The ecg data packet is lost.");
             nextPackNum = INVALID_PACKET_NUM;
             device.disconnect(false);
         }
-        // invalid packet
+        // 否则为无效包，不用管
     }
 
-    private int[] resolvePacket(byte[] packet, int begin) {
+    private int[] processGoodPacket(byte[] packet, int begin) {
         int[] pack = new int[(packet.length-begin) / 2];
         int j = 0;
         for (int i = begin; i < packet.length; i=i+2, j++) {
             pack[j] = (short) ((0xff & packet[i]) | (0xff00 & (packet[i+1] << 8)));
-            int fData = (int) preFilter.filter(pack[j]);
-            device.showEcgSignal(fData);
-            device.recordEcgSignal(fData);
+            // 先用预滤波器进行滤波处理
+            int ecg = (int) preFilter.filter(pack[j]);
+            // 显示信号
+            device.showEcgSignal(ecg);
+            // 处理信号
+            device.processEcgSignal(ecg);
         }
+        // 返回只是为了显示
         return pack;
     }
 }

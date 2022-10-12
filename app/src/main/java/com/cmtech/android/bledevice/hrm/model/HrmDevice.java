@@ -23,6 +23,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.qrsdetbyhamilton.QrsDetector;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
@@ -32,9 +33,20 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
+
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtException;
+import ai.onnxruntime.OrtSession;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -51,9 +63,6 @@ import java.util.UUID;
 public class HrmDevice extends AbstractDevice {
     // 无效心率值
     public static final short INVALID_HEART_RATE = -1;
-
-    // 心电信号最大记录时间：秒
-    private static final int ECG_RECORD_MAX_SECOND = 30;
 
     // 心率最短记录时间：秒
     private static final int HR_RECORD_MIN_SECOND = 5;
@@ -141,11 +150,18 @@ public class HrmDevice extends AbstractDevice {
     private final HrmCfg config; // HRM device configuration
     private final HRSpeaker speaker = new HRSpeaker(); // HR Speaker
 
-    private EcgDataProcessor ecgProcessor; // ecg signal processor
+    // ECG数据处理器
+    private EcgDataProcessor ecgDataProcessor;
+
     private BleHrRecord hrRecord; // HR record
     private BleEcgRecord ecgRecord; // ECG record
 
     private OnHrmListener listener; // HRM device listener
+
+    // QRS波检测器，可以用来得到RR间隔或心率值
+    private QrsDetector qrsDetector;
+
+    private OrtSession abnormalDetector;
 
     public HrmDevice(Context context, DeviceCommonInfo registerInfo) {
         super(context, registerInfo);
@@ -253,16 +269,46 @@ public class HrmDevice extends AbstractDevice {
     }
 
     // 记录一个心电信号数据
-    public void recordEcgSignal(int ecgSignal) {
+
+    /**
+     * 处理获取的一个心电信号值
+     * 包括记录信号值和进行信号处理
+     * @param ecgSignal：得到的一个心电信号值
+     */
+    public void processEcgSignal(int ecgSignal) {
+        // 先处理记录事项
         if(ecgRecordStatus && ecgRecord != null) {
-            ecgRecord.process((short)ecgSignal);
+            ecgRecord.record((short)ecgSignal);
             if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
                 int second = ecgRecord.getDataNum()/sampleRate;
                 listener.onEcgRecordTimeUpdated(second);
-                // 每分钟自动保存一次
+                // 每记录一分钟就自动保存一次，防止数据异常丢失
                 if(second % 60 == 0) {
                     ecgRecord.setRecordSecond(second);
                     ecgRecord.save();
+                }
+            }
+        }
+
+        // 再处理信号处理事项
+        if(qrsDetector != null) {
+            int rrInterval = qrsDetector.outputRRInterval(ecgSignal);
+
+            if(abnormalDetector != null && rrInterval != 0) {
+                ViseLog.e("RRInterval:" + rrInterval);
+                Random random = new Random();
+                float[][] d = new float[1][64];
+                for (int i = 0; i < 64; i++)
+                    d[0][i] = random.nextFloat();
+                try {
+                    OnnxTensor t = OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), d);
+                    Map<String, OnnxTensor> inputs = new HashMap<>();
+                    inputs.put("input_x", t);
+                    OrtSession.Result rlt = abnormalDetector.run(inputs);
+                    long[] output = (long[]) rlt.get(0).getValue();
+                    ViseLog.e("output:"+output[0]);
+                } catch (OrtException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -305,8 +351,7 @@ public class HrmDevice extends AbstractDevice {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    //ViseLog.i("ecg data: " + Arrays.toString(data));
-                    ecgProcessor.processData(data);
+                    ecgDataProcessor.processData(data);
                 }
 
                 @Override
@@ -316,8 +361,8 @@ public class HrmDevice extends AbstractDevice {
             };
             ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
         } else {
-            if(ecgProcessor != null)
-                ecgProcessor.stop();
+            if(ecgDataProcessor != null)
+                ecgDataProcessor.stop();
 
             ((BleConnector)connector).notify(ECGMEASCCC, false, null);
         }
@@ -345,6 +390,15 @@ public class HrmDevice extends AbstractDevice {
 
         if(speaker != null)
             speaker.stop();
+
+        if(abnormalDetector != null) {
+            try {
+                abnormalDetector.close();
+                abnormalDetector = null;
+            } catch (OrtException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -399,8 +453,8 @@ public class HrmDevice extends AbstractDevice {
 
     @Override
     public void onConnectFailure() {
-        if(ecgProcessor != null) {
-            ecgProcessor.stop();
+        if(ecgDataProcessor != null) {
+            ecgDataProcessor.stop();
         }
 
         speaker.stop();
@@ -414,8 +468,8 @@ public class HrmDevice extends AbstractDevice {
 
     @Override
     public void onDisconnect() {
-        if(ecgProcessor != null) {
-            ecgProcessor.stop();
+        if(ecgDataProcessor != null) {
+            ecgDataProcessor.stop();
         }
 
         speaker.stop();
@@ -645,16 +699,34 @@ public class HrmDevice extends AbstractDevice {
         });
     }
 
+    /**
+     * 初始化心电服务
+     * 当设备连接成功后，会检测设备的工作模式是否是心电模式。如果是心电模式，就会调用此函数
+     */
     private void initEcgService() {
+        // 读采样率
         readSampleRate();
+        // 读1mV标定值
         read1mVCali();
+        // 读导联类型
         readLeadType();
+
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                ecgProcessor = new EcgDataProcessor(HrmDevice.this);
-                ecgProcessor.start();
+                // 生成并启动心电数据处理器
+                ecgDataProcessor = new EcgDataProcessor(HrmDevice.this);
+                ecgDataProcessor.start();
 
+                // 生成QRS波检测器
+                qrsDetector = new QrsDetector(sampleRate);
+
+                // 启动心律异常检测器
+                if(abnormalDetector == null) {
+                    abnormalDetector = createOrtSession(R.raw.gausnb_digit_model);
+                }
+
+                // 更新设备监听器
                 if (listener != null)
                     listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, hrMode);
             }
@@ -705,6 +777,10 @@ public class HrmDevice extends AbstractDevice {
         });
     }
 
+    /**
+     * 让设备监听器显示一个心电信号值
+     * @param ecgSignal：一个心电信号值
+     */
     public void showEcgSignal(int ecgSignal) {
         if(!MyApplication.isRunInBackground()) {
             if (listener != null) {
@@ -713,4 +789,22 @@ public class HrmDevice extends AbstractDevice {
         }
     }
 
+    /**
+     * 创建一个ORT模型的会话，该模型用来实现心律异常诊断
+     * @param modelId：模型资源ID
+     * @return：ORT会话
+     */
+    private OrtSession createOrtSession(int modelId){
+        try {
+            InputStream inputStream = getContext().getResources().openRawResource(modelId);
+            byte[] modelOrt = new byte[inputStream.available()];
+            BufferedInputStream buf = new BufferedInputStream((inputStream));
+            buf.read(modelOrt, 0, modelOrt.length);
+            buf.close();
+            return OrtEnvironment.getEnvironment().createSession(modelOrt);
+        } catch (OrtException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

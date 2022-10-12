@@ -185,7 +185,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      * @param ecg
      * @return
      */
-    public boolean process(short ecg) {
+    public boolean record(short ecg) {
         boolean success = false;
         try {
             if(sigFile != null) {
