@@ -23,7 +23,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.qrsdetbyhamilton.QrsDetector;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
@@ -38,12 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
-import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
@@ -184,10 +180,10 @@ public class HrmDevice extends AbstractDevice {
     private OnHrmListener listener;
 
     // QRS波检测器，可以用来得到RR间隔或心率值
-    private QrsDetector qrsDetector;
+    //private QrsDetector qrsDetector;
 
-    // 心律检测器，由一个ORT机器学习模型构建ORT会话，由该会话来完成心律异常检测
-    private OrtSession rhythmDetector;
+    // 心律异常实时检测器
+    private EcgRealTimeRhythmDetector rhythmDetector;
 
     //-----------------------------------------------静态类
     // 心率播报器类
@@ -457,6 +453,13 @@ public class HrmDevice extends AbstractDevice {
         }
 
         // 再处理信号
+        if(rhythmDetector != null) {
+            String rhythm = rhythmDetector.process((short) ecgSignal);
+            if(rhythm != null) {
+                ViseLog.e(rhythm);
+            }
+        }
+        /*
         if(qrsDetector != null) {
             int rrInterval = qrsDetector.outputRRInterval(ecgSignal);
 
@@ -478,6 +481,7 @@ public class HrmDevice extends AbstractDevice {
                 }
             }
         }
+        */
     }
 
 
@@ -502,12 +506,8 @@ public class HrmDevice extends AbstractDevice {
             speaker.stop();
 
         if(rhythmDetector != null) {
-            try {
-                rhythmDetector.close();
-                rhythmDetector = null;
-            } catch (OrtException e) {
-                e.printStackTrace();
-            }
+            rhythmDetector.close();
+            rhythmDetector = null;
         }
     }
 
@@ -787,11 +787,11 @@ public class HrmDevice extends AbstractDevice {
                 ecgDataPacketParser.start();
 
                 // 生成QRS波检测器
-                qrsDetector = new QrsDetector(sampleRate);
+                //qrsDetector = new QrsDetector(sampleRate);
 
                 // 启动心律异常检测器
                 if(rhythmDetector == null) {
-                    rhythmDetector = createOrtSession(R.raw.gausnb_digit_model);
+                    rhythmDetector = new EcgRealTimeRhythmDetector(getContext(), R.raw.afdetect_1);
                 }
 
                 // 更新设备监听器

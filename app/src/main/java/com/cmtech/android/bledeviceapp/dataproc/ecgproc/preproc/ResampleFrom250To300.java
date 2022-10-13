@@ -8,11 +8,10 @@ import com.cmtech.dsp.filter.structure.StructType;
 import com.cmtech.dsp.seq.RealSeq;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
- * 实现信号采样率的改变：从250Hz到300Hz
+ * 实现信号重采样，即采样率的改变：从250Hz到300Hz
  */
 public class ResampleFrom250To300 {
     //-------------------------------------------------常量
@@ -37,7 +36,9 @@ public class ResampleFrom250To300 {
     // FIR低通滤波器
     private final FIRFilter filter;
 
-    private LinkedList<Short> buf = new LinkedList<>();
+    private int needSkipped = DELAY;
+
+    private int hasSkipped = 0;
 
     public ResampleFrom250To300() {
         // FIR低通滤波器的截止频率
@@ -55,20 +56,24 @@ public class ResampleFrom250To300 {
     }
 
     public List<Short> process(short ecgData) {
-        buf.add((short)(L*filter.filter((double)ecgData)));
-        for(int i = 0; i < L-1; i++) {
-            buf.add((short)(L*filter.filter(0.0)));
-        }
+        short[] in = new short[L];
+        in[0] = ecgData;
 
-        List<Short> out1 = new ArrayList<>();
-        for(int i = DELAY; i < out.size(); i+=M) {
-            out1.add((short)Math.round(L*out.get(i)));
+        List<Short> out = new ArrayList<>();
+        for(short num : in) {
+            short after = (short)(L*filter.filter(num));
+            hasSkipped++;
+            if(hasSkipped == needSkipped) {
+                hasSkipped = 0;
+                needSkipped = M;
+                out.add(after);
+            }
         }
-
-        return out1;
+        return out;
     }
 
     public void reset() {
-        buf.clear();
+        needSkipped = DELAY;
+        hasSkipped = 0;
     }
 }

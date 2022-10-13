@@ -95,6 +95,18 @@ public class MathUtil {
      return new Pair<>(maxI, maxV);
     }
 
+    public static Pair<Integer, Float> floatMax(float[] x) {
+        float maxV = Float.MIN_VALUE;
+        int maxI = -1;
+        for(int i = 0; i < x.length; i++) {
+            if(x[i] > maxV) {
+                maxV = x[i];
+                maxI = i;
+            }
+        }
+        return new Pair<>(maxI, maxV);
+    }
+
     // 寻找List<Integer>中从begin到end之间的最大值及出现最大值的位置
     public static Pair<Integer, Integer> intMax(List<Integer> x, int begin, int end) {
         int maxV = Integer.MIN_VALUE;
