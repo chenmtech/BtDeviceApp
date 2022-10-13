@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.util.Pair;
 
+import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.ResampleFrom250To300;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.vise.log.ViseLog;
@@ -13,9 +15,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import ai.onnxruntime.OnnxTensor;
 import ai.onnxruntime.OrtEnvironment;
@@ -31,12 +36,16 @@ public class EcgRealTimeRhythmDetector {
 
     private static final int SIGNAL_BUFFER_LENGTH = ECG_SIGNAL_TIME_LENGTH*SAMPLE_RATE;
 
+    private static final int DETECT_INTERVAL_BUFFER_START = DETECT_INTERVAL_TIME_LENGTH*SAMPLE_RATE;
+
     private static final Map<Integer, String> DETECT_RESULT = new HashMap<>(){{
         put(0, "窦性心律");
         put(1, "房颤");
-        put(2, "非房颤异常");
+        put(2, "未知异常");
         put(3, "噪声");
     }};
+
+    private final HrmDevice device;
 
     // ECG重采样
     private final ResampleFrom250To300 resample;
@@ -49,37 +58,52 @@ public class EcgRealTimeRhythmDetector {
 
     private int pos = 0;
 
-    public EcgRealTimeRhythmDetector(Context context, int modelId) {
-        resample = new ResampleFrom250To300();
+    private final List<Short> dataBuf = Collections.synchronizedList(new LinkedList<>());
 
-        rhythmDetector = createOrtSession(context, modelId);
+    // 数据处理服务
+    private ExecutorService procService;
+
+    public EcgRealTimeRhythmDetector(HrmDevice device, int modelId) {
+        this.device = device;
+        resample = new ResampleFrom250To300();
+        rhythmDetector = createOrtSession(device.getContext(), modelId);
+        start();
     }
 
     public void reset() {
         resample.reset();
+        dataBuf.clear();
         Arrays.fill(buf, (short) 0);
         pos = 0;
     }
 
-    public String process(short ecgSignal) {
-        List<Short> resampleSignal = resample.process(ecgSignal);
-        for(short n : resampleSignal) {
-            buf[pos++] = n;
-        }
+    public void process(short ecgSignal) {
+        if(!ExecutorUtil.isDead(procService)) {
+            procService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    List<Short> resampleSignal = resample.process(ecgSignal);
+                    for(short n : resampleSignal) {
+                        buf[pos++] = n;
+                    }
 
-        / 这里需要多线程处理，否则有问题
-        if(pos == SIGNAL_BUFFER_LENGTH) {
-            pos = 0;
-            try {
-                float[] y_prob = detectRhythm(buf);
-                ViseLog.e(Arrays.toString(y_prob));
-                Pair<Integer, Float> result = MathUtil.floatMax(y_prob);
-                return DETECT_RESULT.get(result.first);
-            } catch (OrtException e) {
-                e.printStackTrace();
-            }
+                    if(pos == SIGNAL_BUFFER_LENGTH) {
+                        try {
+                            float[] out_prob = detectRhythm(buf);
+                            ViseLog.e(Arrays.toString(out_prob));
+                            Pair<Integer, Float> result = MathUtil.floatMax(out_prob);
+                            device.updateRhythmInfo(DETECT_RESULT.get(result.first));
+                            System.arraycopy(buf, DETECT_INTERVAL_BUFFER_START, buf, 0,
+                                    SIGNAL_BUFFER_LENGTH-DETECT_INTERVAL_BUFFER_START);
+                            pos = DETECT_INTERVAL_BUFFER_START;
+                        } catch (OrtException e) {
+                            e.printStackTrace();
+                            pos = 0;
+                        }
+                    }
+                }
+            });
         }
-        return null;
     }
 
     public void close() {
@@ -91,6 +115,8 @@ public class EcgRealTimeRhythmDetector {
                 e.printStackTrace();
             }
         }
+
+        stop();
     }
 
     /**
@@ -134,4 +160,19 @@ public class EcgRealTimeRhythmDetector {
         return ((float[][]) v.getValue())[0];
     }
 
+    // 启动
+    private void start() {
+        if(ExecutorUtil.isDead(procService)) {
+            procService = ExecutorUtil.newSingleExecutor("MT_Ecg_Rhythm_Detect");
+            ViseLog.e("The ecg real time rhythm detection started.");
+        } else {
+            throw new IllegalStateException("The ecg real time rhythm detection's executor is not stopped and can't be restarted.");
+        }
+    }
+
+    // 停止
+    private void stop() {
+        ExecutorUtil.shutdownNowAndAwaitTerminate(procService);
+        ViseLog.e("The ecg real time rhythm detection stopped.");
+    }
 }

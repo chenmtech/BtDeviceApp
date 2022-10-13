@@ -291,7 +291,7 @@ public class HrmDevice extends AbstractDevice {
 
         // 通知监听器更新心率记录状态
         if(listener != null) {
-            listener.onHrRecordStatusUpdated(this.hrRecordStatus);
+            listener.onHRRecordStatusUpdated(this.hrRecordStatus);
         }
     }
 
@@ -453,12 +453,12 @@ public class HrmDevice extends AbstractDevice {
         }
 
         // 再处理信号
+
+        // 心律异常检测
         if(rhythmDetector != null) {
-            String rhythm = rhythmDetector.process((short) ecgSignal);
-            if(rhythm != null) {
-                ViseLog.e(rhythm);
-            }
+            rhythmDetector.process((short) ecgSignal);
         }
+
         /*
         if(qrsDetector != null) {
             int rrInterval = qrsDetector.outputRRInterval(ecgSignal);
@@ -484,6 +484,17 @@ public class HrmDevice extends AbstractDevice {
         */
     }
 
+    /**
+     * 更新心律异常检测结果信息
+     * @param rhythmInfo 心律异常检测结果信息
+     */
+    public void updateRhythmInfo(String rhythmInfo) {
+        if(!MyApplication.isRunInBackground()) {
+            if (listener != null) {
+                listener.onEcgRhythmDetectInfoUpdated(rhythmInfo);
+            }
+        }
+    }
 
     @Override
     public void open() {
@@ -538,7 +549,7 @@ public class HrmDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if(hrMode) {
                         if (listener != null)
-                            listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, true);
+                            listener.onUIUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, true);
 
                         setEcgOn(false);
                     }
@@ -791,12 +802,14 @@ public class HrmDevice extends AbstractDevice {
 
                 // 启动心律异常检测器
                 if(rhythmDetector == null) {
-                    rhythmDetector = new EcgRealTimeRhythmDetector(getContext(), R.raw.afdetect_1);
+                    rhythmDetector = new EcgRealTimeRhythmDetector(HrmDevice.this, R.raw.afdetect_1);
+                } else {
+                    rhythmDetector.reset();
                 }
 
                 // 更新设备监听器
                 if (listener != null)
-                    listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, hrMode);
+                    listener.onUIUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, hrMode);
             }
 
             @Override

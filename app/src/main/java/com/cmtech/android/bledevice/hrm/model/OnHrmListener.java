@@ -4,9 +4,8 @@ import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.hrmonitor.model
- * ClassName:      OnHRMonitorDeviceListener
- * Description:    java类作用描述
+ * ClassName:      OnHrmListener
+ * Description:    HRM设备监听器
  * Author:         作者名
  * CreateDate:     2020-02-04 09:35
  * UpdateUser:     更新者
@@ -15,14 +14,34 @@ import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
  * Version:        1.0
  */
 public interface OnHrmListener {
-    void onHRUpdated(BleHeartRateData hrData); // heart rate updated
+    // 心率数据更新
+    void onHRUpdated(BleHeartRateData hrData);
+
+    // 心率统计信息更新
     void onHRStatisticInfoUpdated(BleHrRecord record);
-    void onHRSensLocUpdated(int loc); // sensor location updated
-    void onHRCtrlPtUpdated(int ctrl); // control point updated
-    void onFragmentUpdated(int sampleRate, int value1mV, float zeroLocation, boolean inHrMode); // fragment updated
-    void onHrRecordStatusUpdated(boolean record);
-    void onEcgSignalShowed(int ecgSignal); // ecg signal showed
-    void onEcgSignalRecordStatusUpdated(boolean record); // ecg signal recorded
+
+    // 设备传感器位置更新
+    void onHRSensLocUpdated(int loc);
+
+    // control point更新，见蓝牙协议
+    void onHRCtrlPtUpdated(int ctrl);
+
+    // UI更新
+    void onUIUpdated(int sampleRate, int value1mV, float zeroLocation, boolean inHrMode);
+
+    // 心率记录状态更新
+    void onHRRecordStatusUpdated(boolean record);
+
+    // ECG信号显示
+    void onEcgSignalShowed(int ecgSignal);
+
+    // ECG信号记录状态更新
+    void onEcgSignalRecordStatusUpdated(boolean record);
+
+
     void onEcgOnStatusUpdated(boolean ecgOn);
     void onEcgRecordTimeUpdated(int second);
+
+    // 心律异常检测结果信息更新
+    void onEcgRhythmDetectInfoUpdated(String rhythmInfo);
 }

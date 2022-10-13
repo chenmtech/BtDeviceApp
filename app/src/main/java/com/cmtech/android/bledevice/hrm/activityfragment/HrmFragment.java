@@ -31,6 +31,7 @@ import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.google.android.material.tabs.TabLayout;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +57,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     private TextView tvHrInHrMode; // hr view in HR Mode
     private TextView tvHrInEcgMode; // hr view in ECG Mode
     private TextView tvMessage; // message
+    private TextView tvRhythm;
     private TextView tvSwitchMode; // switch Mode
     private FrameLayout flInHrMode; // frame layout in HR Mode
     private FrameLayout flInEcgMode; // frame layout in ECG Mode
@@ -88,6 +90,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         tvHrInHrMode = view.findViewById(R.id.tv_hr_in_hr_mode);
         tvHrInEcgMode = view.findViewById(R.id.tv_hr_in_ecg_mode);
         tvMessage = view.findViewById(R.id.tv_message);
+        tvRhythm = view.findViewById(R.id.tv_rhythm_info);
 
         flInHrMode = view.findViewById(R.id.fl_in_hr_mode);
         flInHrMode.setVisibility(View.VISIBLE);
@@ -215,7 +218,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int caliValue, final float zeroLocation, final boolean inHrMode) {
+    public void onUIUpdated(final int sampleRate, final int caliValue, final float zeroLocation, final boolean inHrMode) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -244,7 +247,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHrRecordStatusUpdated(boolean record) {
+    public void onHRRecordStatusUpdated(boolean record) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -304,6 +307,19 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                 }
             });
         }
+    }
+
+    @Override
+    public void onEcgRhythmDetectInfoUpdated(String rhythmInfo) {
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvRhythm.setText(rhythmInfo);
+                }
+            });
+        }
+        ViseLog.e(rhythmInfo);
     }
 
     @Override
