@@ -802,7 +802,7 @@ public class HrmDevice extends AbstractDevice {
 
                 // 启动心律异常检测器
                 if(rhythmDetector == null) {
-                    rhythmDetector = new EcgRealTimeRhythmDetector(HrmDevice.this, R.raw.afdetect_1);
+                    rhythmDetector = new EcgRealTimeRhythmDetector(HrmDevice.this, R.raw.af_detect_keras_model);
                 } else {
                     rhythmDetector.reset();
                 }
