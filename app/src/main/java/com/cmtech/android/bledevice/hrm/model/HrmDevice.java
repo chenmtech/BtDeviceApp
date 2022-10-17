@@ -25,7 +25,7 @@ import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectResultItem;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
@@ -499,10 +499,10 @@ public class HrmDevice extends AbstractDevice {
      * 更新心律异常检测结果信息
      * @param rhythmItem 一条心律异常检测结果
      */
-    public void updateRhythmInfo(EcgRhythmDetectResultItem rhythmItem) {
+    public void updateRhythmInfo(EcgRhythmDetectItem rhythmItem) {
         if(!MyApplication.isRunInBackground()) {
             if (listener != null) {
-                listener.onEcgRhythmDetectInfoUpdated(rhythmDetector.getDescriptionFromLabel(rhythmItem.getLabel()));
+                listener.onEcgRhythmDetectInfoUpdated(EcgRhythmDetectItem.RESULT_TABLE.get(rhythmItem.getLabel()));
             }
         }
 

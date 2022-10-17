@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NOISE_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 import android.content.Context;
@@ -9,8 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectResult;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectResultItem;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRhythmDetector;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgRhythmDetector;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
@@ -70,7 +70,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     private boolean interrupt = false;
 
     @Column(ignore = true)
-    private EcgRhythmDetectResult rhythmDetectResult = new EcgRhythmDetectResult("1.1");
+    private List<EcgRhythmDetectItem> rhythmDetectItems = null;
 
     // 由RecordFactory工厂类通过反射调用来创建对象
     private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
@@ -89,14 +89,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
-        try {
-            JSONObject contentJson = new JSONObject(getReportContent());
-            String ver = contentJson.getString("ver");
-            rhythmDetectResult = new EcgRhythmDetectResult(ver);
-            rhythmDetectResult.fromJson(contentJson);
-         } catch (JSONException ex) {
-            ex.printStackTrace();
-        }
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
@@ -158,16 +150,40 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     public void updateReportContent() {
-        try {
-            setReportContent(rhythmDetectResult.toJson().toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < rhythmDetectItems.size()-1; i++)
+            sb.append(rhythmDetectItems.get(i)).append(',');
+        sb.append(rhythmDetectItems.get(rhythmDetectItems.size()-1));
+        setReportContent(sb.toString());
     }
 
     @Override
     public String getReportContent() {
-        return rhythmDetectResult.toString();
+        if(rhythmDetectItems == null) {
+            rhythmDetectItems = new ArrayList<>();
+            try {
+                String[] itemStrArr = super.getReportContent().split(",");
+                for (String item : itemStrArr) {
+                    String[] item2 = item.split(":");
+                    EcgRhythmDetectItem rhythmDetectResultItem =
+                            new EcgRhythmDetectItem(Long.parseLong(item2[0]), Integer.parseInt(item2[1]));
+                    rhythmDetectItems.add(rhythmDetectResultItem);
+                }
+            } catch (Exception ex) {
+                rhythmDetectItems.clear();
+            }
+        }
+
+        if(rhythmDetectItems.isEmpty()) {
+            return super.getReportContent();
+        } else {
+            for(EcgRhythmDetectItem item : rhythmDetectItems) {
+                if(item.getLabel() > NOISE_LABEL) {
+                    return "发现异常";
+                }
+            }
+            return "未发现异常";
+        }
     }
 
     @Override
@@ -229,8 +245,24 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return success;
     }
 
-    public void addRhythmDetectResultItem(EcgRhythmDetectResultItem item) {
-        rhythmDetectResult.addItem(item);
+    public void addRhythmDetectResultItem(EcgRhythmDetectItem item) {
+        if(item.getStartTime() < getCreateTime()) {
+            item.setStartTime(getCreateTime());
+        }
+
+        if(rhythmDetectItems == null) {
+            rhythmDetectItems = new ArrayList<>();
+        }
+
+        if(rhythmDetectItems.isEmpty()) {
+            rhythmDetectItems.add(item);
+        } else {
+            EcgRhythmDetectItem lastItem = rhythmDetectItems.get(rhythmDetectItems.size()-1);
+            int label = lastItem.getLabel();
+            if(label != item.getLabel()) {
+                rhythmDetectItems.add(item);
+            }
+        }
     }
 
     @NonNull

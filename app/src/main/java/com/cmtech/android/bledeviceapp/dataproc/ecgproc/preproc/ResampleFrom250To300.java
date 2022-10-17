@@ -18,7 +18,7 @@ public class ResampleFrom250To300 {
     // 输出采样率
     public static final int OUT_SAMPLE_RATE = 300;
 
-    // 用来控制FIR低通滤波器的h(n)长度或阶次，可选择一个合适的
+    // 用来控制FIR低通滤波器的h(n)长度或阶次(见N)，可选择一个合适的
     private static final int K = 8;
 
     // 抽取率

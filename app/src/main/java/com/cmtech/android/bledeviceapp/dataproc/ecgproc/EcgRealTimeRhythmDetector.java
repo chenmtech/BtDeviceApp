@@ -1,5 +1,10 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NOISE_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NSR_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.OTHER_LABEL;
+
 import android.content.Context;
 import android.util.Log;
 import android.util.Pair;
@@ -57,13 +62,17 @@ public class EcgRealTimeRhythmDetector {
     // 数据处理服务
     private ExecutorService procService;
 
-    private final Map<Integer, String> resultTable;
+    private final Map<Integer, Integer> labelMap = new HashMap<>() {{
+        put(0, NSR_LABEL);
+        put(1, AF_LABEL);
+        put(2, OTHER_LABEL);
+        put(3, NOISE_LABEL);
+    }};
 
     public EcgRealTimeRhythmDetector(HrmDevice device, int modelId) {
         this.device = device;
         resample = new ResampleFrom250To300();
         rhythmDetector = createOrtSession(device.getContext(), modelId);
-        resultTable = EcgRhythmDetectResult.getResultTable("1.1");
         start();
     }
 
@@ -81,15 +90,24 @@ public class EcgRealTimeRhythmDetector {
                 public void run() {
                     List<Short> resampleSignal = resample.process(ecgSignal);
                     for(short n : resampleSignal) {
+                        if(pos==0) {
+                            ViseLog.e("pos0:"+new Date().getTime());
+                        }
                         buf[pos++] = n;
                     }
 
                     if(pos == SIGNAL_BUFFER_LENGTH) {
                         try {
                             int label = detectRhythm(buf);
+                            try {
+                                label = labelMap.get(label);
+                            } catch (NullPointerException ex) {
+                                label = OTHER_LABEL;
+                            }
+                            ViseLog.e("pos"+pos+":"+new Date().getTime());
                             long startTime = new Date().getTime() - ECG_SIGNAL_TIME_LENGTH*1000;
-                            EcgRhythmDetectResultItem item =
-                                    new EcgRhythmDetectResultItem(startTime, label);
+                            EcgRhythmDetectItem item =
+                                    new EcgRhythmDetectItem(startTime, label);
                             device.updateRhythmInfo(item);
                             System.arraycopy(buf, DETECT_INTERVAL_BUFFER_START, buf, 0,
                                     SIGNAL_BUFFER_LENGTH-DETECT_INTERVAL_BUFFER_START);
@@ -115,10 +133,6 @@ public class EcgRealTimeRhythmDetector {
         }
 
         stop();
-    }
-
-    public String getDescriptionFromLabel(int label) {
-        return resultTable.get(label);
     }
 
     /**
