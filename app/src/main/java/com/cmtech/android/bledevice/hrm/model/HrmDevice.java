@@ -23,7 +23,9 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
+import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectResultItem;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
@@ -330,6 +332,15 @@ public class HrmDevice extends AbstractDevice {
             if(ecgRecord != null) {
                 int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 ecgRecord.setRecordSecond(second);
+
+                if(rhythmDetector != null) {
+                    ecgRecord.updateReportContent();
+                    ecgRecord.setVer("1.0");
+                    ecgRecord.setReportProvider("康明智能");
+                    ecgRecord.setReportTime(new Date().getTime());
+                    ecgRecord.setReportStatus(EcgReport.DONE);
+                }
+
                 ecgRecord.saveAsync().listen(new SaveCallback() {
                     @Override
                     public void onFinish(boolean success) {
@@ -486,13 +497,17 @@ public class HrmDevice extends AbstractDevice {
 
     /**
      * 更新心律异常检测结果信息
-     * @param rhythmInfo 心律异常检测结果信息
+     * @param rhythmItem 一条心律异常检测结果
      */
-    public void updateRhythmInfo(String rhythmInfo) {
+    public void updateRhythmInfo(EcgRhythmDetectResultItem rhythmItem) {
         if(!MyApplication.isRunInBackground()) {
             if (listener != null) {
-                listener.onEcgRhythmDetectInfoUpdated(rhythmInfo);
+                listener.onEcgRhythmDetectInfoUpdated(rhythmDetector.getDescriptionFromLabel(rhythmItem.getLabel()));
             }
+        }
+
+        if(ecgRecordStatus && ecgRecord != null) {
+            ecgRecord.addRhythmDetectResultItem(rhythmItem);
         }
     }
 
@@ -802,7 +817,7 @@ public class HrmDevice extends AbstractDevice {
 
                 // 启动心律异常检测器
                 if(rhythmDetector == null) {
-                    rhythmDetector = new EcgRealTimeRhythmDetector(HrmDevice.this, R.raw.af_detect_keras_model);
+                    rhythmDetector = new EcgRealTimeRhythmDetector(HrmDevice.this, R.raw.afdetect_1);
                 } else {
                     rhythmDetector.reset();
                 }

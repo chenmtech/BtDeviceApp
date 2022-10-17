@@ -11,7 +11,7 @@ import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.EcgPreProcessor;
 import java.util.Date;
 import java.util.List;
 
-public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
+public class MyEcgRhythmDetector implements IEcgRhythmDetector {
     private static final int HR_TOO_LOW_LIMIT = 50;
     private static final int HR_TOO_HIGH_LIMIT = 100;
     public static final String VER = "1.0.0";
@@ -20,7 +20,7 @@ public class MyEcgArrhythmiaDetector implements IEcgArrhythmiaDetector {
 
     private final MyAFEvidence afEvidence;
 
-    public MyEcgArrhythmiaDetector() {
+    public MyEcgRhythmDetector() {
         afEvidence = new MyAFEvidence();
     }
 

@@ -529,14 +529,14 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                if(code == RETURN_CODE_SUCCESS) {
+                //if(code == RETURN_CODE_SUCCESS) {
                     File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
                     if(sigFile.exists()) {
                         sigFile.delete();
                     }
                     LitePal.delete(recordClass, getId());
                     Toast.makeText(context, "记录已删除", Toast.LENGTH_SHORT).show();
-                }
+                //}
                 callback.onFinish(code);
             }
         }).execute(this);

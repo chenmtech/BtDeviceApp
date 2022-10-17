@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,13 +39,6 @@ public class EcgRealTimeRhythmDetector {
 
     private static final int DETECT_INTERVAL_BUFFER_START = DETECT_INTERVAL_TIME_LENGTH*SAMPLE_RATE;
 
-    private static final Map<Integer, String> DETECT_RESULT = new HashMap<>(){{
-        put(0, "窦性心律");
-        put(1, "房颤");
-        put(2, "未知异常");
-        put(3, "噪声");
-    }};
-
     private final HrmDevice device;
 
     // ECG重采样
@@ -63,10 +57,13 @@ public class EcgRealTimeRhythmDetector {
     // 数据处理服务
     private ExecutorService procService;
 
+    private final Map<Integer, String> resultTable;
+
     public EcgRealTimeRhythmDetector(HrmDevice device, int modelId) {
         this.device = device;
         resample = new ResampleFrom250To300();
         rhythmDetector = createOrtSession(device.getContext(), modelId);
+        resultTable = EcgRhythmDetectResult.getResultTable("1.1");
         start();
     }
 
@@ -89,10 +86,11 @@ public class EcgRealTimeRhythmDetector {
 
                     if(pos == SIGNAL_BUFFER_LENGTH) {
                         try {
-                            float[] out_prob = detectRhythm(buf);
-                            ViseLog.e(Arrays.toString(out_prob));
-                            Pair<Integer, Float> result = MathUtil.floatMax(out_prob);
-                            device.updateRhythmInfo(DETECT_RESULT.get(result.first));
+                            int label = detectRhythm(buf);
+                            long startTime = new Date().getTime() - ECG_SIGNAL_TIME_LENGTH*1000;
+                            EcgRhythmDetectResultItem item =
+                                    new EcgRhythmDetectResultItem(startTime, label);
+                            device.updateRhythmInfo(item);
                             System.arraycopy(buf, DETECT_INTERVAL_BUFFER_START, buf, 0,
                                     SIGNAL_BUFFER_LENGTH-DETECT_INTERVAL_BUFFER_START);
                             pos = DETECT_INTERVAL_BUFFER_START;
@@ -117,6 +115,10 @@ public class EcgRealTimeRhythmDetector {
         }
 
         stop();
+    }
+
+    public String getDescriptionFromLabel(int label) {
+        return resultTable.get(label);
     }
 
     /**
@@ -148,7 +150,7 @@ public class EcgRealTimeRhythmDetector {
         return null;
     }
 
-    private float[] detectRhythm(float[] data) throws OrtException {
+    private int detectRhythm(float[] data) throws OrtException {
         FloatBuffer buf = FloatBuffer.wrap(data);
         long[] shape = new long[]{1, data.length, 1};
         OnnxTensor t1 = OnnxTensor.createTensor(OrtEnvironment.getEnvironment(), buf, shape);
@@ -157,7 +159,10 @@ public class EcgRealTimeRhythmDetector {
         inputs.put("input_ecg", t1);
         OrtSession.Result rlt = rhythmDetector.run(inputs);
         OnnxTensor v = (OnnxTensor) rlt.get(0);
-        return ((float[][]) v.getValue())[0];
+        float[] out_prob = ((float[][]) v.getValue())[0];
+        ViseLog.e(Arrays.toString(out_prob));
+        Pair<Integer, Float> result = MathUtil.floatMax(out_prob);
+        return result.first;
     }
 
     // 启动

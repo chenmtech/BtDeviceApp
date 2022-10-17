@@ -9,8 +9,10 @@ import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgArrhythmiaDetector;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgArrhythmiaDetector;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectResult;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectResultItem;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRhythmDetector;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgRhythmDetector;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
@@ -67,6 +69,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Column(ignore = true)
     private boolean interrupt = false;
 
+    @Column(ignore = true)
+    private EcgRhythmDetectResult rhythmDetectResult = new EcgRhythmDetectResult("1.1");
+
     // 由RecordFactory工厂类通过反射调用来创建对象
     private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(ECG, ver, createTime, devAddress, creatorId);
@@ -84,6 +89,14 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
+        try {
+            JSONObject contentJson = new JSONObject(getReportContent());
+            String ver = contentJson.getString("ver");
+            rhythmDetectResult = new EcgRhythmDetectResult(ver);
+            rhythmDetectResult.fromJson(contentJson);
+         } catch (JSONException ex) {
+            ex.printStackTrace();
+        }
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
@@ -144,6 +157,19 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.interrupt = interrupt;
     }
 
+    public void updateReportContent() {
+        try {
+            setReportContent(rhythmDetectResult.toJson().toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String getReportContent() {
+        return rhythmDetectResult.toString();
+    }
+
     @Override
     public int readData() throws IOException {
         if(sigFile == null) throw new IOException();
@@ -182,8 +208,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     /**
      * 处理一个ECG信号值
-     * @param ecg
-     * @return
+     * @param ecg ECG信号
+     * @return 是否正常处理
      */
     public boolean record(short ecg) {
         boolean success = false;
@@ -203,6 +229,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return success;
     }
 
+    public void addRhythmDetectResultItem(EcgRhythmDetectResultItem item) {
+        rhythmDetectResult.addItem(item);
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -217,7 +247,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public void localDiagnose() {
-        IEcgArrhythmiaDetector algorithm = new MyEcgArrhythmiaDetector();
+        IEcgRhythmDetector algorithm = new MyEcgRhythmDetector();
         EcgReport rtnReport = algorithm.process(this);
         setReportVer(rtnReport.getVer());
         setReportProvider(rtnReport.getReportProvider());
