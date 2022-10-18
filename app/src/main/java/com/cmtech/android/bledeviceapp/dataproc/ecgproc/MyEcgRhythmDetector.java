@@ -8,7 +8,6 @@ import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.afdetector.AFEvidence.MyAFEvidence;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.EcgPreProcessor;
 
-import java.util.Date;
 import java.util.List;
 
 public class MyEcgRhythmDetector implements IEcgRhythmDetector {
@@ -67,12 +66,12 @@ public class MyEcgRhythmDetector implements IEcgRhythmDetector {
         String strAFEResult = builder.toString();
 
         EcgReport report = new EcgReport();
-        report.setVer(VER);
+        /*report.setVer(VER);
         report.setReportProvider(REPORT_PROVIDER);
         report.setReportTime(new Date().getTime());
         report.setReportContent(strHrResult + strAFEResult);
-        report.setReportStatus(EcgReport.DONE);
-        report.setAveHr(aveHr);
+        report.setReportStatus(EcgReport.DONE);*/
+        //report.setAveHr(aveHr);
         return report;
     }
 }

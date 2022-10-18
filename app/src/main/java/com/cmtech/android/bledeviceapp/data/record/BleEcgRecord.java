@@ -1,7 +1,11 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NOISE_LABEL;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.OTHER_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.RESULT_TABLE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 import android.content.Context;
@@ -11,11 +15,10 @@ import androidx.annotation.NonNull;
 import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRhythmDetector;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.MyEcgRhythmDetector;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
+import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
 import com.vise.utils.file.FileUtil;
 
@@ -44,9 +47,10 @@ import java.util.List;
  */
 public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
     //-----------------------------------------常量
-    // 记录每个数据的字节数
+    // 记录每个心电信号数据的字节数
     private static final int BYTES_PER_DATUM = 2;
 
+    //------------------------------------------实例变量
     // 采样率
     private int sampleRate = 0;
 
@@ -65,14 +69,27 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     // 心电采集时中断的位置对应的时刻点列表
     private final List<Long> breakTime = new ArrayList<>();
 
+    private final List<Long> rhythmItemStartTime = new ArrayList<>();
+
+    private final List<Integer> rhythmItemLabel = new ArrayList<>();
+
     // 采集是否中断
     @Column(ignore = true)
     private boolean interrupt = false;
 
+    // 心率值列表
     @Column(ignore = true)
-    private List<EcgRhythmDetectItem> rhythmDetectItems = null;
+    private List<Integer> hrList = new ArrayList<>();
 
-    // 由RecordFactory工厂类通过反射调用来创建对象
+    //--------------------------------------------------构造器
+
+    /**
+     * 由RecordFactory工厂类通过反射调用来创建对象
+     * @param ver 记录版本号
+     * @param createTime 创建时间
+     * @param devAddress 创建的设备蓝牙地址
+     * @param creatorId 创建者的ID号
+     */
     private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
         super(ECG, ver, createTime, devAddress, creatorId);
     }
@@ -87,16 +104,17 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         super.openSigFile(BYTES_PER_DATUM);
     }
 
+    @Override
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
         caliValue = json.getInt("caliValue");
         leadTypeCode = json.getInt("leadTypeCode");
         aveHr = json.getInt("aveHr");
-        if(json.has("breakPos"))
-            ListStringUtil.stringToList(json.getString("breakPos"), breakPos, Integer.class);
-        if(json.has("breakTime"))
-            ListStringUtil.stringToList(json.getString("breakTime"), breakTime, Long.class);
+        ListStringUtil.stringToList(json.getString("breakPos"), breakPos, Integer.class);
+        ListStringUtil.stringToList(json.getString("breakTime"), breakTime, Long.class);
+        ListStringUtil.stringToList(json.getString("rhythmItemStartTime"), rhythmItemStartTime, Long.class);
+        ListStringUtil.stringToList(json.getString("rhythmItemLabel"), rhythmItemLabel, Integer.class);
     }
 
     @Override
@@ -108,6 +126,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         json.put("aveHr", aveHr);
         json.put("breakPos", ListStringUtil.listToString(breakPos));
         json.put("breakTime", ListStringUtil.listToString(breakTime));
+        json.put("rhythmItemStartTime", ListStringUtil.listToString(rhythmItemStartTime));
+        json.put("rhythmItemLabel", ListStringUtil.listToString(rhythmItemLabel));
         return json;
     }
 
@@ -149,41 +169,57 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.interrupt = interrupt;
     }
 
-    public void updateReportContent() {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < rhythmDetectItems.size()-1; i++)
-            sb.append(rhythmDetectItems.get(i)).append(',');
-        sb.append(rhythmDetectItems.get(rhythmDetectItems.size()-1));
-        setReportContent(sb.toString());
+    public void addHRValue(int bpm) {
+        hrList.add(bpm);
     }
 
-    @Override
-    public String getReportContent() {
-        if(rhythmDetectItems == null) {
-            rhythmDetectItems = new ArrayList<>();
-            try {
-                String[] itemStrArr = super.getReportContent().split(",");
-                for (String item : itemStrArr) {
-                    String[] item2 = item.split(":");
-                    EcgRhythmDetectItem rhythmDetectResultItem =
-                            new EcgRhythmDetectItem(Long.parseLong(item2[0]), Integer.parseInt(item2[1]));
-                    rhythmDetectItems.add(rhythmDetectResultItem);
-                }
-            } catch (Exception ex) {
-                rhythmDetectItems.clear();
+    public void calculateHRAve() {
+        if(hrList.isEmpty()) {
+            this.aveHr = INVALID_HR;
+            return;
+        }
+        float hrAve = MathUtil.intAve(hrList);
+        this.aveHr = (int)hrAve;
+    }
+
+    public void createDiagnoseReport(EcgReport report) {
+        String strHrResult;
+        if(aveHr == INVALID_HR) {
+            strHrResult = "";
+        } else {
+            strHrResult = "平均心率：" + aveHr + "次/分钟，";
+            if(aveHr > HR_TOO_HIGH_LIMIT)
+                strHrResult += "心动过速;";
+            else if(aveHr < HR_TOO_LOW_LIMIT)
+                strHrResult += "心动过缓;";
+            else
+                strHrResult += "心率正常;";
+        }
+
+        int af_times = 0;
+        int other_times = 0;
+        for(int ll : rhythmItemLabel) {
+            if(ll == AF_LABEL)
+                af_times++;
+            else if(ll == OTHER_LABEL) {
+                other_times++;
             }
         }
 
-        if(rhythmDetectItems.isEmpty()) {
-            return super.getReportContent();
+        String strRhythmResult = "";
+        if(af_times == 0 && other_times == 0) {
+            strRhythmResult = "未发现心律异常";
         } else {
-            for(EcgRhythmDetectItem item : rhythmDetectItems) {
-                if(item.getLabel() > NOISE_LABEL) {
-                    return "发现异常";
-                }
+            if(af_times != 0) {
+                strRhythmResult += "发现"+RESULT_TABLE.get(AF_LABEL)+af_times+"次；";
             }
-            return "未发现异常";
+            if(other_times != 0) {
+                strRhythmResult += "发现"+RESULT_TABLE.get(OTHER_LABEL)+other_times+"次；";
+            }
         }
+        report.setReportContent(strHrResult+strRhythmResult);
+
+        setReport(report);
     }
 
     @Override
@@ -246,30 +282,25 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     public void addRhythmDetectResultItem(EcgRhythmDetectItem item) {
-        if(item.getStartTime() < getCreateTime()) {
-            item.setStartTime(getCreateTime());
+        int label = item.getLabel();
+
+        if(!rhythmItemLabel.isEmpty() && rhythmItemLabel.get(rhythmItemLabel.size()-1) == label) {
+            return;
         }
 
-        if(rhythmDetectItems == null) {
-            rhythmDetectItems = new ArrayList<>();
+        long startTime = item.getStartTime();
+        if(startTime < getCreateTime()) {
+            startTime = getCreateTime();
         }
-
-        if(rhythmDetectItems.isEmpty()) {
-            rhythmDetectItems.add(item);
-        } else {
-            EcgRhythmDetectItem lastItem = rhythmDetectItems.get(rhythmDetectItems.size()-1);
-            int label = lastItem.getLabel();
-            if(label != item.getLabel()) {
-                rhythmDetectItems.add(item);
-            }
-        }
+        rhythmItemStartTime.add(startTime);
+        rhythmItemLabel.add(label);
     }
 
     @NonNull
     @Override
     public String toString() {
         return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode +
-                "-" + breakPos + "-" + breakTime;
+                "-" + breakPos + "-" + breakTime + "-" + rhythmItemStartTime + "-" + rhythmItemLabel;
     }
 
     @Override
@@ -279,14 +310,14 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     @Override
     public void localDiagnose() {
-        IEcgRhythmDetector algorithm = new MyEcgRhythmDetector();
+/*        IEcgRhythmDetector algorithm = new MyEcgRhythmDetector();
         EcgReport rtnReport = algorithm.process(this);
         setReportVer(rtnReport.getVer());
         setReportProvider(rtnReport.getReportProvider());
         setReportTime(rtnReport.getReportTime());
         setReportContent(rtnReport.getReportContent());
         setReportStatus(rtnReport.getReportStatus());
-        setAveHr(rtnReport.getAveHr());
+        setAveHr(rtnReport.getAveHr());*/
         //setNeedUpload(true);
         save();
     }

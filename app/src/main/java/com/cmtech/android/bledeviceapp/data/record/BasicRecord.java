@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask;
+import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
@@ -327,40 +328,28 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         return reportVer;
     }
 
-    public void setReportVer(String reportVer) {
-        this.reportVer = reportVer;
-    }
-
     public String getReportProvider() {
         return reportProvider;
-    }
-
-    public void setReportProvider(String reportProvider) {
-        this.reportProvider = reportProvider;
     }
 
     public long getReportTime() {
         return reportTime;
     }
 
-    public void setReportTime(long reportTime) {
-        this.reportTime = reportTime;
-    }
-
     public String getReportContent() {
         return reportContent;
-    }
-
-    public void setReportContent(String reportContent) {
-        this.reportContent = reportContent;
     }
 
     public int getReportStatus() {
         return reportStatus;
     }
 
-    public void setReportStatus(int reportStatus) {
-        this.reportStatus = reportStatus;
+    public void setReport(EcgReport report) {
+        reportVer = report.getVer();
+        reportProvider = report.getReportProvider();
+        reportTime = report.getReportTime();
+        reportContent = report.getReportContent();
+        reportStatus = report.getReportStatus();
     }
 
     public boolean needUpload() {

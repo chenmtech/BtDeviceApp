@@ -332,14 +332,11 @@ public class HrmDevice extends AbstractDevice {
             if(ecgRecord != null) {
                 int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 ecgRecord.setRecordSecond(second);
+                ecgRecord.calculateHRAve();
 
-                if(rhythmDetector != null) {
-                    ecgRecord.updateReportContent();
-                    ecgRecord.setVer("1.0");
-                    ecgRecord.setReportProvider("康明智能");
-                    ecgRecord.setReportTime(new Date().getTime());
-                    ecgRecord.setReportStatus(EcgReport.DONE);
-                }
+                EcgReport report = new EcgReport("1.0", "康明智能",
+                        new Date().getTime(), "", EcgReport.DONE);
+                ecgRecord.createDiagnoseReport(report);
 
                 ecgRecord.saveAsync().listen(new SaveCallback() {
                     @Override
@@ -706,6 +703,11 @@ public class HrmDevice extends AbstractDevice {
                         BleHeartRateData heartRateData = new BleHeartRateData(data);
 
                         int bpm = heartRateData.getBpm();
+
+                        if(ecgRecordStatus && ecgRecord != null) {
+                            ecgRecord.addHRValue(bpm);
+                        }
+
                         if(config.needWarn()) {
                             if(bpm > config.getHrHigh())
                                 MyApplication.getTts().speak(R.string.hr_too_high);

@@ -29,6 +29,16 @@ public class MathUtil {
         return sum/m;
     }
 
+    //int均值,返回float
+    public static float intAve(List<Integer> x) {
+        int m = x.size();
+        float sum = 0;
+        for(Integer d : x) {
+            sum += d;
+        }
+        return sum/m;
+    }
+
     //short均值,返回float
     public static float shortAve(List<Short> x) {
         int m = x.size();

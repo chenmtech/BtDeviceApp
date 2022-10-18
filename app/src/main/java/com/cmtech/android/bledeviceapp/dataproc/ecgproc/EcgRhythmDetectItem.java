@@ -13,7 +13,7 @@ public class EcgRhythmDetectItem {
         put(NSR_LABEL, "窦性心律");
         put(NOISE_LABEL, "噪声");
         put(AF_LABEL, "房颤");
-        put(OTHER_LABEL, "未知异常");
+        put(OTHER_LABEL, "其他异常");
     }};
 
     private long startTime;

@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.data.report;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import androidx.annotation.NonNull;
@@ -16,6 +15,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class EcgReport implements IJsonable {
+    public static final int HR_TOO_LOW_LIMIT = 50;
+    public static final int HR_TOO_HIGH_LIMIT = 100;
     public static final String DEFAULT_REPORT_CONTENT = "";
     public static final String DEFAULT_REPORT_VER = "1.0";
 
@@ -30,9 +31,16 @@ public class EcgReport implements IJsonable {
     private long reportTime = INVALID_TIME;
     private String reportContent = DEFAULT_REPORT_CONTENT;
     private int reportStatus = DONE;
-    private int aveHr = INVALID_HR;
 
     public EcgReport() {
+    }
+
+    public EcgReport(String ver, String reportProvider, long reportTime, String reportContent, int reportStatus) {
+        this.ver = ver;
+        this.reportProvider = reportProvider;
+        this.reportTime = reportTime;
+        this.reportContent = reportContent;
+        this.reportStatus = reportStatus;
     }
 
     public String getVer() {
@@ -75,14 +83,6 @@ public class EcgReport implements IJsonable {
         this.reportStatus = reportStatus;
     }
 
-    public int getAveHr() {
-        return aveHr;
-    }
-
-    public void setAveHr(int aveHr) {
-        this.aveHr = aveHr;
-    }
-
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         ver = json.getString("reportVer");
@@ -90,8 +90,6 @@ public class EcgReport implements IJsonable {
         reportTime = json.getLong("reportTime");
         reportContent = json.getString("reportContent");
         reportStatus = json.getInt("reportStatus");
-        if(json.has("aveHr"))
-            aveHr = json.getInt("aveHr");
     }
 
     @Override
@@ -102,7 +100,6 @@ public class EcgReport implements IJsonable {
         json.put("reportTime", reportTime);
         json.put("reportContent", reportContent);
         json.put("reportStatus", reportStatus);
-        json.put("aveHr", aveHr);
         return json;
     }
 
@@ -123,7 +120,6 @@ public class EcgReport implements IJsonable {
         }
         return "时间：" + dateFmt.format(new Date(reportTime))
                 + "\n提供方：" + reportProvider
-                + "\n平均心率：" + aveHr
                 + "\n内容：" + reportContent
                 + "\n状态：" + statusStr;
     }
