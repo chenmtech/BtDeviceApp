@@ -1,17 +1,13 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.AF_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NOISE_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NSR_LABEL;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.OTHER_LABEL;
 
-import android.content.Context;
 import android.util.Log;
 import android.util.Pair;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.ResampleFrom250To300;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.vise.log.ViseLog;
 
@@ -33,23 +29,38 @@ import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
 
+/**
+ * 心电信号中是否存在心律异常的实时检测器
+ */
 public class EcgRealTimeRhythmDetector {
+    //--------------------------------------------------------------常量
+    // 信号采样率
     private static final int SAMPLE_RATE = 300;
 
+    // 用于一次检测的信号时长
     private static final int ECG_SIGNAL_TIME_LENGTH = 20;
 
+    // 检测间隔时长
     private static final int DETECT_INTERVAL_TIME_LENGTH = 10;
 
+    // 存放信号的缓存长度
     private static final int SIGNAL_BUFFER_LENGTH = ECG_SIGNAL_TIME_LENGTH*SAMPLE_RATE;
 
+    // 检测间隔对应的缓存长度
     private static final int DETECT_INTERVAL_BUFFER_START = DETECT_INTERVAL_TIME_LENGTH*SAMPLE_RATE;
 
-    private final HrmDevice device;
+    //------------------------------------------------------------内部接口
+    // 心律异常检测结果回调接口
+    public interface ICallback {
+        // 心律异常信息更新
+        void onRhythmDetectItemUpdated(EcgRhythmDetectItem item);
+    }
 
-    // ECG重采样
+    //------------------------------------------------------------实例变量
+    // ECG信号重采样器，采样频率从250Hz变为300Hz
     private final ResampleFrom250To300 resample;
 
-    // 心律检测器，由一个ORT机器学习模型构建ORT会话，由该会话来完成心律异常检测
+    // 心律异常检测器，由一个ORT机器学习模型构建的ORT会话，由该会话来完成心律异常检测
     private OrtSession rhythmDetector;
 
     //
@@ -57,28 +68,23 @@ public class EcgRealTimeRhythmDetector {
 
     private int pos = 0;
 
-    private final List<Short> dataBuf = Collections.synchronizedList(new LinkedList<>());
-
     // 数据处理服务
     private ExecutorService procService;
 
-    private final Map<Integer, Integer> labelMap = new HashMap<>() {{
-        put(0, NSR_LABEL);
-        put(1, AF_LABEL);
-        put(2, OTHER_LABEL);
-        put(3, NOISE_LABEL);
-    }};
+    private final Map<Integer, Integer> labelMap;
 
-    public EcgRealTimeRhythmDetector(HrmDevice device, int modelId) {
-        this.device = device;
+    private final ICallback callback;
+
+    public EcgRealTimeRhythmDetector(int modelId, Map<Integer, Integer> modelLabelMap, ICallback callback) {
+        this.callback = callback;
+        this.labelMap = modelLabelMap;
         resample = new ResampleFrom250To300();
-        rhythmDetector = createOrtSession(device.getContext(), modelId);
+        rhythmDetector = createOrtSession(modelId);
         start();
     }
 
     public void reset() {
         resample.reset();
-        dataBuf.clear();
         Arrays.fill(buf, (short) 0);
         pos = 0;
     }
@@ -108,7 +114,9 @@ public class EcgRealTimeRhythmDetector {
                             long startTime = new Date().getTime() - ECG_SIGNAL_TIME_LENGTH*1000;
                             EcgRhythmDetectItem item =
                                     new EcgRhythmDetectItem(startTime, label);
-                            device.updateRhythmInfo(item);
+                            if(callback != null)
+                                callback.onRhythmDetectItemUpdated(item);
+
                             System.arraycopy(buf, DETECT_INTERVAL_BUFFER_START, buf, 0,
                                     SIGNAL_BUFFER_LENGTH-DETECT_INTERVAL_BUFFER_START);
                             pos = DETECT_INTERVAL_BUFFER_START;
@@ -137,14 +145,13 @@ public class EcgRealTimeRhythmDetector {
 
     /**
      * 创建一个ORT模型的会话，该模型用来实现心律异常诊断
-     * @param context 上下文，用于获取模型资源文件
      * @param modelId 模型资源ID
      * @return ORT会话
      */
-    private OrtSession createOrtSession(Context context, int modelId){
+    private OrtSession createOrtSession(int modelId){
         BufferedInputStream buf = null;
         try {
-            InputStream inputStream = context.getResources().openRawResource(modelId);
+            InputStream inputStream = MyApplication.getContext().getResources().openRawResource(modelId);
             byte[] modelOrt = new byte[inputStream.available()];
             buf = new BufferedInputStream((inputStream));
             int readLen = buf.read(modelOrt, 0, modelOrt.length);

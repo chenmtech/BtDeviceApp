@@ -7,6 +7,10 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NOISE_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NSR_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.OTHER_LABEL;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -40,6 +44,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import ai.onnxruntime.OrtEnvironment;
@@ -493,10 +499,10 @@ public class HrmDevice extends AbstractDevice {
     }
 
     /**
-     * 更新心律异常检测结果信息
-     * @param rhythmItem 一条心律异常检测结果
+     * 更新心律异常检测条目
+     * @param rhythmItem 一条心律异常检测条目
      */
-    public void updateRhythmInfo(EcgRhythmDetectItem rhythmItem) {
+    private void updateRhythmDetectItem(EcgRhythmDetectItem rhythmItem) {
         if(!MyApplication.isRunInBackground()) {
             if (listener != null) {
                 listener.onEcgRhythmDetectInfoUpdated(EcgRhythmDetectItem.RESULT_TABLE.get(rhythmItem.getLabel()));
@@ -819,7 +825,13 @@ public class HrmDevice extends AbstractDevice {
 
                 // 启动心律异常检测器
                 if(rhythmDetector == null) {
-                    rhythmDetector = new EcgRealTimeRhythmDetector(HrmDevice.this, R.raw.afdetect_1);
+                    Map<Integer, Integer> labelMap = new HashMap<>() {{
+                        put(0, NSR_LABEL);
+                        put(1, AF_LABEL);
+                        put(2, OTHER_LABEL);
+                        put(3, NOISE_LABEL);
+                    }};
+                    rhythmDetector = new EcgRealTimeRhythmDetector(R.raw.afdetect_1, labelMap, item -> updateRhythmDetectItem(item));
                 } else {
                     rhythmDetector.reset();
                 }
