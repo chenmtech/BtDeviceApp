@@ -38,7 +38,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|top"
                 android:textColor="#ff0"
-                android:textSize="@dimen/normal_font"/>
+                android:textSize="@dimen/normal_font"
+                android:background="#ff000000"/>
 
             <TextView
                 android:id="@+id/tv_current_time"

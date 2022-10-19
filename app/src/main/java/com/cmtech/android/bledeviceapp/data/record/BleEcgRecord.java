@@ -4,6 +4,8 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.OTHER_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
@@ -21,6 +23,7 @@ import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import org.json.JSONException;
@@ -243,6 +246,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     // 获取pos指定数据位置对应的时间点
     private long getTimeAtPosition(int pos) {
+        if(pos < 0) return INVALID_TIME;
+
         int startPos;
         long startTime;
         if(breakPos.isEmpty()) {
@@ -261,14 +266,16 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     // 获取时间点对应的数据位置
     public int getPositionAtTime(long time) {
+        if(time < 0) return INVALID_POS;
+
         int startPos;
         long startTime;
         if(breakPos.isEmpty()) {
             startPos = 0;
             startTime = getCreateTime();
         } else {
-            if(time <= breakTime.get(0)) {
-                return breakPos.get(0);
+            if(time < breakTime.get(0)) {
+                return 0;
             }
 
             int i;
@@ -282,36 +289,44 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     public int getLabelAtTime(long time) {
+        if(rhythmItemStartTime.isEmpty()) return INVALID_LABEL;
+
         int i;
         for(i = 0; i < rhythmItemStartTime.size(); i++) {
             if(rhythmItemStartTime.get(i) > time) break;
         }
+        if(i-1 < 0) return INVALID_LABEL;
         return rhythmItemLabel.get(i-1);
     }
 
-    public int getPreviousRhythmPositionFromCurrentPosition() {
+    public int getPreRhythmPositionFromCurrentPosition() {
         long curTime = getTimeAtCurrentPosition();
-        if(curTime == INVALID_TIME) return -1;
+        ViseLog.e("curTime:"+curTime);
+        if(curTime == INVALID_TIME) return INVALID_POS;
+
+        if(rhythmItemStartTime.isEmpty()) return INVALID_POS;
 
         int i;
         for(i = 0; i < rhythmItemStartTime.size(); i++) {
             if(rhythmItemStartTime.get(i) > curTime) break;
         }
-
-        if(i-2 < 0) return -1;
+        ViseLog.e("i:"+i);
+        if(i-2 < 0) return INVALID_POS;
         return getPositionAtTime(rhythmItemStartTime.get(i-2));
     }
 
     public int getNextRhythmPositionFromCurrentPosition() {
         long curTime = getTimeAtCurrentPosition();
-        if(curTime == INVALID_TIME) return -1;
+        if(curTime == INVALID_TIME) return INVALID_POS;
+
+        if(rhythmItemStartTime.isEmpty()) return INVALID_POS;
 
         int i;
         for(i = 0; i < rhythmItemStartTime.size(); i++) {
             if(rhythmItemStartTime.get(i) > curTime) break;
         }
 
-        if(i > rhythmItemStartTime.size()-1) return -1;
+        if(i > rhythmItemStartTime.size()-1) return INVALID_POS;
         return getPositionAtTime(rhythmItemStartTime.get(i));
     }
 

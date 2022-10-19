@@ -77,6 +77,8 @@ public class AppConstant {
     //public static final String KMIC_URL = "http://203.195.137.198/BtDeviceWebApp/";
     public static final String KMIC_URL = "http://kmic.xyz/BtDeviceWebApp/";
 
+    public static final int INVALID_POS = -1;
+    public static final int INVALID_LABEL = -1;
     public static final int NSR_LABEL = 0;
     public static final int NOISE_LABEL = 1;
     public static final int AF_LABEL = 2;

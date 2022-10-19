@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
@@ -173,8 +174,8 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getPreviousRhythmPositionFromCurrentPosition();
-                if(pos >= 0)
+                int pos = ecgRecord.getPreRhythmPositionFromCurrentPosition();
+                if(pos != -1)
                     ecgView.showAt(pos);
                 ecgView.startShow();
             }
@@ -187,7 +188,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
                 int pos = ecgRecord.getNextRhythmPositionFromCurrentPosition();
-                if(pos >= 0)
+                if(pos != -1)
                     ecgView.showAt(pos);
                 ecgView.startShow();
             }
@@ -349,9 +350,12 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     public void onDataLocationUpdated(long location, int second) {
         tvCurrentTime.setText(DateTimeUtil.secToTime(second));
         long currentTime = ((BleEcgRecord)record).getTimeAtCurrentPosition();
-        String label = RHYTHM_LABEL_MAP.get(((BleEcgRecord)record).getLabelAtTime(currentTime));
+        String labelStr = "";
+        int label = ((BleEcgRecord)record).getLabelAtTime(currentTime);
+        if(label != INVALID_LABEL)
+            labelStr = RHYTHM_LABEL_MAP.get(label);
         tvCurrentLongTime.setText(
-                DateTimeUtil.timeToStringWithTodayYesterday(currentTime)+" "+label);
+                DateTimeUtil.timeToStringWithTodayYesterday(currentTime)+" "+labelStr);
         sbReplay.setProgress(second);
     }
 
