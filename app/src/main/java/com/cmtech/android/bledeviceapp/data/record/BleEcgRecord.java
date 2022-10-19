@@ -3,9 +3,9 @@ package com.cmtech.android.bledeviceapp.data.record;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.AF_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.OTHER_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.RESULT_TABLE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.OTHER_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 import android.content.Context;
@@ -187,13 +187,13 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         if(aveHr == INVALID_HR) {
             strHrResult = "";
         } else {
-            strHrResult = "平均心率：" + aveHr + "次/分钟，";
+            strHrResult = "平均心率" + aveHr + "次/分钟,";
             if(aveHr > HR_TOO_HIGH_LIMIT)
-                strHrResult += "心动过速;";
+                strHrResult += "过速;";
             else if(aveHr < HR_TOO_LOW_LIMIT)
-                strHrResult += "心动过缓;";
+                strHrResult += "过缓;";
             else
-                strHrResult += "心率正常;";
+                strHrResult += "正常;";
         }
 
         int af_times = 0;
@@ -211,10 +211,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             strRhythmResult = "未发现心律异常";
         } else {
             if(af_times != 0) {
-                strRhythmResult += "发现"+RESULT_TABLE.get(AF_LABEL)+af_times+"次；";
+                strRhythmResult += RHYTHM_LABEL_MAP.get(AF_LABEL)+af_times+"次；";
             }
             if(other_times != 0) {
-                strRhythmResult += "发现"+RESULT_TABLE.get(OTHER_LABEL)+other_times+"次；";
+                strRhythmResult += RHYTHM_LABEL_MAP.get(OTHER_LABEL)+other_times+"次；";
             }
         }
         report.setReportContent(strHrResult+strRhythmResult);

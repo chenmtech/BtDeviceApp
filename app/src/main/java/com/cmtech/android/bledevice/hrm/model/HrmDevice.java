@@ -7,10 +7,11 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.AF_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NOISE_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.NSR_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem.OTHER_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.NOISE_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.NSR_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.OTHER_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -319,7 +320,6 @@ public class HrmDevice extends AbstractDevice {
             return;
         }
 
-        this.ecgRecordStatus = record;
         // 开始记录
         if(record) {
             ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
@@ -331,10 +331,16 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.createSigFile();
                 ecgRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
+
+                if(rhythmDetector != null)
+                    rhythmDetector.reset();
             }
+            this.ecgRecordStatus = record;
         }
         // 停止记录
         else {
+            this.ecgRecordStatus = record;
+
             if(ecgRecord != null) {
                 int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 ecgRecord.setRecordSecond(second);
@@ -505,7 +511,7 @@ public class HrmDevice extends AbstractDevice {
     private void updateRhythmDetectItem(EcgRhythmDetectItem rhythmItem) {
         if(!MyApplication.isRunInBackground()) {
             if (listener != null) {
-                listener.onEcgRhythmDetectInfoUpdated(EcgRhythmDetectItem.RESULT_TABLE.get(rhythmItem.getLabel()));
+                listener.onEcgRhythmDetectInfoUpdated(RHYTHM_LABEL_MAP.get(rhythmItem.getLabel()));
             }
         }
 
@@ -825,13 +831,13 @@ public class HrmDevice extends AbstractDevice {
 
                 // 启动心律异常检测器
                 if(rhythmDetector == null) {
-                    Map<Integer, Integer> labelMap = new HashMap<>() {{
+                    Map<Integer, Integer> modelLabelMap = new HashMap<>() {{
                         put(0, NSR_LABEL);
                         put(1, AF_LABEL);
                         put(2, OTHER_LABEL);
                         put(3, NOISE_LABEL);
                     }};
-                    rhythmDetector = new EcgRealTimeRhythmDetector(R.raw.afdetect_1, labelMap, item -> updateRhythmDetectItem(item));
+                    rhythmDetector = new EcgRealTimeRhythmDetector(R.raw.afdetect_1, modelLabelMap, item -> updateRhythmDetectItem(item));
                 } else {
                     rhythmDetector.reset();
                 }
