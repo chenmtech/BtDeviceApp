@@ -18,7 +18,7 @@ public interface ISignalRecord {
     int getSampleRate();
     int getCaliValue();
     boolean isEOD();
-    void seekData(int pos);
+    void seek(int pos);
     int readData() throws IOException;
     int getDataNum();
 }

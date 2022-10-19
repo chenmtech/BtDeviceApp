@@ -149,7 +149,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         @Override
         protected Void doInBackground(BleEcgRecord... bleEcgRecords) {
             BleEcgRecord record = bleEcgRecords[0];
-            record.seekData(0);
+            record.seek(0);
 
             int begin = 0;
             for (ScanEcgView scanEcgView : ECG_VIEWS) {

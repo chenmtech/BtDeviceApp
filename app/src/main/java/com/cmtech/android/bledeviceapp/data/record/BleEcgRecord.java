@@ -7,6 +7,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.OTHER_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.content.Context;
 
@@ -79,7 +80,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     // 心率值列表
     @Column(ignore = true)
-    private List<Integer> hrList = new ArrayList<>();
+    private final List<Integer> hrList = new ArrayList<>();
 
     //--------------------------------------------------构造器
 
@@ -228,20 +229,20 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return sigFile.readShort();
     }
 
-    // 获取当前数据位置对应的时间
-    public long getCurrentPosTime() {
+    // 获取当前数据位置对应的时间点
+    public long getTimeAtCurrentPosition() {
         if(sigFile == null)
-            return -1;
+            return INVALID_TIME;
         try {
-            return getPosTime(sigFile.getCurrentPos());
+            return getTimeAtPosition(sigFile.getCurrentPos());
         } catch (IOException e) {
             e.printStackTrace();
-            return -1;
+            return INVALID_TIME;
         }
     }
 
     // 获取pos指定数据位置对应的时间点
-    private long getPosTime(int pos) {
+    private long getTimeAtPosition(int pos) {
         int startPos;
         long startTime;
         if(breakPos.isEmpty()) {
@@ -256,6 +257,62 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             startTime = breakTime.get(i-1);
         }
         return startTime + (pos - startPos)*1000L/sampleRate;
+    }
+
+    // 获取时间点对应的数据位置
+    public int getPositionAtTime(long time) {
+        int startPos;
+        long startTime;
+        if(breakPos.isEmpty()) {
+            startPos = 0;
+            startTime = getCreateTime();
+        } else {
+            if(time <= breakTime.get(0)) {
+                return breakPos.get(0);
+            }
+
+            int i;
+            for (i = 0; i < breakTime.size(); i++) {
+                if (breakTime.get(i) > time) break;
+            }
+            startPos = breakPos.get(i-1);
+            startTime = breakTime.get(i-1);
+        }
+        return (int) (startPos + (time - startTime)*sampleRate/1000);
+    }
+
+    public int getLabelAtTime(long time) {
+        int i;
+        for(i = 0; i < rhythmItemStartTime.size(); i++) {
+            if(rhythmItemStartTime.get(i) > time) break;
+        }
+        return rhythmItemLabel.get(i-1);
+    }
+
+    public int getPreviousRhythmPositionFromCurrentPosition() {
+        long curTime = getTimeAtCurrentPosition();
+        if(curTime == INVALID_TIME) return -1;
+
+        int i;
+        for(i = 0; i < rhythmItemStartTime.size(); i++) {
+            if(rhythmItemStartTime.get(i) > curTime) break;
+        }
+
+        if(i-2 < 0) return -1;
+        return getPositionAtTime(rhythmItemStartTime.get(i-2));
+    }
+
+    public int getNextRhythmPositionFromCurrentPosition() {
+        long curTime = getTimeAtCurrentPosition();
+        if(curTime == INVALID_TIME) return -1;
+
+        int i;
+        for(i = 0; i < rhythmItemStartTime.size(); i++) {
+            if(rhythmItemStartTime.get(i) > curTime) break;
+        }
+
+        if(i > rhythmItemStartTime.size()-1) return -1;
+        return getPositionAtTime(rhythmItemStartTime.get(i));
     }
 
     /**
@@ -294,6 +351,14 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
         rhythmItemStartTime.add(startTime);
         rhythmItemLabel.add(label);
+    }
+
+    public List<EcgRhythmDetectItem> getEcgRhythmDetectItems() {
+        List<EcgRhythmDetectItem> result = new ArrayList<>();
+        for(int i = 0; i < rhythmItemLabel.size(); i++) {
+            result.add(new EcgRhythmDetectItem(rhythmItemStartTime.get(i), rhythmItemLabel.get(i)));
+        }
+        return result;
     }
 
     @NonNull

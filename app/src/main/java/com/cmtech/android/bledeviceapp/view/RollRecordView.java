@@ -105,6 +105,7 @@ public class RollRecordView extends RollWaveView {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float v, float v1) {
+            stopShow();
             showAt((long)(curIndex +v));
             return true;
         }
@@ -156,7 +157,7 @@ public class RollRecordView extends RollWaveView {
         stopShow();
         this.record = record;
         curIndex = 0;
-        record.seekData(curIndex);
+        record.seek(curIndex);
 
         int sampleInterval = 1000/ record.getSampleRate();
         dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_TIME_INTERVAL /sampleInterval));
@@ -171,7 +172,7 @@ public class RollRecordView extends RollWaveView {
             ViseLog.e("启动RollRecordView");
             if(record.isEOD()) {
                 curIndex = 0;
-                record.seekData(curIndex);
+                record.seek(curIndex);
                 resetView(true);
             }
 
@@ -219,7 +220,7 @@ public class RollRecordView extends RollWaveView {
 
     // 显示指定秒数的信号
     public void showAtSecond(int second) {
-        showAt(second * record.getSampleRate());
+        showAt((long) second * record.getSampleRate());
     }
 
     // 显示指定数据位置信号
@@ -236,7 +237,7 @@ public class RollRecordView extends RollWaveView {
             begin = 0;
         }
 
-        record.seekData((int)begin);
+        record.seek((int)begin);
         clearData();
         while(begin++ <= location) {
             try {

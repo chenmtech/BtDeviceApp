@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|top"
-                android:textColor="#fff"
+                android:textColor="#ff0"
                 android:textSize="@dimen/normal_font"/>
 
             <TextView
@@ -86,6 +86,26 @@
 
         <include layout="@layout/divider_line"/>
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btn_previous_rhythm"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            style="@style/button_circle_blue_style"
+            android:text="上一条异常"/>
+        <Button
+            android:id="@+id/btn_next_rhythm"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            style="@style/button_circle_blue_style"
+            android:text="下一条异常"/>
     </LinearLayout>
 
     <FrameLayout

@@ -90,7 +90,7 @@ public class RecordFile {
     }
 
     // 文件指针定位到某个数据
-    public void seekData(int pos) throws IOException {
+    public void seek(int pos) throws IOException {
         raf.seek((long) pos * datumByteNum);
     }
 

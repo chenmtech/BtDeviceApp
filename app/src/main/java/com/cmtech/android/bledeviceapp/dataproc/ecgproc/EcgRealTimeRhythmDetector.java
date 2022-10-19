@@ -222,7 +222,7 @@ public class EcgRealTimeRhythmDetector {
     private void startDetect() {
         if(ExecutorUtil.isDead(procService)) {
             procService = ExecutorUtil.newSingleExecutor("MT_Ecg_Rhythm_Detect");
-            //ViseLog.e("The ecg real time rhythm detection started.");
+            ViseLog.e("The ecg real time rhythm detection started.");
         } else {
             throw new IllegalStateException("The ecg real time rhythm detection's executor is not stopped and can't be restarted.");
         }

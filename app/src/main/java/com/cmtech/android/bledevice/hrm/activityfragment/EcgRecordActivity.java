@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.content.Intent;
@@ -46,7 +47,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * 心电记录Activity
+ * 心电记录回放Activity，用于查阅已经保存的心电记录
  */
 public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewListener {
     // 心电记录报告Layout
@@ -72,6 +73,10 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
     // 回放开始/停止按钮
     private ImageButton ibReplayCtrl;
+
+    //
+    private Button btnPreviousRhythm;
+    private Button btnNextRhythm;
 
     // 输出PDF按钮
     private Button btnOutputPdf;
@@ -129,7 +134,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
 
         tvCurrentLongTime = findViewById(R.id.tv_current_long_time);
-        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getCurrentPosTime()));
+        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getTimeAtCurrentPosition()));
 
         tvTimeLength = findViewById(R.id.tv_time_length);
         int timeLength = record.getRecordSecond();
@@ -158,6 +163,32 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             if(ecgView.isShowing()) {
                 ecgView.stopShow();
             } else {
+                ecgView.startShow();
+            }
+        });
+
+        btnPreviousRhythm = findViewById(R.id.btn_previous_rhythm);
+        btnPreviousRhythm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ecgView.stopShow();
+                BleEcgRecord ecgRecord = (BleEcgRecord) record;
+                int pos = ecgRecord.getPreviousRhythmPositionFromCurrentPosition();
+                if(pos >= 0)
+                    ecgView.showAt(pos);
+                ecgView.startShow();
+            }
+        });
+
+        btnNextRhythm = findViewById(R.id.btn_next_rhythm);
+        btnNextRhythm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ecgView.stopShow();
+                BleEcgRecord ecgRecord = (BleEcgRecord) record;
+                int pos = ecgRecord.getNextRhythmPositionFromCurrentPosition();
+                if(pos >= 0)
+                    ecgView.showAt(pos);
                 ecgView.startShow();
             }
         });
@@ -317,7 +348,10 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     @Override
     public void onDataLocationUpdated(long location, int second) {
         tvCurrentTime.setText(DateTimeUtil.secToTime(second));
-        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getCurrentPosTime()));
+        long currentTime = ((BleEcgRecord)record).getTimeAtCurrentPosition();
+        String label = RHYTHM_LABEL_MAP.get(((BleEcgRecord)record).getLabelAtTime(currentTime));
+        tvCurrentLongTime.setText(
+                DateTimeUtil.timeToStringWithTodayYesterday(currentTime)+" "+label);
         sbReplay.setProgress(second);
     }
 

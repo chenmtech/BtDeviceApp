@@ -442,10 +442,10 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         }
     }
 
-    public void seekData(int pos) {
+    public void seek(int pos) {
         if(sigFile!= null) {
             try {
-                sigFile.seekData(pos);
+                sigFile.seek(pos);
             } catch (IOException e) {
                 e.printStackTrace();
             }

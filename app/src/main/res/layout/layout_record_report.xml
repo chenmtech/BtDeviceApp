@@ -21,7 +21,19 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:text="智能诊断："
-                android:textSize="@dimen/big_font"/>
+                android:textSize="@dimen/small_font"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VER"/>
+
+            <TextView
+                android:id="@+id/tv_report_ver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:text="   "/>
         </LinearLayout>
 
         <EditText
@@ -38,7 +50,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical|right"
+            android:gravity="center_vertical"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
             <TextView
@@ -53,25 +65,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:text="  "/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="版本："/>
-
-            <TextView
-                android:id="@+id/tv_report_ver"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="0dp"
-                android:text="   "/>
         </LinearLayout>
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical|right"
+            android:gravity="center_vertical"
             android:layout_marginStart="10dp"
             android:orientation="horizontal">
             <TextView
