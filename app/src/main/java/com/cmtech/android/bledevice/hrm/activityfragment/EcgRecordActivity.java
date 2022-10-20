@@ -1,8 +1,10 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.ALL_RHYTHM_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
@@ -76,7 +78,9 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     private ImageButton ibReplayCtrl;
 
     //
-    private Button btnPreviousRhythm;
+    private Button btnPrevItem;
+    private Button btnNextItem;
+    private Button btnPrevRhythm;
     private Button btnNextRhythm;
 
     // 输出PDF按钮
@@ -168,15 +172,48 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             }
         });
 
-        btnPreviousRhythm = findViewById(R.id.btn_previous_rhythm);
-        btnPreviousRhythm.setOnClickListener(new View.OnClickListener() {
+        btnPrevItem = findViewById(R.id.btn_previous_item);
+        btnPrevItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getPreRhythmPositionFromCurrentPosition();
-                if(pos != -1)
+                int pos = ecgRecord.getPreItemPositionFromCurrentPosition(INVALID_LABEL);
+                if(pos != INVALID_POS)
                     ecgView.showAt(pos);
+                else
+                    Toast.makeText(EcgRecordActivity.this, "没有了", Toast.LENGTH_SHORT).show();
+                ecgView.startShow();
+            }
+        });
+
+        btnNextItem = findViewById(R.id.btn_next_item);
+        btnNextItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ecgView.stopShow();
+                BleEcgRecord ecgRecord = (BleEcgRecord) record;
+                int pos = ecgRecord.getNextItemPositionFromCurrentPosition(INVALID_LABEL);
+                if(pos != INVALID_POS)
+                    ecgView.showAt(pos);
+                else
+                    Toast.makeText(EcgRecordActivity.this, "没有了", Toast.LENGTH_SHORT).show();
+                ecgView.startShow();
+            }
+        });
+
+
+        btnPrevRhythm = findViewById(R.id.btn_previous_rhythm);
+        btnPrevRhythm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ecgView.stopShow();
+                BleEcgRecord ecgRecord = (BleEcgRecord) record;
+                int pos = ecgRecord.getPreItemPositionFromCurrentPosition(ALL_RHYTHM_LABEL);
+                if(pos != INVALID_POS)
+                    ecgView.showAt(pos);
+                else
+                    Toast.makeText(EcgRecordActivity.this, "没有了", Toast.LENGTH_SHORT).show();
                 ecgView.startShow();
             }
         });
@@ -187,9 +224,11 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getNextRhythmPositionFromCurrentPosition();
-                if(pos != -1)
+                int pos = ecgRecord.getNextItemPositionFromCurrentPosition(ALL_RHYTHM_LABEL);
+                if(pos != INVALID_POS)
                     ecgView.showAt(pos);
+                else
+                    Toast.makeText(EcgRecordActivity.this, "没有了", Toast.LENGTH_SHORT).show();
                 ecgView.startShow();
             }
         });

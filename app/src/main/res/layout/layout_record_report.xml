@@ -21,19 +21,21 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:text="智能诊断："
-                android:textSize="@dimen/small_font"/>
+                android:textSize="@dimen/normal_font"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="VER"/>
+                android:text="VER"
+                android:textSize="@dimen/normal_font"/>
 
             <TextView
                 android:id="@+id/tv_report_ver"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="0dp"
-                android:text="   "/>
+                android:text="   "
+                android:textSize="@dimen/normal_font"/>
         </LinearLayout>
 
         <EditText

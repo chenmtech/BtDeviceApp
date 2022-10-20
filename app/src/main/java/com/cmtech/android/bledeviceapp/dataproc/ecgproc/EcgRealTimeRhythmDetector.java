@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
+import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+
 import android.util.Pair;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
@@ -50,7 +52,7 @@ public class EcgRealTimeRhythmDetector {
     // 心律异常检测结果回调接口
     public interface IEcgRhythmDetectCallback {
         // 心律异常信息更新
-        void onRhythmDetectItemUpdated(EcgRhythmDetectItem item);
+        void onRhythmInfoUpdated(EcgRhythmDetectItem item);
     }
 
     //------------------------------------------------------------实例变量
@@ -113,36 +115,44 @@ public class EcgRealTimeRhythmDetector {
             procService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    // 先做重采样，获取输出信号，并将信号放入缓存
-                    List<Short> resampleSignal = resample.process(ecgSignal);
-                    for(short sig : resampleSignal) {
-                        sigBuf[pos++] = sig;
-                    }
-
-                    // 判断信号缓存是否已满，如果是，进行检测
-                    if(pos == SIGNAL_BUFFER_LENGTH) {
-                        try {
-                            // 用模型进行检测，输出结果
-                            int label = detectRhythm(sigBuf);
-                            // 通过标签映射，获取应用定义的异常标签值
-                            label = labelMap.get(label);
-                            // 生成检测条目
-                            long startTime = new Date().getTime() - ECG_SIGNAL_TIME_LENGTH*1000;
-                            EcgRhythmDetectItem item = new EcgRhythmDetectItem(startTime, label);
-                            // 用回调处理检测条目
-                            if(callback != null)
-                                callback.onRhythmDetectItemUpdated(item);
-                            // 更新信号缓存和位置
-                            System.arraycopy(sigBuf, DETECT_INTERVAL_BUFFER_START, sigBuf, 0,
-                                    SIGNAL_BUFFER_LENGTH-DETECT_INTERVAL_BUFFER_START);
-                            pos = DETECT_INTERVAL_BUFFER_START;
-                        } catch (OrtException e) {
-                            e.printStackTrace();
-                            pos = 0;
-                        }
-                    }
+                    postprocess(ecgSignal, INVALID_TIME);
                 }
             });
+        }
+    }
+
+    public void postprocess(short ecgSignal, long curTime) {
+        // 先做重采样，获取输出信号，并将信号放入缓存
+        List<Short> resampleSignal = resample.process(ecgSignal);
+        for(short sig : resampleSignal) {
+            sigBuf[pos++] = sig;
+        }
+
+        // 判断信号缓存是否已满，如果是，进行检测
+        if(pos == SIGNAL_BUFFER_LENGTH) {
+            try {
+                // 用模型进行检测，输出结果
+                int label = detectRhythm(sigBuf);
+                // 通过标签映射，获取应用定义的异常标签值
+                label = labelMap.get(label);
+                // 生成检测条目
+                long startTime;
+                if(curTime == INVALID_TIME)
+                    startTime = new Date().getTime() - ECG_SIGNAL_TIME_LENGTH*1000;
+                else
+                    startTime = curTime - ECG_SIGNAL_TIME_LENGTH*1000;
+                EcgRhythmDetectItem item = new EcgRhythmDetectItem(startTime, label);
+                // 用回调处理检测条目
+                if(callback != null)
+                    callback.onRhythmInfoUpdated(item);
+                // 更新信号缓存和位置
+                System.arraycopy(sigBuf, DETECT_INTERVAL_BUFFER_START, sigBuf, 0,
+                        SIGNAL_BUFFER_LENGTH-DETECT_INTERVAL_BUFFER_START);
+                pos = DETECT_INTERVAL_BUFFER_START;
+            } catch (OrtException e) {
+                e.printStackTrace();
+                pos = 0;
+            }
         }
     }
 

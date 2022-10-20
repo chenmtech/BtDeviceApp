@@ -344,11 +344,10 @@ public class HrmDevice extends AbstractDevice {
             if(ecgRecord != null) {
                 int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
                 ecgRecord.setRecordSecond(second);
-                ecgRecord.calculateHRAve();
 
                 EcgReport report = new EcgReport("1.0", "康明智能",
                         new Date().getTime(), "", EcgReport.DONE);
-                ecgRecord.createDiagnoseReport(report);
+                ecgRecord.setReport(report);
 
                 ecgRecord.saveAsync().listen(new SaveCallback() {
                     @Override
@@ -516,7 +515,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(ecgRecordStatus && ecgRecord != null) {
-            ecgRecord.addRhythmDetectResultItem(rhythmItem);
+            ecgRecord.addRhythmItem(rhythmItem);
         }
     }
 

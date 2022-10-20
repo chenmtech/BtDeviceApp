@@ -4,18 +4,20 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.ALL_RHYTHM_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.NOISE_LABEL;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.NSR_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.OTHER_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.asynctask.ReportAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
@@ -51,7 +53,7 @@ import java.util.List;
  */
 public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
     //-----------------------------------------常量
-    // 记录每个心电信号数据的字节数
+    // 记录每个心电信号数据的字节数，因为用的是short类型
     private static final int BYTES_PER_DATUM = 2;
 
     //------------------------------------------实例变量
@@ -67,17 +69,19 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     // 平均心率值
     private int aveHr = INVALID_HR;
 
-    // 心电采集时中断的位置值列表
+    // 心电采集时设备连接断开时的信号记录位置值列表
     private final List<Integer> breakPos = new ArrayList<>();
 
-    // 心电采集时中断的位置对应的时刻点列表
+    // 心电采集时设备连接断开时的信号记录时刻点列表
     private final List<Long> breakTime = new ArrayList<>();
 
+    // 每一次心律检测的条目起始时刻列表
     private final List<Long> rhythmItemStartTime = new ArrayList<>();
 
+    // 每一次心律检测的条目标记列表
     private final List<Integer> rhythmItemLabel = new ArrayList<>();
 
-    // 采集是否中断
+    // 采集时设备连接是否断开
     @Column(ignore = true)
     private boolean interrupt = false;
 
@@ -98,7 +102,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         super(ECG, ver, createTime, devAddress, creatorId);
     }
 
-    // 创建信号文件
+    //-----------------------------------------------------------公有实例方法
+    // 创建并打开信号文件
     public void createSigFile() {
         super.createSigFile(BYTES_PER_DATUM);
     }
@@ -108,46 +113,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         super.openSigFile(BYTES_PER_DATUM);
     }
 
-    @Override
-    public void fromJson(JSONObject json) throws JSONException{
-        super.fromJson(json);
-        sampleRate = json.getInt("sampleRate");
-        caliValue = json.getInt("caliValue");
-        leadTypeCode = json.getInt("leadTypeCode");
-        aveHr = json.getInt("aveHr");
-        ListStringUtil.stringToList(json.getString("breakPos"), breakPos, Integer.class);
-        ListStringUtil.stringToList(json.getString("breakTime"), breakTime, Long.class);
-        ListStringUtil.stringToList(json.getString("rhythmItemStartTime"), rhythmItemStartTime, Long.class);
-        ListStringUtil.stringToList(json.getString("rhythmItemLabel"), rhythmItemLabel, Integer.class);
-    }
-
-    @Override
-    public JSONObject toJson() throws JSONException{
-        JSONObject json = super.toJson();
-        json.put("sampleRate", sampleRate);
-        json.put("caliValue", caliValue);
-        json.put("leadTypeCode", leadTypeCode);
-        json.put("aveHr", aveHr);
-        json.put("breakPos", ListStringUtil.listToString(breakPos));
-        json.put("breakTime", ListStringUtil.listToString(breakTime));
-        json.put("rhythmItemStartTime", ListStringUtil.listToString(rhythmItemStartTime));
-        json.put("rhythmItemLabel", ListStringUtil.listToString(rhythmItemLabel));
-        return json;
-    }
-
-    @Override
-    public int getSampleRate() {
-        return sampleRate;
-    }
-
     public void setSampleRate(int sampleRate) {
         this.sampleRate = sampleRate;
     }
 
-    @Override
-    public int getCaliValue() {
-        return caliValue;
-    }
 
     public void setCaliValue(int caliValue) {
         this.caliValue = caliValue;
@@ -173,63 +142,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.interrupt = interrupt;
     }
 
+    // 添加一个心率值，并立刻计算平均心率
     public void addHRValue(int bpm) {
         hrList.add(bpm);
-    }
-
-    public void calculateHRAve() {
-        if(hrList.isEmpty()) {
-            this.aveHr = INVALID_HR;
-            return;
-        }
-        float hrAve = MathUtil.intAve(hrList);
-        this.aveHr = (int)hrAve;
-    }
-
-    public void createDiagnoseReport(EcgReport report) {
-        String strHrResult;
-        if(aveHr == INVALID_HR) {
-            strHrResult = "";
-        } else {
-            strHrResult = "平均心率" + aveHr + "次/分钟,";
-            if(aveHr > HR_TOO_HIGH_LIMIT)
-                strHrResult += "过速;";
-            else if(aveHr < HR_TOO_LOW_LIMIT)
-                strHrResult += "过缓;";
-            else
-                strHrResult += "正常;";
-        }
-
-        int af_times = 0;
-        int other_times = 0;
-        for(int ll : rhythmItemLabel) {
-            if(ll == AF_LABEL)
-                af_times++;
-            else if(ll == OTHER_LABEL) {
-                other_times++;
-            }
-        }
-
-        String strRhythmResult = "";
-        if(af_times == 0 && other_times == 0) {
-            strRhythmResult = "未发现心律异常";
-        } else {
-            if(af_times != 0) {
-                strRhythmResult += RHYTHM_LABEL_MAP.get(AF_LABEL)+af_times+"次；";
-            }
-            if(other_times != 0) {
-                strRhythmResult += RHYTHM_LABEL_MAP.get(OTHER_LABEL)+other_times+"次；";
-            }
-        }
-        report.setReportContent(strHrResult+strRhythmResult);
-
-        setReport(report);
-    }
-
-    @Override
-    public int readData() throws IOException {
-        if(sigFile == null) throw new IOException();
-        return sigFile.readShort();
+        this.aveHr = (int)MathUtil.intAve(hrList);
     }
 
     // 获取当前数据位置对应的时间点
@@ -244,27 +160,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
     }
 
-    // 获取pos指定数据位置对应的时间点
-    private long getTimeAtPosition(int pos) {
-        if(pos < 0) return INVALID_TIME;
-
-        int startPos;
-        long startTime;
-        if(breakPos.isEmpty()) {
-            startPos = 0;
-            startTime = getCreateTime();
-        } else {
-            int i;
-            for (i = 0; i < breakPos.size(); i++) {
-                if (breakPos.get(i) > pos) break;
-            }
-            startPos = breakPos.get(i-1);
-            startTime = breakTime.get(i-1);
-        }
-        return startTime + (pos - startPos)*1000L/sampleRate;
-    }
-
-    // 获取时间点对应的数据位置
+    // 获取指定时间点对应的数据位置
     public int getPositionAtTime(long time) {
         if(time < 0) return INVALID_POS;
 
@@ -299,7 +195,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return rhythmItemLabel.get(i-1);
     }
 
-    public int getPreRhythmPositionFromCurrentPosition() {
+    public int getPreItemPositionFromCurrentPosition(int label) {
         long curTime = getTimeAtCurrentPosition();
         ViseLog.e("curTime:"+curTime);
         if(curTime == INVALID_TIME) return INVALID_POS;
@@ -312,10 +208,21 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
         ViseLog.e("i:"+i);
         if(i-2 < 0) return INVALID_POS;
-        return getPositionAtTime(rhythmItemStartTime.get(i-2));
+
+        if(label == INVALID_LABEL)
+            return getPositionAtTime(rhythmItemStartTime.get(i-2));
+
+        if(label == ALL_RHYTHM_LABEL) {
+            for (int j = i - 2; j >= 0; j--) {
+                if(rhythmItemLabel.get(j) != NSR_LABEL && rhythmItemLabel.get(j) != NOISE_LABEL) {
+                    return getPositionAtTime(rhythmItemStartTime.get(j));
+                }
+            }
+        }
+        return INVALID_POS;
     }
 
-    public int getNextRhythmPositionFromCurrentPosition() {
+    public int getNextItemPositionFromCurrentPosition(int label) {
         long curTime = getTimeAtCurrentPosition();
         if(curTime == INVALID_TIME) return INVALID_POS;
 
@@ -326,8 +233,19 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             if(rhythmItemStartTime.get(i) > curTime) break;
         }
 
-        if(i > rhythmItemStartTime.size()-1) return INVALID_POS;
-        return getPositionAtTime(rhythmItemStartTime.get(i));
+        if(i == rhythmItemStartTime.size()) return INVALID_POS;
+
+        if(label == INVALID_LABEL)
+            return getPositionAtTime(rhythmItemStartTime.get(i));
+
+        if(label == ALL_RHYTHM_LABEL) {
+            for (int j = i; j < rhythmItemLabel.size(); j++) {
+                if(rhythmItemLabel.get(j) != NSR_LABEL && rhythmItemLabel.get(j) != NOISE_LABEL) {
+                    return getPositionAtTime(rhythmItemStartTime.get(j));
+                }
+            }
+        }
+        return INVALID_POS;
     }
 
     /**
@@ -353,39 +271,49 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return success;
     }
 
-    public void addRhythmDetectResultItem(EcgRhythmDetectItem item) {
+    /**
+     * 添加一个心律异常检测条目
+     * @param item 一条检测项
+     */
+    public void addRhythmItem(EcgRhythmDetectItem item) {
         int label = item.getLabel();
 
+        // 如果前一个标记和当前的条目标记一样，就放弃添加
         if(!rhythmItemLabel.isEmpty() && rhythmItemLabel.get(rhythmItemLabel.size()-1) == label) {
             return;
         }
 
         long startTime = item.getStartTime();
+        // 防止条目起始时间比记录创建时间还要早
         if(startTime < getCreateTime()) {
             startTime = getCreateTime();
         }
+
         rhythmItemStartTime.add(startTime);
         rhythmItemLabel.add(label);
     }
 
-    public List<EcgRhythmDetectItem> getEcgRhythmDetectItems() {
-        List<EcgRhythmDetectItem> result = new ArrayList<>();
-        for(int i = 0; i < rhythmItemLabel.size(); i++) {
-            result.add(new EcgRhythmDetectItem(rhythmItemStartTime.get(i), rhythmItemLabel.get(i)));
-        }
-        return result;
-    }
-
-    @NonNull
+    //-------------------------------------------------实现ISignalRecord方法
     @Override
-    public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode +
-                "-" + breakPos + "-" + breakTime + "-" + rhythmItemStartTime + "-" + rhythmItemLabel;
+    public int getCaliValue() {
+        return caliValue;
     }
 
+    @Override
+    public int getSampleRate() {
+        return sampleRate;
+    }
+
+    @Override
+    public int readData() throws IOException {
+        if(sigFile == null) throw new IOException();
+        return sigFile.readShort();
+    }
+
+    //-------------------------------------------------实现IDiagnosable方法
     @Override
     public void remoteDiagnose(Context context, IWebResponseCallback callback) {
-        new ReportAsyncTask(context, callback).execute(this);
+        //new ReportAsyncTask(context, callback).execute(this);
     }
 
     @Override
@@ -397,16 +325,55 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         setReportTime(rtnReport.getReportTime());
         setReportContent(rtnReport.getReportContent());
         setReportStatus(rtnReport.getReportStatus());
-        setAveHr(rtnReport.getAveHr());*/
-        //setNeedUpload(true);
-        save();
+        setAveHr(rtnReport.getAveHr());
+        setNeedUpload(true);
+        save();*/
+    }
+
+
+    //-------------------------------------------------覆写基类BasicRecord的方法
+    @Override
+    public void fromJson(JSONObject json) throws JSONException{
+        super.fromJson(json);
+        sampleRate = json.getInt("sampleRate");
+        caliValue = json.getInt("caliValue");
+        leadTypeCode = json.getInt("leadTypeCode");
+        aveHr = json.getInt("aveHr");
+        ListStringUtil.stringToList(json.getString("breakPos"), breakPos, Integer.class);
+        ListStringUtil.stringToList(json.getString("breakTime"), breakTime, Long.class);
+        ListStringUtil.stringToList(json.getString("rhythmItemStartTime"), rhythmItemStartTime, Long.class);
+        ListStringUtil.stringToList(json.getString("rhythmItemLabel"), rhythmItemLabel, Integer.class);
+    }
+
+    @Override
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = super.toJson();
+        json.put("sampleRate", sampleRate);
+        json.put("caliValue", caliValue);
+        json.put("leadTypeCode", leadTypeCode);
+        json.put("aveHr", aveHr);
+        json.put("breakPos", ListStringUtil.listToString(breakPos));
+        json.put("breakTime", ListStringUtil.listToString(breakTime));
+        json.put("rhythmItemStartTime", ListStringUtil.listToString(rhythmItemStartTime));
+        json.put("rhythmItemLabel", ListStringUtil.listToString(rhythmItemLabel));
+        return json;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode +
+                "-" + breakPos + "-" + breakTime + "-" + rhythmItemStartTime + "-" + rhythmItemLabel;
     }
 
     @Override
     public void download(Context context, ICodeCallback callback) {
         File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+        // 如果本地不存在信号文件
         if(!file.exists()) {
+            // 如果远程存在信号文件
             if(UploadDownloadFileUtil.isFileExist("ECG", getSigFileName())) {
+                // 下载远程信号文件
                 UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), BasicRecord.SIG_FILE_PATH, new ICodeCallback() {
                     @Override
                     public void onFinish(int code) {
@@ -420,7 +387,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             } else {
                 callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
             }
-        } else {
+        }
+        // 如果本地存在信号文件，则调用基类方法从数据库下载记录信息
+        else {
             super.download(context, callback);
         }
     }
@@ -428,8 +397,11 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Override
     public void upload(Context context, ICodeCallback callback) {
         File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
+        // 如果本地存在文件
         if(sigFile.exists()) {
+            // 如果远程不存在文件
             if(!UploadDownloadFileUtil.isFileExist("ECG", getSigFileName())) {
+                // 上传信号文件
                 UploadDownloadFileUtil.uploadFile(context, "ECG", sigFile, new ICodeCallback() {
                     @Override
                     public void onFinish(int code) {
@@ -440,7 +412,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                         }
                     }
                 });
-            } else {
+            }
+            // 如果远程存在文件，则调用基类方法上传记录信息
+            else {
                 super.upload(context, callback);
             }
         } else {
@@ -448,4 +422,68 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
     }
 
+    @Override
+    public void setReport(EcgReport report) {
+        report.setReportContent(createReportContent());
+        super.setReport(report);
+    }
+
+    // 创建诊断报告内容，返回字符串
+    private String createReportContent() {
+        String strHrResult;
+        if(aveHr == INVALID_HR) {
+            strHrResult = "";
+        } else {
+            strHrResult = "平均心率" + aveHr + "次/分钟,";
+            if(aveHr > HR_TOO_HIGH_LIMIT)
+                strHrResult += "过速;";
+            else if(aveHr < HR_TOO_LOW_LIMIT)
+                strHrResult += "过缓;";
+            else
+                strHrResult += "正常;";
+        }
+
+        int af_times = 0;
+        int other_times = 0;
+        for(int ll : rhythmItemLabel) {
+            if(ll == AF_LABEL)
+                af_times++;
+            else if(ll == OTHER_LABEL) {
+                other_times++;
+            }
+        }
+
+        String strRhythmResult = "";
+        if(af_times == 0 && other_times == 0) {
+            strRhythmResult = "未发现心律异常;";
+        } else {
+            if(af_times != 0) {
+                strRhythmResult += RHYTHM_LABEL_MAP.get(AF_LABEL)+af_times+"次；";
+            }
+            if(other_times != 0) {
+                strRhythmResult += RHYTHM_LABEL_MAP.get(OTHER_LABEL)+other_times+"次；";
+            }
+        }
+        return strHrResult+strRhythmResult;
+    }
+
+    // 获取pos指定信号位置对应的采集时刻点
+    private long getTimeAtPosition(int pos) {
+        if(pos < 0) return INVALID_TIME;
+
+        int startPos;
+        long startTime;
+        if(breakPos.isEmpty()) {
+            startPos = 0;
+            startTime = getCreateTime();
+        } else {
+            int i;
+            for (i = 0; i < breakPos.size(); i++) {
+                if (breakPos.get(i) > pos) break;
+            }
+            startPos = breakPos.get(i-1);
+            startTime = breakTime.get(i-1);
+        }
+        return startTime + (pos - startPos)*1000L/sampleRate;
+    }
 }

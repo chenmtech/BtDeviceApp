@@ -83,6 +83,7 @@ public class AppConstant {
     public static final int NOISE_LABEL = 1;
     public static final int AF_LABEL = 2;
     public static final int OTHER_LABEL = 3;
+    public static final int ALL_RHYTHM_LABEL = 100;
 
     public static final Map<Integer, String> RHYTHM_LABEL_MAP = new HashMap<>(){{
         put(NSR_LABEL, "窦性心律");
