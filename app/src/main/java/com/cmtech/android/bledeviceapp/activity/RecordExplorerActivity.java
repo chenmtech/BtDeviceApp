@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
@@ -223,6 +224,15 @@ public class RecordExplorerActivity extends AppCompatActivity {
     public void deleteRecord(int index) {
         BasicRecord record = recordList.get(index);
         if(record != null) {
+            int recordId = record.getId();
+            List<IDevice> openedDevice = MyApplication.getDeviceManager().getOpenedDevice();
+            for(IDevice device : openedDevice) {
+                if(device.getRecordingRecord() != null && recordId == device.getRecordingRecord().getId()) {
+                    Toast.makeText(this, "正在记录中，不能删除。", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.delete_record).setMessage(R.string.really_wanna_delete_record);
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {

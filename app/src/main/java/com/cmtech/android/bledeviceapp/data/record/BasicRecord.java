@@ -77,10 +77,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // ID号
     private int id;
 
-    // 记录类型
-    @Column(ignore = true)
-    private final RecordType type;
-
     // 创建时间
     private long createTime;
 
@@ -99,10 +95,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // 记录信号长度，单位:秒
     private int recordSecond = 0;
 
-    @Column(ignore = true)
-    protected RecordFile sigFile;
+    // 是否需要上传
+    private boolean needUpload = true;
 
-    // ----------------------------------------------诊断报告相关字段
+
+    // ----------------------------------------------与诊断报告相关字段
     // 报告版本号
     private String reportVer = DEFAULT_REPORT_VER;
 
@@ -118,8 +115,16 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // 报告状态
     private int reportStatus = DONE;
 
-    // 是否需要上传
-    private boolean needUpload = true;
+
+    //------------------------------------------------不需要保存到数据库中的属性
+    // 记录类型
+    @Column(ignore = true)
+    private final RecordType type;
+
+    // 记录保存的数据文件类实例
+    @Column(ignore = true)
+    protected RecordFile sigFile;
+
 
     //-----------------------------------------静态函数
     /**

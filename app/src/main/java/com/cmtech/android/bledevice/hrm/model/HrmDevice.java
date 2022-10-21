@@ -3,15 +3,15 @@ package com.cmtech.android.bledevice.hrm.model;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.NOISE_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.NSR_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.OTHER_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -38,7 +38,6 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-import org.litepal.crud.callback.SaveCallback;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -188,9 +187,6 @@ public class HrmDevice extends AbstractDevice {
     // HRM设备监听器
     private OnHrmListener listener;
 
-    // QRS波检测器，可以用来得到RR间隔或心率值
-    //private QrsDetector qrsDetector;
-
     // 心律异常实时检测器
     private EcgRealTimeRhythmDetector rhythmDetector;
 
@@ -273,8 +269,6 @@ public class HrmDevice extends AbstractDevice {
                 }
                 // 记录时长已够
                 else {
-                    //hrRecord.setCreateTime(new Date().getTime());
-
                     // 生成心率区间直方图
                     hrRecord.getHrHist().clear();
                     for(int i = 0; i < hrRecord.getHrHistogram().size(); i++) {
@@ -330,6 +324,7 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.setInterrupt(true);
                 ecgRecord.createSigFile();
                 ecgRecord.save();
+                recordingRecord = ecgRecord;
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
 
                 if(rhythmDetector != null)
@@ -348,16 +343,10 @@ public class HrmDevice extends AbstractDevice {
                 EcgReport report = new EcgReport("1.0", "康明智能",
                         new Date().getTime(), "", EcgReport.DONE);
                 ecgRecord.setReport(report);
-
-                ecgRecord.saveAsync().listen(new SaveCallback() {
-                    @Override
-                    public void onFinish(boolean success) {
-                        if(success) {
-                            ecgRecord.closeSigFile();
-                            ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
-                        }
-                    }
-                });
+                ecgRecord.closeSigFile();
+                ecgRecord.save();
+                recordingRecord = null;
+                ThreadUtil.showToastInMainThread(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT);
             }
         }
 

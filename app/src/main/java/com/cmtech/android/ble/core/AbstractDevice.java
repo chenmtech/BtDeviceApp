@@ -1,27 +1,32 @@
 package com.cmtech.android.ble.core;
 
+import static com.cmtech.android.ble.core.DeviceConnectState.CONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.DISCONNECT;
+import static com.cmtech.android.ble.core.DeviceConnectState.FAILURE;
+
 import android.content.Context;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.OtherException;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.ble.core.DeviceConnectState.CONNECT;
-import static com.cmtech.android.ble.core.DeviceConnectState.DISCONNECT;
-import static com.cmtech.android.ble.core.DeviceConnectState.FAILURE;
-
 public abstract class AbstractDevice implements IDevice{
-    private Context context; // context
+    // 上下文
+    private final Context context; // context
     private final DeviceCommonInfo commonInfo; // common information
     private int batteryLevel; // battery level
     private String notificationInfo;
     private final List<OnCommonDeviceListener> commonListeners; // common device listeners
     protected final IConnector connector; // connector
+
+    // 正在记录中的记录
+    protected BasicRecord recordingRecord = null;
 
     public AbstractDevice(Context context, DeviceCommonInfo commonInfo) {
         if(context == null) {
@@ -123,6 +128,11 @@ public abstract class AbstractDevice implements IDevice{
     @Override
     public DeviceConnectState getConnectState() {
         return connector.getState();
+    }
+
+    @Override
+    public BasicRecord getRecordingRecord() {
+        return recordingRecord;
     }
 
     @Override

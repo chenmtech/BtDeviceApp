@@ -1,8 +1,8 @@
 package com.cmtech.android.ble.core;
 
 import android.content.Context;
-
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 
 public interface IDevice extends IConnector.IConnectorCallback {
     int INVALID_BATTERY_LEVEL = -1; // invalid battery level
@@ -23,6 +23,7 @@ public interface IDevice extends IConnector.IConnectorCallback {
     void setNotificationInfo(String notifyInfo);
     void addCommonListener(OnCommonDeviceListener listener);
     void removeCommonListener(OnCommonDeviceListener listener);
+    BasicRecord getRecordingRecord();
 
     void open(); // open device
     void close(); // close device

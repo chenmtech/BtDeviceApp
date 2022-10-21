@@ -15,9 +15,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MA
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.content.Context;
-
 import androidx.annotation.NonNull;
-
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
@@ -27,11 +25,9 @@ import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.annotation.Column;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -53,10 +49,10 @@ import java.util.List;
  */
 public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
     //-----------------------------------------常量
-    // 记录每个心电信号数据的字节数，因为用的是short类型
+    // 记录每个信号数据所需的字节数，因为用的是short类型数据，所以是2个字节
     private static final int BYTES_PER_DATUM = 2;
 
-    //------------------------------------------实例变量
+    //------------------------------------------实例变量，这些变量值会保存到本地和远程数据库中
     // 采样率
     private int sampleRate = 0;
 
@@ -81,6 +77,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     // 每一次心律检测的条目标记列表
     private final List<Integer> rhythmItemLabel = new ArrayList<>();
 
+    //------------------------------------------实例变量，这些变量值不会保存到本地和远程数据库中
     // 采集时设备连接是否断开
     @Column(ignore = true)
     private boolean interrupt = false;
@@ -90,12 +87,11 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     private final List<Integer> hrList = new ArrayList<>();
 
     //--------------------------------------------------构造器
-
     /**
-     * 由RecordFactory工厂类通过反射调用来创建对象
+     * 由RecordFactory工厂类通过反射调用它来创建对象
      * @param ver 记录版本号
      * @param createTime 创建时间
-     * @param devAddress 创建的设备蓝牙地址
+     * @param devAddress 创建设备的蓝牙地址
      * @param creatorId 创建者的ID号
      */
     private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
@@ -117,7 +113,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.sampleRate = sampleRate;
     }
 
-
     public void setCaliValue(int caliValue) {
         this.caliValue = caliValue;
     }
@@ -130,9 +125,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return aveHr;
     }
 
-    public void setAveHr(int aveHr) {
+/*    public void setAveHr(int aveHr) {
         this.aveHr = aveHr;
-    }
+    }*/
 
     public boolean isInterrupt() {
         return interrupt;
@@ -148,7 +143,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.aveHr = (int)MathUtil.intAve(hrList);
     }
 
-    // 获取当前数据位置对应的时间点
+    /**
+     * 获取记录的信号文件中当前位置上的数据的采集时刻点
+     * @return 时刻点，单位ms
+     */
     public long getTimeAtCurrentPosition() {
         if(sigFile == null)
             return INVALID_TIME;
@@ -160,7 +158,40 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
     }
 
+    /**
+     * 获取记录的信号文件中pos位置上的数据的采集时刻点
+     * 为了正确获取数据的采集时刻，必须用到breakPos和breakTime
+     * @param pos 数据位置
+     * @return 时刻，单位ms
+     */
+    private long getTimeAtPosition(int pos) {
+        if(pos < 0) return INVALID_TIME;
+
+        int startPos;
+        long startTime;
+        if(breakPos.isEmpty()) {
+            startPos = 0;
+            startTime = getCreateTime();
+        } else {
+            int i;
+            for (i = 0; i < breakPos.size(); i++) {
+                if (breakPos.get(i) > pos) break;
+            }
+            if(i==0) return INVALID_TIME;
+            startPos = breakPos.get(i-1);
+            startTime = breakTime.get(i-1);
+        }
+        return startTime + (pos - startPos)*1000L/sampleRate;
+    }
+
     // 获取指定时间点对应的数据位置
+
+    /**
+     * 获取指定采集时刻time对应于记录的信号文件中的数据位置pos
+     * 为了正确获取数据位置，必须用到breakPos和breakTime
+     * @param time 采集时刻点
+     * @return 信号文件中的数据位置
+     */
     public int getPositionAtTime(long time) {
         if(time < 0) return INVALID_POS;
 
@@ -184,14 +215,19 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return (int) (startPos + (time - startTime)*sampleRate/1000);
     }
 
+    /**
+     * 获取指定采集时刻time,记录中的信号的诊断标签
+     * @param time 采集时刻点
+     * @return 信号在该时刻的诊断标签
+     */
     public int getLabelAtTime(long time) {
-        if(rhythmItemStartTime.isEmpty()) return INVALID_LABEL;
+        if(rhythmItemLabel.isEmpty()) return INVALID_LABEL;
 
         int i;
         for(i = 0; i < rhythmItemStartTime.size(); i++) {
             if(rhythmItemStartTime.get(i) > time) break;
         }
-        if(i-1 < 0) return INVALID_LABEL;
+        if(i == 0) return INVALID_LABEL;
         return rhythmItemLabel.get(i-1);
     }
 
@@ -467,23 +503,4 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return strHrResult+strRhythmResult;
     }
 
-    // 获取pos指定信号位置对应的采集时刻点
-    private long getTimeAtPosition(int pos) {
-        if(pos < 0) return INVALID_TIME;
-
-        int startPos;
-        long startTime;
-        if(breakPos.isEmpty()) {
-            startPos = 0;
-            startTime = getCreateTime();
-        } else {
-            int i;
-            for (i = 0; i < breakPos.size(); i++) {
-                if (breakPos.get(i) > pos) break;
-            }
-            startPos = breakPos.get(i-1);
-            startTime = breakTime.get(i-1);
-        }
-        return startTime + (pos - startPos)*1000L/sampleRate;
-    }
 }
