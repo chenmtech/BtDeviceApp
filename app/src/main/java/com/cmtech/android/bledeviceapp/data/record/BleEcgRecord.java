@@ -23,7 +23,6 @@ import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,12 +76,12 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     // 每一次心律检测的条目标记列表
     private final List<Integer> rhythmItemLabel = new ArrayList<>();
 
-    //------------------------------------------实例变量，这些变量值不会保存到本地和远程数据库中
+    //------------------------------------------实例变量，这些变量值不会保存到本地或远程数据库中
     // 采集时设备连接是否断开
     @Column(ignore = true)
     private boolean interrupt = false;
 
-    // 心率值列表
+    // 心率值列表，用于计算平均心率
     @Column(ignore = true)
     private final List<Integer> hrList = new ArrayList<>();
 
@@ -129,6 +128,12 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.aveHr = aveHr;
     }*/
 
+    // 添加一个心率值，并立刻计算平均心率
+    public void addOneHr(int bpm) {
+        hrList.add(bpm);
+        this.aveHr = (int)MathUtil.intAve(hrList);
+    }
+
     public boolean isInterrupt() {
         return interrupt;
     }
@@ -137,156 +142,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.interrupt = interrupt;
     }
 
-    // 添加一个心率值，并立刻计算平均心率
-    public void addHRValue(int bpm) {
-        hrList.add(bpm);
-        this.aveHr = (int)MathUtil.intAve(hrList);
-    }
-
     /**
-     * 获取记录的信号文件中当前位置上的数据的采集时刻点
-     * @return 时刻点，单位ms
-     */
-    public long getTimeAtCurrentPosition() {
-        if(sigFile == null)
-            return INVALID_TIME;
-        try {
-            return getTimeAtPosition(sigFile.getCurrentPos());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return INVALID_TIME;
-        }
-    }
-
-    /**
-     * 获取记录的信号文件中pos位置上的数据的采集时刻点
-     * 为了正确获取数据的采集时刻，必须用到breakPos和breakTime
-     * @param pos 数据位置
-     * @return 时刻，单位ms
-     */
-    private long getTimeAtPosition(int pos) {
-        if(pos < 0) return INVALID_TIME;
-
-        int startPos;
-        long startTime;
-        if(breakPos.isEmpty()) {
-            startPos = 0;
-            startTime = getCreateTime();
-        } else {
-            int i;
-            for (i = 0; i < breakPos.size(); i++) {
-                if (breakPos.get(i) > pos) break;
-            }
-            if(i==0) return INVALID_TIME;
-            startPos = breakPos.get(i-1);
-            startTime = breakTime.get(i-1);
-        }
-        return startTime + (pos - startPos)*1000L/sampleRate;
-    }
-
-    // 获取指定时间点对应的数据位置
-
-    /**
-     * 获取指定采集时刻time对应于记录的信号文件中的数据位置pos
-     * 为了正确获取数据位置，必须用到breakPos和breakTime
-     * @param time 采集时刻点
-     * @return 信号文件中的数据位置
-     */
-    public int getPositionAtTime(long time) {
-        if(time < 0) return INVALID_POS;
-
-        int startPos;
-        long startTime;
-        if(breakPos.isEmpty()) {
-            startPos = 0;
-            startTime = getCreateTime();
-        } else {
-            if(time < breakTime.get(0)) {
-                return 0;
-            }
-
-            int i;
-            for (i = 0; i < breakTime.size(); i++) {
-                if (breakTime.get(i) > time) break;
-            }
-            startPos = breakPos.get(i-1);
-            startTime = breakTime.get(i-1);
-        }
-        return (int) (startPos + (time - startTime)*sampleRate/1000);
-    }
-
-    /**
-     * 获取指定采集时刻time,记录中的信号的诊断标签
-     * @param time 采集时刻点
-     * @return 信号在该时刻的诊断标签
-     */
-    public int getLabelAtTime(long time) {
-        if(rhythmItemLabel.isEmpty()) return INVALID_LABEL;
-
-        int i;
-        for(i = 0; i < rhythmItemStartTime.size(); i++) {
-            if(rhythmItemStartTime.get(i) > time) break;
-        }
-        if(i == 0) return INVALID_LABEL;
-        return rhythmItemLabel.get(i-1);
-    }
-
-    public int getPreItemPositionFromCurrentPosition(int label) {
-        long curTime = getTimeAtCurrentPosition();
-        ViseLog.e("curTime:"+curTime);
-        if(curTime == INVALID_TIME) return INVALID_POS;
-
-        if(rhythmItemStartTime.isEmpty()) return INVALID_POS;
-
-        int i;
-        for(i = 0; i < rhythmItemStartTime.size(); i++) {
-            if(rhythmItemStartTime.get(i) > curTime) break;
-        }
-        ViseLog.e("i:"+i);
-        if(i-2 < 0) return INVALID_POS;
-
-        if(label == INVALID_LABEL)
-            return getPositionAtTime(rhythmItemStartTime.get(i-2));
-
-        if(label == ALL_RHYTHM_LABEL) {
-            for (int j = i - 2; j >= 0; j--) {
-                if(rhythmItemLabel.get(j) != NSR_LABEL && rhythmItemLabel.get(j) != NOISE_LABEL) {
-                    return getPositionAtTime(rhythmItemStartTime.get(j));
-                }
-            }
-        }
-        return INVALID_POS;
-    }
-
-    public int getNextItemPositionFromCurrentPosition(int label) {
-        long curTime = getTimeAtCurrentPosition();
-        if(curTime == INVALID_TIME) return INVALID_POS;
-
-        if(rhythmItemStartTime.isEmpty()) return INVALID_POS;
-
-        int i;
-        for(i = 0; i < rhythmItemStartTime.size(); i++) {
-            if(rhythmItemStartTime.get(i) > curTime) break;
-        }
-
-        if(i == rhythmItemStartTime.size()) return INVALID_POS;
-
-        if(label == INVALID_LABEL)
-            return getPositionAtTime(rhythmItemStartTime.get(i));
-
-        if(label == ALL_RHYTHM_LABEL) {
-            for (int j = i; j < rhythmItemLabel.size(); j++) {
-                if(rhythmItemLabel.get(j) != NSR_LABEL && rhythmItemLabel.get(j) != NOISE_LABEL) {
-                    return getPositionAtTime(rhythmItemStartTime.get(j));
-                }
-            }
-        }
-        return INVALID_POS;
-    }
-
-    /**
-     * 处理一个ECG信号值
-     * @param ecg ECG信号
+     * 记录一个ECG信号值，主要是将其保存到信号文件中，另外要处理设备断开操作
+     * @param ecg 要记录的一个ECG信号数据
      * @return 是否正常处理
      */
     public boolean record(short ecg) {
@@ -329,6 +187,172 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         rhythmItemLabel.add(label);
     }
 
+    /**
+     * 获取记录的信号文件中当前位置上的数据的采集时刻
+     * @return 数据采集时刻，单位ms
+     */
+    public long getTimeAtCurrentPosition() {
+        if(sigFile == null)
+            return INVALID_TIME;
+        try {
+            return getTimeAtPosition(sigFile.getCurrentPos());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return INVALID_TIME;
+        }
+    }
+
+    /**
+     * 获取记录的信号文件中pos位置上的数据的采集时刻
+     * 为了正确获取的数据采集时刻，必须用到breakPos和breakTime
+     * @param pos 信号文件中的数据位置
+     * @return 采集时刻，单位ms
+     */
+    private long getTimeAtPosition(int pos) {
+        if(pos < 0) return INVALID_TIME;
+
+        int startPos;
+        long startTime;
+        if(breakPos.isEmpty()) {
+            startPos = 0;
+            startTime = getCreateTime();
+        } else {
+            int i;
+            for (i = 0; i < breakPos.size(); i++) {
+                if (breakPos.get(i) > pos) break;
+            }
+            if(i==0) return INVALID_TIME;
+            startPos = breakPos.get(i-1);
+            startTime = breakTime.get(i-1);
+        }
+        return startTime + (pos - startPos)*1000L/sampleRate;
+    }
+
+    /**
+     * 获取指定采集时刻time对应的记录信号文件中的数据位置pos
+     * 为了正确获取数据位置，必须用到breakPos和breakTime
+     * @param time 采集时刻
+     * @return 信号文件中的数据位置
+     */
+    public int getPositionAtTime(long time) {
+        if(time < 0) return INVALID_POS;
+
+        int startPos;
+        long startTime;
+        if(breakPos.isEmpty()) {
+            startPos = 0;
+            startTime = getCreateTime();
+        } else {
+            if(time < breakTime.get(0)) {
+                return 0;
+            }
+
+            int i;
+            for (i = 0; i < breakTime.size(); i++) {
+                if (breakTime.get(i) > time) break;
+            }
+            startPos = breakPos.get(i-1);
+            startTime = breakTime.get(i-1);
+        }
+        return (int) (startPos + (time - startTime)*sampleRate/1000);
+    }
+
+    /**
+     * 获取指定采集时刻time对应的记录中信号在该时刻的诊断标签
+     * @param time 采集时刻
+     * @return 信号在该时刻的诊断标签
+     */
+    public int getLabelAtTime(long time) {
+        if(rhythmItemLabel.isEmpty()) return INVALID_LABEL;
+
+        int i;
+        for(i = 0; i < rhythmItemStartTime.size(); i++) {
+            if(rhythmItemStartTime.get(i) > time) break;
+        }
+        if(i == 0) return INVALID_LABEL;
+        return rhythmItemLabel.get(i-1);
+    }
+
+    /**
+     * 寻找记录中信号文件当前数据位置之前的具有指定诊断标签的信号数据段起始位置
+     * 当label==INVALID_LABEL时，则寻找任意标签；
+     * 当label==ALL_RHYTHM_LABEL时，则寻找任意异常标签；
+     * 当label为其他值时，则寻找指定标签。
+     * @param label 要寻找的信号诊断标签。
+     * @return 前一个具有指定诊断标签的信号数据段起始位置
+     */
+    public int findPrePositionFromCurrentPosition(int label) {
+        if(rhythmItemLabel.isEmpty()) return INVALID_POS;
+        // 先得到当前位置的采集时刻
+        long curTime = getTimeAtCurrentPosition();
+        if(curTime == INVALID_TIME) return INVALID_POS;
+
+        int i;
+        for(i = 0; i < rhythmItemStartTime.size(); i++) {
+            if(rhythmItemStartTime.get(i) > curTime) break;
+        }
+        if(i-2 < 0) return INVALID_POS;
+
+        // 返回前一个任意标签信号段起始时刻的数据位置
+        if(label == INVALID_LABEL)
+            return getPositionAtTime(rhythmItemStartTime.get(i-2));
+
+        // 返回前一个具有指定标签的信号段起始时刻的数据位置
+        for (int j = i - 2; j >= 0; j--) {
+            boolean found;
+            // 标签既不是NSR，也不是NOISE
+            if(label == ALL_RHYTHM_LABEL)
+                found = (rhythmItemLabel.get(j) != NSR_LABEL && rhythmItemLabel.get(j) != NOISE_LABEL);
+            else
+                found = (rhythmItemLabel.get(j) == label);
+
+            if(found) {
+                return getPositionAtTime(rhythmItemStartTime.get(j));
+            }
+        }
+        return INVALID_POS;
+    }
+
+    /**
+     * 寻找记录中信号文件当前数据位置之后的具有指定诊断标签的信号数据段起始位置
+     * 当label==INVALID_LABEL时，则寻找任意标签；
+     * 当label==ALL_RHYTHM_LABEL时，则寻找任意异常标签；
+     * 当label为其他值时，则寻找指定标签。
+     * @param label 要寻找的信号诊断标签。
+     * @return 后一个具有指定诊断标签的信号数据段起始位置
+     */
+    public int getNextPositionFromCurrentPosition(int label) {
+        if(rhythmItemLabel.isEmpty()) return INVALID_POS;
+
+        long curTime = getTimeAtCurrentPosition();
+        if(curTime == INVALID_TIME) return INVALID_POS;
+
+        int i;
+        for(i = 0; i < rhythmItemStartTime.size(); i++) {
+            if(rhythmItemStartTime.get(i) > curTime) break;
+        }
+
+        if(i == rhythmItemStartTime.size()) return INVALID_POS;
+
+        if(label == INVALID_LABEL)
+            return getPositionAtTime(rhythmItemStartTime.get(i));
+
+        for (int j = i; j < rhythmItemLabel.size(); j++) {
+            boolean found;
+            // 标签既不是NSR，也不是NOISE
+            if(label == ALL_RHYTHM_LABEL)
+                found = (rhythmItemLabel.get(j) != NSR_LABEL && rhythmItemLabel.get(j) != NOISE_LABEL);
+            else
+                found = (rhythmItemLabel.get(j) == label);
+
+            if(found) {
+                return getPositionAtTime(rhythmItemStartTime.get(j));
+            }
+        }
+        return INVALID_POS;
+    }
+
+
     //-------------------------------------------------实现ISignalRecord方法
     @Override
     public int getCaliValue() {
@@ -340,6 +364,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return sampleRate;
     }
 
+    // 从信号文件中读取一个数据
     @Override
     public int readData() throws IOException {
         if(sigFile == null) throw new IOException();
@@ -365,7 +390,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         setNeedUpload(true);
         save();*/
     }
-
 
     //-------------------------------------------------覆写基类BasicRecord的方法
     @Override
@@ -402,6 +426,11 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                 "-" + breakPos + "-" + breakTime + "-" + rhythmItemStartTime + "-" + rhythmItemLabel;
     }
 
+    /**
+     * 从远程下载该记录的所有信息，包括信号文件
+     * @param context 上下文
+     * @param callback 下载后要执行的回调
+     */
     @Override
     public void download(Context context, ICodeCallback callback) {
         File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
@@ -424,12 +453,17 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                 callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
             }
         }
-        // 如果本地存在信号文件，则调用基类方法从数据库下载记录信息
+        // 如果本地存在信号文件，则调用基类方法从数据库读取记录信息
         else {
             super.download(context, callback);
         }
     }
 
+    /**
+     * 上传该记录的所有信息，包括信号文件
+     * @param context 上下文
+     * @param callback 上传后要执行的回调
+     */
     @Override
     public void upload(Context context, ICodeCallback callback) {
         File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
@@ -464,9 +498,15 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         super.setReport(report);
     }
 
-    // 创建诊断报告内容，返回字符串
+    //-------------------------------------------------私有方法
+    /**
+     * 创建诊断报告内容，返回字符串
+     * @return 诊断报告的内容字符串
+     */
     private String createReportContent() {
         String strHrResult;
+
+        // 先生成心率的诊断内容
         if(aveHr == INVALID_HR) {
             strHrResult = "";
         } else {
@@ -479,6 +519,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                 strHrResult += "正常;";
         }
 
+        // 再生成心律异常的内容
         int af_times = 0;
         int other_times = 0;
         for(int ll : rhythmItemLabel) {
@@ -494,10 +535,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             strRhythmResult = "未发现心律异常;";
         } else {
             if(af_times != 0) {
-                strRhythmResult += RHYTHM_LABEL_MAP.get(AF_LABEL)+af_times+"次；";
+                strRhythmResult += RHYTHM_LABEL_MAP.get(AF_LABEL)+af_times+"次;";
             }
             if(other_times != 0) {
-                strRhythmResult += RHYTHM_LABEL_MAP.get(OTHER_LABEL)+other_times+"次；";
+                strRhythmResult += RHYTHM_LABEL_MAP.get(OTHER_LABEL)+other_times+"次;";
             }
         }
         return strHrResult+strRhythmResult;

@@ -178,7 +178,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getPreItemPositionFromCurrentPosition(INVALID_LABEL);
+                int pos = ecgRecord.findPrePositionFromCurrentPosition(INVALID_LABEL);
                 if(pos != INVALID_POS)
                     ecgView.showAt(pos);
                 else
@@ -193,7 +193,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getNextItemPositionFromCurrentPosition(INVALID_LABEL);
+                int pos = ecgRecord.getNextPositionFromCurrentPosition(INVALID_LABEL);
                 if(pos != INVALID_POS)
                     ecgView.showAt(pos);
                 else
@@ -209,7 +209,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getPreItemPositionFromCurrentPosition(ALL_RHYTHM_LABEL);
+                int pos = ecgRecord.findPrePositionFromCurrentPosition(ALL_RHYTHM_LABEL);
                 if(pos != INVALID_POS)
                     ecgView.showAt(pos);
                 else
@@ -224,7 +224,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getNextItemPositionFromCurrentPosition(ALL_RHYTHM_LABEL);
+                int pos = ecgRecord.getNextPositionFromCurrentPosition(ALL_RHYTHM_LABEL);
                 if(pos != INVALID_POS)
                     ecgView.showAt(pos);
                 else

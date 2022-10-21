@@ -705,7 +705,7 @@ public class HrmDevice extends AbstractDevice {
                         int bpm = heartRateData.getBpm();
 
                         if(ecgRecordStatus && ecgRecord != null) {
-                            ecgRecord.addHRValue(bpm);
+                            ecgRecord.addOneHr(bpm);
                         }
 
                         if(config.needWarn()) {
