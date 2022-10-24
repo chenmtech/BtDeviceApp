@@ -16,8 +16,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.FragmentContainerView;
 
 import com.cmtech.android.ble.core.DeviceConnectState;
 import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
@@ -25,17 +25,11 @@ import com.cmtech.android.bledevice.hrm.model.HrmCfg;
 import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledevice.hrm.model.OnHrmListener;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
-import com.google.android.material.tabs.TabLayout;
 import com.vise.log.ViseLog;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -62,11 +56,10 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     private FrameLayout flInHrMode; // frame layout in HR Mode
     private FrameLayout flInEcgMode; // frame layout in ECG Mode
 
-    private ViewPager pager;
-    private CtrlPanelAdapter fragAdapter;
-    private final HrDebugFragment debugFrag = new HrDebugFragment(); // debug fragment
-    private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
-    private final EcgRecordFragment ecgRecFrag = new EcgRecordFragment(); // ecg record fragment
+    private HrRecordFragment hrRecFrag; // heart rate record Fragment
+    private EcgRecordFragment ecgRecFrag; // ecg record fragment
+    private FragmentContainerView hrRecFragContainer; // heart rate record Fragment
+    private FragmentContainerView ecgRecFragContainer; // ecg record fragment
 
     //private boolean isEcgOn = false;
 
@@ -79,6 +72,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
+        ViseLog.e("onCreateView");
         device = (HrmDevice) getDevice();
         return inflater.inflate(R.layout.fragment_device_hrm, container, false);
     }
@@ -108,6 +102,12 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     Toast.makeText(getContext(), R.string.cannot_switch_mode, Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                if(device.getRecordingRecord() != null) {
+                    Toast.makeText(getContext(), "设备正在记录信号中，不能切换模式。", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
                 builder.setTitle(R.string.switch_mode)
                         .setMessage(R.string.reconnect_after_disconnect)
@@ -119,15 +119,12 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             }
         });
 
-        pager = view.findViewById(R.id.hrm_control_panel_viewpager);
-        TabLayout layout = view.findViewById(R.id.hrm_control_panel_tab);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrRecFrag));
-        String title = getResources().getString(HrRecordFragment.TITLE_ID);
-        List<String> titleList = new ArrayList<>(Arrays.asList(title));
-        fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
-        pager.setAdapter(fragAdapter);
-        pager.setOffscreenPageLimit(3);
-        layout.setupWithViewPager(pager);
+        hrRecFrag = (HrRecordFragment) getChildFragmentManager().findFragmentByTag("frag_hrm_hr");
+        ecgRecFrag = (EcgRecordFragment) getChildFragmentManager().findFragmentByTag("frag_hrm_ecg");
+
+        hrRecFragContainer = view.findViewById(R.id.frag_hrm_hr_view);
+        ecgRecFragContainer = view.findViewById(R.id.frag_hrm_ecg_view);
+        ViseLog.e("onViewCreated");
 
         device.setListener(this);
         ecgView.setListener(this);
@@ -228,18 +225,18 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         flInHrMode.setVisibility(View.VISIBLE);
                         flInEcgMode.setVisibility(View.GONE);
                         ecgView.stopShow();
-                        fragAdapter.removeFragment(ecgRecFrag);
-                        pager.setCurrentItem(fragAdapter.getCount() - 1);
+                        hrRecFragContainer.setVisibility(View.VISIBLE);
+                        ecgRecFragContainer.setVisibility(View.GONE);
                         tvSwitchMode.setTextColor(Color.BLACK);
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
-                                getResources().getDrawable(R.mipmap.ic_hr_24px, null), null, null);
+                                ResourcesCompat.getDrawable(getResources(), R.mipmap.ic_hr_24px, null), null, null);
                     } else {
                         ecgView.setup(sampleRate, caliValue, zeroLocation);
-                        fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
-                        pager.setCurrentItem(fragAdapter.getCount() - 1);
+                        hrRecFragContainer.setVisibility(View.GONE);
+                        ecgRecFragContainer.setVisibility(View.VISIBLE);
                         tvSwitchMode.setTextColor(Color.WHITE);
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
-                                getResources().getDrawable(R.mipmap.ic_ecg_24px, null), null, null);
+                                ResourcesCompat.getDrawable(getResources(), R.mipmap.ic_ecg_24px, null), null, null);
                     }
                 }
             });

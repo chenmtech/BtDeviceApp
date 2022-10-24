@@ -11,7 +11,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="3">
 
         <FrameLayout
             android:id="@+id/fl_in_hr_mode"
@@ -109,27 +109,25 @@
 
     </FrameLayout>
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/hrm_control_panel_tab"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:tabGravity="center"
-        app:tabIndicatorColor="@color/accent"
-        app:tabIndicatorHeight="1dp"
-        app:tabMode="scrollable"
-        app:tabPadding="0dp"
-        app:tabSelectedTextColor="@color/accent"
-        app:tabTextColor="@color/primary_text"
-        app:tabTextAppearance="@style/ControllerTabLayoutTextAppearance"
-        android:background="@color/primary"/>
-
     <include layout="@layout/divider_line"/>
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/hrm_control_panel_viewpager"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/frag_hrm_hr_view"
+        android:name="com.cmtech.android.bledevice.hrm.activityfragment.HrRecordFragment"
+        android:tag="frag_hrm_hr"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="2"
+        android:visibility="visible"/>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/frag_hrm_ecg_view"
+        android:name="com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordFragment"
+        android:tag="frag_hrm_ecg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:visibility="gone"/>
 
 </LinearLayout>
 

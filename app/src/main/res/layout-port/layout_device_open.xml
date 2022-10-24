@@ -25,8 +25,7 @@
         android:id="@+id/layout_device_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/device_tab">
-    </FrameLayout>
+        android:layout_below="@id/device_tab" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_connect"
@@ -34,12 +33,16 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/device_tab"
         android:layout_alignParentStart="true"
-        android:layout_margin="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp"
+        android:contentDescription="TODO"
         android:src="@mipmap/ic_disconnect_32px"
         app:backgroundTint="@color/primary"
-        app:fabSize="normal"
         app:borderWidth="0dp"
         app:elevation="8dp"
-        app:pressedTranslationZ="16dp"/>
+        app:fabSize="mini"
+        app:pressedTranslationZ="16dp" />
 
 </RelativeLayout>

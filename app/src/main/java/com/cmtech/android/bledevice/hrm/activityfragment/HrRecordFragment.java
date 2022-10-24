@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.cmtech.android.bledeviceapp.R;
@@ -93,7 +94,7 @@ public class HrRecordFragment extends Fragment {
     public void updateRecordStatus(boolean record) {
         Drawable drawable;
         if(record) {
-            drawable = ContextCompat.getDrawable(getContext(), R.mipmap.ic_stop_32px);
+            drawable = ResourcesCompat.getDrawable(getResources(), R.mipmap.ic_stop_32px, null);
             tvRecordStatus.setText("停止记录");
         } else {
             drawable = ContextCompat.getDrawable(getContext(), R.mipmap.ic_start_32px);

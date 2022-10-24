@@ -46,7 +46,7 @@ public class EcgRecordFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_record_hrm_ecg, container, false);
+        return inflater.inflate(R.layout.fragment_record_hrm_ecg_port, container, false);
     }
 
     @Override
@@ -74,10 +74,10 @@ public class EcgRecordFragment extends Fragment {
     public void updateRecordStatus(boolean record) {
         if(record) {
             ibRecord.setImageResource(R.mipmap.ic_stop_32px);
-            tvRecordStatus.setText(R.string.recording);
+            tvRecordStatus.setText("记录中");
         } else {
             ibRecord.setImageResource(R.mipmap.ic_start_32px);
-            tvRecordStatus.setText(R.string.start_record);
+            tvRecordStatus.setText("开始");
         }
         this.record = record;
     }

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageButton
+        android:id="@+id/ib_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="2dp"
+        android:src="@mipmap/ic_start_32px"
+        android:background="@color/background_transparent"/>
+
+    <TextView
+        android:id="@+id/tv_record_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/ib_record"
+        android:layout_centerVertical="true"
+        android:text="开始"
+        android:textSize="@dimen/big_font"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/ib_record"
+        android:layout_centerVertical="true"
+        android:gravity="center_horizontal"
+        android:layout_margin="0dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="记录时长:"
+            android:textSize="@dimen/small_font"/>
+
+        <EditText
+            android:id="@+id/et_record_time"
+            style="@style/edittext_circle_gray_no_focusable_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:text="00:00:00"
+            android:textSize="@dimen/big_font"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

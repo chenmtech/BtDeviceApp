@@ -259,6 +259,7 @@ public class HrmDevice extends AbstractDevice {
         if(record) {
             hrRecord = (BleHrRecord) RecordFactory.create(HR, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
             if(listener != null && hrRecord != null) {
+                recordingRecord = hrRecord;
                 listener.onHRStatisticInfoUpdated(hrRecord);
                 Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
             }
@@ -288,6 +289,7 @@ public class HrmDevice extends AbstractDevice {
                     hrRecord.save();
                     Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
+                recordingRecord = null;
             }
         }
 
@@ -449,7 +451,6 @@ public class HrmDevice extends AbstractDevice {
         if(numZeroForReconnect != 0) {
             ecgSignal = 0;
             numZeroForReconnect--;
-            ViseLog.e(numZeroForReconnect);
         }
 
         // 显示信号

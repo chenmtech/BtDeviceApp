@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
@@ -12,6 +13,8 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
@@ -47,6 +50,8 @@ import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.OnDeviceListener;
 import com.cmtech.android.ble.core.WebDeviceCommonInfo;
+import com.cmtech.android.bledevice.hrm.activityfragment.HrmFragment;
+import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.LocalDeviceAdapter;
 import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
@@ -141,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //ViseLog.e("MainActivity onCreate.");
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
@@ -478,6 +482,21 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             closeFragment(fragment);
         } else {
             exitAfterTwice();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        ViseLog.e("confg change");
+        DeviceFragment fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
+        if(fragment instanceof HrmFragment) {
+            boolean isHrMode = ((HrmDevice)fragment.getDevice()).isHrMode();
+            if(!isHrMode) {
+                //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+        } else {
+            //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
     }
 

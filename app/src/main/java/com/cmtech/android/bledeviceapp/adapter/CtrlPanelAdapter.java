@@ -59,4 +59,9 @@ public class CtrlPanelAdapter extends FragmentPagerAdapter {
             notifyDataSetChanged();
         }
     }
+
+    @Override
+    public String toString() {
+        return fragmentList.toString() + titleList.toString();
+    }
 }

@@ -7,7 +7,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_margin="20dp"
+        android:layout_margin="10dp"
         android:src="@mipmap/ic_start_32px"
         android:background="@color/background_transparent"/>
 
@@ -15,16 +15,16 @@
         android:id="@+id/tv_record_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/ib_record"
-        android:layout_centerHorizontal="true"
-        android:text="@string/start_record"
+        android:layout_toLeftOf="@id/ib_record"
+        android:layout_centerVertical="true"
+        android:text="开始"
         android:textSize="@dimen/big_font" />
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/ib_record"
-        android:layout_centerHorizontal="true"
+        android:layout_toRightOf="@id/ib_record"
+        android:layout_centerVertical="true"
         android:gravity="center_horizontal"
         android:orientation="vertical">
         <TextView
