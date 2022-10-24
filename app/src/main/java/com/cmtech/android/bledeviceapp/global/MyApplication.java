@@ -140,8 +140,12 @@ public class MyApplication extends Application {
         return instance.getString(strId);
     }
 
-    public static boolean isRunInBackground() {
-        return (instance.startedActivityCount == 0);
+    /**
+     * 判断当前应用是否在前台运行
+     * @return true-在前台运行，false-在后台运行
+     */
+    public static boolean isRunInForeground() {
+        return (instance.startedActivityCount != 0);
     }
 
 

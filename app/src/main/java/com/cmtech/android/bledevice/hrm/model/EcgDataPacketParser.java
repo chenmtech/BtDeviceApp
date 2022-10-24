@@ -115,9 +115,7 @@ public class EcgDataPacketParser {
             pack[j] = (short) ((0xff & packet[i]) | (0xff00 & (packet[i+1] << 8)));
             // 先用预滤波器进行滤波处理
             int ecg = (int) preFilter.filter(pack[j]);
-            // 显示信号
-            device.showEcgSignal(ecg);
-            // 处理信号
+            // 让设备处理信号，包括显示、记录和心电信号异常检测等处理
             device.processEcgSignal(ecg);
         }
         // 返回数据包只是为了调试

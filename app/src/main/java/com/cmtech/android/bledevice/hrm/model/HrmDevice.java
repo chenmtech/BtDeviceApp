@@ -76,7 +76,7 @@ public class HrmDevice extends AbstractDevice {
     private static final int DEFAULT_CALI_1MV = 164;
 
     // 缺省采样率: Hz
-    private static final int DEFAULT_SAMPLE_RATE = 125;
+    private static final int DEFAULT_SAMPLE_RATE = 250;
 
     // 缺省导联
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I;
@@ -189,6 +189,9 @@ public class HrmDevice extends AbstractDevice {
 
     // 心律异常实时检测器
     private EcgRealTimeRhythmDetector rhythmDetector;
+
+    // 当设备断开后重新连接，需要插入的信号零值个数
+    private int numZeroForReconnect = 2*DEFAULT_SAMPLE_RATE;
 
     //-----------------------------------------------静态类
     // 心率播报器类
@@ -430,8 +433,8 @@ public class HrmDevice extends AbstractDevice {
      * 显示一个心电信号值
      * @param ecgSignal：一个心电信号值
      */
-    public void showEcgSignal(int ecgSignal) {
-        if(!MyApplication.isRunInBackground()) {
+    private void showEcgSignal(int ecgSignal) {
+        if(MyApplication.isRunInForeground()) {
             if (listener != null) {
                 listener.onEcgSignalShowed(ecgSignal);
             }
@@ -439,11 +442,20 @@ public class HrmDevice extends AbstractDevice {
     }
 
     /**
-     * 处理一个心电信号值，包括记录信号值和进行信号处理
-     * @param ecgSignal：得到的一个心电信号值
+     * 处理一个心电信号值，包括显示信号、记录信号值和进行心电信号异常检测等处理
+     * @param ecgSignal：一个心电信号值
      */
     public void processEcgSignal(int ecgSignal) {
-        // 先记录信号
+        if(numZeroForReconnect != 0) {
+            ecgSignal = 0;
+            numZeroForReconnect--;
+            ViseLog.e(numZeroForReconnect);
+        }
+
+        // 显示信号
+        showEcgSignal(ecgSignal);
+
+        // 记录信号
         if(ecgRecordStatus && ecgRecord != null) {
             ecgRecord.record((short)ecgSignal);
 
@@ -459,8 +471,6 @@ public class HrmDevice extends AbstractDevice {
                 }
             }
         }
-
-        // 再处理信号
 
         // 心律异常检测
         if(rhythmDetector != null) {
@@ -497,7 +507,7 @@ public class HrmDevice extends AbstractDevice {
      * @param rhythmItem 一条心律异常检测条目
      */
     private void updateRhythmDetectItem(EcgRhythmDetectItem rhythmItem) {
-        if(!MyApplication.isRunInBackground()) {
+        if(MyApplication.isRunInForeground()) {
             if (listener != null) {
                 listener.onEcgRhythmDetectInfoUpdated(RHYTHM_LABEL_MAP.get(rhythmItem.getLabel()));
             }
@@ -721,7 +731,7 @@ public class HrmDevice extends AbstractDevice {
                         speaker.speak(bpm);
 
                         boolean hrStatisticUpdated = (hrRecordStatus && hrRecord.record((short) bpm, heartRateData.getTime()));
-                        if (!MyApplication.isRunInBackground()) {
+                        if (MyApplication.isRunInForeground()) {
                             if (listener != null) {
                                 listener.onHRUpdated(heartRateData);
 
@@ -847,6 +857,7 @@ public class HrmDevice extends AbstractDevice {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 sampleRate = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
+                numZeroForReconnect = 2*sampleRate;
             }
 
             @Override
