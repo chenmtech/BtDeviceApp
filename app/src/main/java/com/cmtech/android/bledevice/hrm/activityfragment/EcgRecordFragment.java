@@ -46,7 +46,7 @@ public class EcgRecordFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_record_hrm_ecg_port, container, false);
+        return inflater.inflate(R.layout.fragment_record_hrm_ecg, container, false);
     }
 
     @Override

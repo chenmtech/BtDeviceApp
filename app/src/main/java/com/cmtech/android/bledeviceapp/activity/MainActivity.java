@@ -485,21 +485,6 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         }
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        ViseLog.e("confg change");
-        DeviceFragment fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
-        if(fragment instanceof HrmFragment) {
-            boolean isHrMode = ((HrmDevice)fragment.getDevice()).isHrMode();
-            if(!isHrMode) {
-                //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-        } else {
-            //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-    }
-
     /**
      * 连续点击2次退出
      */
@@ -579,6 +564,12 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         DeviceFragment fragment = (DeviceFragment)fragTabManager.getCurrentFragment();
         IDevice device = (fragment == null) ? null : fragment.getDevice();
         updateMainLayout(device);
+
+        if(device instanceof HrmDevice && !((HrmDevice) device).isHrMode()) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
     }
 
     private String getDeviceSimpleName(IDevice device) {

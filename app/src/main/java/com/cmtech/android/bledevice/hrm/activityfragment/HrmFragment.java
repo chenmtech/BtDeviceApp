@@ -5,6 +5,7 @@ import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOC
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -72,7 +73,6 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        ViseLog.e("onCreateView");
         device = (HrmDevice) getDevice();
         return inflater.inflate(R.layout.fragment_device_hrm, container, false);
     }
@@ -227,6 +227,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         ecgView.stopShow();
                         hrRecFragContainer.setVisibility(View.VISIBLE);
                         ecgRecFragContainer.setVisibility(View.GONE);
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                         tvSwitchMode.setTextColor(Color.BLACK);
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
                                 ResourcesCompat.getDrawable(getResources(), R.mipmap.ic_hr_24px, null), null, null);
@@ -234,6 +235,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         ecgView.setup(sampleRate, caliValue, zeroLocation);
                         hrRecFragContainer.setVisibility(View.GONE);
                         ecgRecFragContainer.setVisibility(View.VISIBLE);
+                        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                         tvSwitchMode.setTextColor(Color.WHITE);
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
                                 ResourcesCompat.getDrawable(getResources(), R.mipmap.ic_ecg_24px, null), null, null);
