@@ -22,7 +22,7 @@ public abstract class AbstractDevice implements IDevice{
     private final DeviceCommonInfo commonInfo; // common information
     private int batteryLevel; // battery level
     private String notificationInfo;
-    private final List<OnCommonDeviceListener> commonListeners; // common device listeners
+    private final List<OnDeviceListener> commonListeners; // common device listeners
     protected final IConnector connector; // connector
 
     // 正在记录中的记录
@@ -91,7 +91,7 @@ public abstract class AbstractDevice implements IDevice{
     public void setBatteryLevel(final int batteryLevel) {
         if(this.batteryLevel != batteryLevel) {
             this.batteryLevel = batteryLevel;
-            for (final OnCommonDeviceListener listener : commonListeners) {
+            for (final OnDeviceListener listener : commonListeners) {
                 if (listener != null) {
                     listener.onBatteryLevelUpdated(this);
                 }
@@ -106,7 +106,7 @@ public abstract class AbstractDevice implements IDevice{
     @Override
     public void setNotificationInfo(String notificationInfo) {
         this.notificationInfo = notificationInfo;
-        for (final OnCommonDeviceListener listener : commonListeners) {
+        for (final OnDeviceListener listener : commonListeners) {
             if (listener != null) {
                 listener.onNotificationInfoUpdated(this);
             }
@@ -114,14 +114,14 @@ public abstract class AbstractDevice implements IDevice{
     }
 
     @Override
-    public final void addCommonListener(OnCommonDeviceListener listener) {
+    public final void addCommonListener(OnDeviceListener listener) {
         if(!commonListeners.contains(listener)) {
             commonListeners.add(listener);
         }
     }
 
     @Override
-    public final void removeCommonListener(OnCommonDeviceListener listener) {
+    public final void removeCommonListener(OnDeviceListener listener) {
         commonListeners.remove(listener);
     }
 
@@ -181,7 +181,7 @@ public abstract class AbstractDevice implements IDevice{
 
     @Override
     public void onConnectStateUpdated() {
-        for(OnCommonDeviceListener listener : commonListeners) {
+        for(OnDeviceListener listener : commonListeners) {
             if(listener != null) {
                 listener.onConnectStateUpdated(this);
             }

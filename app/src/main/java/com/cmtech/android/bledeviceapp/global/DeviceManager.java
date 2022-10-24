@@ -1,10 +1,13 @@
 package com.cmtech.android.bledeviceapp.global;
 
+import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
+
 import android.content.Context;
 import android.text.TextUtils;
 
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.OnDeviceListener;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.vise.log.ViseLog;
 
@@ -12,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
 
 /**
  *
@@ -110,13 +111,13 @@ public class DeviceManager {
         return devices;
     }
 
-    public void addCommonListenerForAllDevices(IDevice.OnCommonDeviceListener listener) {
+    public void addCommonListenerForAllDevices(OnDeviceListener listener) {
         for(IDevice device : DEVICE_LIST) {
             device.addCommonListener(listener);
         }
     }
 
-    public void removeCommonListenerForAllDevices(IDevice.OnCommonDeviceListener listener) {
+    public void removeCommonListenerForAllDevices(OnDeviceListener listener) {
         for(IDevice device : DEVICE_LIST) {
             device.removeCommonListener(listener);
         }

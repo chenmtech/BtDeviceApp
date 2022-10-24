@@ -4,8 +4,13 @@ import android.content.Context;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 
-public interface IDevice extends IConnector.IConnectorCallback {
-    int INVALID_BATTERY_LEVEL = -1; // invalid battery level
+/**
+ * 所有低功耗蓝牙设备的共同接口
+ * 它继承了连接器回调接口，也就是这个接口必须实现所有连接器回调操作
+ */
+public interface IDevice extends IConnectorCallback {
+    // 无效电池电量常数
+    int INVALID_BATTERY_LEVEL = -1;
 
     Context getContext();
     DeviceCommonInfo getCommonInfo();
@@ -21,8 +26,8 @@ public interface IDevice extends IConnector.IConnectorCallback {
     DeviceConnectState getConnectState(); // get connect state
     String getNotificationInfo();
     void setNotificationInfo(String notifyInfo);
-    void addCommonListener(OnCommonDeviceListener listener);
-    void removeCommonListener(OnCommonDeviceListener listener);
+    void addCommonListener(OnDeviceListener listener);
+    void removeCommonListener(OnDeviceListener listener);
     BasicRecord getRecordingRecord();
 
     void open(); // open device
@@ -31,11 +36,4 @@ public interface IDevice extends IConnector.IConnectorCallback {
     void disconnect(boolean forever); // disconnect device. if forever=true, no reconnection occurred, otherwise reconnect it.
     void switchState(); // switch device state
     void handleException(BleException ex); // handle exception
-
-    // common device listener interface
-    interface OnCommonDeviceListener {
-        void onConnectStateUpdated(final IDevice device); // connect state updated
-        void onBatteryLevelUpdated(final IDevice device); // battery level updated
-        void onNotificationInfoUpdated(final IDevice device); // notification info updated
-    }
 }

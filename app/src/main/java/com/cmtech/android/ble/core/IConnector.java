@@ -8,11 +8,4 @@ public interface IConnector {
     void connect(); // connect
     void disconnect(boolean forever); // disconnect. if forever=true, no reconnection occurred, otherwise reconnect it.
     DeviceConnectState getState(); // get connect state
-
-    interface IConnectorCallback {
-        boolean onConnectSuccess(); // operation when connection success
-        void onConnectFailure(); // operation when connection failure
-        void onDisconnect(); // operation when disconnection
-        void onConnectStateUpdated(); // operation when connect state updated
-    }
 }

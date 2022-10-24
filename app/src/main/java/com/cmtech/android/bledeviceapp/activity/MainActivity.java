@@ -1,5 +1,11 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
+import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
+import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_STORE_URI;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -14,19 +20,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.annotation.NonNull;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,10 +30,22 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.OnDeviceListener;
 import com.cmtech.android.ble.core.WebDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.LocalDeviceAdapter;
@@ -58,6 +63,9 @@ import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -66,18 +74,12 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 
-import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
-import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
-import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_STORE_URI;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-
 /**
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
 
-public class MainActivity extends AppCompatActivity implements IDevice.OnCommonDeviceListener, TabFragManager.OnFragmentUpdatedListener {
+public class MainActivity extends AppCompatActivity implements OnDeviceListener, TabFragManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
     private final static int RC_ADD_DEVICE = 1;                 // return code for adding new devices
     private final static int RC_MODIFY_DEVICE_INFO = 2;         // return code for modifying device info

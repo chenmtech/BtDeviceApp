@@ -9,9 +9,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+
 import androidx.core.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.OnDeviceListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
@@ -27,7 +29,7 @@ import com.vise.log.ViseLog;
  * Version:        1.0
  */
 
-public class NotificationService extends Service implements IDevice.OnCommonDeviceListener{
+public class NotificationService extends Service implements OnDeviceListener {
     private static final String TAG = "NotifyService";
     private static final int NOTIFY_ID = 1;
     private final NotificationServiceBinder binder = new NotificationServiceBinder();
