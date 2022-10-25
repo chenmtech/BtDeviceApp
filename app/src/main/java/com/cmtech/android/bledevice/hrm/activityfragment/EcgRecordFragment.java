@@ -6,15 +6,19 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.cmtech.android.bledeviceapp.R;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -33,14 +37,15 @@ public class EcgRecordFragment extends Fragment {
     // 记录控制按钮
     ImageButton ibRecord;
 
-    // 记录状态tv
-    TextView tvRecordStatus;
-
     // 记录时长
     EditText etRecordTime;
 
+    Button btnAddNote;
+
+    EditText etNote;
+
     // 当前是否在记录
-    boolean record = false;
+    boolean recording = false;
 
     @Nullable
     @Override
@@ -57,29 +62,43 @@ public class EcgRecordFragment extends Fragment {
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!record)
+                if(!recording)
                     setEcgRecordTime(0);
 
                 assert getParentFragment() != null;
-                ((HrmFragment)getParentFragment()).setEcgRecord(!record);
+                ((HrmFragment)getParentFragment()).setEcgRecord(!recording);
             }
         });
 
         etRecordTime = view.findViewById(R.id.et_record_time);
 
-        tvRecordStatus = view.findViewById(R.id.tv_record_status);
+        etNote = view.findViewById(R.id.et_note);
+
+        btnAddNote = view.findViewById(R.id.btn_add_note);
+        btnAddNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String time = new SimpleDateFormat("HH:mm:ss", Locale.CHINA).format(new Date());
+                String note = etNote.getText().toString() + time + "->标记；";
+                etNote.setText(note);
+                assert getParentFragment() != null;
+                ((HrmFragment)getParentFragment()).setEcgRecordNote(note);
+            }
+        });
+        btnAddNote.setEnabled(false);
     }
 
     // 更新记录状态
     public void updateRecordStatus(boolean record) {
         if(record) {
             ibRecord.setImageResource(R.mipmap.ic_stop_32px);
-            tvRecordStatus.setText("记录中");
+            btnAddNote.setEnabled(true);
+            etNote.setText("");
         } else {
             ibRecord.setImageResource(R.mipmap.ic_start_32px);
-            tvRecordStatus.setText("开始");
+            btnAddNote.setEnabled(false);
         }
-        this.record = record;
+        this.recording = record;
     }
 
     // 设置记录时长

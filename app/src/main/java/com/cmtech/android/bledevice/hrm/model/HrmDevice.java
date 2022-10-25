@@ -246,6 +246,12 @@ public class HrmDevice extends AbstractDevice {
     }
 
     //---------------------------------------------------公有方法
+    public void setEcgRecordNote(String note) {
+        if(ecgRecordStatus && ecgRecord != null) {
+            ecgRecord.setNote(note);
+            ViseLog.e(note);
+        }
+    }
 
     /**
      * 设置心率记录状态

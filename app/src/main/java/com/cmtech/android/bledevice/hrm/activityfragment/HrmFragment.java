@@ -354,4 +354,9 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         }
     }
 
+    public void setEcgRecordNote(String note) {
+        if(device != null) {
+            device.setEcgRecordNote(note);
+        }
+    }
 }

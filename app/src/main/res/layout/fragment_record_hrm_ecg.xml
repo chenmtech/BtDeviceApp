@@ -1,41 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ImageButton
-        android:id="@+id/ib_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_margin="2dp"
-        android:src="@mipmap/ic_start_32px"
-        android:background="@color/background_transparent"/>
-
-    <TextView
-        android:id="@+id/tv_record_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/ib_record"
-        android:layout_centerVertical="true"
-        android:text="开始"
-        android:textSize="@dimen/big_font"
-        android:visibility="gone"/>
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/ib_record"
-        android:layout_centerVertical="true"
-        android:gravity="center_horizontal"
-        android:layout_margin="0dp"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
         android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:text="记录时长:"
-            android:textSize="@dimen/small_font"/>
-
         <EditText
             android:id="@+id/et_record_time"
             style="@style/edittext_circle_gray_no_focusable_style"
@@ -45,6 +19,46 @@
             android:text="00:00:00"
             android:textSize="@dimen/big_font"/>
 
+        <ImageButton
+            android:id="@+id/ib_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:src="@mipmap/ic_start_32px"
+            android:background="@color/background_transparent"/>
+
     </LinearLayout>
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/et_note"
+            style="@style/edittext_circle_gray_style"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="start|top"
+            android:minLines="2"
+            android:inputType="textMultiLine"
+            android:autofillHints=""
+            android:textColor="@color/accent"
+            android:maxLength="255"
+            android:scrollbars="horizontal"
+            android:fadeScrollbars="false"
+            android:enabled="false"/>
+
+        <Button
+            android:id="@+id/btn_add_note"
+            style="@style/button_circle_blue_style"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="1dp"
+            android:minWidth="40dp"
+            android:text="加\n备\n注"
+            android:textSize="@dimen/smallest_font"/>
+    </LinearLayout>
+</LinearLayout>

@@ -29,6 +29,8 @@
             android:inputType="textMultiLine"
             android:autofillHints=""
             android:textColor="@color/accent"
+            android:scrollbars="horizontal"
+            android:fadeScrollbars="false"
             android:maxLength="255"/>
     </LinearLayout>
 
