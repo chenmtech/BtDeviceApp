@@ -13,13 +13,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="5"
         android:orientation="vertical"
         android:visibility="visible">
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="280dp"
+            android:layout_height="0dp"
+            android:layout_weight="5"
             android:layout_marginStart="6dp"
             android:layout_marginEnd="6dp">
             <com.cmtech.android.bledeviceapp.view.RollEcgView
@@ -52,7 +54,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:layout_margin="4dp">
 
             <ImageButton
@@ -67,6 +70,22 @@
                 android:minHeight="0dp"
                 android:visibility="gone"
                 android:contentDescription="@null"/>
+
+            <Button
+                android:id="@+id/btn_previous_rhythm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/button_circle_blue_style"
+                android:layout_margin="1dp"
+                android:text="上一条异常"/>
+
+            <Button
+                android:id="@+id/btn_next_rhythm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/button_circle_blue_style"
+                android:layout_margin="1dp"
+                android:text="下一条异常"/>
 
             <SeekBar
                 android:id="@+id/sb_replay"
@@ -93,7 +112,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:visibility="gone">
         <Button
             android:id="@+id/btn_previous_item"
             android:layout_width="wrap_content"
@@ -103,7 +123,7 @@
             android:text="上一项"/>
 
         <Button
-            android:id="@+id/btn_previous_rhythm"
+            android:id="@+id/btn_previous_rhythm1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/button_circle_blue_style"
@@ -111,7 +131,7 @@
             android:text="上一条异常"/>
 
         <Button
-            android:id="@+id/btn_next_rhythm"
+            android:id="@+id/btn_next_rhythm1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/button_circle_blue_style"
@@ -131,7 +151,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        android:layout_weight="3">
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -143,15 +164,22 @@
                 android:orientation="vertical"
                 android:visibility="visible">
 
-                <com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout
-                    android:id="@+id/layout_record_report"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout
+                        android:id="@+id/layout_record_report"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
 
-                <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
-                    android:id="@+id/layout_record_note"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
+                        android:id="@+id/layout_record_note"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"/>
+                </LinearLayout>
 
                 <Button
                     android:id="@+id/btn_output_pdf"
@@ -159,11 +187,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="生成PDF文档"
-                    android:textSize="@dimen/normal_font"/>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"/>
+                    android:textSize="@dimen/normal_font"
+                    android:enabled="false"/>
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
@@ -174,7 +199,7 @@
     <com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout
         android:id="@+id/layout_ecg_report_output"
         android:layout_width="2600px"
-        android:layout_height="3600px"
+        android:layout_height="0px"
         android:visibility="invisible"/>
 
 </LinearLayout>

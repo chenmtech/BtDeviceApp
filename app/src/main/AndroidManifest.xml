@@ -120,7 +120,7 @@
         <activity
             android:name="com.cmtech.android.bledevice.hrm.activityfragment.EcgRecordActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="landscape" />
         <activity
             android:name="com.cmtech.android.bledevice.thermo.activityfragment.ThermoRecordActivity"
             android:launchMode="singleTask"
