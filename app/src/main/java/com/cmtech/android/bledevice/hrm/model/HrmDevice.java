@@ -838,13 +838,23 @@ public class HrmDevice extends AbstractDevice {
 
                 // 启动心律异常检测器
                 if(rhythmDetector == null) {
-                    Map<Integer, Integer> modelLabelMap = new HashMap<>() {{
-                        put(0, NSR_LABEL);
-                        put(1, AF_LABEL);
-                        put(2, OTHER_LABEL);
-                        put(3, NOISE_LABEL);
-                    }};
-                    rhythmDetector = new EcgRealTimeRhythmDetector(RHYTHM_DETECT_MODEL, modelLabelMap, item -> updateRhythmDetectItem(item));
+                    try {
+                        Map<Integer, Integer> modelLabelMap = new HashMap<>() {{
+                            put(0, NSR_LABEL);
+                            put(1, AF_LABEL);
+                            put(2, OTHER_LABEL);
+                            put(3, NOISE_LABEL);
+                        }};
+                        rhythmDetector = new EcgRealTimeRhythmDetector(R.raw.afdetect_1, modelLabelMap, item -> updateRhythmDetectItem(item));
+                    } catch (OrtException e) {
+                        rhythmDetector = null;
+                        ThreadUtil.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getContext(), "心律异常检测模型加载失败", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 } else {
                     rhythmDetector.reset();
                 }

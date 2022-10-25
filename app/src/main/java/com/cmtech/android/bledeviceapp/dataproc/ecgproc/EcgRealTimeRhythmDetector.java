@@ -86,7 +86,7 @@ public class EcgRealTimeRhythmDetector {
      * @param modelLabelMap 模型输出的心律异常结果标签与全局标签之间的映射关系
      * @param callback 检测结果回调
      */
-    public EcgRealTimeRhythmDetector(int modelId, Map<Integer, Integer> modelLabelMap, IEcgRhythmDetectCallback callback) {
+    public EcgRealTimeRhythmDetector(int modelId, Map<Integer, Integer> modelLabelMap, IEcgRhythmDetectCallback callback) throws OrtException {
         this.callback = callback;
         this.labelMap = modelLabelMap;
         resample = new ResampleFrom250To300();
@@ -163,7 +163,8 @@ public class EcgRealTimeRhythmDetector {
         stopDetect();
 
         try {
-            rhythmDetectModel.close();
+            if(rhythmDetectModel != null)
+                rhythmDetectModel.close();
         } catch (OrtException e) {
             e.printStackTrace();
         }
@@ -176,7 +177,7 @@ public class EcgRealTimeRhythmDetector {
      * @param modelId 模型资源ID
      * @return ORT会话
      */
-    private OrtSession createOrtSession(int modelId){
+    private OrtSession createOrtSession(int modelId) throws OrtException {
         BufferedInputStream buf = null;
         try {
             InputStream inputStream = MyApplication.getContext().getResources().openRawResource(modelId);
@@ -185,8 +186,9 @@ public class EcgRealTimeRhythmDetector {
             int readLen = buf.read(modelOrt, 0, modelOrt.length);
             if(readLen == modelOrt.length)
                 return OrtEnvironment.getEnvironment().createSession(modelOrt);
-        } catch (OrtException | IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            ViseLog.e(e);
         } finally {
             if(buf != null) {
                 try {
@@ -206,6 +208,9 @@ public class EcgRealTimeRhythmDetector {
      * @throws OrtException 抛出ORT异常
      */
     private int detectRhythm(float[] data) throws OrtException {
+        if(rhythmDetectModel == null)
+            throw new OrtException("无效模型");
+
         // 将数据打包
         FloatBuffer buf = FloatBuffer.wrap(data);
         // 输入张量形状
