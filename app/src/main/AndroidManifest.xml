@@ -27,6 +27,12 @@
 
     <uses-feature android:name="android.hardware.location.network" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:name=".global.MyApplication"
         android:allowBackup="true"

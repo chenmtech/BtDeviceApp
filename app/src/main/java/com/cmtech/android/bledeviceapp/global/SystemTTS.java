@@ -48,6 +48,8 @@ public class SystemTTS extends UtteranceProgressListener implements ITextSpeakab
                         textToSpeech.setOnUtteranceProgressListener(SystemTTS.this);
                         textToSpeech.speak(playText, TextToSpeech.QUEUE_FLUSH, null, TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID);
                     }
+                } else {
+                    ViseLog.e("speaker initial wrong");
                 }
             }
         });
