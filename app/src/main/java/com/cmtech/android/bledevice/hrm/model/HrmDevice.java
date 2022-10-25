@@ -87,6 +87,8 @@ public class HrmDevice extends AbstractDevice {
     // 设备工作模式：心电模式
     private static final byte ECG_MODE = (byte)0x01;
 
+    private static final int RHYTHM_DETECT_MODEL = R.raw.af_detect_keras_model2;
+
     //--------------------------------------------设备用到的蓝牙相关常量
     // 心率测量的服务和特征值UUID字符串，数值见蓝牙相关协议文档
     public static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
@@ -842,7 +844,7 @@ public class HrmDevice extends AbstractDevice {
                         put(2, OTHER_LABEL);
                         put(3, NOISE_LABEL);
                     }};
-                    rhythmDetector = new EcgRealTimeRhythmDetector(R.raw.afdetect_1, modelLabelMap, item -> updateRhythmDetectItem(item));
+                    rhythmDetector = new EcgRealTimeRhythmDetector(RHYTHM_DETECT_MODEL, modelLabelMap, item -> updateRhythmDetectItem(item));
                 } else {
                     rhythmDetector.reset();
                 }
