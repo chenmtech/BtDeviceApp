@@ -230,6 +230,17 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             }
         });
 
+        Account.downloadShareInfo(this, null, new ICodeCallback() {
+            @Override
+            public void onFinish(int code) {
+                if(code == RETURN_CODE_SUCCESS) {
+                    MyApplication.setShareInfoList(Account.readShareInfoFromLocalDb());
+
+                }
+            }
+        });
+        ViseLog.e("shareInfo:" + MyApplication.getShareInfoList());
+
         //获取应用升级信息
         AppUpdateManager appUpdateManager = MyApplication.getAppUpdateManager();
         appUpdateManager.retrieveAppInfo(this, (code) -> {

@@ -1,13 +1,16 @@
 package com.cmtech.android.bledeviceapp.global;
 
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+
 import android.content.Context;
 
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.RecordShareInfo;
 import com.vise.log.ViseLog;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import java.util.List;
 
 /**
   *
@@ -24,12 +27,22 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 public class AccountManager {
     private Account account; // account
 
+    private List<RecordShareInfo> shareInfoList;
+
     AccountManager() {
         account = Account.readFromSharedPreference();
     }
 
     public Account getAccount() {
         return account;
+    }
+
+    public void setShareInfoList(List<RecordShareInfo> shareInfos) {
+        shareInfoList = shareInfos;
+    }
+
+    public List<RecordShareInfo> getShareInfoList() {
+        return shareInfoList;
     }
 
     /**

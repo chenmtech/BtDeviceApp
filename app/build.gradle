@@ -87,5 +87,5 @@ dependencies {
     implementation 'net.jcip:jcip-annotations:1.0'
     implementation 'org.litepal.android:java:3.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.5.0'
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.13.1'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.11.0'
 }

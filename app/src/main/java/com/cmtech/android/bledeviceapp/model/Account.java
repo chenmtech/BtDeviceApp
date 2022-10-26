@@ -1,11 +1,18 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_CHANGE_PASSWORD;
+import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_LOGIN;
+import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import androidx.annotation.NonNull;
 import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -18,18 +25,16 @@ import com.vise.utils.cipher.BASE64;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.LitePal;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-
-import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_CHANGE_PASSWORD;
-import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_LOGIN;
-import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
   *
@@ -318,6 +323,42 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     @Override
     public void delete(Context context, ICodeCallback callback) {
         throw new IllegalStateException();
+    }
+
+    public static List<RecordShareInfo> readShareInfoFromLocalDb() {
+        List<RecordShareInfo> shareInfos = new ArrayList<>();
+        shareInfos.addAll(LitePal.where("fromId = ? or toId = ?",
+                        ""+MyApplication.getAccountId(), ""+MyApplication.getAccountId()).find(RecordShareInfo.class));
+        if(shareInfos.isEmpty()) return null;
+        return shareInfos;
+    }
+
+    public static void downloadShareInfo(Context context, String showStr, ICodeCallback callback) {
+        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_SHARE_INFO, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                JSONArray jsonArr = (JSONArray) response.getContent();
+                if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
+                    for (int i = 0; i < jsonArr.length(); i++) {
+                        try {
+                            JSONObject json = (JSONObject) jsonArr.get(i);
+                            if(json == null) continue;
+                            int fromId = json.getInt("fromId");
+                            int toId = json.getInt("toId");
+                            String fromUserName = json.getString("fromUserName");
+                            String toUserName = json.getString("toUserName");
+                            RecordShareInfo shareInfo = new RecordShareInfo(fromId,toId,fromUserName,toUserName);
+                            shareInfo.saveOrUpdate("fromId = ? and toId = ? and fromUserName = ? and toUserName = ?",
+                                    ""+fromId, ""+toId, fromUserName, toUserName);
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+                callback.onFinish(code);
+            }
+        }).execute(MyApplication.getAccount());
     }
 
     @NonNull

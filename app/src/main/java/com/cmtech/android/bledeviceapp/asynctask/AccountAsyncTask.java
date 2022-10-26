@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.asynctask;
 
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -9,8 +11,6 @@ import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
-
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -30,6 +30,7 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
     public static final int CMD_SIGNUP = 3; // sign up or login on the web
     public static final int CMD_LOGIN = 4;
     public static final int CMD_CHANGE_PASSWORD = 5;
+    public static final int CMD_DOWNLOAD_SHARE_INFO = 6;
 
     private final ProgressDialog progressDialog;
     private final int cmd;
@@ -82,6 +83,10 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
 
             case CMD_CHANGE_PASSWORD:
                 response = KMWebServiceUtil.changePassword(account);
+                break;
+
+            case CMD_DOWNLOAD_SHARE_INFO:
+                response = KMWebServiceUtil.downloadShareInfo(account);
                 break;
 
             default:
