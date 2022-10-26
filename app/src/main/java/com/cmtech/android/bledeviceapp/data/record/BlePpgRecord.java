@@ -37,8 +37,8 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     private int sampleRate = 0; // sample rate
     private int caliValue = 0; // calibration value
 
-    private BlePpgRecord(String ver, long createTime, String devAddress, int creatorId) {
-        super(PPG, ver, createTime, devAddress, creatorId);
+    private BlePpgRecord(String ver, int accountId, long createTime, String devAddress) {
+        super(PPG, ver, accountId, createTime, devAddress);
     }
 
     // 创建信号文件

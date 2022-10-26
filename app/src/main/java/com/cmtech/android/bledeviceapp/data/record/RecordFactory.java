@@ -1,7 +1,5 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
-import com.cmtech.android.bledeviceapp.model.Account;
-
 import java.lang.reflect.Constructor;
 
 /**
@@ -17,13 +15,13 @@ import java.lang.reflect.Constructor;
  * Version:        1.0
  */
 public class RecordFactory {
-    public static BasicRecord create(RecordType type, String ver, long createTime, String devAddress, int creatorId) {
+    public static BasicRecord create(RecordType type, String ver, int accountId, long createTime, String devAddress) {
         Class<? extends BasicRecord> recordClass = type.getRecordClass();
         if(recordClass != null) {
             try {
-                Constructor<? extends BasicRecord> constructor = recordClass.getDeclaredConstructor(String.class, long.class, String.class, int.class);
+                Constructor<? extends BasicRecord> constructor = recordClass.getDeclaredConstructor(String.class, int.class, long.class, String.class);
                 constructor.setAccessible(true);
-                return constructor.newInstance(ver, createTime, devAddress, creatorId);
+                return constructor.newInstance(ver, accountId, createTime, devAddress);
             } catch (Exception e) {
                 e.printStackTrace();
             }

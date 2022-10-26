@@ -38,8 +38,8 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
     private int ecgCaliValue = 0; // ecg calibration value
     private int ppgCaliValue = 0; // ppg calibration value
 
-    private BlePttRecord(String ver, long createTime, String devAddress, int creatorId) {
-        super(PTT, ver, createTime, devAddress, creatorId);
+    private BlePttRecord(String ver, int accountId, long createTime, String devAddress) {
+        super(PTT, ver, accountId, createTime, devAddress);
     }
 
     // 创建信号文件

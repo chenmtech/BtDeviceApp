@@ -172,7 +172,7 @@ public class PpgDevice extends AbstractDevice {
 
         isRecording = isRecord;
         if(isRecord) {
-            ppgRecord = (BlePpgRecord) RecordFactory.create(PPG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
+            ppgRecord = (BlePpgRecord) RecordFactory.create(PPG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             if(ppgRecord != null) {
                 ppgRecord.setSampleRate(sampleRate);
                 ppgRecord.setCaliValue(caliValue);

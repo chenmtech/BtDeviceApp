@@ -1,9 +1,5 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.graphics.Bitmap;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,15 +8,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 
 import org.litepal.LitePal;
 
@@ -99,13 +96,14 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         if(record == null) return;
 
         holder.tvCreatorName.setText(record.getCreatorNickName());
-        Account account = MyApplication.getAccount();
+        holder.ivCreatorImage.setImageResource(R.mipmap.ic_user);
+        /*Account account = MyApplication.getAccount();
         if(TextUtils.isEmpty(account.getIcon())) {
             holder.ivCreatorImage.setImageResource(R.mipmap.ic_user);
         } else {
             Bitmap bitmap = MyBitmapUtil.showToDp(account.getIcon(),  32);
             holder.ivCreatorImage.setImageBitmap(bitmap);
-        }
+        }*/
 
         holder.ivRecordType.setImageResource(RecordType.fromCode(record.getTypeCode()).getIconId());
         String createTime = DateTimeUtil.timeToStringWithTodayYesterday(record.getCreateTime());

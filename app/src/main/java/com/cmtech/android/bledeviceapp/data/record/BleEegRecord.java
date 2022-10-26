@@ -38,8 +38,8 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     private int caliValue = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
 
-    private BleEegRecord(String ver, long createTime, String devAddress, int creatorId) {
-        super(EEG, ver, createTime, devAddress, creatorId);
+    private BleEegRecord(String ver, int accountId, long createTime, String devAddress) {
+        super(EEG, ver, accountId, createTime, devAddress);
     }
 
     // 创建信号文件

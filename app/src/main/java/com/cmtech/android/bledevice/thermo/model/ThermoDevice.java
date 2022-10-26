@@ -1,5 +1,9 @@
 package com.cmtech.android.bledevice.thermo.model;
 
+import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
+
 import android.content.Context;
 import android.widget.Toast;
 
@@ -10,10 +14,10 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleThermoRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.vise.log.ViseLog;
@@ -21,10 +25,6 @@ import com.vise.log.ViseLog;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
-
-import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 
 /**
  * ThermoDevice: Thermometer device
@@ -143,7 +143,7 @@ public class ThermoDevice extends AbstractDevice {
         if(this.isRecord == isRecord) return;
 
         if(isRecord) {
-            record = (BleThermoRecord) RecordFactory.create(RecordType.THERMO, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
+            record = (BleThermoRecord) RecordFactory.create(RecordType.THERMO, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             Toast.makeText(MyApplication.getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
         } else {
             if(record != null) {

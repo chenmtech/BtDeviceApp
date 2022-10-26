@@ -187,7 +187,7 @@ public class PttDevice extends AbstractDevice {
 
         isPttRecord = isRecord;
         if(isRecord) {
-            pttRecord = (BlePttRecord) RecordFactory.create(PTT, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
+            pttRecord = (BlePttRecord) RecordFactory.create(PTT, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             if(pttRecord != null) {
                 pttRecord.setSampleRate(sampleRate);
                 pttRecord.setEcgCaliValue(DEFAULT_ECG_CALI);

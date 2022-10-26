@@ -2,8 +2,6 @@ package com.cmtech.android.bledeviceapp.view.layout;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +14,7 @@ import androidx.annotation.Nullable;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -58,6 +53,8 @@ public class RecordIntroductionLayout extends RelativeLayout {
     // 上传按钮
     private TextView tvUpload;
 
+    private TextView tvShare;
+
     public RecordIntroductionLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.layout_record_intro, this);
@@ -93,6 +90,16 @@ public class RecordIntroductionLayout extends RelativeLayout {
                 }
             }
         });
+
+        tvShare = findViewById(R.id.tv_share);
+        tvShare.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(record != null) {
+                    ((RecordActivity)getContext()).shareRecord();
+                }
+            }
+        });
     }
 
     /**
@@ -109,8 +116,9 @@ public class RecordIntroductionLayout extends RelativeLayout {
     public void updateView() {
         if(record == null) return;
 
+        ivCreatorImage.setImageResource(R.mipmap.ic_user);
         tvCreatorName.setText(record.getCreatorNickName());
-        Account account = MyApplication.getAccount();
+        /*Account account = MyApplication.getAccount();
         if(account != null) {
             if (TextUtils.isEmpty(account.getIcon())) {
                 ivCreatorImage.setImageResource(R.mipmap.ic_user);
@@ -119,7 +127,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
                 ivCreatorImage.setImageBitmap(bitmap);
                 //Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
             }
-        }
+        }*/
 
         String createTime = DateTimeUtil.timeToStringWithTodayYesterday(record.getCreateTime());
         tvCreateTime.setText(createTime);

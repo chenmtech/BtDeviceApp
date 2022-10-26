@@ -77,6 +77,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // ID号
     private int id;
 
+    // 记录拥有者账户ID号
+    private int accountId = INVALID_ID;
+
     // 创建时间
     private long createTime;
 
@@ -127,16 +130,17 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
 
     //-----------------------------------------静态函数
+
     /**
      * 从本地数据库读取满足条件的记录字段信息
      * @param type：记录类型，如果是ALL，则包含所有记录类型
-     * @param creatorId：记录创建者ID
+     * @param accountId：记录拥有者ID
      * @param filterTime：过滤的起始时间
      * @param filterStr：过滤的字符串
      * @param num：记录数
      * @return 查询到的记录对象列表
      */
-    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, int creatorId, long filterTime, String filterStr, int num) {
+    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, int accountId, long filterTime, String filterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
             for(RecordType t : SUPPORT_RECORD_TYPES) {
@@ -153,12 +157,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             Class<? extends BasicRecord> recordClass = t.getRecordClass();
             if (recordClass != null) {
                 if(TextUtils.isEmpty(filterStr)) {
-                    records.addAll(LitePal.where("creatorId = ? and createTime < ?",
-                                    ""+creatorId, ""+filterTime)
+                    records.addAll(LitePal.where("accountId = ? and createTime < ?",
+                                    ""+accountId, ""+filterTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
-                    records.addAll(LitePal.where("creatorId = ? and createTime < ? and note like ?",
-                                    ""+creatorId, ""+filterTime, "%"+filterStr+"%")
+                    records.addAll(LitePal.where("accountId = ? and createTime < ? and note like ?",
+                                    ""+accountId, ""+filterTime, "%"+filterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }
@@ -185,8 +189,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param filterTime：过滤的起始时间
      * @param callback：返回回调
      */
-    public static void downloadRecords(Context context, RecordType type, int creatorId, int num, String filterStr, long filterTime, ICodeCallback callback) {
-        BasicRecord record = RecordFactory.create(type, DEFAULT_RECORD_VER, INVALID_TIME, null, creatorId);
+    public static void downloadRecords(Context context, RecordType type, int accountId, int num, String filterStr, long filterTime, ICodeCallback callback) {
+        BasicRecord record = RecordFactory.create(type, DEFAULT_RECORD_VER, accountId, INVALID_TIME, null);
         if(record == null) {
             ViseLog.e("The record type is not supported.");
             return;
@@ -204,14 +208,14 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             if(json == null) continue;
                             RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
                             String ver = json.getString("ver");
+                            int accountId = json.getInt("accountId");
                             long createTime = json.getLong("createTime");
                             String devAddress = json.getString("devAddress");
-                            int creatorId = json.getInt("creatorId");
-                            BasicRecord record = RecordFactory.create(type, ver, createTime, devAddress, creatorId);
+                            BasicRecord record = RecordFactory.create(type, ver, accountId, createTime, devAddress);
                             if (record != null) {
                                 record.fromJson(json);
                                 record.setNeedUpload(false);
-                                record.saveIfNotExist("createTime = ? and devAddress = ?", "" + record.getCreateTime(), record.getDevAddress());
+                                record.saveIfNotExist("accountId = ? and createTime = ? and devAddress = ?", "" + record.getAccountId(), "" + record.getCreateTime(), record.getDevAddress());
                             }
                         } catch (JSONException ex) {
                             ex.printStackTrace();
@@ -227,12 +231,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
 
     //-----------------------------------------构造器
-    BasicRecord(RecordType type, String ver, long createTime, String devAddress, int creatorId) {
+    BasicRecord(RecordType type, String ver, int accountId, long createTime, String devAddress) {
         this.type = type;
         this.ver = ver;
         this.createTime = createTime;
         this.devAddress = devAddress;
-        this.creatorId = creatorId;
+        this.accountId = accountId;
     }
 
     //-----------------------------------------实例方法
@@ -257,7 +261,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public String getName() {
-        return createTime + devAddress;
+        return accountId + createTime + devAddress;
+    }
+
+    public int getAccountId() {
+        return accountId;
     }
 
     public long getCreateTime() {
@@ -277,12 +285,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public String getCreatorNickName() {
-        Account account = MyApplication.getAccount();
+        /*Account account = MyApplication.getAccount();
         if(account == null || account.getAccountId() != creatorId) {
             return  "匿名";
         } else {
             return account.getNickNameOrUserName();
-        }
+        }*/
+        return "Creator"+creatorId;
     }
 
     /**
@@ -402,6 +411,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     @Override
     public void fromJson(JSONObject json) throws JSONException{
+        creatorId = json.getInt("creatorId");
         note = json.getString("note");
         recordSecond = json.getInt("recordSecond");
         reportVer = json.getString("reportVer");
@@ -415,6 +425,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     public JSONObject toJson() throws JSONException{
         JSONObject json = new JSONObject();
         json.put("recordTypeCode", type.getCode());
+        json.put("accountId", accountId);
         json.put("createTime", createTime);
         json.put("devAddress", devAddress);
         json.put("creatorId", creatorId);
@@ -460,6 +471,16 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     public int getDataNum() {
         if(sigFile == null) return 0;
         return sigFile.size();
+    }
+
+    public void share(Context context, int shareId, ICodeCallback callback) {
+        new RecordAsyncTask(context, "分享记录中，请稍等。", RecordAsyncTask.CMD_SHARE_RECORD, new Object[]{shareId}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                callback.onFinish(code);
+            }
+        }).execute(this);
     }
 
     /**
@@ -539,7 +560,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @NonNull
     @Override
     public String toString() {
-        return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + note + "-" + recordSecond + "-" + needUpload + "-" + reportContent;
+        return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + note + "-" + recordSecond + "-" + needUpload + "-" + reportContent;
     }
 
     @Override

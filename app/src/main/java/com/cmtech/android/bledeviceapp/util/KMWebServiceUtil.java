@@ -9,6 +9,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.vise.log.ViseLog;
@@ -64,6 +65,8 @@ public class KMWebServiceUtil {
 
     // 获取记录的诊断报告
     private static final String CMD_RETRIEVE_DIAGNOSE_REPORT = "retrieveDiagnoseReport";
+
+    private static final String CMD_SHARE = "share";
 
     public static WebResponse downloadNewestAppUpdateInfo() {
         Map<String, String> data = new HashMap<>();
@@ -129,6 +132,7 @@ public class KMWebServiceUtil {
 
     public static WebResponse queryRecordId(int recordTypeCode, long createTime, String devAddress, String ver) {
         Map<String, String> data = new HashMap<>();
+        data.put("accountId", String.valueOf(MyApplication.getAccountId()));
         data.put("recordTypeCode", String.valueOf(recordTypeCode));
         data.put("createTime", String.valueOf(createTime));
         data.put("devAddress", devAddress);
@@ -145,6 +149,25 @@ public class KMWebServiceUtil {
             json = record.toJson();
             json.put("cmd", CMD_UPLOAD);
             json.put("accountId", account.getAccountId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+        return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
+    }
+
+    public static WebResponse shareRecord(Account account, BasicRecord record, int shareId) {
+        WebResponse resp = accountWebLogin(account);
+        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", CMD_SHARE);
+            json.put("accountId", account.getAccountId());
+            json.put("recordTypeCode", record.getTypeCode());
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("shareId", shareId);
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
@@ -211,7 +234,7 @@ public class KMWebServiceUtil {
                 builder.append(type.getCode());
             }
             json.put("recordTypeCode", builder.toString());
-            json.put("creatorId", record.getCreatorId());
+            //json.put("creatorId", record.getCreatorId());
             json.put("fromTime", fromTime);
             json.put("num", num);
             json.put("filterStr", filterStr);

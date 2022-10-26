@@ -52,6 +52,28 @@ public abstract class RecordActivity extends AppCompatActivity {
     }
 
     /**
+     * 分享记录
+     */
+    public void shareRecord() {
+        noteLayout.saveNote();
+        if(record.needUpload()) {
+            Toast.makeText(RecordActivity.this, "记录需要先上传到服务器，才能分享", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        record.share(this, 21, new ICodeCallback() {
+            @Override
+            public void onFinish(int code) {
+                if (code == RETURN_CODE_SUCCESS) {
+                    Toast.makeText(RecordActivity.this, "记录已分享", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(RecordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    /**
      * 下载记录
      */
     public void downloadRecord() {

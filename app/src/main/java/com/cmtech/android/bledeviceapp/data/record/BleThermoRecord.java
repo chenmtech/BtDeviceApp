@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.THERMO;
+
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
@@ -10,8 +12,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.THERMO;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -29,8 +29,8 @@ public class BleThermoRecord extends BasicRecord {
     private final List<Float> temp = new ArrayList<>();
     private float highestTemp = 0.0f;
 
-    private BleThermoRecord(String ver, long createTime, String devAddress, int creatorId) {
-        super(THERMO, ver, createTime, devAddress, creatorId);
+    private BleThermoRecord(String ver, int accountId, long createTime, String devAddress) {
+        super(THERMO, ver, accountId, createTime, devAddress);
     }
 
     @Override

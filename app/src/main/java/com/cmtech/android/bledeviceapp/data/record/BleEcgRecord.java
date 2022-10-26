@@ -91,10 +91,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      * @param ver 记录版本号
      * @param createTime 创建时间
      * @param devAddress 创建设备的蓝牙地址
-     * @param creatorId 创建者的ID号
+     * @param accountId 创建者的ID号
      */
-    private BleEcgRecord(String ver, long createTime, String devAddress, int creatorId) {
-        super(ECG, ver, createTime, devAddress, creatorId);
+    private BleEcgRecord(String ver, int accountId, long createTime, String devAddress) {
+        super(ECG, ver, accountId, createTime, devAddress);
     }
 
     //-----------------------------------------------------------公有实例方法

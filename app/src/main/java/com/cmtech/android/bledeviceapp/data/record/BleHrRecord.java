@@ -48,8 +48,8 @@ public class BleHrRecord extends BasicRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
-    private BleHrRecord(String ver, long createTime, String devAddress, int creatorId) {
-        super(HR, ver, createTime, devAddress, creatorId);
+    private BleHrRecord(String ver, int accountId, long createTime, String devAddress) {
+        super(HR, ver, accountId, createTime, devAddress);
         initHrHistogram();
     }
 

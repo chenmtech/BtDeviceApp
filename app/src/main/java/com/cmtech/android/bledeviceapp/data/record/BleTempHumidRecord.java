@@ -1,11 +1,9 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
-import com.cmtech.android.bledeviceapp.model.Account;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.TH;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.TH;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -25,8 +23,8 @@ public class BleTempHumidRecord extends BasicRecord {
     private float heatIndex = 0.0f;
     private String location = "室内";
 
-    private BleTempHumidRecord(String ver, long createTime, String devAddress, int creatorId) {
-        super(TH, ver, createTime, devAddress, creatorId);
+    private BleTempHumidRecord(String ver, int accountId, long createTime, String devAddress) {
+        super(TH, ver, accountId, createTime, devAddress);
     }
 
     @Override

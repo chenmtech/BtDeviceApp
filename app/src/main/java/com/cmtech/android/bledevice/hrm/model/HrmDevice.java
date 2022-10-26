@@ -265,7 +265,7 @@ public class HrmDevice extends AbstractDevice {
         this.hrRecordStatus = record;
         // 开始记录
         if(record) {
-            hrRecord = (BleHrRecord) RecordFactory.create(HR, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
+            hrRecord = (BleHrRecord) RecordFactory.create(HR, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             if(listener != null && hrRecord != null) {
                 recordingRecord = hrRecord;
                 listener.onHRStatisticInfoUpdated(hrRecord);
@@ -329,7 +329,7 @@ public class HrmDevice extends AbstractDevice {
 
         // 开始记录
         if(record) {
-            ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, new Date().getTime(), getAddress(), MyApplication.getAccountId());
+            ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             if(ecgRecord != null) {
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);

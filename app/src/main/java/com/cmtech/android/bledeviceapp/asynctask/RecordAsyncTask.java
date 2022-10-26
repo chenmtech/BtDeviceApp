@@ -34,6 +34,7 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
     public static final int CMD_DOWNLOAD_RECORD = 3; // download record command
     public static final int CMD_DELETE_RECORD = 4; // delete record command
     public static final int CMD_DOWNLOAD_RECORDS = 5; // download records command
+    public static final int CMD_SHARE_RECORD = 6;
 
     private static final int DEFAULT_DOWNLOAD_NUM = 10; // default download record num per time
 
@@ -113,6 +114,11 @@ public class RecordAsyncTask extends AsyncTask<BasicRecord, Void, WebResponse> {
                     filterTime = (Long) params[2];
                 }
                 response = KMWebServiceUtil.downloadRecords(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
+                break;
+
+            case CMD_SHARE_RECORD:
+                int shareId = (Integer) params[0];
+                response = KMWebServiceUtil.shareRecord(MyApplication.getAccount(), record, shareId);
                 break;
 
             default:
