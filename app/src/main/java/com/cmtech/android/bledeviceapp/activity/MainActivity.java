@@ -1,12 +1,11 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_STORE_URI;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
@@ -14,12 +13,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -37,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -50,7 +49,6 @@ import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.OnDeviceListener;
 import com.cmtech.android.ble.core.WebDeviceCommonInfo;
-import com.cmtech.android.bledevice.hrm.activityfragment.HrmFragment;
 import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.LocalDeviceAdapter;
@@ -109,17 +107,17 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            notifyService = ((NotificationService.NotificationServiceBinder)iBinder).getService();
+            notifyService = ((NotificationService.NotificationServiceBinder) iBinder).getService();
             // 成功绑定后初始化UI，否则请求退出
-            if(notifyService != null) {
+            if (notifyService != null) {
                 MyApplication.getDeviceManager().addCommonListenerForAllDevices(notifyService);
 
                 initializeUI();
 
                 // 为已经打开的设备创建并打开Fragment
                 List<IDevice> openedDevices = MyApplication.getDeviceManager().getOpenedDevice();
-                for(IDevice device : openedDevices) {
-                    if(device.getConnectState() != CLOSED) {
+                for (IDevice device : openedDevices) {
+                    if (device.getConnectState() != CLOSED) {
                         createAndOpenFragment(device);
                     }
                 }
@@ -130,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            if(notifyService != null) {
+            if (notifyService != null) {
                 Intent intent = new Intent(MainActivity.this, NotificationService.class);
                 stopService(intent);
                 notifyService = null;
@@ -149,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!MyApplication.getAccountManager().isValid()) {
+        if (!MyApplication.getAccountManager().isValid()) {
             Toast.makeText(this, "无效账户", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -166,8 +164,11 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         }
         bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
 
-        if(BleScanner.isBleDisabled()) {
+        if (BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
             startActivity(intent);
         }
     }
@@ -311,9 +312,8 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                         intent = new Intent(MainActivity.this, RecordExplorerActivity.class);
                         startActivity(intent);
                         return true;
-                    case R.id.nav_open_store: // open KM store
-                        intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(KMIC_STORE_URI));
+                    case R.id.nav_manage_share: // 管理分享
+                        intent = new Intent(MainActivity.this, ShareManageActivity.class);
                         startActivity(intent);
                         return true;
                     case R.id.nav_about_us: // open KM store

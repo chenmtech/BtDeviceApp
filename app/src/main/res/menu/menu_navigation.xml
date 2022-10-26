@@ -15,10 +15,10 @@
             android:icon="@mipmap/ic_query_record"/>
 
         <item
-            android:id="@+id/nav_open_store"
-            android:title="@string/open_store"
-            android:icon="@mipmap/ic_store_32px"
-            android:visible="false"/>
+            android:id="@+id/nav_manage_share"
+            android:title="管理分享"
+            android:icon="@mipmap/ic_share_32px"
+            android:visible="true"/>
 
         <item
             android:id="@+id/nav_about_us"
