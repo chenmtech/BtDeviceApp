@@ -1,17 +1,26 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.model.ShareInfo.AGREE;
+import static com.cmtech.android.bledeviceapp.model.ShareInfo.DENY;
+
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.ShareInfo;
+import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 
 import java.util.List;
@@ -32,9 +41,11 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         TextView status; //
         Button ivDeny;
         Button ivAgree;
+        Context context;
 
-        ViewHolder(View itemView) {
+        ViewHolder(Context context, View itemView) {
             super(itemView);
+            this.context = context;
             view = itemView;
             fromUserName = view.findViewById(R.id.tv_from_username);
             toUserName = view.findViewById(R.id.tv_to_username);
@@ -53,7 +64,7 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
     public ShareInfoAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_share_info, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(parent.getContext(), view);
     }
 
     @Override
@@ -73,8 +84,8 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
 
         String statusStr = "";
         switch (shareInfo.getStatus()) {
-            case ShareInfo.DENY:
-                statusStr = "已拒绝";
+            case DENY:
+                statusStr = "被拒绝";
                 break;
             case ShareInfo.WAITING:
                 statusStr = "申请中";
@@ -97,7 +108,8 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             @Override
             public void onClick(View v) {
                 if(ClickCheckUtil.isFastClick()) return;
-                //activity.deleteRecord(holder.getAdapterPosition());
+                if(shareInfo.getStatus() != DENY)
+                    changeShareInfo(holder.context, shareInfo.getFromId(), DENY);
             }
         });
 
@@ -105,7 +117,8 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             @Override
             public void onClick(View v) {
                 if(ClickCheckUtil.isFastClick()) return;
-                //activity.uploadRecord(holder.getAdapterPosition());
+                if(shareInfo.getStatus() != AGREE)
+                    changeShareInfo(holder.context, shareInfo.getFromId(), AGREE);
             }
         });
     }
@@ -113,6 +126,19 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
     @Override
     public int getItemCount() {
         return shareInfos.size();
+    }
+
+    private void changeShareInfo(Context context, int fromId, int status) {
+        new AccountAsyncTask(context, "请稍等",
+                AccountAsyncTask.CMD_CHANGE_SHARE_INFO, new Object[]{fromId, status}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                if (code == RETURN_CODE_SUCCESS) {
+                    Toast.makeText(context, "修改成功", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).execute(MyApplication.getAccount());
     }
 
 }

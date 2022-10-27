@@ -70,6 +70,8 @@ public class KMWebServiceUtil {
 
     private static final String CMD_DOWNLOAD_SHARE_INFO = "downloadShareInfo";
 
+    private static final String CMD_CHANGE_SHARE_INFO = "changeShareInfo";
+
     public static WebResponse downloadNewestAppUpdateInfo() {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", CMD_DOWNLOAD);
@@ -140,6 +142,24 @@ public class KMWebServiceUtil {
         try {
             json.put("cmd", CMD_DOWNLOAD_SHARE_INFO);
             json.put("id", account.getAccountId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+        //ViseLog.e(json);
+        return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
+    }
+
+    public static WebResponse changeShareInfo(Account account, int fromId, int status) {
+        WebResponse resp = accountWebLogin(account);
+        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", CMD_CHANGE_SHARE_INFO);
+            json.put("id", account.getAccountId());
+            json.put("fromId", fromId);
+            json.put("status", status);
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);

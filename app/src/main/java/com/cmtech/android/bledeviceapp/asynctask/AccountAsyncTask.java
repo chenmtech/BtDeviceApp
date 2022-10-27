@@ -31,14 +31,21 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
     public static final int CMD_LOGIN = 4;
     public static final int CMD_CHANGE_PASSWORD = 5;
     public static final int CMD_DOWNLOAD_SHARE_INFO = 6;
+    public static final int CMD_CHANGE_SHARE_INFO = 7;
 
     private final ProgressDialog progressDialog;
     private final int cmd;
+    private final Object[] params;
     private final IWebResponseCallback callback;
 
     public AccountAsyncTask(Context context, String showString, int cmd, IWebResponseCallback callback) {
+        this(context, showString, cmd, null, callback);
+    }
+
+    public AccountAsyncTask(Context context, String showString, int cmd, Object[] params, IWebResponseCallback callback) {
         this.cmd = cmd;
         this.callback = callback;
+        this.params = params;
 
         if(!TextUtils.isEmpty(showString)) {
             progressDialog = new ProgressDialog(context);
@@ -87,6 +94,12 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
 
             case CMD_DOWNLOAD_SHARE_INFO:
                 response = KMWebServiceUtil.downloadShareInfo(account);
+                break;
+
+            case CMD_CHANGE_SHARE_INFO:
+                int fromId = (Integer) params[0];
+                int status = (Integer) params[1];
+                response = KMWebServiceUtil.changeShareInfo(account, fromId, status);
                 break;
 
             default:
