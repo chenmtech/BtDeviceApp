@@ -12,7 +12,7 @@ import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AppUpdateManager;
-import com.cmtech.android.bledeviceapp.model.RecordShareInfo;
+import com.cmtech.android.bledeviceapp.model.ShareInfo;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
@@ -98,7 +98,6 @@ public class MyApplication extends Application {
         initDeviceManager();
 
         accountManager = new AccountManager();
-        accountManager.setShareInfoList(Account.readShareInfoFromLocalDb());
 
         appUpdateManager = new AppUpdateManager();
 
@@ -127,11 +126,7 @@ public class MyApplication extends Application {
         return instance.accountManager.getAccount();
     }
 
-    public static void setShareInfoList(List<RecordShareInfo> shareInfos) {
-        instance.accountManager.setShareInfoList(shareInfos);
-    }
-
-    public static List<RecordShareInfo> getShareInfoList() {
+    public static List<ShareInfo> getShareInfoList() {
         return instance.accountManager.getShareInfoList();
     }
 

@@ -64,6 +64,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     private int height = 0;
     private boolean needWebLogin = true;
 
+    private final List<ShareInfo> shareInfos = new ArrayList<>();
+
     private Account() {
     }
 
@@ -152,6 +154,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     public int getHeight() {
         return height;
+    }
+
+    public List<ShareInfo> getShareInfos() {
+        return shareInfos;
     }
 
     public void setPersonInfo(int gender, long birthday, int weight, int height) {
@@ -325,15 +331,13 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         throw new IllegalStateException();
     }
 
-    public static List<RecordShareInfo> readShareInfoFromLocalDb() {
-        List<RecordShareInfo> shareInfos = new ArrayList<>();
+    public void readShareInfoFromLocalDb() {
+        shareInfos.clear();
         shareInfos.addAll(LitePal.where("fromId = ? or toId = ?",
-                        ""+MyApplication.getAccountId(), ""+MyApplication.getAccountId()).find(RecordShareInfo.class));
-        if(shareInfos.isEmpty()) return null;
-        return shareInfos;
+                        ""+accountId, ""+accountId).find(ShareInfo.class));
     }
 
-    public static void downloadShareInfo(Context context, String showStr, ICodeCallback callback) {
+    public void downloadShareInfo(Context context, String showStr, ICodeCallback callback) {
         new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_SHARE_INFO, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -344,13 +348,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                         try {
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             if(json == null) continue;
-                            int fromId = json.getInt("fromId");
-                            int toId = json.getInt("toId");
-                            String fromUserName = json.getString("fromUserName");
-                            String toUserName = json.getString("toUserName");
-                            RecordShareInfo shareInfo = new RecordShareInfo(fromId,toId,fromUserName,toUserName);
-                            shareInfo.saveOrUpdate("fromId = ? and toId = ? and fromUserName = ? and toUserName = ?",
-                                    ""+fromId, ""+toId, fromUserName, toUserName);
+                            ShareInfo shareInfo = new ShareInfo();
+                            shareInfo.fromJson(json);
+                            shareInfo.saveOrUpdate("fromId = ? and toId = ?",
+                                    ""+shareInfo.getFromId(), ""+shareInfo.getToId());
                         } catch (JSONException ex) {
                             ex.printStackTrace();
                         }
@@ -358,7 +359,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 }
                 callback.onFinish(code);
             }
-        }).execute(MyApplication.getAccount());
+        }).execute(this);
     }
 
     @NonNull

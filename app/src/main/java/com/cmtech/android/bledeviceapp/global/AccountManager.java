@@ -7,7 +7,7 @@ import android.content.Context;
 
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.RecordShareInfo;
+import com.cmtech.android.bledeviceapp.model.ShareInfo;
 import com.vise.log.ViseLog;
 
 import java.util.List;
@@ -27,22 +27,18 @@ import java.util.List;
 public class AccountManager {
     private Account account; // account
 
-    private List<RecordShareInfo> shareInfoList;
-
     AccountManager() {
         account = Account.readFromSharedPreference();
+        account.readShareInfoFromLocalDb();
     }
 
     public Account getAccount() {
         return account;
     }
 
-    public void setShareInfoList(List<RecordShareInfo> shareInfos) {
-        shareInfoList = shareInfos;
-    }
-
-    public List<RecordShareInfo> getShareInfoList() {
-        return shareInfoList;
+    public List<ShareInfo> getShareInfoList() {
+        if(account == null) return null;
+        return account.getShareInfos();
     }
 
     /**
