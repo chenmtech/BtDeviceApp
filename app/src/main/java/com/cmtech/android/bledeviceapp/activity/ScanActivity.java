@@ -1,25 +1,32 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.SCAN_DURATION;
+
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.ScanFilter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.cmtech.android.ble.core.BleDeviceCommonInfo;
@@ -35,19 +42,16 @@ import com.vise.log.ViseLog;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.SCAN_DURATION;
-
 /**
-  *
-  * ClassName:      ScanActivity
-  * Description:    扫描添加设备Activiy
-  * Author:         chenm
-  * CreateDate:     2018/2/28 18:07
-  * UpdateUser:     chenm
-  * UpdateDate:     2019-04-23 18:07
-  * UpdateRemark:   更新说明
-  * Version:        1.0
+ *
+ * ClassName:      ScanActivity
+ * Description:    扫描添加设备Activiy
+ * Author:         chenm
+ * CreateDate:     2018/2/28 18:07
+ * UpdateUser:     chenm
+ * UpdateDate:     2019-04-23 18:07
+ * UpdateRemark:   更新说明
+ * Version:        1.0
  */
 
 public class ScanActivity extends AppCompatActivity {
@@ -88,6 +92,9 @@ public class ScanActivity extends AppCompatActivity {
                     llSearchProgress.setVisibility(View.GONE);
                     BleScanner.stopScan(this);
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    if (ActivityCompat.checkSelfPermission(ScanActivity.this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
                     startActivity(intent);
                     break;
 

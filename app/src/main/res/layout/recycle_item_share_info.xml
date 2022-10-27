@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:padding="10dp">
+    <TextView
+        android:id="@+id/tv_from_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="from"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/orange"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="分享给"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/primary_text"/>
+
+    <TextView
+        android:id="@+id/tv_to_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="to"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/orange"/>
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="状态"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/blue"/>
+
+    <Button
+        android:id="@+id/btn_deny"
+        style="@style/button_circle_blue_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:text="拒绝"
+        android:textSize="@dimen/big_font"/>
+
+    <Button
+        android:id="@+id/btn_agree"
+        style="@style/button_circle_blue_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:text="同意"
+        android:textSize="@dimen/big_font"/>
+
+</LinearLayout>

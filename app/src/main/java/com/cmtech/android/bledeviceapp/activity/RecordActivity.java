@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
@@ -61,16 +62,20 @@ public abstract class RecordActivity extends AppCompatActivity {
             return;
         }
 
-        record.share(this, 21, new ICodeCallback() {
-            @Override
-            public void onFinish(int code) {
-                if (code == RETURN_CODE_SUCCESS) {
-                    Toast.makeText(RecordActivity.this, "记录已分享", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(RecordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+        if(MyApplication.getAccount().canShareTo(21)) {
+            record.share(this, 21, new ICodeCallback() {
+                @Override
+                public void onFinish(int code) {
+                    if (code == RETURN_CODE_SUCCESS) {
+                        Toast.makeText(RecordActivity.this, "记录已分享", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(RecordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            Toast.makeText(RecordActivity.this, "不能分享", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**

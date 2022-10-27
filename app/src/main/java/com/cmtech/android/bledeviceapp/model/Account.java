@@ -331,6 +331,12 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         throw new IllegalStateException();
     }
 
+    public boolean canShareTo(int shareId) {
+        int num = LitePal.where("fromId = ? and toId = ? and status = ?",
+                ""+MyApplication.getAccountId(), ""+shareId, ""+ShareInfo.AGREE).count(ShareInfo.class);
+        return num!=0;
+    }
+
     public void readShareInfoFromLocalDb() {
         shareInfos.clear();
         shareInfos.addAll(LitePal.where("fromId = ? or toId = ?",

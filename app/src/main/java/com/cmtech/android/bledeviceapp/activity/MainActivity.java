@@ -160,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     MyApplication.getAccount().readShareInfoFromLocalDb();
-                    ViseLog.e("shareInfo:" + MyApplication.getShareInfoList());
                 }
             }
         });
