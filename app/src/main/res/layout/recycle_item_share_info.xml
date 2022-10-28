@@ -23,10 +23,10 @@
                 android:id="@+id/iv_from_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_user"/>
+                android:src="@mipmap/ic_user_32px"/>
 
             <TextView
-                android:id="@+id/tv_from_id"
+                android:id="@+id/tv_from_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/anonymous"
@@ -53,10 +53,10 @@
                 android:id="@+id/iv_to_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_user"/>
+                android:src="@mipmap/ic_user_32px"/>
 
             <TextView
-                android:id="@+id/tv_to_id"
+                android:id="@+id/tv_to_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/anonymous"
@@ -67,6 +67,14 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="状态"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/blue"/>
 
     <Button
         android:id="@+id/btn_deny"
@@ -90,12 +98,4 @@
         android:text="同意"
         android:textSize="@dimen/big_font"/>
 
-    <TextView
-        android:id="@+id/tv_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="状态"
-        android:textSize="@dimen/normal_font"
-        android:textColor="@color/blue"/>
 </LinearLayout>

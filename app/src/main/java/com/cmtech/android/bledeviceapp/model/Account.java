@@ -68,6 +68,16 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     private final List<ContactPerson> contactPeople = new ArrayList<>();
 
+    public List<Integer> getCanSharePersonIdList() {
+        List<Integer> ids = new ArrayList<>();
+        for(ShareInfo si : shareInfos) {
+            if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
+                ids.add(si.getToId());
+            }
+        }
+        return ids;
+    }
+
     private Account() {
     }
 

@@ -20,7 +20,7 @@
             android:id="@+id/iv_creator_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_user"/>
+            android:src="@mipmap/ic_user_32px"/>
 
         <TextView
             android:id="@+id/tv_creator_name"

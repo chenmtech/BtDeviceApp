@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minWidth="300dp"
+    android:orientation="vertical"
+    android:layout_margin="10dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_share_person"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btn_cancel"
+            style="@style/button_circle_blue_style"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/cancel"/>
+
+        <Button
+            android:id="@+id/btn_ok"
+            style="@style/button_circle_blue_style"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/ok"/>
+    </LinearLayout>
+
+
+</LinearLayout>

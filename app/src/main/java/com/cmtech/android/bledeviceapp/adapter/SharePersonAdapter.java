@@ -38,7 +38,7 @@ import java.util.List;
  * Created by bme on 2022/10/27.
  */
 
-public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.ViewHolder> {
+public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.ViewHolder> {
     private final List<ShareInfo> shareInfos;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -66,20 +66,20 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         }
     }
 
-    public ShareInfoAdapter(List<ShareInfo> shareInfos) {
+    public SharePersonAdapter(List<ShareInfo> shareInfos) {
         this.shareInfos = shareInfos;
     }
 
 
     @Override
-    public ShareInfoAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SharePersonAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_share_info, parent, false);
         return new ViewHolder(parent.getContext(), view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ShareInfoAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull SharePersonAdapter.ViewHolder holder, int position) {
         ShareInfo shareInfo = shareInfos.get(position);
 
         int myId = MyApplication.getAccountId();

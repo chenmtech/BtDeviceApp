@@ -109,6 +109,11 @@
             android:name=".activity.DeviceInfoActivity"
             android:label="@string/cfg_device_basic_info"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
+
+        <activity
+            android:name=".activity.ChooseSharePersonActivity"
+            android:label="请选择分享给："
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
             android:name="com.cmtech.android.bledevice.hrm.activityfragment.HrmCfgActivity"
             android:label="@string/title_activity_hrmcfg"
