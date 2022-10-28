@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.ShareManageActivity;
 import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
@@ -36,8 +37,8 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View view; // 设备视图
-        TextView fromUserName; //
-        TextView toUserName; //
+        TextView fromId; //
+        TextView toId; //
         TextView status; //
         Button ivDeny;
         Button ivAgree;
@@ -47,8 +48,8 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             super(itemView);
             this.context = context;
             view = itemView;
-            fromUserName = view.findViewById(R.id.tv_from_username);
-            toUserName = view.findViewById(R.id.tv_to_username);
+            fromId = view.findViewById(R.id.tv_from_id);
+            toId = view.findViewById(R.id.tv_to_id);
             status = view.findViewById(R.id.tv_status);
             ivDeny = view.findViewById(R.id.btn_deny);
             ivAgree = view.findViewById(R.id.btn_agree);
@@ -73,14 +74,14 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
 
         int myId = MyApplication.getAccountId();
         if(shareInfo.getFromId() == myId)
-            holder.fromUserName.setText("你");
+            holder.fromId.setText("你");
         else
-            holder.fromUserName.setText(shareInfo.getFromUserName());
+            holder.fromId.setText("用户"+shareInfo.getFromId());
 
         if(shareInfo.getToId() == myId)
-            holder.toUserName.setText("你");
+            holder.toId.setText("你");
         else
-            holder.toUserName.setText(shareInfo.getToUserName());
+            holder.toId.setText("用户"+shareInfo.getToId());
 
         String statusStr = "";
         switch (shareInfo.getStatus()) {
@@ -135,7 +136,10 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
                 if (code == RETURN_CODE_SUCCESS) {
+                    ((ShareManageActivity)context).updateShareInfoList();
                     Toast.makeText(context, "修改成功", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "修改失败", Toast.LENGTH_SHORT).show();
                 }
             }
         }).execute(MyApplication.getAccount());

@@ -32,6 +32,7 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
     public static final int CMD_CHANGE_PASSWORD = 5;
     public static final int CMD_DOWNLOAD_SHARE_INFO = 6;
     public static final int CMD_CHANGE_SHARE_INFO = 7;
+    public static final int CMD_ADD_SHARE = 8;
 
     private final ProgressDialog progressDialog;
     private final int cmd;
@@ -100,6 +101,11 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
                 int fromId = (Integer) params[0];
                 int status = (Integer) params[1];
                 response = KMWebServiceUtil.changeShareInfo(account, fromId, status);
+                break;
+
+            case CMD_ADD_SHARE:
+                int toId = (Integer) params[0];
+                response = KMWebServiceUtil.addShare(account, toId);
                 break;
 
             default:

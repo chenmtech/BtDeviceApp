@@ -2,9 +2,12 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cmtech.android.bledeviceapp.R;
@@ -62,8 +65,28 @@ public abstract class RecordActivity extends AppCompatActivity {
             return;
         }
 
-        if(MyApplication.getAccount().canShareTo(21)) {
-            record.share(this, 21, new ICodeCallback() {
+        final EditText et = new EditText(this);
+        new AlertDialog.Builder(this).setTitle("请输入对方ID号")
+                .setIcon(R.mipmap.ic_share_32px)
+                .setView(et)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String idStr = et.getText().toString();
+                        try {
+                            int id = Integer.parseInt(idStr);
+                            shareTo(id);
+                        } catch (Exception e) {
+                            Toast.makeText(getApplicationContext(), "无效ID号",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).setNegativeButton("取消",null).show();
+
+    }
+
+    private void shareTo(int toId) {
+        if(MyApplication.getAccount().canShareTo(toId)) {
+            record.share(this, toId, new ICodeCallback() {
                 @Override
                 public void onFinish(int code) {
                     if (code == RETURN_CODE_SUCCESS) {

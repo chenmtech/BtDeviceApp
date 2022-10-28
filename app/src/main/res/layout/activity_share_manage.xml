@@ -20,6 +20,34 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id = "@+id/rv_share_info"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <include layout="@layout/divider_line"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="分享给："/>
+
+        <EditText
+            android:id="@+id/et_share_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="输入对方ID号"/>
+
+        <Button
+            android:id="@+id/btn_add_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/button_circle_blue_style"
+            android:text="申请"/>
+    </LinearLayout>
 
 </LinearLayout>

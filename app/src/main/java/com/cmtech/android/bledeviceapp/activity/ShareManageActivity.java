@@ -1,10 +1,14 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,8 +19,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ShareInfoAdapter;
+import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
+import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.KeyBoardUtil;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
@@ -24,6 +31,8 @@ public class ShareManageActivity extends AppCompatActivity {
 
     private ShareInfoAdapter shareInfoAdapter;
     private RecyclerView rvShareInfo;
+    private Button btnAddShare;
+    private EditText etShareId;
 
 
     @Override
@@ -41,6 +50,24 @@ public class ShareManageActivity extends AppCompatActivity {
         rvShareInfo.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         shareInfoAdapter = new ShareInfoAdapter(MyApplication.getShareInfoList());
         rvShareInfo.setAdapter(shareInfoAdapter);
+
+        etShareId = findViewById(R.id.et_share_id);
+
+        btnAddShare = findViewById(R.id.btn_add_share);
+        btnAddShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String idStr = etShareId.getText().toString();
+                int id = INVALID_ID;
+                try{
+                    id = Integer.parseInt(idStr);
+                } catch (Exception ignored) {
+                }
+                if(id != INVALID_ID) {
+                    addShare(id);
+                }
+            }
+        });
     }
 
 
@@ -71,7 +98,7 @@ public class ShareManageActivity extends AppCompatActivity {
     }
 
     // 更新分享信息列表
-    private void updateShareInfoList() {
+    public void updateShareInfoList() {
         KeyBoardUtil.closeKeybord(this);
 
         // 从服务器下载满足条件的记录保存到本地数据库，之后再从本地数据库中读取满足条件的记录
@@ -89,5 +116,22 @@ public class ShareManageActivity extends AppCompatActivity {
 
     private void updateView() {
         shareInfoAdapter.notifyDataSetChanged();
+    }
+
+    private void addShare(int id) {
+        if(MyApplication.getAccountId() == id) return;
+        new AccountAsyncTask(this, "请稍等", AccountAsyncTask.CMD_ADD_SHARE,
+                new Object[]{id}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                if(code == RETURN_CODE_SUCCESS) {
+                    updateShareInfoList();
+                    Toast.makeText(ShareManageActivity.this, "已申请", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(ShareManageActivity.this, "申请无效", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).execute(MyApplication.getAccount());
     }
 }
