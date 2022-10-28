@@ -1,16 +1,12 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import android.content.Context;
-
-import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
-import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.crud.LitePalSupport;
 
-public class ShareInfo extends LitePalSupport implements IJsonable, IWebOperation {
+public class ShareInfo extends LitePalSupport implements IJsonable {
     public static final int DENY = 0;
     public static final int WAITING = 1;
     public static final int AGREE = 2;
@@ -100,21 +96,6 @@ public class ShareInfo extends LitePalSupport implements IJsonable, IWebOperatio
         json.put("toUserName", toUserName);
         json.put("status", status);
         return json;
-    }
-
-    @Override
-    public void upload(Context context, ICodeCallback callback) {
-
-    }
-
-    @Override
-    public void download(Context context, ICodeCallback callback) {
-
-    }
-
-    @Override
-    public void delete(Context context, ICodeCallback callback) {
-        return;
     }
 
     public String toString() {

@@ -291,7 +291,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         } else {
             return account.getNickNameOrUserName();
         }*/
-        return "Creator"+creatorId;
+        return "ID："+creatorId;
     }
 
     /**

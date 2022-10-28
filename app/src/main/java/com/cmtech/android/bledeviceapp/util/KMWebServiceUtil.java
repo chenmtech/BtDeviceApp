@@ -74,6 +74,8 @@ public class KMWebServiceUtil {
 
     private static final String CMD_ADD_SHARE = "addShare";
 
+    private static final String CMD_DOWNLOAD_CONTACT_PERSON = "downloadContactPerson";
+
     public static WebResponse downloadNewestAppUpdateInfo() {
         Map<String, String> data = new HashMap<>();
         data.put("cmd", CMD_DOWNLOAD);
@@ -128,6 +130,23 @@ public class KMWebServiceUtil {
         try {
             json.put("cmd", CMD_DOWNLOAD);
             json.put("id", account.getAccountId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        }
+        //ViseLog.e(json);
+        return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
+    }
+
+    public static WebResponse downloadContactPerson(Account account, int contactId) {
+        WebResponse resp = accountWebLogin(account);
+        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", CMD_DOWNLOAD_CONTACT_PERSON);
+            json.put("id", account.getAccountId());
+            json.put("contactId", contactId);
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
@@ -371,5 +390,4 @@ public class KMWebServiceUtil {
         }
         return wResp;
     }
-
 }

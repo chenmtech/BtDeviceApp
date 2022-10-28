@@ -24,7 +24,6 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
-import com.cmtech.android.bledeviceapp.util.KeyBoardUtil;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
 public class ShareManageActivity extends AppCompatActivity {
@@ -99,8 +98,6 @@ public class ShareManageActivity extends AppCompatActivity {
 
     // 更新分享信息列表
     public void updateShareInfoList() {
-        KeyBoardUtil.closeKeybord(this);
-
         // 从服务器下载满足条件的记录保存到本地数据库，之后再从本地数据库中读取满足条件的记录
         MyApplication.getAccount().downloadShareInfo(this, "更新中，请稍后...", new ICodeCallback() {
             @Override

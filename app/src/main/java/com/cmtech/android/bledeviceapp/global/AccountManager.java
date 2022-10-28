@@ -30,6 +30,7 @@ public class AccountManager {
     AccountManager() {
         account = Account.readFromSharedPreference();
         account.readShareInfoFromLocalDb();
+        account.readContactPeopleFromLocalDb();
     }
 
     public Account getAccount() {

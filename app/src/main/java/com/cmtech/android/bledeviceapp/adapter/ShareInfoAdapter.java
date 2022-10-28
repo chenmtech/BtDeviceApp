@@ -19,10 +19,13 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ShareManageActivity;
 import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
+import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.ShareInfo;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
+import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -75,13 +78,58 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         int myId = MyApplication.getAccountId();
         if(shareInfo.getFromId() == myId)
             holder.fromId.setText("你");
-        else
-            holder.fromId.setText("用户"+shareInfo.getFromId());
+        else {
+            int id = shareInfo.getFromId();
+            ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
+            if(cp != null) {
+                holder.fromId.setText(cp.getNickName());
+            } else {
+                holder.fromId.setText("用户ID" + id);
+                holder.fromId.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        MyApplication.getAccount().downloadContactPerson(holder.context, "请稍等", id, new ICodeCallback() {
+                            @Override
+                            public void onFinish(int code) {
+                                if (code == RETURN_CODE_SUCCESS) {
+                                    MyApplication.getAccount().readContactPeopleFromLocalDb();
+                                    notifyDataSetChanged();
+                                    ViseLog.e(MyApplication.getAccount().getContactPeople());
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }
 
         if(shareInfo.getToId() == myId)
             holder.toId.setText("你");
-        else
-            holder.toId.setText("用户"+shareInfo.getToId());
+        else {
+            int id = shareInfo.getToId();
+            ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
+            if(cp != null) {
+                holder.toId.setText(cp.getNickName());
+            } else {
+                holder.toId.setText("用户ID" + id);
+                if(shareInfo.getStatus()==AGREE) {
+                    holder.toId.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MyApplication.getAccount().downloadContactPerson(holder.context, "请稍等", id, new ICodeCallback() {
+                                @Override
+                                public void onFinish(int code) {
+                                    if (code == RETURN_CODE_SUCCESS) {
+                                        MyApplication.getAccount().readContactPeopleFromLocalDb();
+                                        notifyDataSetChanged();
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        }
 
         String statusStr = "";
         switch (shareInfo.getStatus()) {

@@ -66,6 +66,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     private final List<ShareInfo> shareInfos = new ArrayList<>();
 
+    private List<ContactPerson> contactPeople = new ArrayList<>();
+
     private Account() {
     }
 
@@ -158,6 +160,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     public List<ShareInfo> getShareInfos() {
         return shareInfos;
+    }
+
+    public List<ContactPerson> getContactPeople() {
+        return contactPeople;
     }
 
     public void setPersonInfo(int gender, long birthday, int weight, int height) {
@@ -286,6 +292,9 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         editor.clear();
         editor.commit();
 
+        LitePal.deleteAll(ShareInfo.class);
+        LitePal.deleteAll(ContactPerson.class);
+
         if(!TextUtils.isEmpty(icon)) {
             try {
                 FileUtil.deleteFile(new File(icon));
@@ -350,17 +359,56 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 int code = response.getCode();
                 JSONArray jsonArr = (JSONArray) response.getContent();
                 if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
+                    List<ShareInfo> siTmp = new ArrayList<>();
                     for (int i = 0; i < jsonArr.length(); i++) {
                         try {
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             if(json == null) continue;
                             ShareInfo shareInfo = new ShareInfo();
                             shareInfo.fromJson(json);
-                            shareInfo.saveOrUpdate("fromId = ? and toId = ?",
-                                    ""+shareInfo.getFromId(), ""+shareInfo.getToId());
+                            siTmp.add(shareInfo);
                         } catch (JSONException ex) {
                             ex.printStackTrace();
                         }
+                    }
+                    if(!siTmp.isEmpty()) {
+                        LitePal.deleteAll(ShareInfo.class);
+                        LitePal.saveAll(siTmp);
+                    }
+                }
+                callback.onFinish(code);
+            }
+        }).execute(this);
+    }
+
+    public void readContactPeopleFromLocalDb() {
+        contactPeople.clear();
+        contactPeople.addAll(LitePal.findAll(ContactPerson.class));
+    }
+
+    public ContactPerson getContactPerson(int id) {
+        for(ContactPerson cp : contactPeople) {
+            if(cp.getAccountId() == id) return cp;
+        }
+        return null;
+    }
+
+    public void downloadContactPerson(Context context, String showStr, int contactId, ICodeCallback callback) {
+        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PERSON, new Object[]{contactId}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                JSONObject content = (JSONObject) response.getContent();
+                if (code == RETURN_CODE_SUCCESS) {
+                    ViseLog.e("hi"+content);
+                    try {
+                        ContactPerson contactPerson = new ContactPerson();
+                        contactPerson.fromJson(content);
+                        contactPerson.saveOrUpdate("accountId = ?",
+                                ""+contactPerson.getAccountId());
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                        code = RETURN_CODE_DATA_ERR;
                     }
                 }
                 callback.onFinish(code);
