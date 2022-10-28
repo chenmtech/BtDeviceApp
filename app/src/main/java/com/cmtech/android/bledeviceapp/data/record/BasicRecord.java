@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -285,13 +286,29 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public String getCreatorNickName() {
-        /*Account account = MyApplication.getAccount();
-        if(account == null || account.getAccountId() != creatorId) {
-            return  "匿名";
+        if(MyApplication.getAccountId() == creatorId) {
+            return  MyApplication.getAccount().getNickNameOrUserId();
         } else {
-            return account.getNickNameOrUserName();
-        }*/
-        return "ID："+creatorId;
+            ContactPerson cp = MyApplication.getAccount().getContactPerson(creatorId);
+            if(cp == null) {
+                return "ID："+creatorId;
+            } else {
+                return cp.getNickName();
+            }
+        }
+    }
+
+    public String getCreatorIcon() {
+        if(MyApplication.getAccountId() == creatorId) {
+            return  MyApplication.getAccount().getIcon();
+        } else {
+            ContactPerson cp = MyApplication.getAccount().getContactPerson(creatorId);
+            if(cp == null) {
+                return "";
+            } else {
+                return cp.getIcon();
+            }
+        }
     }
 
     /**

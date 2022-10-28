@@ -77,15 +77,15 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
 
         int myId = MyApplication.getAccountId();
         if(shareInfo.getFromId() == myId)
-            holder.fromId.setText("你");
+            holder.fromId.setText(MyApplication.getAccount().getNickNameOrUserId());
         else {
             int id = shareInfo.getFromId();
             ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
             if(cp != null) {
                 holder.fromId.setText(cp.getNickName());
             } else {
-                holder.fromId.setText("用户ID" + id);
-                holder.fromId.setOnClickListener(new View.OnClickListener() {
+                holder.fromId.setText("ID："+ id);
+                /*holder.fromId.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         MyApplication.getAccount().downloadContactPerson(holder.context, "请稍等", id, new ICodeCallback() {
@@ -99,20 +99,20 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
                             }
                         });
                     }
-                });
+                });*/
             }
         }
 
         if(shareInfo.getToId() == myId)
-            holder.toId.setText("你");
+            holder.toId.setText(MyApplication.getAccount().getNickNameOrUserId());
         else {
             int id = shareInfo.getToId();
             ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
             if(cp != null) {
                 holder.toId.setText(cp.getNickName());
             } else {
-                holder.toId.setText("用户ID" + id);
-                if(shareInfo.getStatus()==AGREE) {
+                holder.toId.setText("ID："+ id);
+                /*if(shareInfo.getStatus()==AGREE) {
                     holder.toId.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -127,7 +127,7 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
                             });
                         }
                     });
-                }
+                }*/
             }
         }
 
@@ -192,5 +192,4 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             }
         }).execute(MyApplication.getAccount());
     }
-
 }

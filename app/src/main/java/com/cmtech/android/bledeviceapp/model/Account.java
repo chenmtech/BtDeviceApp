@@ -66,7 +66,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     private final List<ShareInfo> shareInfos = new ArrayList<>();
 
-    private List<ContactPerson> contactPeople = new ArrayList<>();
+    private final List<ContactPerson> contactPeople = new ArrayList<>();
 
     private Account() {
     }
@@ -102,9 +102,9 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     public String getNickName() {
         return nickName;
     }
-    public String getNickNameOrUserName() {
+    public String getNickNameOrUserId() {
         if("".equals(nickName)) {
-            return userName;
+            return "你本人";
         }
         return nickName;
     }
@@ -411,7 +411,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                         code = RETURN_CODE_DATA_ERR;
                     }
                 }
-                callback.onFinish(code);
+                if(callback != null)
+                    callback.onFinish(code);
             }
         }).execute(this);
     }
@@ -421,7 +422,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     public String toString() {
         return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
                 + ",gender:" + gender + ",birthday:" + birthday + ",weight:" + weight + ",height:" + height
-                + ",Note：" + note + ",icon: " + icon + ",needWebLogin:" + needWebLogin;
+                + ",Note：" + note + ",icon: " + icon + ",needWebLogin:" + needWebLogin
+                + ", shareInfos: " + shareInfos + ", contactPeople: " + contactPeople;
     }
 
     @Override

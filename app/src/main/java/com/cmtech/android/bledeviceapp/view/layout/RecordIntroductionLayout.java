@@ -2,6 +2,8 @@ package com.cmtech.android.bledeviceapp.view.layout;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -116,18 +119,14 @@ public class RecordIntroductionLayout extends RelativeLayout {
     public void updateView() {
         if(record == null) return;
 
-        ivCreatorImage.setImageResource(R.mipmap.ic_user);
         tvCreatorName.setText(record.getCreatorNickName());
-        /*Account account = MyApplication.getAccount();
-        if(account != null) {
-            if (TextUtils.isEmpty(account.getIcon())) {
-                ivCreatorImage.setImageResource(R.mipmap.ic_user);
-            } else {
-                Bitmap bitmap = MyBitmapUtil.showToDp(account.getIcon(), 32);
-                ivCreatorImage.setImageBitmap(bitmap);
-                //Glide.with(getContext()).load(account.getIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
-            }
-        }*/
+        String icon = record.getCreatorIcon();
+        if(TextUtils.isEmpty(icon)) {
+            ivCreatorImage.setImageResource(R.mipmap.ic_user);
+        } else {
+            Bitmap bitmap = MyBitmapUtil.showToDp(icon,  32);
+            ivCreatorImage.setImageBitmap(bitmap);
+        }
 
         String createTime = DateTimeUtil.timeToStringWithTodayYesterday(record.getCreateTime());
         tvCreateTime.setText(createTime);

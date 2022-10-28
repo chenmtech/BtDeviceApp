@@ -52,7 +52,11 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
         this.accountId = accountId;
     }
     public String getNickName() {
-        return nickName;
+        if(nickName.equals("")) {
+            return "ID："+accountId;
+        } else {
+            return nickName;
+        }
     }
     public void setNickName(String nickName) {
         this.nickName = nickName;

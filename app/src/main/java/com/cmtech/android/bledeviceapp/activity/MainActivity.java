@@ -61,6 +61,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
+import com.cmtech.android.bledeviceapp.model.ShareInfo;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
@@ -153,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             return;
         }
 
+        MyApplication.getAccount().readShareInfoFromLocalDb();
+        MyApplication.getAccount().readContactPeopleFromLocalDb();
+
         ViseLog.e(MyApplication.getAccount());
 
         MyApplication.getAccount().downloadShareInfo(this, null, new ICodeCallback() {
@@ -227,14 +231,13 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         // init main layout
         initMainLayout();
 
-        // download account info
+        // 下载账户信息，因为下载后需要更新界面，所以放在这个函数中运行
         MyApplication.getAccount().download(this, null, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     updateNavigationHeader();
                     tbManager.setNavIcon(MyApplication.getAccount().getIcon());
-                    //ViseLog.e("download account info");
                 }
             }
         });
