@@ -8,8 +8,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_share_person"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
         android:visibility="visible"/>
 
     <LinearLayout

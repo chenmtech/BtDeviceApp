@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
 import static com.cmtech.android.ble.core.DeviceCommonInfo.DEFAULT_AUTO_CONNECT;
 import static com.cmtech.android.ble.core.DeviceCommonInfo.DEFAULT_ICON;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
@@ -30,10 +31,13 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ShareInfoAdapter;
 import com.cmtech.android.bledeviceapp.adapter.SharePersonAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
+import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.util.MyFileUtil;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
+
+import org.litepal.LitePal;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +50,6 @@ import java.util.List;
  */
 
 public class ChooseSharePersonActivity extends AppCompatActivity {
-    private List<Integer> shareIds = null;
     private SharePersonAdapter sharePersonAdapter;
     private RecyclerView rvSharePerson;
 
@@ -55,7 +58,7 @@ public class ChooseSharePersonActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_choose_share_person);
 
-        shareIds = MyApplication.getAccount().getCanSharePersonIdList();
+        List<Integer> shareIds = MyApplication.getAccount().getCanSharePersonIdList();
 
         if(shareIds.isEmpty()) {
             Toast.makeText(this, "不能分享记录", Toast.LENGTH_SHORT).show();
@@ -63,19 +66,26 @@ public class ChooseSharePersonActivity extends AppCompatActivity {
             return;
         }
 
+        List<ContactPerson> cps = new ArrayList<>();
+        for(int id : shareIds) {
+            ContactPerson cp = LitePal.where("accountId = ?", ""+id).findFirst(ContactPerson.class);
+            cps.add(cp);
+        }
+
         // 初始化扫描设备列表
         rvSharePerson = findViewById(R.id.rv_share_person);
-        rvSharePerson.setLayoutManager(new LinearLayoutManager(this));
+        rvSharePerson.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
         rvSharePerson.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
-        sharePersonAdapter = new SharePersonAdapter(shareIds);
+        sharePersonAdapter = new SharePersonAdapter(cps);
         rvSharePerson.setAdapter(sharePersonAdapter);
 
         Button btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int id = sharePersonAdapter.getSelectContactPersonId();
                 Intent intent = new Intent();
-                intent.putExtra("shareId", sharePersonAdapter.getItemCount());
+                intent.putExtra("contactPersonId", id);
                 setResult(RESULT_OK, intent);
                 finish();
             }

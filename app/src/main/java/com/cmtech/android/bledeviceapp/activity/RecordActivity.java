@@ -1,8 +1,11 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -10,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cmtech.android.ble.core.BleDeviceCommonInfo;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -17,6 +22,7 @@ import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
+import com.vise.log.ViseLog;
 
 public abstract class RecordActivity extends AppCompatActivity {
     protected BasicRecord record; // record
@@ -65,23 +71,25 @@ public abstract class RecordActivity extends AppCompatActivity {
             return;
         }
 
-        final EditText et = new EditText(this);
-        new AlertDialog.Builder(this).setTitle("请输入对方ID号")
-                .setIcon(R.mipmap.ic_share_32px)
-                .setView(et)
-                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        String idStr = et.getText().toString();
-                        try {
-                            int id = Integer.parseInt(idStr);
-                            shareTo(id);
-                        } catch (Exception e) {
-                            Toast.makeText(getApplicationContext(), "无效ID号",Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }).setNegativeButton("取消",null).show();
+        if(record.getAccountId() != record.getCreatorId()) {
+            Toast.makeText(this, "本条记录不能分享。", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(RecordActivity.this, ChooseSharePersonActivity.class);
+            startActivityForResult(intent, 1);
+        }
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                int contactPersonId = data.getIntExtra("contactPersonId", INVALID_ID);
+                ViseLog.e("cp id:" + contactPersonId);
+                if(contactPersonId != INVALID_ID)
+                    shareTo(contactPersonId);
+            }
+        }
     }
 
     private void shareTo(int toId) {
