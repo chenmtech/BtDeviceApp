@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -108,92 +107,43 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal"
-        android:visibility="gone">
-        <Button
-            android:id="@+id/btn_previous_item"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/button_circle_blue_style"
-            android:layout_margin="1dp"
-            android:text="上一项"/>
-
-        <Button
-            android:id="@+id/btn_previous_rhythm1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/button_circle_blue_style"
-            android:layout_margin="1dp"
-            android:text="上一条异常"/>
-
-        <Button
-            android:id="@+id/btn_next_rhythm1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/button_circle_blue_style"
-            android:layout_margin="1dp"
-            android:text="下一条异常"/>
-
-        <Button
-            android:id="@+id/btn_next_item"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/button_circle_blue_style"
-            android:layout_margin="1dp"
-            android:text="下一项"/>
-    </LinearLayout>
-
     <include layout="@layout/divider_line"/>
 
-    <FrameLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3">
+        android:layout_weight="3"
+        android:orientation="vertical"
+        android:visibility="visible">
 
-        <androidx.core.widget.NestedScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout
+                android:id="@+id/layout_record_report"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible">
+            <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
+                android:id="@+id/layout_record_note"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+        </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout
-                        android:id="@+id/layout_record_report"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"/>
-
-                    <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
-                        android:id="@+id/layout_record_note"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"/>
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btn_output_pdf"
-                    style="@style/button_circle_blue_style"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="生成PDF文档"
-                    android:textSize="@dimen/normal_font"
-                    android:enabled="false"/>
-            </LinearLayout>
-
-        </androidx.core.widget.NestedScrollView>
-
-    </FrameLayout>
+        <Button
+            android:id="@+id/btn_output_pdf"
+            style="@style/button_circle_blue_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="生成PDF文档"
+            android:textSize="@dimen/normal_font"
+            android:enabled="false"
+            android:visibility="gone"/>
+    </LinearLayout>
 
 
     <com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout

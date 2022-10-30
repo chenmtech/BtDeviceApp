@@ -32,21 +32,20 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:layout_weight="2"
+        android:orientation="vertical">
         <EditText
             android:id="@+id/et_note"
             style="@style/edittext_circle_gray_style"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="start|top"
             android:minLines="2"
             android:inputType="textMultiLine"
             android:autofillHints=""
-            android:textColor="@color/accent"
             android:maxLength="255"
-            android:scrollbars="horizontal"
+            android:scrollbars="vertical"
             android:fadeScrollbars="false"
             android:enabled="false"/>
 
@@ -55,10 +54,9 @@
             style="@style/button_circle_blue_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center_horizontal"
             android:layout_margin="1dp"
-            android:minWidth="40dp"
-            android:text="加\n备\n注"
+            android:text="添加标记"
             android:textSize="@dimen/smallest_font"/>
     </LinearLayout>
 </LinearLayout>

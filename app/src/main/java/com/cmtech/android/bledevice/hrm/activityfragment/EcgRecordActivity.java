@@ -78,8 +78,8 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     private ImageButton ibReplayCtrl;
 
     //
-    private Button btnPrevItem;
-    private Button btnNextItem;
+    //private Button btnPrevItem;
+    //private Button btnNextItem;
     private Button btnPrevRhythm;
     private Button btnNextRhythm;
 
@@ -172,7 +172,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             }
         });
 
-        btnPrevItem = findViewById(R.id.btn_previous_item);
+/*        btnPrevItem = findViewById(R.id.btn_previous_item);
         btnPrevItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -200,7 +200,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
                     Toast.makeText(EcgRecordActivity.this, "没有了", Toast.LENGTH_SHORT).show();
                 ecgView.startShow();
             }
-        });
+        });*/
 
 
         btnPrevRhythm = findViewById(R.id.btn_previous_rhythm);

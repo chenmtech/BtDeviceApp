@@ -118,7 +118,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:visibility="visible"/>
+        android:visibility="visible"
+        tools:layout="@layout/fragment_record_hrm_hr" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/frag_hrm_ecg_view"
@@ -127,7 +128,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        tools:layout="@layout/fragment_record_hrm_ecg" />
 
 </LinearLayout>
 

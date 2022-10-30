@@ -73,14 +73,16 @@ public class EcgRecordFragment extends Fragment {
         etRecordTime = view.findViewById(R.id.et_record_time);
 
         etNote = view.findViewById(R.id.et_note);
+        etNote.setSelection(etNote.getText().length());
 
         btnAddNote = view.findViewById(R.id.btn_add_note);
         btnAddNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String time = new SimpleDateFormat("HH:mm:ss", Locale.CHINA).format(new Date());
-                String note = etNote.getText().toString() + time + "->标记；";
-                etNote.setText(note);
+                String note = time + "->标记；";
+                etNote.append(note);
+                etNote.setSelection(etNote.getText().length());
                 assert getParentFragment() != null;
                 ((HrmFragment)getParentFragment()).setEcgRecordNote(note);
             }

@@ -2,14 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="4dp"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:layout_marginStart="10dp"
         android:orientation="vertical">
 
         <TextView
@@ -28,8 +26,7 @@
             android:minLines="2"
             android:inputType="textMultiLine"
             android:autofillHints=""
-            android:textColor="@color/accent"
-            android:scrollbars="horizontal"
+            android:scrollbars="vertical"
             android:fadeScrollbars="false"
             android:maxLength="255"/>
     </LinearLayout>

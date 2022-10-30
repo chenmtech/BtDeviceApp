@@ -403,6 +403,18 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return null;
     }
 
+    public List<Integer> getContactPersonIds() {
+        List<Integer> cps = new ArrayList<>();
+        for(ShareInfo si : shareInfos) {
+            if(si.getToId() == accountId) {
+                cps.add(si.getFromId());
+            } else if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
+                cps.add(si.getToId());
+            }
+        }
+        return cps;
+    }
+
     public void downloadContactPerson(Context context, String showStr, int contactId, ICodeCallback callback) {
         new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PERSON, new Object[]{contactId}, new IWebResponseCallback() {
             @Override
