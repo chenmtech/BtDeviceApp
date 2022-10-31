@@ -43,5 +43,5 @@ public interface OnHrmListener {
     void onEcgRecordTimeUpdated(int second);
 
     // 心律异常检测结果信息更新
-    void onEcgRhythmDetectInfoUpdated(String rhythmInfo);
+    void onEcgRhythmDetectInfoUpdated(int rhythmLabel, String rhythmInfo);
 }

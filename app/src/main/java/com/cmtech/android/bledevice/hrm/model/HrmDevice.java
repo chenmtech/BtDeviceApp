@@ -518,7 +518,11 @@ public class HrmDevice extends AbstractDevice {
     private void updateRhythmDetectItem(EcgRhythmDetectItem rhythmItem) {
         if(MyApplication.isRunInForeground()) {
             if (listener != null) {
-                listener.onEcgRhythmDetectInfoUpdated(RHYTHM_LABEL_MAP.get(rhythmItem.getLabel()));
+                int label = rhythmItem.getLabel();
+                listener.onEcgRhythmDetectInfoUpdated(label, RHYTHM_LABEL_MAP.get(label));
+                if(label == AF_LABEL) {
+                    MyApplication.getTts().speak("发现房颤");
+                }
             }
         }
 
