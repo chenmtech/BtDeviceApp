@@ -61,7 +61,6 @@ import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
-import com.cmtech.android.bledeviceapp.model.ShareInfo;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
@@ -101,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
     private TextView tvAccountNickName; // 账户昵称
     private ImageView ivAccountImage; // 账户头像控件
     private TextView tvUserName;
+    private TextView tvUserId;
     private NotificationService notifyService;
 
     private long exitTime = 0;
@@ -302,6 +302,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             }
         });
         tvUserName = headerView.findViewById(R.id.tv_user_name);
+        tvUserId = headerView.findViewById(R.id.tv_user_id);
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @SuppressLint("RestrictedApi")
@@ -705,6 +706,9 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
 
             String username = account.getUserName();
             tvUserName.setText("@" + username);
+
+            int userId = account.getAccountId();
+            tvUserId.setText("ID:" + userId);
 
             if(TextUtils.isEmpty(account.getIcon())) {
                 ivAccountImage.setImageResource(R.mipmap.ic_user);

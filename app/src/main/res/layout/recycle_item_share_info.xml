@@ -38,7 +38,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="申请推送给"
+            android:text="申请分享给"
             android:textSize="@dimen/normal_font"
             android:textColor="@color/primary_text"/>
 
@@ -67,15 +67,6 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="状态"
-        android:textSize="@dimen/normal_font"
-        android:textColor="@color/blue"/>
-
     <Button
         android:id="@+id/btn_deny"
         style="@style/button_circle_blue_style"
@@ -97,5 +88,14 @@
         android:minHeight="0dp"
         android:text="同意"
         android:textSize="@dimen/big_font"/>
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="状态"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/blue"/>
 
 </LinearLayout>

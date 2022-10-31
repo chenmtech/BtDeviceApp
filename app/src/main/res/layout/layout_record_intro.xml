@@ -6,8 +6,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="10dp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/iv_exit"
@@ -38,6 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/anonymous"
+                android:textSize="@dimen/small_font"
                 android:textColor="@color/secondary_text"
                 android:maxLength="12"/>
         </LinearLayout>
@@ -102,7 +102,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
                 android:text="分享"
-                android:drawableTop="@mipmap/ic_share_32px"/>
+                android:drawableTop="@mipmap/ic_share_24px"/>
 
             <TextView
                 android:id="@+id/tv_download"

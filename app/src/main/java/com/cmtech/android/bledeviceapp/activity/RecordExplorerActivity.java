@@ -206,6 +206,15 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     // 打开记录
     public void openRecord(int index) {
+        int recordId = recordList.get(index).getId();
+        List<IDevice> openedDevice = MyApplication.getDeviceManager().getOpenedDevice();
+        for(IDevice device : openedDevice) {
+            if(device.getRecordingRecord() != null && recordId == device.getRecordingRecord().getId()) {
+                Toast.makeText(this, "正在记录中，不能打开。", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
         recordAdapter.setSelectedRecord(index);
         updateView();
         doOpenRecord(recordList.get(index));
@@ -254,7 +263,16 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     // 上传/更新记录
     public void uploadRecord(int index) {
-        BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordList.get(index).getId(), true);
+        int recordId = recordList.get(index).getId();
+        List<IDevice> openedDevice = MyApplication.getDeviceManager().getOpenedDevice();
+        for(IDevice device : openedDevice) {
+            if(device.getRecordingRecord() != null && recordId == device.getRecordingRecord().getId()) {
+                Toast.makeText(this, "正在记录中，不能上传。", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        BasicRecord record = LitePal.find(recordList.get(index).getClass(), recordId, true);
         recordList.set(index, record);
         record.upload(this, new ICodeCallback() {
             @Override

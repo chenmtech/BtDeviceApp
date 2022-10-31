@@ -59,7 +59,14 @@
                 android:textSize="@dimen/normal_font"
                 android:maxLength="12"/>
 
-
+            <TextView
+                android:id="@+id/tv_user_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ID:"
+                android:textColor="@color/secondary_text"
+                android:textSize="@dimen/normal_font"
+                android:maxLength="12"/>
 
         </LinearLayout>
 

@@ -1,20 +1,22 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
@@ -24,12 +26,11 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
  *  PersonInfoActivity: 账户及个人信息Activity
@@ -38,7 +39,7 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 
 public class PersonInfoActivity extends AppCompatActivity {
     private EditText etUserName;
-
+    private EditText etUserId;
     private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
     private final PersonInfoFragment personInfoFrag = new PersonInfoFragment();
@@ -65,6 +66,9 @@ public class PersonInfoActivity extends AppCompatActivity {
 
         etUserName = findViewById(R.id.et_account_user_name);
         etUserName.setText(account.getUserName());
+
+        etUserId = findViewById(R.id.et_account_user_id);
+        etUserId.setText(""+account.getAccountId());
 
         pager = findViewById(R.id.person_info_control_panel_viewpager);
         TabLayout layout = findViewById(R.id.person_info_control_panel_tab);

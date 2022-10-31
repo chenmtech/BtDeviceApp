@@ -53,13 +53,6 @@
             android:minLines="3"/>
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="*以上信息会显示在您的记录报告中。"
-        android:textSize="@dimen/smallest_font"
-        android:textColor="@color/red"/>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -89,5 +82,11 @@
 
     </LinearLayout>
 
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="*以上信息会向您的联系人公开。"
+        android:textSize="@dimen/smallest_font"
+        android:textColor="@color/red"/>
 </LinearLayout>

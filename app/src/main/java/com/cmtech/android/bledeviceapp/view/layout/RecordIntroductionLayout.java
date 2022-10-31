@@ -122,7 +122,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
         tvCreatorName.setText(record.getCreatorNickName());
         String icon = record.getCreatorIcon();
         if(TextUtils.isEmpty(icon)) {
-            ivCreatorImage.setImageResource(R.mipmap.ic_user);
+            ivCreatorImage.setImageResource(R.mipmap.ic_user_32px);
         } else {
             Bitmap bitmap = MyBitmapUtil.showToDp(icon,  32);
             ivCreatorImage.setImageBitmap(bitmap);

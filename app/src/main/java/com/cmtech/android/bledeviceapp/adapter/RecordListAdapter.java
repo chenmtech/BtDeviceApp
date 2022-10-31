@@ -2,7 +2,10 @@ package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.Bitmap;
 import android.text.TextUtils;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -17,8 +20,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
-import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
@@ -157,6 +158,41 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         });
 
         holder.tvDiagnoseResult.setText(record.getReportContent());
+
+        holder.llRecordInfo.setOnLongClickListener(new View.OnLongClickListener() {
+            final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
+                    switch (item.getItemId()){
+                        case 1:
+                            if(ClickCheckUtil.isFastClick()) return true;
+                            activity.openRecord(holder.getAdapterPosition());
+                            break;
+                        case 2:
+                            if(ClickCheckUtil.isFastClick()) return true;
+                            activity.deleteRecord(holder.getAdapterPosition());
+                            break;
+                        default:
+                            break;
+                    }
+                    return true;
+                }
+            };
+
+            @Override
+            public boolean onLongClick(View view) {
+                view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                    @Override
+                    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                        MenuItem config = menu.add(Menu.NONE, 1, 0, "打开");
+                        MenuItem delete = menu.add(Menu.NONE, 2, 0, R.string.delete);
+                        config.setOnMenuItemClickListener(listener);            //响应点击事件
+                        delete.setOnMenuItemClickListener(listener);            //响应点击事件
+                    }
+                });
+                return false;
+            }
+        });
     }
 
     @Override

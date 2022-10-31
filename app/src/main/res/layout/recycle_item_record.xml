@@ -8,36 +8,39 @@
     android:orientation="horizontal"
     android:background="@color/primary">
 
-    <LinearLayout
-        android:id="@+id/ll_creator"
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_margin="8dp"
-        android:orientation="vertical"
-        android:visibility="visible">
-        <com.cmtech.android.bledeviceapp.view.CircleImageView
-            android:id="@+id/iv_creator_image"
+        android:layout_margin="8dp">
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_user_32px"/>
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:orientation="vertical">
+            <com.cmtech.android.bledeviceapp.view.CircleImageView
+                android:id="@+id/iv_creator_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_user_32px"/>
 
-        <TextView
-            android:id="@+id/tv_creator_name"
+            <TextView
+                android:id="@+id/tv_creator_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/anonymous"
+                android:textSize="@dimen/smallest_font"
+                android:textColor="@color/secondary_text"
+                android:maxLength="12"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iv_record_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/anonymous"
-            android:textSize="@dimen/smallest_font"
-            android:textColor="@color/secondary_text"
-            android:maxLength="12"/>
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/iv_record_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        android:src="@mipmap/ic_all_type_record_24px"/>
+            android:layout_gravity="top|end"
+            android:src="@mipmap/ic_all_type_record_24px"/>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/ll_basic_info"
@@ -55,7 +58,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="记录时间:"
+                android:text="时间:"
                 android:textSize="@dimen/small_font"/>
 
             <TextView
@@ -134,6 +137,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_margin="6dp"
-        android:src="@mipmap/ic_delete_24px"/>
+        android:src="@mipmap/ic_delete_24px"
+        android:visibility="gone"/>
 
 </LinearLayout>

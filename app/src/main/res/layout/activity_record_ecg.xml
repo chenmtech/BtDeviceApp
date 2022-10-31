@@ -121,17 +121,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal">
-            <com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout
-                android:id="@+id/layout_record_report"
+            <androidx.core.widget.NestedScrollView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="3">
+                <com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout
+                    android:id="@+id/layout_record_report"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </androidx.core.widget.NestedScrollView>
 
             <com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout
                 android:id="@+id/layout_record_note"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"/>
+                android:layout_weight="2"/>
         </LinearLayout>
 
         <Button
