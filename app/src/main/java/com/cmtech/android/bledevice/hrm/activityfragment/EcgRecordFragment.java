@@ -84,7 +84,7 @@ public class EcgRecordFragment extends Fragment {
                 etNote.append(note);
                 etNote.setSelection(etNote.getText().length());
                 assert getParentFragment() != null;
-                ((HrmFragment)getParentFragment()).setEcgRecordNote(note);
+                ((HrmFragment)getParentFragment()).setEcgRecordNote(etNote.getText().toString());
             }
         });
         btnAddNote.setEnabled(false);

@@ -33,12 +33,12 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
-        android:orientation="vertical">
+        android:orientation="horizontal">
         <EditText
             android:id="@+id/et_note"
             style="@style/edittext_circle_gray_style"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="start|top"
             android:minLines="2"
@@ -54,9 +54,10 @@
             style="@style/button_circle_blue_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center_vertical"
             android:layout_margin="1dp"
-            android:text="添加标记"
+            android:minWidth="0dp"
+            android:text="添加\n标记"
             android:textSize="@dimen/smallest_font"/>
     </LinearLayout>
 </LinearLayout>

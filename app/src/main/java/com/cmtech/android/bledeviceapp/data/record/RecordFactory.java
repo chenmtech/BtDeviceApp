@@ -15,13 +15,13 @@ import java.lang.reflect.Constructor;
  * Version:        1.0
  */
 public class RecordFactory {
-    public static BasicRecord create(RecordType type, String ver, int accountId, long createTime, String devAddress) {
+    public static BasicRecord create(RecordType type, String ver, int creatorId, long createTime, String devAddress) {
         Class<? extends BasicRecord> recordClass = type.getRecordClass();
         if(recordClass != null) {
             try {
                 Constructor<? extends BasicRecord> constructor = recordClass.getDeclaredConstructor(String.class, int.class, long.class, String.class);
                 constructor.setAccessible(true);
-                return constructor.newInstance(ver, accountId, createTime, devAddress);
+                return constructor.newInstance(ver, creatorId, createTime, devAddress);
             } catch (Exception e) {
                 e.printStackTrace();
             }

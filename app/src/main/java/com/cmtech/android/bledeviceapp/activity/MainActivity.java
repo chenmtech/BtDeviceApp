@@ -57,6 +57,7 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AppUpdateManager;
+import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
@@ -164,6 +165,22 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
                     MyApplication.getAccount().readShareInfoFromLocalDb();
+                    ViseLog.e("shareinfos:" + MyApplication.getShareInfoList());
+                    List<Integer> cpIds = MyApplication.getAccount().getContactPersonIds();
+                    for(int id : cpIds) {
+                        ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
+                        if(cp == null) {
+                            MyApplication.getAccount().downloadContactPerson(MainActivity.this, null,
+                                    id, new ICodeCallback() {
+                                        @Override
+                                        public void onFinish(int code) {
+                                            if(code == RETURN_CODE_SUCCESS) {
+                                                MyApplication.getAccount().readContactPeopleFromLocalDb();
+                                            }
+                                        }
+                                    });
+                        }
+                    }
                 }
             }
         });

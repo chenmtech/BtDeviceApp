@@ -93,6 +93,13 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             holder.ivFromImage.setImageBitmap(bitmap);
         }
 
+        holder.ivFromImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPersonNoteInfo(holder.context, fromId);
+            }
+        });
+
         int toId = shareInfo.getToId();
         rtn = getNameAndIcon(toId, myId);
         holder.toName.setText(rtn.first);
@@ -102,6 +109,14 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             Bitmap bitmap = MyBitmapUtil.showToDp(rtn.second,  32);
             holder.ivToImage.setImageBitmap(bitmap);
         }
+
+        holder.ivToImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(shareInfo.getStatus() == AGREE)
+                    showPersonNoteInfo(holder.context, toId);
+            }
+        });
 
         String statusStr = "";
         switch (shareInfo.getStatus()) {
@@ -142,6 +157,12 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
                     changeShareInfo(holder.context, shareInfo.getFromId(), AGREE);
             }
         });
+    }
+
+    private void showPersonNoteInfo(Context context, int id) {
+        ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
+        if(cp != null && !TextUtils.isEmpty(cp.getNote().trim()))
+            Toast.makeText(context, cp.getNote(), Toast.LENGTH_LONG).show();
     }
 
     private Pair<String, String> getNameAndIcon(int id, int myId) {

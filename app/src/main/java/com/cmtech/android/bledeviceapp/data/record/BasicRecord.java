@@ -232,12 +232,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
 
     //-----------------------------------------构造器
-    BasicRecord(RecordType type, String ver, int accountId, long createTime, String devAddress) {
+    BasicRecord(RecordType type, String ver, int creatorId, long createTime, String devAddress) {
         this.type = type;
         this.ver = ver;
         this.createTime = createTime;
         this.devAddress = devAddress;
-        this.accountId = accountId;
+        this.accountId = creatorId;
+        this.creatorId = creatorId;
     }
 
     //-----------------------------------------实例方法

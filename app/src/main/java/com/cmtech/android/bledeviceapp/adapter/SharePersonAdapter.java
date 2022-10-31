@@ -1,9 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.model.ShareInfo.AGREE;
-import static com.cmtech.android.bledeviceapp.model.ShareInfo.DENY;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,20 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.ShareManageActivity;
-import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.ContactPerson;
-import com.cmtech.android.bledeviceapp.model.ShareInfo;
-import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 
@@ -72,7 +63,7 @@ public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull SharePersonAdapter.ViewHolder holder, int position) {
-        position = holder.getBindingAdapterPosition();
+        position = holder.getAdapterPosition();
         ContactPerson cp = cps.get(position);
 
         int myId = MyApplication.getAccountId();

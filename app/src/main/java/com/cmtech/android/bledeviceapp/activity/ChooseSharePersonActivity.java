@@ -1,22 +1,9 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import static androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL;
-import static com.cmtech.android.ble.core.DeviceCommonInfo.DEFAULT_AUTO_CONNECT;
-import static com.cmtech.android.ble.core.DeviceCommonInfo.DEFAULT_ICON;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
-
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,23 +11,13 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.ShareInfoAdapter;
 import com.cmtech.android.bledeviceapp.adapter.SharePersonAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.ContactPerson;
-import com.cmtech.android.bledeviceapp.model.DeviceType;
-import com.cmtech.android.bledeviceapp.util.MyFileUtil;
-import com.vise.utils.file.FileUtil;
-import com.vise.utils.view.BitmapUtil;
 
 import org.litepal.LitePal;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +46,8 @@ public class ChooseSharePersonActivity extends AppCompatActivity {
         List<ContactPerson> cps = new ArrayList<>();
         for(int id : shareIds) {
             ContactPerson cp = LitePal.where("accountId = ?", ""+id).findFirst(ContactPerson.class);
-            cps.add(cp);
+            if(cp != null)
+                cps.add(cp);
         }
 
         // 初始化扫描设备列表
