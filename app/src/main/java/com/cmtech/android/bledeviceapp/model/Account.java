@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
@@ -34,12 +35,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
   *
   * ClassName:      Account
-  * Description:    账户信息类
+  * Description:    账户类,代表当前登录app的账户
   * Author:         chenm
   * CreateDate:     2018/10/27 上午3:57
   * UpdateUser:     chenm
@@ -49,19 +52,42 @@ import java.util.List;
  */
 
 public class Account implements Serializable, IJsonable, IWebOperation {
+    //--------------------------------------------------------常量
     public static final int MALE = 1;
     public static final int FEMALE = 2;
 
+    //------------------------------------------------------- 实例变量
+    // 账户ID号
     private int accountId = INVALID_ID;
-    private String userName = ""; // user name, like phone number
-    private String password = ""; // password
-    private String nickName = ""; // nick name
-    private String note = ""; // note
-    private String icon = ""; // icon file path in local disk
+
+    // 用户名，比如手机号之类的
+    private String userName = "";
+
+    // 密码
+    private String password = "";
+
+    // 昵称
+    private String nickName = "";
+
+    // 备注
+    private String note = "";
+
+    // 头像图片在本地磁盘上的文件路径名
+    private String icon = "";
+
+    // 性别
     private int gender = 0;
+
+    // 生日
     private long birthday = 0;
+
+    // 体重
     private int weight = 0;
+
+    // 身高
     private int height = 0;
+
+    // 是否需要网络登录
     private boolean needWebLogin = true;
 
     private final List<ShareInfo> shareInfos = new ArrayList<>();
@@ -263,8 +289,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                JSONObject content = (JSONObject) response.getContent();
                 if(code == RETURN_CODE_SUCCESS) {
+                    JSONObject content = (JSONObject) response.getContent();
                     if(content == null)
                         code = RETURN_CODE_DATA_ERR;
                     else {
@@ -360,6 +386,15 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         shareInfos.clear();
         shareInfos.addAll(LitePal.where("fromId = ? or toId = ?",
                         ""+accountId, ""+accountId).find(ShareInfo.class));
+        Collections.sort(shareInfos, new Comparator<ShareInfo>() {
+            @Override
+            public int compare(ShareInfo o1, ShareInfo o2) {
+                int rlt = 0;
+                if(o2.getStatus() > o1.getStatus()) rlt = 1;
+                else if(o2.getStatus() < o1.getStatus()) rlt = -1;
+                return rlt;
+            }
+        });
     }
 
     public void downloadShareInfo(Context context, String showStr, ICodeCallback callback) {
@@ -367,23 +402,25 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                JSONArray jsonArr = (JSONArray) response.getContent();
-                if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
-                    List<ShareInfo> siTmp = new ArrayList<>();
-                    for (int i = 0; i < jsonArr.length(); i++) {
-                        try {
-                            JSONObject json = (JSONObject) jsonArr.get(i);
-                            if(json == null) continue;
-                            ShareInfo shareInfo = new ShareInfo();
-                            shareInfo.fromJson(json);
-                            siTmp.add(shareInfo);
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
+                if(code == RETURN_CODE_SUCCESS) {
+                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    if(jsonArr != null) {
+                        List<ShareInfo> sis = new ArrayList<>();
+                        for (int i = 0; i < jsonArr.length(); i++) {
+                            try {
+                                JSONObject json = (JSONObject) jsonArr.get(i);
+                                if (json == null) continue;
+                                ShareInfo si = new ShareInfo();
+                                si.fromJson(json);
+                                sis.add(si);
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
                         }
-                    }
-                    if(!siTmp.isEmpty()) {
-                        LitePal.deleteAll(ShareInfo.class);
-                        LitePal.saveAll(siTmp);
+                        if (!sis.isEmpty()) {
+                            LitePal.deleteAll(ShareInfo.class);
+                            LitePal.saveAll(sis);
+                        }
                     }
                 }
                 callback.onFinish(code);
