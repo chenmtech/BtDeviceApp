@@ -112,7 +112,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
 
 
     @Override
-    public void download(Context context, ICodeCallback callback) {
+    public void download(Context context, String showStr, ICodeCallback callback) {
         File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
         if(!file.exists()) {
             if(UploadDownloadFileUtil.isFileExist("EEG", getSigFileName())) {
@@ -120,7 +120,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
                     @Override
                     public void onFinish(int code) {
                         if(code==RETURN_CODE_SUCCESS) {
-                            BleEegRecord.super.download(context, callback);
+                            BleEegRecord.super.download(context, showStr, callback);
                         } else {
                             callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
                         }
@@ -130,7 +130,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
                 callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
             }
         } else {
-            super.download(context, callback);
+            super.download(context, showStr, callback);
         }
     }
 

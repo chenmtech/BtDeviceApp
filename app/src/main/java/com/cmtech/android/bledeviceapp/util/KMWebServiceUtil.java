@@ -342,10 +342,10 @@ public class KMWebServiceUtil {
     // 账户登录
     private static WebResponse accountWebLogin(Account account) {
         if(account == null) return new WebResponse(RETURN_CODE_DATA_ERR, null);
-        if(account.isNeedWebLogin()) {
+        if(!account.isWebLoginSuccess()) {
             WebResponse response = KMWebServiceUtil.login(account);
             if(response.getCode() == RETURN_CODE_SUCCESS) {
-                account.setNeedWebLogin(false);
+                account.setWebLoginSuccess(true);
             }
             return response;
         } else

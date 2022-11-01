@@ -39,7 +39,7 @@ public class EegRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onFinish(BleEegRecord bleEegRecord) {
                 bleEegRecord.openSigFile();
                 if(bleEegRecord.noSignal()) {
-                    bleEegRecord.download(EegRecordActivity.this, code -> {
+                    bleEegRecord.download(EegRecordActivity.this, "下载记录中，请稍等。", code -> {
                         if (code == RETURN_CODE_SUCCESS) {
                             bleEegRecord.openSigFile();
                             bleEegRecord.setRecordSecond(bleEegRecord.getDataNum()/bleEegRecord.getSampleRate());

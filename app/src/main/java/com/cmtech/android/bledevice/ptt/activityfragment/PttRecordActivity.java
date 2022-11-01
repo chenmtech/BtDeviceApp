@@ -46,7 +46,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onFinish(BlePttRecord blePttRecord) {
                 blePttRecord.openSigFile();
                 if(blePttRecord.noSignal()) {
-                    blePttRecord.download(PttRecordActivity.this, code -> {
+                    blePttRecord.download(PttRecordActivity.this, "下载记录中，请稍等。", code -> {
                         if (code == RETURN_CODE_SUCCESS) {
                             blePttRecord.openSigFile();
                             blePttRecord.setRecordSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());

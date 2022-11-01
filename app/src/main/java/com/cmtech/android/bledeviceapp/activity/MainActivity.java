@@ -155,20 +155,21 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             return;
         }
 
-        MyApplication.getAccount().readShareInfoFromLocalDb();
+        MyApplication.getAccount().readShareInfosFromLocalDb();
         MyApplication.getAccount().readContactPeopleFromLocalDb();
 
         ViseLog.e(MyApplication.getAccount());
 
-        MyApplication.getAccount().downloadShareInfo(this, null, new ICodeCallback() {
+        MyApplication.getAccount().downloadShareInfos(this, null, new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
-                    MyApplication.getAccount().readShareInfoFromLocalDb();
                     ViseLog.e("shareinfos:" + MyApplication.getShareInfoList());
-                    List<Integer> cpIds = MyApplication.getAccount().getContactPersonIds();
+                    List<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
                     for(int id : cpIds) {
                         ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
+                        // cp为null意味着这个联系人以前没有下载过，那么就下载这个联系人的信息
+                        // 至于cp的信息更新了，那么需要到ShareManageActivity中去更新
                         if(cp == null) {
                             MyApplication.getAccount().downloadContactPerson(MainActivity.this, null,
                                     id, new ICodeCallback() {

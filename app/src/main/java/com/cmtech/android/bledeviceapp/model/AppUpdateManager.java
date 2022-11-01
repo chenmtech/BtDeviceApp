@@ -15,7 +15,7 @@ public class AppUpdateManager {
     }
 
     public void retrieveAppInfo(Context context, ICodeCallback callback) {
-        appInfo.download(context, callback);
+        appInfo.download(context, null, callback);
     }
 
     public boolean needUpdate() {

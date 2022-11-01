@@ -432,7 +432,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      * @param callback 下载后要执行的回调
      */
     @Override
-    public void download(Context context, ICodeCallback callback) {
+    public void download(Context context, String showStr, ICodeCallback callback) {
         File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
         // 如果本地不存在信号文件
         if(!file.exists()) {
@@ -443,7 +443,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                     @Override
                     public void onFinish(int code) {
                         if(code==RETURN_CODE_SUCCESS) {
-                            BleEcgRecord.super.download(context, callback);
+                            BleEcgRecord.super.download(context, showStr, callback);
                         } else {
                             callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
                         }
@@ -455,7 +455,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
         // 如果本地存在信号文件，则调用基类方法从数据库读取记录信息
         else {
-            super.download(context, callback);
+            super.download(context, showStr, callback);
         }
     }
 

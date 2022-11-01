@@ -16,6 +16,9 @@ import org.json.JSONObject;
  * Version:        1.0
  */
 public interface IJsonable {
+    // 从JSON对象解析数据
     void fromJson(JSONObject json) throws JSONException;
+
+    // 将对象数据打包为一个JSON对象
     JSONObject toJson() throws JSONException;
 }

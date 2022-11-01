@@ -288,7 +288,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     public String getCreatorNickName() {
         if(MyApplication.getAccountId() == creatorId) {
-            return  MyApplication.getAccount().getNickNameOrUserId();
+            return  MyApplication.getAccount().getNickNameOrUserIdIfNull();
         } else {
             ContactPerson cp = MyApplication.getAccount().getContactPerson(creatorId);
             if(cp == null) {
@@ -527,8 +527,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param callback
      */
     @Override
-    public void download(Context context, ICodeCallback callback) {
-        new RecordAsyncTask(context, "下载记录中，请稍等。", CMD_DOWNLOAD_RECORD, new IWebResponseCallback() {
+    public void download(Context context, String showStr, ICodeCallback callback) {
+        new RecordAsyncTask(context, showStr, CMD_DOWNLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();

@@ -32,7 +32,7 @@ public interface IWebOperation {
     void upload(Context context, ICodeCallback callback);
 
     // 下载
-    void download(Context context, ICodeCallback callback);
+    void download(Context context, String showStr, ICodeCallback callback);
 
     // 删除
     void delete(Context context, ICodeCallback callback);

@@ -98,7 +98,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
     }
 
     public int calculateCalories(Account account) {
-        if(account == null || account.notSetPersonInfo()) {
+        if(account == null) {
             throw new IllegalStateException();
         }
 

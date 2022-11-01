@@ -28,7 +28,7 @@ public class AccountManager {
     private Account account; // account
 
     AccountManager() {
-        account = Account.readFromSharedPreference();
+        account = Account.createFromSharedPreference();
     }
 
     public Account getAccount() {
@@ -37,7 +37,7 @@ public class AccountManager {
 
     public List<ShareInfo> getShareInfoList() {
         if(account == null) return null;
-        return account.getShareInfos();
+        return account.getShareInfoList();
     }
 
     /**
@@ -93,7 +93,7 @@ public class AccountManager {
      */
     public void localLogout() {
         if(account != null) {
-            account.remove();
+            account.removeFromLocal();
             account = null;
         }
     }

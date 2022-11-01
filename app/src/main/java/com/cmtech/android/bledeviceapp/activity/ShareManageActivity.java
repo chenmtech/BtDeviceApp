@@ -24,7 +24,6 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.ContactPerson;
-import com.cmtech.android.bledeviceapp.model.ShareInfo;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
@@ -104,26 +103,23 @@ public class ShareManageActivity extends AppCompatActivity {
     // 更新分享信息列表
     public void updateShareInfoList() {
         // 从服务器下载满足条件的记录保存到本地数据库，之后再从本地数据库中读取满足条件的记录
-        MyApplication.getAccount().downloadShareInfo(this, "更新中，请稍后...", new ICodeCallback() {
+        MyApplication.getAccount().downloadShareInfos(this, "更新中，请稍后...", new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if (code == RETURN_CODE_SUCCESS) {
-                    MyApplication.getAccount().readShareInfoFromLocalDb();
-                    List<Integer> cpIds = MyApplication.getAccount().getContactPersonIds();
+                    List<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
                     for(int id : cpIds) {
                         ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
-                        if(cp == null) {
-                            MyApplication.getAccount().downloadContactPerson(ShareManageActivity.this, null,
-                                    id, new ICodeCallback() {
-                                        @Override
-                                        public void onFinish(int code) {
-                                            if(code == RETURN_CODE_SUCCESS) {
-                                                MyApplication.getAccount().readContactPeopleFromLocalDb();
-                                                updateView();
-                                            }
+                        MyApplication.getAccount().downloadContactPerson(ShareManageActivity.this, null,
+                                id, new ICodeCallback() {
+                                    @Override
+                                    public void onFinish(int code) {
+                                        if(code == RETURN_CODE_SUCCESS) {
+                                            MyApplication.getAccount().readContactPeopleFromLocalDb();
+                                            updateView();
                                         }
-                                    });
-                        }
+                                    }
+                                });
                     }
                     updateView();
                 } else {

@@ -35,7 +35,7 @@ public class ChooseSharePersonActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_choose_share_person);
 
-        List<Integer> shareIds = MyApplication.getAccount().getCanSharePersonIdList();
+        List<Integer> shareIds = MyApplication.getAccount().getCanShareIdList();
 
         if(shareIds.isEmpty()) {
             Toast.makeText(this, "不能分享记录", Toast.LENGTH_SHORT).show();

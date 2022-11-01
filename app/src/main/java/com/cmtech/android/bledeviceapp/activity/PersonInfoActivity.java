@@ -160,7 +160,7 @@ public class PersonInfoActivity extends AppCompatActivity {
     }
 
     private void download() {
-        account.download(this, new ICodeCallback() {
+        account.download(this, "正在下载账户信息，请稍等...", new ICodeCallback() {
             @Override
             public void onFinish(int code) {
                 if (code == RETURN_CODE_SUCCESS) {

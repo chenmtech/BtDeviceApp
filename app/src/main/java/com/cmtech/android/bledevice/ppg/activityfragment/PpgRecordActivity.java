@@ -39,7 +39,7 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onFinish(BlePpgRecord blePpgRecord) {
                 blePpgRecord.openSigFile();
                 if(blePpgRecord.noSignal()) {
-                    blePpgRecord.download(PpgRecordActivity.this, code -> {
+                    blePpgRecord.download(PpgRecordActivity.this, "下载记录中，请稍等。", code -> {
                         if (code == RETURN_CODE_SUCCESS) {
                             blePpgRecord.openSigFile();
                             blePpgRecord.setRecordSecond(blePpgRecord.getDataNum()/blePpgRecord.getSampleRate());

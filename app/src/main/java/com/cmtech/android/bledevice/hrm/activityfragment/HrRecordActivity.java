@@ -12,7 +12,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.view.HrHistogramChart;
 import com.cmtech.android.bledeviceapp.view.MyLineChart;
 import com.vise.log.ViseLog;
@@ -71,11 +70,7 @@ public class HrRecordActivity extends RecordActivity {
         etMaxHr.setText(String.valueOf(((BleHrRecord)record).getHrMax()));
 
         etHrv.setText(String.valueOf(((BleHrRecord)record).calculateHRVInMs()));
-        Account account = MyApplication.getAccount();
-        if(account == null || account.notSetPersonInfo())
-            etCalories.setText("请完善个人信息");
-        else
-            etCalories.setText(String.valueOf(((BleHrRecord)record).calculateCalories(account)));
+        etCalories.setText(String.valueOf(((BleHrRecord)record).calculateCalories(MyApplication.getAccount())));
 
         hrHistChart.update(((BleHrRecord)record).getHrHistogram());
     }

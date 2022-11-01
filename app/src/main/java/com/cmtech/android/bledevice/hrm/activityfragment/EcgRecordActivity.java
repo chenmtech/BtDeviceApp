@@ -99,7 +99,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onFinish(BleEcgRecord bleEcgRecord) {
                 bleEcgRecord.openSigFile();
                 if(bleEcgRecord.noSignal()) {
-                    bleEcgRecord.download(EcgRecordActivity.this, code -> {
+                    bleEcgRecord.download(EcgRecordActivity.this, "下载记录中，请稍等。", code -> {
                         if (code == RETURN_CODE_SUCCESS) {
                             bleEcgRecord.openSigFile();
                             bleEcgRecord.setRecordSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());

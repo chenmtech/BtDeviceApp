@@ -1,14 +1,16 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
-import android.text.TextUtils;
 
 import com.cmtech.android.bledeviceapp.asynctask.AppInfoWebAsyncTask;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
@@ -25,8 +27,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -91,7 +91,7 @@ public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
     }
 
     @Override
-    public void download(Context context, ICodeCallback callback) {
+    public void download(Context context, String showStr, ICodeCallback callback) {
         new AppInfoWebAsyncTask(context, AppInfoWebAsyncTask.CMD_DOWNLOAD_INFO, (response) -> {
             int code = response.getCode();
             if (code == RETURN_CODE_SUCCESS) {

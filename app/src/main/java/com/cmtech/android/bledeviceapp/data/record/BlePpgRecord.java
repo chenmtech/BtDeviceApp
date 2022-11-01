@@ -104,7 +104,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     @Override
-    public void download(Context context, ICodeCallback callback) {
+    public void download(Context context, String showStr, ICodeCallback callback) {
         File file = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
         if(!file.exists()) {
             if(UploadDownloadFileUtil.isFileExist("PPG", getSigFileName())) {
@@ -112,7 +112,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
                     @Override
                     public void onFinish(int code) {
                         if(code==RETURN_CODE_SUCCESS) {
-                            BlePpgRecord.super.download(context, callback);
+                            BlePpgRecord.super.download(context, showStr,  callback);
                         } else {
                             callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
                         }
@@ -122,7 +122,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
                 callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
             }
         } else {
-            super.download(context, callback);
+            super.download(context, showStr, callback);
         }
     }
 

@@ -1,20 +1,14 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.cmtech.android.ble.core.BleDeviceCommonInfo;
-import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -114,7 +108,7 @@ public abstract class RecordActivity extends AppCompatActivity {
      */
     public void downloadRecord() {
         String reportVer = record.getReportVer();
-        record.download(this, code -> {
+        record.download(this, "下载记录中，请稍等。", code -> {
             if (code == RETURN_CODE_SUCCESS) {
                 if (record.getReportVer().compareTo(reportVer) > 0) {
                     Toast.makeText(this, "诊断报告已更新。", Toast.LENGTH_SHORT).show();

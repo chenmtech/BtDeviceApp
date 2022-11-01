@@ -15,7 +15,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
-import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
@@ -37,6 +36,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,8 +53,8 @@ import java.util.List;
 
 public class Account implements Serializable, IJsonable, IWebOperation {
     //--------------------------------------------------------常量
-    public static final int MALE = 1;
-    public static final int FEMALE = 2;
+    public static final int MALE = 1; // 男性
+    public static final int FEMALE = 2; // 女性
 
     //------------------------------------------------------- 实例变量
     // 账户ID号
@@ -76,7 +76,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     private String icon = "";
 
     // 性别
-    private int gender = 0;
+    private int gender = MALE;
 
     // 生日
     private long birthday = 0;
@@ -87,95 +87,137 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     // 身高
     private int height = 0;
 
-    // 是否需要网络登录
-    private boolean needWebLogin = true;
+    // 该账号是否成功完成网络登录操作
+    private boolean isWebLoginSuccess = false;
 
-    private final List<ShareInfo> shareInfos = new ArrayList<>();
+    // 分享信息列表
+    private List<ShareInfo> shareInfos = new ArrayList<>();
 
-    private final List<ContactPerson> contactPeople = new ArrayList<>();
+    // 联系人列表
+    // 账户的联系人包括两类人：第一类、对方申请分享给你的人；第二类、你申请分享给对方，且对方同意了的人。
+    private List<ContactPerson> contactPeople = new ArrayList<>();
 
-    public List<Integer> getCanSharePersonIdList() {
-        List<Integer> ids = new ArrayList<>();
-        for(ShareInfo si : shareInfos) {
-            if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
-                ids.add(si.getToId());
-            }
-        }
-        return ids;
+    //--------------------------------------------------------------静态函数
+    // 从shared preference创建账户
+    public static Account createFromSharedPreference() {
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        Account account = new Account();
+        account.accountId = settings.getInt("accountId", INVALID_ID);
+        account.userName = settings.getString("userName", "");
+        account.password = settings.getString("password", "");
+        account.nickName = settings.getString("nickName", "");
+        account.note = settings.getString("note", "");
+        account.icon = settings.getString("icon", "");
+        account.gender = settings.getInt("gender", MALE);
+        account.birthday = settings.getLong("birthday", new Date(1990,0,1).getTime());
+        account.weight = settings.getInt("weight", 80);
+        account.height = settings.getInt("height", 180);
+        return account;
     }
 
+    //--------------------------------------------------私有构造器
+    // 私有构造器，只能通过shared preference创建账户
     private Account() {
     }
 
+    // 获取账户ID
     public int getAccountId() {
         return accountId;
     }
+
+    // 设置账户ID，同时写入shared preference
     public void setAccountId(int accountId) {
         this.accountId = accountId;
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putInt("accountId", accountId);
+        editor.putInt("accountId", this.accountId);
         editor.commit();
     }
+
+    // 获取用户名
     public String getUserName() { return userName;}
+
+    // 设置用户名
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.userName = userName.trim();
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("userName", userName);
+        editor.putString("userName", this.userName);
         editor.commit();
     }
+
+    // 获取密码
     public String getPassword() {
         return password;
     }
+
+    // 设置密码
     public void setPassword(String password) {
-        this.password = password;
+        this.password = password.trim();
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("password", this.password);
         editor.commit();
     }
+
+    // 获取昵称
     public String getNickName() {
         return nickName;
     }
-    public String getNickNameOrUserId() {
+
+    // 设置昵称
+    public void setNickName(String nickName) {
+        this.nickName = nickName.trim();
+        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("nickName", this.nickName);
+        editor.commit();
+    }
+
+    // 获取昵称，如果为空字符串，则返回ID号
+    public String getNickNameOrUserIdIfNull() {
         if("".equals(nickName)) {
-            return "你本人";
+            return "ID:"+accountId;
         }
         return nickName;
     }
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
-        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("nickName", nickName);
-        editor.commit();
-    }
+
+    // 获取备注
     public String getNote() {
         return note;
     }
+
+    // 设置备注
     public void setNote(String note) {
-        this.note = note;
+        this.note = note.trim();
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("note", note);
+        editor.putString("note", this.note);
         editor.commit();
     }
+
+    // 获取头像图标文件路径名
     public String getIcon() {
         return icon;
     }
+
+    // 设置头像图标文件路径名
     public void setIcon(String icon) {
-        this.icon = icon;
+        this.icon = icon.trim();
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("icon", icon);
+        editor.putString("icon", this.icon);
         editor.commit();
     }
-    public boolean isNeedWebLogin() {
-        return needWebLogin;
+
+    // 获取该账户是否网络登录成功
+    public boolean isWebLoginSuccess() {
+        return isWebLoginSuccess;
     }
-    public void setNeedWebLogin(boolean needWebLogin) {
-        this.needWebLogin = needWebLogin;
+
+    // 设置该账户是否网络登录成功
+    public void setWebLoginSuccess(boolean isWebLoginSuccess) {
+        this.isWebLoginSuccess = isWebLoginSuccess;
     }
 
     public int getGender() {
@@ -194,15 +236,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return height;
     }
 
-    public List<ShareInfo> getShareInfos() {
-        return shareInfos;
-    }
-
-    public List<ContactPerson> getContactPeople() {
-        return contactPeople;
-    }
-
+    // 设置个人信息
     public void setPersonInfo(int gender, long birthday, int weight, int height) {
+        if(gender != MALE && gender != FEMALE)
+            throw new IllegalStateException();
+
         this.gender = gender;
         this.birthday = birthday;
         this.weight = weight;
@@ -216,8 +254,194 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         editor.commit();
     }
 
-    public boolean notSetPersonInfo() {
-        return gender == 0;
+    // 从本地shared preference删除账户信息及其附属文件
+    public void removeFromLocal() {
+        SharedPreferences preferences = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.commit();
+
+        LitePal.deleteAll(ShareInfo.class);
+        LitePal.deleteAll(ContactPerson.class);
+
+        if(!TextUtils.isEmpty(icon)) {
+            try {
+                FileUtil.deleteFile(new File(icon));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // 获取分享信息列表
+    public List<ShareInfo> getShareInfoList() {
+        return shareInfos;
+    }
+
+    // 从本地数据库中读取账户的分享信息列表,并按照分享状态排序
+    public void readShareInfosFromLocalDb() {
+        List<ShareInfo> shareInfos = new ArrayList<>(LitePal.where("fromId = ? or toId = ?",
+                "" + accountId, "" + accountId).find(ShareInfo.class));
+        Collections.sort(shareInfos, new Comparator<ShareInfo>() {
+            @Override
+            public int compare(ShareInfo o1, ShareInfo o2) {
+                int rlt = 0;
+                if(o2.getStatus() > o1.getStatus()) rlt = 1;
+                else if(o2.getStatus() < o1.getStatus()) rlt = -1;
+                return rlt;
+            }
+        });
+        this.shareInfos = shareInfos;
+    }
+
+    // 从服务器下载账户的分享信息。下载成功后，更新本地数据库相关信息,以及更新shareInfos字段
+    public void downloadShareInfos(Context context, String showStr, ICodeCallback callback) {
+        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_SHARE_INFO, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                if(code == RETURN_CODE_SUCCESS) {
+                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    if(jsonArr != null) {
+                        List<ShareInfo> sis = new ArrayList<>();
+                        for (int i = 0; i < jsonArr.length(); i++) {
+                            try {
+                                JSONObject json = (JSONObject) jsonArr.get(i);
+                                if (json == null) continue;
+                                ShareInfo si = new ShareInfo();
+                                si.fromJson(json);
+                                sis.add(si);
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                        LitePal.deleteAll(ShareInfo.class);
+                        LitePal.saveAll(sis);
+                        readShareInfosFromLocalDb();
+                    }
+                }
+                if(callback != null)
+                    callback.onFinish(code);
+            }
+        }).execute(this);
+    }
+
+    // 获取可以分享给对方的账户ID列表
+    public List<Integer> getCanShareIdList() {
+        List<Integer> ids = new ArrayList<>();
+        for(ShareInfo si : shareInfos) {
+            if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
+                ids.add(si.getToId());
+            }
+        }
+        return ids;
+    }
+
+    // 是否可以分享给指定ID人
+    public boolean canShareTo(int shareId) {
+        return getCanShareIdList().contains(shareId);
+    }
+
+    public List<ContactPerson> getContactPeople() {
+        return contactPeople;
+    }
+
+    // 从本地数据库读取联系人信息
+    public void readContactPeopleFromLocalDb() {
+        this.contactPeople = new ArrayList<>(LitePal.findAll(ContactPerson.class));
+    }
+
+    public ContactPerson getContactPerson(int id) {
+        for(ContactPerson cp : contactPeople) {
+            if(cp.getAccountId() == id) return cp;
+        }
+        return null;
+    }
+
+    // 从分享列表中提取联系人ID列表
+    public List<Integer> extractContactPeopleIdsFromShareInfos() {
+        List<Integer> cps = new ArrayList<>();
+        for(ShareInfo si : shareInfos) {
+            if(si.getToId() == accountId) {
+                cps.add(si.getFromId());
+            } else if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
+                cps.add(si.getToId());
+            }
+        }
+        return cps;
+    }
+
+    // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
+    public void downloadContactPerson(Context context, String showStr, int contactId, ICodeCallback callback) {
+        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PERSON, new Object[]{contactId}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                if (code == RETURN_CODE_SUCCESS) {
+                    JSONObject content = (JSONObject) response.getContent();
+                    try {
+                        ContactPerson contactPerson = new ContactPerson();
+                        contactPerson.fromJson(content);
+                        contactPerson.saveOrUpdate("accountId = ?",
+                                ""+contactPerson.getAccountId());
+                    } catch (JSONException ex) {
+                        ex.printStackTrace();
+                        code = RETURN_CODE_DATA_ERR;
+                    }
+                }
+                if(callback != null)
+                    callback.onFinish(code);
+            }
+        }).execute(this);
+    }
+
+    // 账户注册
+    public void signUp(Context context, ICodeCallback callback) {
+        new AccountAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                if(callback != null)
+                    callback.onFinish(response.getCode());
+            }
+        }).execute(this);
+    }
+
+    // 账户登录
+    public void login(Context context, String showString, ICodeCallback callback) {
+        new AccountAsyncTask(context, showString, CMD_LOGIN, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                if(code == RETURN_CODE_SUCCESS) {
+                    JSONObject content = (JSONObject) response.getContent();
+                    if(content == null)
+                        code = RETURN_CODE_DATA_ERR;
+                    else {
+                        try {
+                            setAccountId(content.getInt("id"));
+                            if (accountId != INVALID_ID) {
+                                setWebLoginSuccess(true);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            code = RETURN_CODE_DATA_ERR;
+                        }
+                    }
+                }
+                if(callback != null)
+                    callback.onFinish(code);
+            }
+        }).execute(this);
+    }
+
+    // 修改密码
+    public void changePassword(Context context, ICodeCallback callback) {
+        new AccountAsyncTask(context, "正在修改密码，请稍等...", CMD_CHANGE_PASSWORD, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                callback.onFinish(response.getCode());
+            }
+        }).execute(this);
     }
 
     @Override
@@ -274,72 +498,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }
     }
 
-    public void signUp(Context context, ICodeCallback callback) {
-        //ViseLog.e("account signup");
-        new AccountAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode());
-            }
-        }).execute(this);
-    }
-
-    public void login(Context context, String showString, ICodeCallback callback) {
-        new AccountAsyncTask(context, showString, CMD_LOGIN, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                if(code == RETURN_CODE_SUCCESS) {
-                    JSONObject content = (JSONObject) response.getContent();
-                    if(content == null)
-                        code = RETURN_CODE_DATA_ERR;
-                    else {
-                        try {
-                            setAccountId(content.getInt("id"));
-                            //ViseLog.e("accountId=" + accountId);
-                            if (accountId != INVALID_ID) {
-                                setNeedWebLogin(false);
-                                //ViseLog.e(Account.this);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            code = RETURN_CODE_DATA_ERR;
-                        }
-                    }
-                }
-                callback.onFinish(code);
-            }
-        }).execute(this);
-    }
-
-    public void changePassword(Context context, ICodeCallback callback) {
-        //ViseLog.e("change password");
-        new AccountAsyncTask(context, "正在修改密码，请稍等...", CMD_CHANGE_PASSWORD, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode());
-            }
-        }).execute(this);
-    }
-
-    public void remove() {
-        SharedPreferences preferences = MyApplication.getContext().getSharedPreferences("Account", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.clear();
-        editor.commit();
-
-        LitePal.deleteAll(ShareInfo.class);
-        LitePal.deleteAll(ContactPerson.class);
-
-        if(!TextUtils.isEmpty(icon)) {
-            try {
-                FileUtil.deleteFile(new File(icon));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     @Override
     public void upload(Context context, ICodeCallback callback) {
         new AccountAsyncTask(context, "正在上传账户信息，请稍等...", AccountAsyncTask.CMD_UPLOAD, new IWebResponseCallback() {
@@ -351,123 +509,16 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     @Override
-    public void download(Context context, ICodeCallback callback) {
-        download(context, "正在下载账户信息，请稍等...", callback);
-    }
-
-    public void download(Context context, String showString, ICodeCallback callback) {
-        new AccountAsyncTask(context, showString, AccountAsyncTask.CMD_DOWNLOAD, new IWebResponseCallback() {
+    public void download(Context context, String showStr, ICodeCallback callback) {
+        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                //ViseLog.e(response);
                 int code = response.getCode();
-                JSONObject content = (JSONObject) response.getContent();
                 if (code == RETURN_CODE_SUCCESS) {
-                    fromJson(content);
-                    writeToSharedPreference();
-                }
-                callback.onFinish(code);
-            }
-        }).execute(this);
-    }
-
-    @Override
-    public void delete(Context context, ICodeCallback callback) {
-        throw new IllegalStateException();
-    }
-
-    public boolean canShareTo(int shareId) {
-        int num = LitePal.where("fromId = ? and toId = ? and status = ?",
-                ""+MyApplication.getAccountId(), ""+shareId, ""+ShareInfo.AGREE).count(ShareInfo.class);
-        return num!=0;
-    }
-
-    public void readShareInfoFromLocalDb() {
-        shareInfos.clear();
-        shareInfos.addAll(LitePal.where("fromId = ? or toId = ?",
-                        ""+accountId, ""+accountId).find(ShareInfo.class));
-        Collections.sort(shareInfos, new Comparator<ShareInfo>() {
-            @Override
-            public int compare(ShareInfo o1, ShareInfo o2) {
-                int rlt = 0;
-                if(o2.getStatus() > o1.getStatus()) rlt = 1;
-                else if(o2.getStatus() < o1.getStatus()) rlt = -1;
-                return rlt;
-            }
-        });
-    }
-
-    public void downloadShareInfo(Context context, String showStr, ICodeCallback callback) {
-        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_SHARE_INFO, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                if(code == RETURN_CODE_SUCCESS) {
-                    JSONArray jsonArr = (JSONArray) response.getContent();
-                    if(jsonArr != null) {
-                        List<ShareInfo> sis = new ArrayList<>();
-                        for (int i = 0; i < jsonArr.length(); i++) {
-                            try {
-                                JSONObject json = (JSONObject) jsonArr.get(i);
-                                if (json == null) continue;
-                                ShareInfo si = new ShareInfo();
-                                si.fromJson(json);
-                                sis.add(si);
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                        if (!sis.isEmpty()) {
-                            LitePal.deleteAll(ShareInfo.class);
-                            LitePal.saveAll(sis);
-                        }
-                    }
-                }
-                callback.onFinish(code);
-            }
-        }).execute(this);
-    }
-
-    public void readContactPeopleFromLocalDb() {
-        contactPeople.clear();
-        contactPeople.addAll(LitePal.findAll(ContactPerson.class));
-    }
-
-    public ContactPerson getContactPerson(int id) {
-        for(ContactPerson cp : contactPeople) {
-            if(cp.getAccountId() == id) return cp;
-        }
-        return null;
-    }
-
-    public List<Integer> getContactPersonIds() {
-        List<Integer> cps = new ArrayList<>();
-        for(ShareInfo si : shareInfos) {
-            if(si.getToId() == accountId) {
-                cps.add(si.getFromId());
-            } else if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
-                cps.add(si.getToId());
-            }
-        }
-        return cps;
-    }
-
-    public void downloadContactPerson(Context context, String showStr, int contactId, ICodeCallback callback) {
-        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PERSON, new Object[]{contactId}, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                JSONObject content = (JSONObject) response.getContent();
-                if (code == RETURN_CODE_SUCCESS) {
-                    ViseLog.e("hi"+content);
-                    try {
-                        ContactPerson contactPerson = new ContactPerson();
-                        contactPerson.fromJson(content);
-                        contactPerson.saveOrUpdate("accountId = ?",
-                                ""+contactPerson.getAccountId());
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                        code = RETURN_CODE_DATA_ERR;
+                    JSONObject content = (JSONObject) response.getContent();
+                    if(content != null) {
+                        fromJson(content);
+                        saveToSharedPreference();
                     }
                 }
                 if(callback != null)
@@ -476,12 +527,18 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
+    // 不支持删除网络服务器端的账户信息
+    @Override
+    public void delete(Context context, ICodeCallback callback) {
+        throw new IllegalStateException();
+    }
+
     @NonNull
     @Override
     public String toString() {
         return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
                 + ",gender:" + gender + ",birthday:" + birthday + ",weight:" + weight + ",height:" + height
-                + ",Note：" + note + ",icon: " + icon + ",needWebLogin:" + needWebLogin
+                + ",Note：" + note + ",icon: " + icon + ",isWebLoginSuccess:" + isWebLoginSuccess
                 + ", shareInfos: " + shareInfos + ", contactPeople: " + contactPeople;
     }
 
@@ -499,23 +556,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return userName.equals(other.userName);
     }
 
-    public static Account readFromSharedPreference() {
-        SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", 0);
-        Account account = new Account();
-        account.accountId = settings.getInt("accountId", INVALID_ID);
-        account.userName = settings.getString("userName", "");
-        account.password = settings.getString("password", "");
-        account.nickName = settings.getString("nickName", "");
-        account.note = settings.getString("note", "");
-        account.icon = settings.getString("icon", "");
-        account.gender = settings.getInt("gender", 0);
-        account.birthday = settings.getLong("birthday", 0);
-        account.weight = settings.getInt("weight", 0);
-        account.height = settings.getInt("height", 0);
-        return account;
-    }
-
-    public void writeToSharedPreference() {
+    private void saveToSharedPreference() {
         SharedPreferences settings = MyApplication.getContext().getSharedPreferences("Account", 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("accountId", accountId);
@@ -530,4 +571,5 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         editor.putInt("height", height);
         editor.commit();
     }
+
 }
