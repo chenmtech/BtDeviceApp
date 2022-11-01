@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         ivAccountImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PersonInfoActivity.class);
+                Intent intent = new Intent(MainActivity.this, AccountInfoActivity.class);
                 startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
             }
         });
@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         btnModify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PersonInfoActivity.class);
+                Intent intent = new Intent(MainActivity.this, AccountInfoActivity.class);
                 startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
             }
         });

@@ -20,8 +20,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
-import com.cmtech.android.bledeviceapp.fragment.AccountInfoFragment;
-import com.cmtech.android.bledeviceapp.fragment.PersonInfoFragment;
+import com.cmtech.android.bledeviceapp.fragment.AccountPublicInfoFragment;
+import com.cmtech.android.bledeviceapp.fragment.AccountPrivateInfoFragment;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -33,17 +33,17 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *  PersonInfoActivity: 账户及个人信息Activity
+ *  AccountInfoActivity: 账户信息Activity
  *  Created by bme on 2018/10/27.
  */
 
-public class PersonInfoActivity extends AppCompatActivity {
+public class AccountInfoActivity extends AppCompatActivity {
     private EditText etUserName;
     private EditText etUserId;
     private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
-    private final PersonInfoFragment personInfoFrag = new PersonInfoFragment();
-    private final AccountInfoFragment accountInfoFrag = new AccountInfoFragment();
+    private final AccountPrivateInfoFragment privateInfoFrag = new AccountPrivateInfoFragment();
+    private final AccountPublicInfoFragment publicInfoFrag = new AccountPublicInfoFragment();
 
     private Account account;
 
@@ -72,8 +72,8 @@ public class PersonInfoActivity extends AppCompatActivity {
 
         pager = findViewById(R.id.person_info_control_panel_viewpager);
         TabLayout layout = findViewById(R.id.person_info_control_panel_tab);
-        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(accountInfoFrag, personInfoFrag));
-        List<String> titleList = new ArrayList<>(Arrays.asList(AccountInfoFragment.TITLE, PersonInfoFragment.TITLE));
+        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(publicInfoFrag, privateInfoFrag));
+        List<String> titleList = new ArrayList<>(Arrays.asList(AccountPublicInfoFragment.TITLE, AccountPrivateInfoFragment.TITLE));
         fragAdapter = new CtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(2);
@@ -83,19 +83,19 @@ public class PersonInfoActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                accountInfoFrag.processOKButton();
-                personInfoFrag.processOKButton();
+                publicInfoFrag.processOKButton();
+                privateInfoFrag.processOKButton();
 
-                account.upload(PersonInfoActivity.this, new ICodeCallback() {
+                account.upload(AccountInfoActivity.this, new ICodeCallback() {
                     @Override
                     public void onFinish(int code) {
                         if (code == RETURN_CODE_SUCCESS) {
-                            Toast.makeText(PersonInfoActivity.this, "账户信息已更新。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AccountInfoActivity.this, "账户信息已更新。", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent();
                             setResult(RESULT_OK, intent);
                             finish();
                         } else
-                            Toast.makeText(PersonInfoActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AccountInfoActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -115,13 +115,13 @@ public class PersonInfoActivity extends AppCompatActivity {
         btnChangeAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(PersonInfoActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(AccountInfoActivity.this);
                 builder.setTitle("切换账户")
                         .setMessage("退出当前账户，重新启动")
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 if (MyApplication.getDeviceManager().hasDeviceOpen()) {
-                                    Toast.makeText(PersonInfoActivity.this, R.string.pls_close_device_firstly, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(AccountInfoActivity.this, R.string.pls_close_device_firstly, Toast.LENGTH_SHORT).show();
                                     return;
                                 }
 
@@ -134,8 +134,8 @@ public class PersonInfoActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        accountInfoFrag.updateUI();
-        personInfoFrag.updateUI();
+        publicInfoFrag.updateUI();
+        privateInfoFrag.updateUI();
     }
 
     @Override
@@ -166,7 +166,7 @@ public class PersonInfoActivity extends AppCompatActivity {
                 if (code == RETURN_CODE_SUCCESS) {
                     updateUI();
                 } else {
-                    Toast.makeText(PersonInfoActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AccountInfoActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

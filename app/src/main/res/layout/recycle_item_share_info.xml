@@ -67,28 +67,6 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_deny"
-        style="@style/button_circle_blue_style"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
-        android:text="拒绝"
-        android:textSize="@dimen/big_font"/>
-
-    <Button
-        android:id="@+id/btn_agree"
-        style="@style/button_circle_blue_style"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
-        android:text="同意"
-        android:textSize="@dimen/big_font"/>
-
     <TextView
         android:id="@+id/tv_status"
         android:layout_width="wrap_content"

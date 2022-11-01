@@ -33,8 +33,8 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.view
- * ClassName:      EcgRecordFragment
- * Description:    java类作用描述
+ * ClassName:      AccountPublicInfoFragment
+ * Description:    账户公开信息Fragment
  * Author:         作者名
  * CreateDate:     2020/3/28 上午6:48
  * UpdateUser:     更新者
@@ -42,8 +42,8 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class AccountInfoFragment extends Fragment {
-    public static final String TITLE = "账户信息";
+public class AccountPublicInfoFragment extends Fragment {
+    public static final String TITLE = "公开信息";
 
     private EditText etName;
     private ImageView ivImage;

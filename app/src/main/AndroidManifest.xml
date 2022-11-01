@@ -102,7 +102,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.PersonInfoActivity"
+            android:name=".activity.AccountInfoActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity

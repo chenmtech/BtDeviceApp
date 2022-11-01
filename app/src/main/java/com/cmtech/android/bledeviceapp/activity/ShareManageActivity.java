@@ -29,12 +29,14 @@ import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
 import java.util.List;
 
+/**
+ * 用来管理分享信息的Activity
+ */
 public class ShareManageActivity extends AppCompatActivity {
-
     private ShareInfoAdapter shareInfoAdapter;
     private RecyclerView rvShareInfo;
-    private Button btnAddShare;
     private EditText etShareId;
+    private Button btnAddShare;
 
 
     @Override
@@ -46,7 +48,7 @@ public class ShareManageActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_share_manage);
         setSupportActionBar(toolbar);
 
-        // 初始化扫描设备列表
+        // 初始化分享信息列表
         rvShareInfo = findViewById(R.id.rv_share_info);
         rvShareInfo.setLayoutManager(new LinearLayoutManager(this));
         rvShareInfo.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

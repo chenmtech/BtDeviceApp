@@ -25,8 +25,8 @@ import static com.cmtech.android.bledeviceapp.model.Account.MALE;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.view
- * ClassName:      EcgRecordFragment
- * Description:    java类作用描述
+ * ClassName:      AccountPrivateInfoFragment
+ * Description:    账户隐私信息Fragment
  * Author:         作者名
  * CreateDate:     2020/3/28 上午6:48
  * UpdateUser:     更新者
@@ -34,8 +34,8 @@ import static com.cmtech.android.bledeviceapp.model.Account.MALE;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class PersonInfoFragment extends Fragment {
-    public static final String TITLE = "个人信息";
+public class AccountPrivateInfoFragment extends Fragment {
+    public static final String TITLE = "隐私信息";
 
     private RadioGroup rgGender;
     private RadioButton rbMale;
@@ -107,6 +107,6 @@ public class PersonInfoFragment extends Fragment {
         }
 
         Date date = new Date(dpBirthday.getYear(), dpBirthday.getMonth(), dpBirthday.getDayOfMonth());
-        account.setPersonInfo(gender, date.getTime(), weight, height);
+        account.setAccountPrivateInfos(gender, date.getTime(), weight, height);
     }
 }

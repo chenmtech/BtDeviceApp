@@ -91,11 +91,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     private boolean isWebLoginSuccess = false;
 
     // 分享信息列表
-    private List<ShareInfo> shareInfos = new ArrayList<>();
+    private final List<ShareInfo> shareInfos = new ArrayList<>();
 
     // 联系人列表
     // 账户的联系人包括两类人：第一类、对方申请分享给你的人；第二类、你申请分享给对方，且对方同意了的人。
-    private List<ContactPerson> contactPeople = new ArrayList<>();
+    private final List<ContactPerson> contactPeople = new ArrayList<>();
 
     //--------------------------------------------------------------静态函数
     // 从shared preference创建账户
@@ -236,8 +236,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return height;
     }
 
-    // 设置个人信息
-    public void setPersonInfo(int gender, long birthday, int weight, int height) {
+    // 设置账户个人隐私信息
+    public void setAccountPrivateInfos(int gender, long birthday, int weight, int height) {
         if(gender != MALE && gender != FEMALE)
             throw new IllegalStateException();
 
@@ -285,13 +285,21 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         Collections.sort(shareInfos, new Comparator<ShareInfo>() {
             @Override
             public int compare(ShareInfo o1, ShareInfo o2) {
-                int rlt = 0;
-                if(o2.getStatus() > o1.getStatus()) rlt = 1;
-                else if(o2.getStatus() < o1.getStatus()) rlt = -1;
-                return rlt;
+                int r1 = o1.getFromId()-accountId;
+                int r2 = o2.getFromId()-accountId;
+
+                if(r1 != r2) {
+                    if (r1 == 0) {
+                        return -1;
+                    } else if (r2 == 0) {
+                        return 1;
+                    }
+                }
+                return o2.getStatus()-o1.getStatus();
             }
         });
-        this.shareInfos = shareInfos;
+        this.shareInfos.clear();
+        this.shareInfos.addAll(shareInfos);
     }
 
     // 从服务器下载账户的分享信息。下载成功后，更新本地数据库相关信息,以及更新shareInfos字段
@@ -348,7 +356,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 从本地数据库读取联系人信息
     public void readContactPeopleFromLocalDb() {
-        this.contactPeople = new ArrayList<>(LitePal.findAll(ContactPerson.class));
+        this.contactPeople.clear();
+        this.contactPeople.addAll(LitePal.findAll(ContactPerson.class));
     }
 
     public ContactPerson getContactPerson(int id) {

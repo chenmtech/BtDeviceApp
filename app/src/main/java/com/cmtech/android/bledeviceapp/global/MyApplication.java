@@ -126,6 +126,7 @@ public class MyApplication extends Application {
         return instance.accountManager.getAccount();
     }
 
+    // 获取账户的分享信息列表
     public static List<ShareInfo> getShareInfoList() {
         return instance.accountManager.getShareInfoList();
     }

@@ -8,7 +8,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Pair;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -47,9 +50,7 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         ImageView ivFromImage;
         TextView toName; //
         ImageView ivToImage;
-        TextView status; //
-        Button ivDeny;
-        Button ivAgree;
+        TextView status;
         Context context;
 
         ViewHolder(Context context, View itemView) {
@@ -61,8 +62,6 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             toName = view.findViewById(R.id.tv_to_name);
             ivToImage = view.findViewById(R.id.iv_to_image);
             status = view.findViewById(R.id.tv_status);
-            ivDeny = view.findViewById(R.id.btn_deny);
-            ivAgree = view.findViewById(R.id.btn_agree);
         }
     }
 
@@ -80,10 +79,11 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ShareInfoAdapter.ViewHolder holder, int position) {
-        ShareInfo shareInfo = shareInfos.get(position);
+        ShareInfo si = shareInfos.get(position);
 
         int myId = MyApplication.getAccountId();
-        int fromId = shareInfo.getFromId();
+        int fromId = si.getFromId();
+        int toId = si.getToId();
         Pair<String,String> rtn = getNameAndIcon(fromId, myId);
         holder.fromName.setText(rtn.first);
         if(TextUtils.isEmpty(rtn.second)) {
@@ -100,7 +100,6 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             }
         });
 
-        int toId = shareInfo.getToId();
         rtn = getNameAndIcon(toId, myId);
         holder.toName.setText(rtn.first);
         if(TextUtils.isEmpty(rtn.second)) {
@@ -113,13 +112,13 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         holder.ivToImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(shareInfo.getStatus() == AGREE)
+                if(si.getStatus() == AGREE)
                     showPersonNoteInfo(holder.context, toId);
             }
         });
 
         String statusStr = "";
-        switch (shareInfo.getStatus()) {
+        switch (si.getStatus()) {
             case DENY:
                 statusStr = "被拒绝";
                 break;
@@ -132,31 +131,47 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         }
         holder.status.setText(statusStr);
 
-        if(shareInfo.getToId() == MyApplication.getAccountId()) {
-            holder.ivDeny.setVisibility(View.VISIBLE);
-            holder.ivAgree.setVisibility(View.VISIBLE);
-        } else {
-            holder.ivDeny.setVisibility(View.GONE);
-            holder.ivAgree.setVisibility(View.GONE);
+        // 长按
+        if(toId == MyApplication.getAccountId()) {
+            holder.view.setOnLongClickListener(new View.OnLongClickListener() {
+                final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
+                        switch (item.getItemId()) {
+                            case 1: // agree
+                                if (ClickCheckUtil.isFastClick()) return true;
+                                changeShareInfo(holder.context, fromId, AGREE);
+                                break;
+                            case 2: // deny
+                                if (ClickCheckUtil.isFastClick()) return true;
+                                changeShareInfo(holder.context, fromId, DENY);
+                                break;
+                            default:
+                                break;
+                        }
+                        return true;
+                    }
+                };
+
+                @Override
+                public boolean onLongClick(View view) {
+                    view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                        @Override
+                        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                            if (si.getStatus() != AGREE) {
+                                MenuItem agree = menu.add(Menu.NONE, 1, Menu.NONE, "同意");
+                                agree.setOnMenuItemClickListener(listener);
+                            }
+                            if (si.getStatus() != DENY) {
+                                MenuItem deny = menu.add(Menu.NONE, 2, Menu.NONE, "拒绝");
+                                deny.setOnMenuItemClickListener(listener);
+                            }
+                        }
+                    });
+                    return false;
+                }
+            });
         }
-
-        holder.ivDeny.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ClickCheckUtil.isFastClick()) return;
-                if(shareInfo.getStatus() != DENY)
-                    changeShareInfo(holder.context, shareInfo.getFromId(), DENY);
-            }
-        });
-
-        holder.ivAgree.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(ClickCheckUtil.isFastClick()) return;
-                if(shareInfo.getStatus() != AGREE)
-                    changeShareInfo(holder.context, shareInfo.getFromId(), AGREE);
-            }
-        });
     }
 
     private void showPersonNoteInfo(Context context, int id) {
