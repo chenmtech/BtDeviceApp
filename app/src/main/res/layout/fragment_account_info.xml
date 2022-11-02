@@ -16,7 +16,7 @@
             android:layout_weight="1"
             android:gravity="end"
             android:textSize="@dimen/normal_font"
-            android:text="@string/account_name"/>
+            android:text="昵称:"/>
 
         <EditText
             android:id="@+id/et_account_name"
@@ -41,7 +41,7 @@
             android:layout_weight="1"
             android:gravity="center_vertical|end"
             android:textSize="@dimen/normal_font"
-            android:text="@string/note"/>
+            android:text="简介:"/>
         <EditText
             android:id="@+id/et_account_note"
             style="@style/edittext_circle_gray_style"
@@ -66,7 +66,7 @@
             android:layout_weight="1"
             android:gravity="end"
             android:textSize="@dimen/normal_font"
-            android:text="@string/account_portrait"/>
+            android:text="头像:"/>
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"

@@ -1,10 +1,10 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
-import static com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask.CMD_DOWNLOAD_RECORD;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.*;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.asynctask.RecordAsyncTask;
+import com.cmtech.android.bledeviceapp.model.WebAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
@@ -197,34 +197,39 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             return;
         }
 
-        new RecordAsyncTask(context, "获取记录中，请稍等。", RecordAsyncTask.CMD_DOWNLOAD_RECORDS, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
+        new WebAsyncTask(context, "获取记录中，请稍等。", CMD_DOWNLOAD_RECORDS, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                JSONArray jsonArr = (JSONArray) response.getContent();
-                if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
-                    for (int i = 0; i < jsonArr.length(); i++) {
-                        try {
-                            JSONObject json = (JSONObject) jsonArr.get(i);
-                            if(json == null) continue;
-                            RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
-                            String ver = json.getString("ver");
-                            int accountId = json.getInt("accountId");
-                            long createTime = json.getLong("createTime");
-                            String devAddress = json.getString("devAddress");
-                            BasicRecord record = RecordFactory.create(type, ver, accountId, createTime, devAddress);
-                            if (record != null) {
-                                record.fromJson(json);
-                                record.setNeedUpload(false);
-                                record.saveIfNotExist("accountId = ? and createTime = ? and devAddress = ?", "" + record.getAccountId(), "" + record.getCreateTime(), record.getDevAddress());
+                String msg = null;
+                if(code == RETURN_CODE_SUCCESS) {
+                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    if(jsonArr != null) {
+                        for (int i = 0; i < jsonArr.length(); i++) {
+                            try {
+                                JSONObject json = (JSONObject) jsonArr.get(i);
+                                if (json == null) continue;
+                                RecordType type = RecordType.fromCode(json.getInt("recordTypeCode"));
+                                String ver = json.getString("ver");
+                                int accountId = json.getInt("accountId");
+                                long createTime = json.getLong("createTime");
+                                String devAddress = json.getString("devAddress");
+                                BasicRecord record = RecordFactory.create(type, ver, accountId, createTime, devAddress);
+                                if (record != null) {
+                                    record.fromJson(json);
+                                    record.setNeedUpload(false);
+                                    record.saveIfNotExist("accountId = ? and createTime = ? and devAddress = ?", "" + record.getAccountId(), "" + record.getCreateTime(), record.getDevAddress());
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
                             }
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
                         }
                     }
+                } else {
+                    msg = (String) response.getContent();
                 }
                 if(callback != null)
-                    callback.onFinish(code);
+                    callback.onFinish(code, msg);
             }
         }).execute(record);
     }
@@ -493,11 +498,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public void share(Context context, int shareId, ICodeCallback callback) {
-        new RecordAsyncTask(context, "分享记录中，请稍等。", RecordAsyncTask.CMD_SHARE_RECORD, new Object[]{shareId}, new IWebResponseCallback() {
+        new WebAsyncTask(context, "分享记录中，请稍等。", CMD_SHARE_RECORD, new Object[]{shareId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                callback.onFinish(code);
+                String msg = (String)response.getContent();
+                if(callback != null)
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }
@@ -509,15 +516,19 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      */
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        new RecordAsyncTask(context, "上传记录中，请稍等。", RecordAsyncTask.CMD_UPLOAD_RECORD, new IWebResponseCallback() {
+        new WebAsyncTask(context, "上传记录中，请稍等。", CMD_UPLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
+                String msg = null;
                 if(code == RETURN_CODE_SUCCESS) {
                     setNeedUpload(false);
                     save();
+                } else {
+                    msg = (String) response.getContent();
                 }
-                callback.onFinish(code);
+                if(callback != null)
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }
@@ -529,10 +540,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      */
     @Override
     public void download(Context context, String showStr, ICodeCallback callback) {
-        new RecordAsyncTask(context, showStr, CMD_DOWNLOAD_RECORD, new IWebResponseCallback() {
+        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
+                String msg = null;
                 if (code == RETURN_CODE_SUCCESS) {
                     JSONObject content = (JSONObject) response.getContent();
                     if(content != null) {
@@ -545,8 +557,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             code = RETURN_CODE_DATA_ERR;
                         }
                     }
+                } else {
+                    msg = (String) response.getContent();
                 }
-                callback.onFinish(code);
+                if(callback != null)
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }
@@ -559,10 +574,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @Override
     public void delete(Context context, ICodeCallback callback) {
         Class<? extends BasicRecord> recordClass = getClass();
-        new RecordAsyncTask(context, "删除记录中，请稍等。", RecordAsyncTask.CMD_DELETE_RECORD, new IWebResponseCallback() {
+        new WebAsyncTask(context, "删除记录中，请稍等。", CMD_DELETE_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
+                String msg = (String) response.getContent();
                 //if(code == RETURN_CODE_SUCCESS) {
                     File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
                     if(sigFile.exists()) {
@@ -571,7 +587,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                     LitePal.delete(recordClass, getId());
                     Toast.makeText(context, "记录已删除", Toast.LENGTH_SHORT).show();
                 //}
-                callback.onFinish(code);
+                if(callback != null)
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }

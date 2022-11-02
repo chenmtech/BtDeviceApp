@@ -13,5 +13,5 @@ package com.cmtech.android.bledeviceapp.interfac;
  * Version:        1.0
  */
 public interface ICodeCallback {
-    void onFinish(int code);
+    void onFinish(int code, String msg);
 }

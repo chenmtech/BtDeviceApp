@@ -13,7 +13,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
 import com.vise.log.ViseLog;
@@ -45,11 +44,11 @@ public abstract class RecordActivity extends AppCompatActivity {
         noteLayout.saveNote();
         record.upload(this, new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
+            public void onFinish(int code, String msg) {
                 if (code == RETURN_CODE_SUCCESS) {
                     Toast.makeText(RecordActivity.this, "记录已上传", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(RecordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RecordActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -90,11 +89,11 @@ public abstract class RecordActivity extends AppCompatActivity {
         if(MyApplication.getAccount().canShareTo(toId)) {
             record.share(this, toId, new ICodeCallback() {
                 @Override
-                public void onFinish(int code) {
+                public void onFinish(int code, String msg) {
                     if (code == RETURN_CODE_SUCCESS) {
                         Toast.makeText(RecordActivity.this, "记录已分享", Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(RecordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RecordActivity.this, msg, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -108,7 +107,7 @@ public abstract class RecordActivity extends AppCompatActivity {
      */
     public void downloadRecord() {
         String reportVer = record.getReportVer();
-        record.download(this, "下载记录中，请稍等。", code -> {
+        record.download(this, "下载记录中，请稍等。", (code, msg) -> {
             if (code == RETURN_CODE_SUCCESS) {
                 if (record.getReportVer().compareTo(reportVer) > 0) {
                     Toast.makeText(this, "诊断报告已更新。", Toast.LENGTH_SHORT).show();
@@ -117,7 +116,7 @@ public abstract class RecordActivity extends AppCompatActivity {
                 }
                 initUI();
             } else {
-                Toast.makeText(this, "下载记录失败。", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.adapter;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.model.ShareInfo.AGREE;
 import static com.cmtech.android.bledeviceapp.model.ShareInfo.DENY;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_SHARE_INFO;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -14,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ShareManageActivity;
-import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
+import com.cmtech.android.bledeviceapp.model.WebAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.ContactPerson;
@@ -205,8 +205,7 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
     }
 
     private void changeShareInfo(Context context, int fromId, int status) {
-        new AccountAsyncTask(context, "请稍等",
-                AccountAsyncTask.CMD_CHANGE_SHARE_INFO, new Object[]{fromId, status}, new IWebResponseCallback() {
+        new WebAsyncTask(context, "请稍等", CMD_CHANGE_SHARE_INFO, new Object[]{fromId, status}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();

@@ -1,10 +1,8 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_CHANGE_PASSWORD;
-import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_LOGIN;
-import static com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask.CMD_SIGNUP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.*;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,7 +12,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
@@ -306,10 +303,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 从服务器下载账户的分享信息。下载成功后，更新本地数据库相关信息,以及更新shareInfos字段
     public void downloadShareInfos(Context context, String showStr, ICodeCallback callback) {
-        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_SHARE_INFO, new IWebResponseCallback() {
+        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_SHARE_INFO, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
+                String msg = null;
                 if(code == RETURN_CODE_SUCCESS) {
                     JSONArray jsonArr = (JSONArray) response.getContent();
                     if(jsonArr != null) {
@@ -329,9 +327,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                         LitePal.saveAll(sis);
                         readShareInfosFromLocalDb();
                     }
+                } else {
+                    msg = (String) response.getContent();
                 }
                 if(callback != null)
-                    callback.onFinish(code);
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }
@@ -384,50 +384,56 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
     public void downloadContactPeople(Context context, String showStr, List<Integer> contactIds, ICodeCallback callback) {
-        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PEOPLE, new Object[]{contactIds}, new IWebResponseCallback() {
+        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_PEOPLE, new Object[]{contactIds}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                JSONArray jsonArr = (JSONArray) response.getContent();
-                if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
-                    for (int i = 0; i < jsonArr.length(); i++) {
-                        try {
-                            JSONObject json = (JSONObject) jsonArr.get(i);
-                            if (json == null) continue;
-                            ContactPerson contactPerson = new ContactPerson();
-                            contactPerson.fromJson(json);
-                            contactPerson.saveOrUpdate("accountId = ?",
-                                    "" + contactPerson.getAccountId());
-                            ViseLog.e(contactPerson);
-                        } catch (JSONException ex) {
-                            ex.printStackTrace();
+                String msg = null;
+                if(code == RETURN_CODE_SUCCESS) {
+                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    if(jsonArr != null) {
+                        for (int i = 0; i < jsonArr.length(); i++) {
+                            try {
+                                JSONObject json = (JSONObject) jsonArr.get(i);
+                                if (json == null) continue;
+                                ContactPerson contactPerson = new ContactPerson();
+                                contactPerson.fromJson(json);
+                                contactPerson.saveOrUpdate("accountId = ?",
+                                        "" + contactPerson.getAccountId());
+                                ViseLog.e(contactPerson);
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
                         }
+                        readContactPeopleFromLocalDb();
                     }
-                    readContactPeopleFromLocalDb();
+                } else {
+                    msg = (String) response.getContent();
                 }
                 if(callback != null)
-                    callback.onFinish(code);
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }
 
     // 账户注册
     public void signUp(Context context, ICodeCallback callback) {
-        new AccountAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
+        new WebAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback != null)
-                    callback.onFinish(response.getCode());
+                    callback.onFinish(response.getCode(), (String)response.getContent());
             }
         }).execute(this);
     }
 
     // 账户登录
     public void login(Context context, String showString, ICodeCallback callback) {
-        new AccountAsyncTask(context, showString, CMD_LOGIN, new IWebResponseCallback() {
+        new WebAsyncTask(context, showString, CMD_LOGIN, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
+                String msg = null;
                 if(code == RETURN_CODE_SUCCESS) {
                     JSONObject content = (JSONObject) response.getContent();
                     if(content == null)
@@ -443,19 +449,21 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                             code = RETURN_CODE_DATA_ERR;
                         }
                     }
+                } else {
+                    msg = (String) response.getContent();
                 }
                 if(callback != null)
-                    callback.onFinish(code);
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }
 
     // 修改密码
     public void changePassword(Context context, ICodeCallback callback) {
-        new AccountAsyncTask(context, "正在修改密码，请稍等...", CMD_CHANGE_PASSWORD, new IWebResponseCallback() {
+        new WebAsyncTask(context, "正在修改密码，请稍等...", CMD_CHANGE_PASSWORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode());
+                callback.onFinish(response.getCode(), (String)response.getContent());
             }
         }).execute(this);
     }
@@ -516,29 +524,32 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        new AccountAsyncTask(context, "正在上传账户信息，请稍等...", AccountAsyncTask.CMD_UPLOAD_ACCOUNT, new IWebResponseCallback() {
+        new WebAsyncTask(context, "正在上传账户信息，请稍等...", CMD_UPLOAD_ACCOUNT, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode());
+                callback.onFinish(response.getCode(), (String)response.getContent());
             }
         }).execute(this);
     }
 
     @Override
     public void download(Context context, String showStr, ICodeCallback callback) {
-        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_ACCOUNT, new IWebResponseCallback() {
+        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_ACCOUNT, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
+                String msg = null;
                 if (code == RETURN_CODE_SUCCESS) {
                     JSONObject content = (JSONObject) response.getContent();
                     if(content != null) {
                         fromJson(content);
                         saveToSharedPreference();
                     }
+                } else {
+                    msg = (String) response.getContent();
                 }
                 if(callback != null)
-                    callback.onFinish(code);
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }

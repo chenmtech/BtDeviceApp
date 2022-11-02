@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_APP_INFO;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,10 +13,10 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 
-import com.cmtech.android.bledeviceapp.asynctask.AppInfoWebAsyncTask;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
+import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
 
 import org.json.JSONException;
@@ -92,20 +93,24 @@ public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void download(Context context, String showStr, ICodeCallback callback) {
-        new AppInfoWebAsyncTask(context, AppInfoWebAsyncTask.CMD_DOWNLOAD_INFO, (response) -> {
-            int code = response.getCode();
-            if (code == RETURN_CODE_SUCCESS) {
-                JSONObject json = (JSONObject) response.getContent();
-                if(json != null) {
-                    try {
-                        fromJson(json);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        code = RETURN_CODE_DATA_ERR;
+        new WebAsyncTask(context, "正在下载安装包，请稍后...", CMD_DOWNLOAD_APP_INFO, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                if (code == RETURN_CODE_SUCCESS) {
+                    JSONObject json = (JSONObject) response.getContent();
+                    if (json != null) {
+                        try {
+                            fromJson(json);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            code = RETURN_CODE_DATA_ERR;
+                        }
                     }
                 }
+                if(callback != null)
+                    callback.onFinish(code);
             }
-            callback.onFinish(code);
         }).execute(this);
     }
 

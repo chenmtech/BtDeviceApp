@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_SHARE_INFO;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -19,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ShareInfoAdapter;
-import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
+import com.cmtech.android.bledeviceapp.model.WebAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
@@ -134,7 +135,7 @@ public class ShareManageActivity extends AppCompatActivity {
 
     private void addShare(int id) {
         if(MyApplication.getAccountId() == id) return;
-        new AccountAsyncTask(this, "请稍等", AccountAsyncTask.CMD_ADD_SHARE_INFO,
+        new WebAsyncTask(this, "请稍等", CMD_ADD_SHARE_INFO,
                 new Object[]{id}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {

@@ -7,7 +7,6 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
 
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -38,6 +37,7 @@ import okhttp3.Response;
  */
 public class KMWebService11Util {
     //-----------------------------------------------静态常量
+
     private static final String SVER = "1.1";
 
     //account servlet 后缀
@@ -49,51 +49,44 @@ public class KMWebService11Util {
     // APP update info servlet 后缀
     private static final String APP_UPDATE_INFO_SERVLET_URL = "AppUpdateInfo?";
 
-    //----------------下面是网络操作的命令字符串----------------------//
 
-    //--------------下面几个专用于account servlet---------------------//
-    // 账号注册
-    private static final String CMD_SIGNUP = "signUp";
-
-    // 账号登录
-    private static final String CMD_LOGIN = "login";
-
-    // 修改账号密码
-    private static final String CMD_CHANGE_PASSWORD = "changePassword";
-
-    // 下载账户的所有分享信息
-    private static final String CMD_DOWNLOAD_SHARE_INFO = "downloadShareInfo";
-
-    // 修改一条分享信息
-    private static final String CMD_CHANGE_SHARE_INFO = "changeShareInfo";
-
-    // 添加一条分享
-    private static final String CMD_ADD_SHARE = "addShare";
-
-    // 下载一条联系人信息
-    private static final String CMD_DOWNLOAD_CONTACT_PEOPLE = "downloadContactPeople";
-
-    //---------------------这几个专用于record servlet----------------------//
-    // 下载记录列表
-    private static final String CMD_DOWNLOAD_RECORDS = "downloadRecords";
-
-    // 获取记录的诊断报告
-    private static final String CMD_RETRIEVE_DIAGNOSE_REPORT = "retrieveDiagnoseReport";
-
+    //----------------下面是网络操作的命令----------------------//
+    // 查询一条记录的ID
+    public static final int CMD_QUERY_RECORD_ID = 1;
+    // 上传一条记录
+    public static final int CMD_UPLOAD_RECORD = 2;
+    // 下载一条记录
+    public static final int CMD_DOWNLOAD_RECORD = 3;
+    // 删除一条记录
+    public static final int CMD_DELETE_RECORD = 4;
+    // 下载多条记录
+    public static final int CMD_DOWNLOAD_RECORDS = 5;
     // 分享一条记录
-    private static final String CMD_SHARE = "share";
-
-    //----------------------这几个可通用----------------------//
-    // 下载
-    private static final String CMD_DOWNLOAD = "download";
-
-    // 上传
-    private static final String CMD_UPLOAD = "upload";
-
-    // 删除
-    private static final String CMD_DELETE = "delete";
-
-
+    public static final int CMD_SHARE_RECORD = 6;
+    // 获取一条记录的诊断报告
+    public static final int CMD_RETRIEVE_DIAGNOSE_REPORT = 7;
+    // 上传账户信息
+    public static final int CMD_UPLOAD_ACCOUNT = 8;
+    // 下载账户信息
+    public static final int CMD_DOWNLOAD_ACCOUNT = 9;
+    // 注册账户
+    public static final int CMD_SIGNUP = 10;
+    // 登录账户
+    public static final int CMD_LOGIN = 11;
+    // 修改账户密码
+    public static final int CMD_CHANGE_PASSWORD = 12;
+    // 下载账户分享信息
+    public static final int CMD_DOWNLOAD_SHARE_INFO = 13;
+    // 修改一条账户分享信息
+    public static final int CMD_CHANGE_SHARE_INFO = 14;
+    // 添加一条账户分享信息
+    public static final int CMD_ADD_SHARE_INFO = 15;
+    // 下载账户联系人
+    public static final int CMD_DOWNLOAD_CONTACT_PEOPLE = 16;
+    // 下载APP更新信息
+    public static final int CMD_DOWNLOAD_APP_INFO = 17;
+    // 下载APK文件
+    public static final int CMD_DOWNLOAD_APK = 18;
 
     //--------------------------------------------------------静态函数
     //---------Get Request------------//
@@ -101,14 +94,14 @@ public class KMWebService11Util {
     public static WebResponse downloadNewestAppUpdateInfo() {
         Map<String, String> data = new HashMap<>();
         data.put("sver", SVER);
-        data.put("cmd", CMD_DOWNLOAD);
+        data.put("cmd", String.valueOf(CMD_DOWNLOAD_APP_INFO));
         return processGetRequest(KMIC_URL + APP_UPDATE_INFO_SERVLET_URL, data);
     }
 
     public static WebResponse signUp(Account account) {
         Map<String, String> data = new HashMap<>();
         data.put("sver", SVER);
-        data.put("cmd", CMD_SIGNUP);
+        data.put("cmd", String.valueOf(CMD_SIGNUP));
         data.put("userName", account.getUserName());
         data.put("password", MD5Utils.getMD5Code(account.getPassword()));
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
@@ -117,7 +110,7 @@ public class KMWebService11Util {
     public static WebResponse login(Account account) {
         Map<String, String> data = new HashMap<>();
         data.put("sver", SVER);
-        data.put("cmd", CMD_LOGIN);
+        data.put("cmd", String.valueOf(CMD_LOGIN));
         data.put("userName", account.getUserName());
         data.put("password", MD5Utils.getMD5Code(account.getPassword()));
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
@@ -126,7 +119,7 @@ public class KMWebService11Util {
     public static WebResponse changePassword(Account account) {
         Map<String, String> data = new HashMap<>();
         data.put("sver", SVER);
-        data.put("cmd", CMD_CHANGE_PASSWORD);
+        data.put("cmd", String.valueOf(CMD_CHANGE_PASSWORD));
         data.put("userName", account.getUserName());
         data.put("password", MD5Utils.getMD5Code(account.getPassword()));
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
@@ -135,6 +128,7 @@ public class KMWebService11Util {
     public static WebResponse queryRecordId(int recordTypeCode, long createTime, String devAddress, String ver) {
         Map<String, String> data = new HashMap<>();
         data.put("sver", SVER);
+        data.put("cmd", String.valueOf(CMD_QUERY_RECORD_ID));
         data.put("accountId", String.valueOf(MyApplication.getAccountId()));
         data.put("recordTypeCode", String.valueOf(recordTypeCode));
         data.put("createTime", String.valueOf(createTime));
@@ -151,8 +145,8 @@ public class KMWebService11Util {
         JSONObject json = account.toJson();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_UPLOAD);
-            json.put("id", account.getAccountId());
+            json.put("cmd", CMD_UPLOAD_ACCOUNT);
+            json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
@@ -168,8 +162,8 @@ public class KMWebService11Util {
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_DOWNLOAD);
-            json.put("id", account.getAccountId());
+            json.put("cmd", CMD_DOWNLOAD_ACCOUNT);
+            json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
@@ -186,7 +180,7 @@ public class KMWebService11Util {
         try {
             json.put("sver", SVER);
             json.put("cmd", CMD_DOWNLOAD_CONTACT_PEOPLE);
-            json.put("id", account.getAccountId());
+            json.put("accountId", account.getAccountId());
             json.put("contactIds", ListStringUtil.listToString(contactIds));
             ViseLog.e(json.toString());
         } catch (JSONException e) {
@@ -204,7 +198,7 @@ public class KMWebService11Util {
         try {
             json.put("sver", SVER);
             json.put("cmd", CMD_DOWNLOAD_SHARE_INFO);
-            json.put("id", account.getAccountId());
+            json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
@@ -221,7 +215,7 @@ public class KMWebService11Util {
         try {
             json.put("sver", SVER);
             json.put("cmd", CMD_CHANGE_SHARE_INFO);
-            json.put("id", account.getAccountId());
+            json.put("accountId", account.getAccountId());
             json.put("fromId", fromId);
             json.put("status", status);
         } catch (JSONException e) {
@@ -232,15 +226,15 @@ public class KMWebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
-    public static WebResponse addShare(Account account, int toId) {
+    public static WebResponse addShareInfo(Account account, int toId) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_ADD_SHARE);
-            json.put("id", account.getAccountId());
+            json.put("cmd", CMD_ADD_SHARE_INFO);
+            json.put("accountId", account.getAccountId());
             json.put("toId", toId);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -258,7 +252,7 @@ public class KMWebService11Util {
         try {
             json = record.toJson();
             json.put("sver", SVER);
-            json.put("cmd", CMD_UPLOAD);
+            json.put("cmd", CMD_UPLOAD_RECORD);
             json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -274,7 +268,7 @@ public class KMWebService11Util {
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_SHARE);
+            json.put("cmd", CMD_SHARE_RECORD);
             json.put("accountId", account.getAccountId());
             json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
@@ -294,7 +288,7 @@ public class KMWebService11Util {
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_DOWNLOAD);
+            json.put("cmd", CMD_DOWNLOAD_RECORD);
             json.put("accountId", account.getAccountId());
             json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
@@ -314,7 +308,7 @@ public class KMWebService11Util {
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_DELETE);
+            json.put("cmd", CMD_DELETE_RECORD);
             json.put("accountId", account.getAccountId());
             json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
@@ -360,7 +354,7 @@ public class KMWebService11Util {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
-    public static WebResponse retrieveDiagnoseReport(Account account, BleEcgRecord record) {
+    public static WebResponse retrieveDiagnoseReport(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
 
