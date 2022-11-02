@@ -66,7 +66,6 @@ import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -75,8 +74,10 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  *  MainActivity: 主界面
@@ -164,24 +165,20 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             @Override
             public void onFinish(int code) {
                 if(code == RETURN_CODE_SUCCESS) {
-                    ViseLog.e("shareinfos:" + MyApplication.getShareInfoList());
-                    List<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
+                    Set<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
+                    List<Integer> cpNeedDownloadIds = new ArrayList<>();
                     for(int id : cpIds) {
                         ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
                         // cp为null意味着这个联系人以前没有下载过，那么就下载这个联系人的信息
                         // 至于cp的信息更新了，那么需要到ShareManageActivity中去更新
                         if(cp == null) {
-                            MyApplication.getAccount().downloadContactPerson(MainActivity.this, null,
-                                    id, new ICodeCallback() {
-                                        @Override
-                                        public void onFinish(int code) {
-                                            if(code == RETURN_CODE_SUCCESS) {
-                                                MyApplication.getAccount().readContactPeopleFromLocalDb();
-                                            }
-                                        }
-                                    });
+                            cpNeedDownloadIds.add(id);
                         }
                     }
+
+                    if(!cpNeedDownloadIds.isEmpty())
+                        MyApplication.getAccount().downloadContactPeople(MainActivity.this, null,
+                                cpNeedDownloadIds, null);
                 }
             }
         });
@@ -267,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                 if (appUpdateManager.needUpdate())
                     appUpdateManager.updateApp(this);
             } else {
-                Toast.makeText(MainActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
             }
         });
     }

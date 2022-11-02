@@ -12,6 +12,8 @@ import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
 
+import java.util.List;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.model
@@ -110,8 +112,8 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
                 break;
 
             case CMD_DOWNLOAD_CONTACT_PEOPLE:
-                int contactId = (Integer) params[0];
-                response = KMWebServiceUtil.downloadContactPerson(account, contactId);
+                List<Integer> contactIds = (List<Integer>) params[0];
+                response = KMWebServiceUtil.downloadContactPeople(account, contactIds);
                 break;
 
             default:

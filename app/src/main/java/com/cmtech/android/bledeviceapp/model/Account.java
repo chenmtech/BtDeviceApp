@@ -37,7 +37,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
   *
@@ -368,8 +370,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 从分享列表中提取联系人ID列表
-    public List<Integer> extractContactPeopleIdsFromShareInfos() {
-        List<Integer> cps = new ArrayList<>();
+    public Set<Integer> extractContactPeopleIdsFromShareInfos() {
+        Set<Integer> cps = new HashSet<>();
         for(ShareInfo si : shareInfos) {
             if(si.getToId() == accountId) {
                 cps.add(si.getFromId());
@@ -381,22 +383,27 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
-    public void downloadContactPerson(Context context, String showStr, int contactId, ICodeCallback callback) {
-        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PEOPLE, new Object[]{contactId}, new IWebResponseCallback() {
+    public void downloadContactPeople(Context context, String showStr, List<Integer> contactIds, ICodeCallback callback) {
+        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PEOPLE, new Object[]{contactIds}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                if (code == RETURN_CODE_SUCCESS) {
-                    JSONObject content = (JSONObject) response.getContent();
-                    try {
-                        ContactPerson contactPerson = new ContactPerson();
-                        contactPerson.fromJson(content);
-                        contactPerson.saveOrUpdate("accountId = ?",
-                                ""+contactPerson.getAccountId());
-                    } catch (JSONException ex) {
-                        ex.printStackTrace();
-                        code = RETURN_CODE_DATA_ERR;
+                JSONArray jsonArr = (JSONArray) response.getContent();
+                if(code == RETURN_CODE_SUCCESS && jsonArr != null) {
+                    for (int i = 0; i < jsonArr.length(); i++) {
+                        try {
+                            JSONObject json = (JSONObject) jsonArr.get(i);
+                            if (json == null) continue;
+                            ContactPerson contactPerson = new ContactPerson();
+                            contactPerson.fromJson(json);
+                            contactPerson.saveOrUpdate("accountId = ?",
+                                    "" + contactPerson.getAccountId());
+                            ViseLog.e(contactPerson);
+                        } catch (JSONException ex) {
+                            ex.printStackTrace();
+                        }
                     }
+                    readContactPeopleFromLocalDb();
                 }
                 if(callback != null)
                     callback.onFinish(code);

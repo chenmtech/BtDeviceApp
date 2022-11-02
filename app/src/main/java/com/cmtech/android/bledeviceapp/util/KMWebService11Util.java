@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -37,6 +38,8 @@ import okhttp3.Response;
  */
 public class KMWebService11Util {
     //-----------------------------------------------静态常量
+    private static final String SVER = "1.1";
+
     //account servlet 后缀
     private static final String ACCOUNT_SERVLET_URL = "Account?";
 
@@ -68,7 +71,7 @@ public class KMWebService11Util {
     private static final String CMD_ADD_SHARE = "addShare";
 
     // 下载一条联系人信息
-    private static final String CMD_DOWNLOAD_CONTACT_PERSON = "downloadContactPerson";
+    private static final String CMD_DOWNLOAD_CONTACT_PEOPLE = "downloadContactPeople";
 
     //---------------------这几个专用于record servlet----------------------//
     // 下载记录列表
@@ -97,12 +100,14 @@ public class KMWebService11Util {
 
     public static WebResponse downloadNewestAppUpdateInfo() {
         Map<String, String> data = new HashMap<>();
+        data.put("sver", SVER);
         data.put("cmd", CMD_DOWNLOAD);
         return processGetRequest(KMIC_URL + APP_UPDATE_INFO_SERVLET_URL, data);
     }
 
     public static WebResponse signUp(Account account) {
         Map<String, String> data = new HashMap<>();
+        data.put("sver", SVER);
         data.put("cmd", CMD_SIGNUP);
         data.put("userName", account.getUserName());
         data.put("password", MD5Utils.getMD5Code(account.getPassword()));
@@ -111,6 +116,7 @@ public class KMWebService11Util {
 
     public static WebResponse login(Account account) {
         Map<String, String> data = new HashMap<>();
+        data.put("sver", SVER);
         data.put("cmd", CMD_LOGIN);
         data.put("userName", account.getUserName());
         data.put("password", MD5Utils.getMD5Code(account.getPassword()));
@@ -119,6 +125,7 @@ public class KMWebService11Util {
 
     public static WebResponse changePassword(Account account) {
         Map<String, String> data = new HashMap<>();
+        data.put("sver", SVER);
         data.put("cmd", CMD_CHANGE_PASSWORD);
         data.put("userName", account.getUserName());
         data.put("password", MD5Utils.getMD5Code(account.getPassword()));
@@ -127,6 +134,7 @@ public class KMWebService11Util {
 
     public static WebResponse queryRecordId(int recordTypeCode, long createTime, String devAddress, String ver) {
         Map<String, String> data = new HashMap<>();
+        data.put("sver", SVER);
         data.put("accountId", String.valueOf(MyApplication.getAccountId()));
         data.put("recordTypeCode", String.valueOf(recordTypeCode));
         data.put("createTime", String.valueOf(createTime));
@@ -142,6 +150,7 @@ public class KMWebService11Util {
 
         JSONObject json = account.toJson();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_UPLOAD);
             json.put("id", account.getAccountId());
         } catch (JSONException e) {
@@ -158,6 +167,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_DOWNLOAD);
             json.put("id", account.getAccountId());
         } catch (JSONException e) {
@@ -168,20 +178,21 @@ public class KMWebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
-    public static WebResponse downloadContactPerson(Account account, int contactId) {
+    public static WebResponse downloadContactPeople(Account account, List<Integer> contactIds) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
-            json.put("cmd", CMD_DOWNLOAD_CONTACT_PERSON);
+            json.put("sver", SVER);
+            json.put("cmd", CMD_DOWNLOAD_CONTACT_PEOPLE);
             json.put("id", account.getAccountId());
-            json.put("contactId", contactId);
+            json.put("contactIds", ListStringUtil.listToString(contactIds));
+            ViseLog.e(json.toString());
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RETURN_CODE_DATA_ERR, null);
         }
-        //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
@@ -191,6 +202,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_DOWNLOAD_SHARE_INFO);
             json.put("id", account.getAccountId());
         } catch (JSONException e) {
@@ -207,6 +219,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_CHANGE_SHARE_INFO);
             json.put("id", account.getAccountId());
             json.put("fromId", fromId);
@@ -225,6 +238,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_ADD_SHARE);
             json.put("id", account.getAccountId());
             json.put("toId", toId);
@@ -243,6 +257,7 @@ public class KMWebService11Util {
         JSONObject json;
         try {
             json = record.toJson();
+            json.put("sver", SVER);
             json.put("cmd", CMD_UPLOAD);
             json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
@@ -258,6 +273,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_SHARE);
             json.put("accountId", account.getAccountId());
             json.put("recordTypeCode", record.getTypeCode());
@@ -277,6 +293,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_DOWNLOAD);
             json.put("accountId", account.getAccountId());
             json.put("recordTypeCode", record.getTypeCode());
@@ -296,6 +313,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_DELETE);
             json.put("accountId", account.getAccountId());
             json.put("recordTypeCode", record.getTypeCode());
@@ -315,6 +333,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_DOWNLOAD_RECORDS);
             json.put("accountId", account.getAccountId());
 
@@ -347,6 +366,7 @@ public class KMWebService11Util {
 
         JSONObject json = new JSONObject();
         try {
+            json.put("sver", SVER);
             json.put("cmd", CMD_RETRIEVE_DIAGNOSE_REPORT);
             json.put("accountId", account.getAccountId());
             json.put("createTime", record.getCreateTime());

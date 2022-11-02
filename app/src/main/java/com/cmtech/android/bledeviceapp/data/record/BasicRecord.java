@@ -223,7 +223,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                         }
                     }
                 }
-                callback.onFinish(code);
+                if(callback != null)
+                    callback.onFinish(code);
             }
         }).execute(record);
     }

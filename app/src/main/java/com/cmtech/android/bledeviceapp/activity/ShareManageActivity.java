@@ -23,11 +23,12 @@ import com.cmtech.android.bledeviceapp.asynctask.AccountAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 用来管理分享信息的Activity
@@ -109,21 +110,17 @@ public class ShareManageActivity extends AppCompatActivity {
             @Override
             public void onFinish(int code) {
                 if (code == RETURN_CODE_SUCCESS) {
-                    List<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
-                    for(int id : cpIds) {
-                        ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
-                        MyApplication.getAccount().downloadContactPerson(ShareManageActivity.this, null,
-                                id, new ICodeCallback() {
-                                    @Override
-                                    public void onFinish(int code) {
-                                        if(code == RETURN_CODE_SUCCESS) {
-                                            MyApplication.getAccount().readContactPeopleFromLocalDb();
-                                            updateView();
-                                        }
+                    Set<Integer> cpSet = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
+                    List<Integer> cpIds = new ArrayList<>(cpSet);
+                    MyApplication.getAccount().downloadContactPeople(ShareManageActivity.this, null,
+                            cpIds, new ICodeCallback() {
+                                @Override
+                                public void onFinish(int code) {
+                                    if(code == RETURN_CODE_SUCCESS) {
+                                        updateView();
                                     }
-                                });
-                    }
-                    updateView();
+                                }
+                            });
                 } else {
                     Toast.makeText(ShareManageActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }

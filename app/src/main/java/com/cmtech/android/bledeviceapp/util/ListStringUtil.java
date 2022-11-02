@@ -20,6 +20,7 @@ public class ListStringUtil {
         for(T ele : list) {
             builder.append(ele).append(',');
         }
+        builder.deleteCharAt(builder.length()-1);
         return builder.toString();
     }
 
