@@ -382,7 +382,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
     public void downloadContactPerson(Context context, String showStr, int contactId, ICodeCallback callback) {
-        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PERSON, new Object[]{contactId}, new IWebResponseCallback() {
+        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_CONTACT_PEOPLE, new Object[]{contactId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -509,7 +509,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        new AccountAsyncTask(context, "正在上传账户信息，请稍等...", AccountAsyncTask.CMD_UPLOAD, new IWebResponseCallback() {
+        new AccountAsyncTask(context, "正在上传账户信息，请稍等...", AccountAsyncTask.CMD_UPLOAD_ACCOUNT, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 callback.onFinish(response.getCode());
@@ -519,7 +519,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void download(Context context, String showStr, ICodeCallback callback) {
-        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD, new IWebResponseCallback() {
+        new AccountAsyncTask(context, showStr, AccountAsyncTask.CMD_DOWNLOAD_ACCOUNT, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();

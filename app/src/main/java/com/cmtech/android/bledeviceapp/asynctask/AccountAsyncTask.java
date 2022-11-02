@@ -25,15 +25,15 @@ import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
  * Version:        1.0
  */
 public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
-    public static final int CMD_UPLOAD = 1; // upload user info command
-    public static final int CMD_DOWNLOAD = 2; // download user info command
+    public static final int CMD_UPLOAD_ACCOUNT = 1; // upload user info command
+    public static final int CMD_DOWNLOAD_ACCOUNT = 2; // download user info command
     public static final int CMD_SIGNUP = 3; // sign up or login on the web
     public static final int CMD_LOGIN = 4;
     public static final int CMD_CHANGE_PASSWORD = 5;
     public static final int CMD_DOWNLOAD_SHARE_INFO = 6;
     public static final int CMD_CHANGE_SHARE_INFO = 7;
-    public static final int CMD_ADD_SHARE = 8;
-    public static final int CMD_DOWNLOAD_CONTACT_PERSON = 9;
+    public static final int CMD_ADD_SHARE_INFO = 8;
+    public static final int CMD_DOWNLOAD_CONTACT_PEOPLE = 9;
 
     private final ProgressDialog progressDialog;
     private final int cmd;
@@ -73,12 +73,12 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
         Account account = accounts[0];
         switch (cmd) {
             // UPLOAD
-            case CMD_UPLOAD:
+            case CMD_UPLOAD_ACCOUNT:
                 response = KMWebServiceUtil.uploadAccountInfo(account);
                 break;
 
             // DOWNLOAD
-            case CMD_DOWNLOAD:
+            case CMD_DOWNLOAD_ACCOUNT:
                 response = KMWebServiceUtil.downloadAccountInfo(account);
                 break;
 
@@ -104,12 +104,12 @@ public class AccountAsyncTask extends AsyncTask<Account, Void, WebResponse> {
                 response = KMWebServiceUtil.changeShareInfo(account, fromId, status);
                 break;
 
-            case CMD_ADD_SHARE:
+            case CMD_ADD_SHARE_INFO:
                 int toId = (Integer) params[0];
                 response = KMWebServiceUtil.addShare(account, toId);
                 break;
 
-            case CMD_DOWNLOAD_CONTACT_PERSON:
+            case CMD_DOWNLOAD_CONTACT_PEOPLE:
                 int contactId = (Integer) params[0];
                 response = KMWebServiceUtil.downloadContactPerson(account, contactId);
                 break;

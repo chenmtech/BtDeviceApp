@@ -137,7 +137,7 @@ public class ShareManageActivity extends AppCompatActivity {
 
     private void addShare(int id) {
         if(MyApplication.getAccountId() == id) return;
-        new AccountAsyncTask(this, "请稍等", AccountAsyncTask.CMD_ADD_SHARE,
+        new AccountAsyncTask(this, "请稍等", AccountAsyncTask.CMD_ADD_SHARE_INFO,
                 new Object[]{id}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
