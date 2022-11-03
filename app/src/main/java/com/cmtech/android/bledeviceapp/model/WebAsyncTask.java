@@ -2,7 +2,7 @@ package com.cmtech.android.bledeviceapp.model;
 
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_WEB_FAILURE;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_SHARE_INFO;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_APPLY_NEW_SHARE;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_PASSWORD;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_SHARE_INFO;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_RECORD;
@@ -178,7 +178,7 @@ public class WebAsyncTask extends AsyncTask<Object, Void, WebResponse> {
                 response = KMWebServiceUtil.changeShareInfo(account, fromId, status);
                 break;
 
-            case CMD_ADD_SHARE_INFO:
+            case CMD_APPLY_NEW_SHARE:
                 account = (Account) objects[0];
                 int toId = (Integer) params[0];
                 response = KMWebServiceUtil.addShareInfo(account, toId);

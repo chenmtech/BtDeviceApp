@@ -9,9 +9,11 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.cmtech.android.bledeviceapp.activity.ShareManageActivity;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
@@ -335,7 +337,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 获取可以分享给对方的账户ID列表
-    public List<Integer> getCanShareIdList() {
+    public List<Integer> getCanShareToIdList() {
         List<Integer> ids = new ArrayList<>();
         for(ShareInfo si : shareInfos) {
             if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
@@ -347,7 +349,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 是否可以分享给指定ID人
     public boolean canShareTo(int shareId) {
-        return getCanShareIdList().contains(shareId);
+        return getCanShareToIdList().contains(shareId);
     }
 
     public List<ContactPerson> getContactPeople() {
@@ -368,12 +370,12 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 从分享列表中提取联系人ID列表
-    public Set<Integer> extractContactPeopleIdsFromShareInfos() {
-        Set<Integer> cps = new HashSet<>();
+    public List<Integer> extractContactPeopleIdsFromShareInfos() {
+        List<Integer> cps = new ArrayList<>();
         for(ShareInfo si : shareInfos) {
-            if(si.getToId() == accountId) {
+            if(si.getToId() == accountId && !cps.contains(si.getFromId())) {
                 cps.add(si.getFromId());
-            } else if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
+            } else if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE && !cps.contains(si.getToId())) {
                 cps.add(si.getToId());
             }
         }
@@ -381,7 +383,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
-    public void downloadContactPeople(Context context, String showStr, List<Integer> contactIds, ICodeCallback callback) {
+    public void downloadContactPeopleInfos(Context context, String showStr, List<Integer> contactIds, ICodeCallback callback) {
         new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_PEOPLE, new Object[]{contactIds}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -460,6 +462,42 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 callback.onFinish(response.getCode(), response.getMsg());
+            }
+        }).execute(this);
+    }
+
+    // 申请一条新的分享
+    public void applyNewShare(Context context, int shareToId, ICodeCallback callback) {
+        if(accountId == shareToId) {
+            Toast.makeText(context, "不能分享给自己", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        for(ShareInfo si : shareInfos) {
+            if(si.getFromId() == accountId && si.getToId() == shareToId) {
+                Toast.makeText(context, "不能重复申请", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        new WebAsyncTask(context, "请稍等", CMD_APPLY_NEW_SHARE,
+                new Object[]{shareToId}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                if(callback!=null) {
+                    callback.onFinish(response.getCode(), response.getMsg());
+                }
+            }
+        }).execute(this);
+    }
+
+    // 修改一条分享信息
+    public void changeShareInfo(Context context, int fromId, int status, ICodeCallback callback) {
+        new WebAsyncTask(context, "请稍等", CMD_CHANGE_SHARE_INFO, new Object[]{fromId, status}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                if(callback!=null)
+                    callback.onFinish(response.getCode(), response.getMsg());
             }
         }).execute(this);
     }

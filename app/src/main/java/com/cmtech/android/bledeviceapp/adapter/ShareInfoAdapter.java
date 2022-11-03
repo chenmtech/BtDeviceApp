@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ShareManageActivity;
+import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.WebAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
@@ -46,22 +47,26 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View view; // 设备视图
-        TextView fromName; //
+        TextView tvFromName; //
+        TextView tvFromId;
         ImageView ivFromImage;
-        TextView toName; //
+        TextView tvToName; //
+        TextView tvToId;
         ImageView ivToImage;
-        TextView status;
+        TextView tvStatus;
         Context context;
 
         ViewHolder(Context context, View itemView) {
             super(itemView);
             this.context = context;
             view = itemView;
-            fromName = view.findViewById(R.id.tv_from_name);
+            tvFromName = view.findViewById(R.id.tv_from_name);
+            tvFromId = view.findViewById(R.id.tv_from_id);
             ivFromImage = view.findViewById(R.id.iv_from_image);
-            toName = view.findViewById(R.id.tv_to_name);
+            tvToName = view.findViewById(R.id.tv_to_name);
+            tvToId = view.findViewById(R.id.tv_to_id);
             ivToImage = view.findViewById(R.id.iv_to_image);
-            status = view.findViewById(R.id.tv_status);
+            tvStatus = view.findViewById(R.id.tv_status);
         }
     }
 
@@ -84,15 +89,21 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         int myId = MyApplication.getAccountId();
         int fromId = si.getFromId();
         int toId = si.getToId();
+
+        holder.tvFromId.setText("ID:"+fromId);
         Pair<String,String> rtn = getNameAndIcon(fromId, myId);
-        holder.fromName.setText(rtn.first);
+        if(TextUtils.isEmpty(rtn.first))
+            holder.tvFromName.setVisibility(View.GONE);
+        else {
+            holder.tvFromName.setVisibility(View.VISIBLE);
+            holder.tvFromName.setText(rtn.first);
+        }
         if(TextUtils.isEmpty(rtn.second)) {
             holder.ivFromImage.setImageResource(R.mipmap.ic_user_32px);
         } else {
             Bitmap bitmap = MyBitmapUtil.showToDp(rtn.second,  32);
             holder.ivFromImage.setImageBitmap(bitmap);
         }
-
         holder.ivFromImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,15 +111,20 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
             }
         });
 
+        holder.tvToId.setText("ID:"+toId);
         rtn = getNameAndIcon(toId, myId);
-        holder.toName.setText(rtn.first);
+        if(TextUtils.isEmpty(rtn.first))
+            holder.tvToName.setVisibility(View.GONE);
+        else {
+            holder.tvToName.setVisibility(View.VISIBLE);
+            holder.tvToName.setText(rtn.first);
+        }
         if(TextUtils.isEmpty(rtn.second)) {
             holder.ivToImage.setImageResource(R.mipmap.ic_user_32px);
         } else {
             Bitmap bitmap = MyBitmapUtil.showToDp(rtn.second,  32);
             holder.ivToImage.setImageBitmap(bitmap);
         }
-
         holder.ivToImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -129,7 +145,7 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
                 statusStr = "已同意";
                 break;
         }
-        holder.status.setText(statusStr);
+        holder.tvStatus.setText(statusStr);
 
         // 长按
         if(toId == MyApplication.getAccountId()) {
@@ -174,45 +190,45 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         }
     }
 
+    @Override
+    public int getItemCount() {
+        return shareInfos.size();
+    }
+
+    // 显示个人简介
     private void showPersonNoteInfo(Context context, int id) {
         ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
         if(cp != null && !TextUtils.isEmpty(cp.getNote().trim()))
             Toast.makeText(context, cp.getNote(), Toast.LENGTH_LONG).show();
     }
 
+    // 获取个人昵称和头像路径
     private Pair<String, String> getNameAndIcon(int id, int myId) {
         String nameStr = "";
         String icon = "";
         if(id == myId) {
-            nameStr = MyApplication.getAccount().getNickNameOrUserIdIfNull();
+            nameStr = MyApplication.getAccount().getNickName();
             icon = MyApplication.getAccount().getIcon();
         } else {
             ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
             if(cp != null) {
                 nameStr = cp.getNickName();
                 icon = cp.getIcon();
-            } else {
-                nameStr = "ID："+ id;
-                icon = "";
             }
         }
         return new Pair<>(nameStr, icon);
     }
 
-    @Override
-    public int getItemCount() {
-        return shareInfos.size();
-    }
-
+    // 修改分享信息
     private void changeShareInfo(Context context, int fromId, int status) {
-        new WebAsyncTask(context, "请稍等", CMD_CHANGE_SHARE_INFO, new Object[]{fromId, status}, new IWebResponseCallback() {
+        MyApplication.getAccount().changeShareInfo(context, fromId, status, new ICodeCallback() {
             @Override
-            public void onFinish(WebResponse response) {
-                Toast.makeText(context, response.getMsg(), Toast.LENGTH_SHORT).show();
-                if (response.getCode() == RCODE_SUCCESS) {
+            public void onFinish(int code, String msg) {
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+                if (code == RCODE_SUCCESS) {
                     ((ShareManageActivity)context).updateShareInfoList();
                 }
             }
-        }).execute(MyApplication.getAccount());
+        });
     }
 }

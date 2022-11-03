@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             @Override
             public void onFinish(int code, String msg) {
                 if(code == RCODE_SUCCESS) {
-                    Set<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
+                    List<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
                     List<Integer> cpNeedDownloadIds = new ArrayList<>();
                     for(int id : cpIds) {
                         ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                     }
 
                     if(!cpNeedDownloadIds.isEmpty())
-                        MyApplication.getAccount().downloadContactPeople(MainActivity.this, null,
+                        MyApplication.getAccount().downloadContactPeopleInfos(MainActivity.this, null,
                                 cpNeedDownloadIds, null);
                 }
             }

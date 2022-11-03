@@ -33,6 +33,15 @@
                 android:textSize="@dimen/smallest_font"
                 android:textColor="@color/secondary_text"
                 android:maxLength="12"/>
+
+            <TextView
+                android:id="@+id/tv_from_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/anonymous"
+                android:textSize="@dimen/smallest_font"
+                android:textColor="@color/secondary_text"
+                android:maxLength="12"/>
         </LinearLayout>
 
         <TextView
@@ -57,6 +66,15 @@
 
             <TextView
                 android:id="@+id/tv_to_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/anonymous"
+                android:textSize="@dimen/smallest_font"
+                android:textColor="@color/secondary_text"
+                android:maxLength="12"/>
+
+            <TextView
+                android:id="@+id/tv_to_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/anonymous"

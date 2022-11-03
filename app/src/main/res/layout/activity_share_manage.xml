@@ -36,14 +36,14 @@
             android:text="申请分享给："/>
 
         <EditText
-            android:id="@+id/et_share_id"
+            android:id="@+id/et_share_to_id"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="请输入对方ID号"/>
 
         <Button
-            android:id="@+id/btn_add_share"
+            android:id="@+id/btn_apply_share"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/button_circle_blue_style"

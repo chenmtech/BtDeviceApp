@@ -2,7 +2,7 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_SHARE_INFO;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_APPLY_NEW_SHARE;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -34,10 +34,10 @@ import java.util.Set;
  * 用来管理分享信息的Activity
  */
 public class ShareManageActivity extends AppCompatActivity {
-    private ShareInfoAdapter shareInfoAdapter;
+    private ShareInfoAdapter siAdapter;
     private RecyclerView rvShareInfo;
-    private EditText etShareId;
-    private Button btnAddShare;
+    private EditText etShareToId;
+    private Button btnApplyShare;
 
 
     @Override
@@ -53,23 +53,25 @@ public class ShareManageActivity extends AppCompatActivity {
         rvShareInfo = findViewById(R.id.rv_share_info);
         rvShareInfo.setLayoutManager(new LinearLayoutManager(this));
         rvShareInfo.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        shareInfoAdapter = new ShareInfoAdapter(MyApplication.getShareInfoList());
-        rvShareInfo.setAdapter(shareInfoAdapter);
+        siAdapter = new ShareInfoAdapter(MyApplication.getShareInfoList());
+        rvShareInfo.setAdapter(siAdapter);
 
-        etShareId = findViewById(R.id.et_share_id);
+        etShareToId = findViewById(R.id.et_share_to_id);
 
-        btnAddShare = findViewById(R.id.btn_add_share);
-        btnAddShare.setOnClickListener(new View.OnClickListener() {
+        btnApplyShare = findViewById(R.id.btn_apply_share);
+        btnApplyShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String idStr = etShareId.getText().toString();
+                String idStr = etShareToId.getText().toString();
                 int id = INVALID_ID;
                 try{
                     id = Integer.parseInt(idStr);
                 } catch (Exception ignored) {
                 }
                 if(id != INVALID_ID) {
-                    addShareInfo(id);
+                    applyNewShare(id);
+                } else {
+                    Toast.makeText(ShareManageActivity.this, "无效ID", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -105,14 +107,13 @@ public class ShareManageActivity extends AppCompatActivity {
 
     // 更新分享信息列表
     public void updateShareInfoList() {
-        // 从服务器下载满足条件的记录保存到本地数据库，之后再从本地数据库中读取满足条件的记录
+        // 从服务器下载分享信息保存到本地数据库，之后再从分享信息中下载联系人信息
         MyApplication.getAccount().downloadShareInfos(this, "更新中，请稍后...", new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 if (code == RCODE_SUCCESS) {
-                    Set<Integer> cpSet = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
-                    List<Integer> cpIds = new ArrayList<>(cpSet);
-                    MyApplication.getAccount().downloadContactPeople(ShareManageActivity.this, null,
+                    List<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
+                    MyApplication.getAccount().downloadContactPeopleInfos(ShareManageActivity.this, null,
                             cpIds, new ICodeCallback() {
                                 @Override
                                 public void onFinish(int code, String msg) {
@@ -131,20 +132,18 @@ public class ShareManageActivity extends AppCompatActivity {
     }
 
     private void updateView() {
-        shareInfoAdapter.notifyDataSetChanged();
+        siAdapter.notifyDataSetChanged();
     }
 
-    private void addShareInfo(int id) {
-        if(MyApplication.getAccountId() == id) return;
-        new WebAsyncTask(this, "请稍等", CMD_ADD_SHARE_INFO,
-                new Object[]{id}, new IWebResponseCallback() {
+    private void applyNewShare(int id) {
+        MyApplication.getAccount().applyNewShare(this, id, new ICodeCallback() {
             @Override
-            public void onFinish(WebResponse response) {
-                Toast.makeText(ShareManageActivity.this, response.getMsg(), Toast.LENGTH_SHORT).show();
-                if(response.getCode() == RCODE_SUCCESS) {
+            public void onFinish(int code, String msg) {
+                Toast.makeText(ShareManageActivity.this, msg, Toast.LENGTH_SHORT).show();
+                if(code==RCODE_SUCCESS) {
                     updateShareInfoList();
                 }
             }
-        }).execute(MyApplication.getAccount());
+        });
     }
 }

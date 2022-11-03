@@ -79,8 +79,8 @@ public class KMWebService11Util {
     public static final int CMD_DOWNLOAD_SHARE_INFO = 13;
     // 修改一条账户分享信息
     public static final int CMD_CHANGE_SHARE_INFO = 14;
-    // 添加一条账户分享信息
-    public static final int CMD_ADD_SHARE_INFO = 15;
+    // 申请一条新的账户分享
+    public static final int CMD_APPLY_NEW_SHARE = 15;
     // 下载账户联系人
     public static final int CMD_DOWNLOAD_CONTACT_PEOPLE = 16;
     // 下载APP更新信息
@@ -233,7 +233,7 @@ public class KMWebService11Util {
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_ADD_SHARE_INFO);
+            json.put("cmd", CMD_APPLY_NEW_SHARE);
             json.put("accountId", account.getAccountId());
             json.put("toId", toId);
         } catch (JSONException e) {
