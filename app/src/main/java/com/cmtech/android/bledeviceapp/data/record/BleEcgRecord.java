@@ -1,22 +1,17 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.ALL_RHYTHM_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ALL_ARRHYTHM_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ARRHYTHM_LABEL_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.NOISE_LABEL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.NSR_LABEL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.OTHER_LABEL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
-import com.cmtech.android.bledeviceapp.data.report.EcgReport;
+
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
@@ -24,9 +19,11 @@ import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.cmtech.android.bledeviceapp.util.UploadDownloadFileUtil;
 import com.vise.utils.file.FileUtil;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.annotation.Column;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -142,6 +139,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         this.interrupt = interrupt;
     }
 
+    public List<Integer> getRhythmItemLabel() {
+        return rhythmItemLabel;
+    }
+
     /**
      * 记录一个ECG信号值，主要是将其保存到信号文件中，另外要处理设备断开操作
      * @param ecg 要记录的一个ECG信号数据
@@ -166,11 +167,13 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     /**
-     * 添加一个心律异常检测条目
+     * 添加一条心律异常检测项
      * @param item 一条检测项
      */
     public void addRhythmItem(EcgRhythmDetectItem item) {
         int label = item.getLabel();
+        if(label == INVALID_LABEL)
+            return;
 
         // 如果前一个标记和当前的条目标记一样，就放弃添加
         if(!rhythmItemLabel.isEmpty() && rhythmItemLabel.get(rhythmItemLabel.size()-1) == label) {
@@ -274,14 +277,14 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     /**
-     * 寻找记录中信号文件当前数据位置之前的具有指定诊断标签的信号数据段起始位置
+     * 从信号文件当前数据位置向前寻找具有指定诊断标签项的数据段起始位置
      * 当label==INVALID_LABEL时，则寻找任意标签；
      * 当label==ALL_RHYTHM_LABEL时，则寻找任意异常标签；
      * 当label为其他值时，则寻找指定标签。
      * @param label 要寻找的信号诊断标签。
      * @return 前一个具有指定诊断标签的信号数据段起始位置
      */
-    public int findPrePositionFromCurrentPosition(int label) {
+    public int getPreItemPositionFromCurrentPosition(int label) {
         if(rhythmItemLabel.isEmpty()) return INVALID_POS;
         // 先得到当前位置的采集时刻
         long curTime = getTimeAtCurrentPosition();
@@ -301,8 +304,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         for (int j = i - 2; j >= 0; j--) {
             boolean found;
             // 标签既不是NSR，也不是NOISE
-            if(label == ALL_RHYTHM_LABEL)
-                found = (rhythmItemLabel.get(j) != NSR_LABEL && rhythmItemLabel.get(j) != NOISE_LABEL);
+            if(label == ALL_ARRHYTHM_LABEL)
+                found = ARRHYTHM_LABEL_MAP.containsKey(rhythmItemLabel.get(j));
             else
                 found = (rhythmItemLabel.get(j) == label);
 
@@ -314,14 +317,14 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     /**
-     * 寻找记录中信号文件当前数据位置之后的具有指定诊断标签的信号数据段起始位置
+     * 从信号文件当前数据位置向后寻找具有指定诊断标签项的数据段起始位置
      * 当label==INVALID_LABEL时，则寻找任意标签；
      * 当label==ALL_RHYTHM_LABEL时，则寻找任意异常标签；
      * 当label为其他值时，则寻找指定标签。
      * @param label 要寻找的信号诊断标签。
      * @return 后一个具有指定诊断标签的信号数据段起始位置
      */
-    public int getNextPositionFromCurrentPosition(int label) {
+    public int getNextItemPositionFromCurrentPosition(int label) {
         if(rhythmItemLabel.isEmpty()) return INVALID_POS;
 
         long curTime = getTimeAtCurrentPosition();
@@ -340,8 +343,8 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         for (int j = i; j < rhythmItemLabel.size(); j++) {
             boolean found;
             // 标签既不是NSR，也不是NOISE
-            if(label == ALL_RHYTHM_LABEL)
-                found = (rhythmItemLabel.get(j) != NSR_LABEL && rhythmItemLabel.get(j) != NOISE_LABEL);
+            if(label == ALL_ARRHYTHM_LABEL)
+                found = ARRHYTHM_LABEL_MAP.containsKey(rhythmItemLabel.get(j));
             else
                 found = (rhythmItemLabel.get(j) == label);
 
@@ -494,56 +497,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         }
     }
 
-    @Override
-    public void setReport(EcgReport report) {
-        report.setReportContent(createReportContent());
-        super.setReport(report);
-    }
-
     //-------------------------------------------------私有方法
-    /**
-     * 创建诊断报告内容，返回字符串
-     * @return 诊断报告的内容字符串
-     */
-    private String createReportContent() {
-        String strHrResult;
-
-        // 先生成心率的诊断内容
-        if(aveHr == INVALID_HR) {
-            strHrResult = "";
-        } else {
-            strHrResult = "平均心率" + aveHr + "次/分钟,";
-            if(aveHr > HR_TOO_HIGH_LIMIT)
-                strHrResult += "过速;";
-            else if(aveHr < HR_TOO_LOW_LIMIT)
-                strHrResult += "过缓;";
-            else
-                strHrResult += "正常;";
-        }
-
-        // 再生成心律异常的内容
-        int af_times = 0;
-        int other_times = 0;
-        for(int ll : rhythmItemLabel) {
-            if(ll == AF_LABEL)
-                af_times++;
-            else if(ll == OTHER_LABEL) {
-                other_times++;
-            }
-        }
-
-        String strRhythmResult = "";
-        if(af_times == 0 && other_times == 0) {
-            strRhythmResult = "未发现心律异常;";
-        } else {
-            if(af_times != 0) {
-                strRhythmResult += RHYTHM_LABEL_MAP.get(AF_LABEL)+af_times+"次;";
-            }
-            if(other_times != 0) {
-                strRhythmResult += RHYTHM_LABEL_MAP.get(OTHER_LABEL)+other_times+"次;";
-            }
-        }
-        return strHrResult+strRhythmResult;
-    }
 
 }

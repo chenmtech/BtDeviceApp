@@ -3,13 +3,10 @@ package com.cmtech.android.bledevice.hrm.model;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.NOISE_LABEL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.NSR_LABEL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.OTHER_LABEL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
@@ -28,9 +25,9 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.ThreadUtil;
@@ -44,8 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import ai.onnxruntime.OrtEnvironment;
@@ -190,7 +185,7 @@ public class HrmDevice extends AbstractDevice {
     private OnHrmListener listener;
 
     // 心律异常实时检测器
-    private EcgRealTimeRhythmDetector rhythmDetector;
+    private IEcgRealTimeRhythmDetector rhythmDetector;
 
     // 当设备断开后重新连接，需要插入的信号零值个数
     private int numZeroForReconnect = 2*DEFAULT_SAMPLE_RATE;
@@ -351,11 +346,9 @@ public class HrmDevice extends AbstractDevice {
 
             if(ecgRecord != null) {
                 int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
-                ecgRecord.setRecordSecond(second);
 
-                EcgReport report = new EcgReport("1.0", "康明智能",
-                        new Date().getTime(), "", EcgReport.DONE);
-                ecgRecord.setReport(report);
+                ecgRecord.setRecordSecond(second);
+                ecgRecord.setReport(rhythmDetector.createReport(ecgRecord));
                 ecgRecord.closeSigFile();
                 ecgRecord.save();
                 recordingRecord = null;
@@ -843,13 +836,7 @@ public class HrmDevice extends AbstractDevice {
                 // 启动心律异常检测器
                 if(rhythmDetector == null) {
                     try {
-                        Map<Integer, Integer> modelLabelMap = new HashMap<>() {{
-                            put(0, NSR_LABEL);
-                            put(1, AF_LABEL);
-                            put(2, OTHER_LABEL);
-                            put(3, NOISE_LABEL);
-                        }};
-                        rhythmDetector = new EcgRealTimeRhythmDetector(RHYTHM_DETECT_MODEL, modelLabelMap, item -> updateRhythmDetectItem(item));
+                        rhythmDetector = new EcgRealTimeRhythmDetector(RHYTHM_DETECT_MODEL, item -> updateRhythmDetectItem(item));
                     } catch (OrtException e) {
                         rhythmDetector = null;
                         ThreadUtil.runOnUiThread(new Runnable() {

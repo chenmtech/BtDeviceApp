@@ -78,17 +78,4 @@ public class AppConstant {
     public static final String KMIC_URL = "http://kmic.xyz/BtDeviceWebApp/";
 
     public static final int INVALID_POS = -1;
-    public static final int INVALID_LABEL = -1;
-    public static final int NSR_LABEL = 0;
-    public static final int NOISE_LABEL = 1;
-    public static final int AF_LABEL = 2;
-    public static final int OTHER_LABEL = 3;
-    public static final int ALL_RHYTHM_LABEL = 100;
-
-    public static final Map<Integer, String> RHYTHM_LABEL_MAP = new HashMap<>(){{
-        put(NSR_LABEL, "窦性心律");
-        put(NOISE_LABEL, "噪声");
-        put(AF_LABEL, "房颤");
-        put(OTHER_LABEL, "其他异常");
-    }};
 }

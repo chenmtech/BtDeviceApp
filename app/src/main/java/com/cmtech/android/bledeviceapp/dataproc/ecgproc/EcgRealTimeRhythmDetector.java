@@ -1,10 +1,21 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AF_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.NOISE_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.NSR_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.OTHER_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_LABEL_MAP;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.util.Pair;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
+import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.preproc.ResampleFrom250To300;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
@@ -27,12 +38,16 @@ import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
 
 /**
- * 心电信号中心律异常的实时检测器
+ * 心电信号心律异常的实时检测器
  * 该检测器默认输入心电信号的采样率为250Hz
- * 心电信号会先重采样为300Hz，因为默认机器学习模型训练集的信号都是300Hz的
+ * 心电信号会先重采样为300Hz，再进行心律异常检测。
+ * 因为默认机器学习模型训练时用到的信号数据集采样率都是300Hz的
  */
-public class EcgRealTimeRhythmDetector {
+public class EcgRealTimeRhythmDetector implements IEcgRealTimeRhythmDetector{
     //--------------------------------------------------------------常量
+    private static final String VER = "1.0";
+
+    private static final String PROVIDER = "康明智联";
     // 信号采样率
     private static final int SAMPLE_RATE = 300;
 
@@ -48,12 +63,6 @@ public class EcgRealTimeRhythmDetector {
     // 检测间隔对应的缓存长度
     private static final int DETECT_INTERVAL_BUFFER_START = DETECT_INTERVAL_TIME_LENGTH*SAMPLE_RATE;
 
-    //------------------------------------------------------------内部接口
-    // 心律异常检测结果回调接口
-    public interface IEcgRhythmDetectCallback {
-        // 心律异常信息更新
-        void onRhythmInfoUpdated(EcgRhythmDetectItem item);
-    }
 
     //------------------------------------------------------------实例变量
 
@@ -70,7 +79,12 @@ public class EcgRealTimeRhythmDetector {
     private final OrtSession rhythmDetectModel;
 
     // 检测模型输出标签与全局标签的映射关系
-    private final Map<Integer, Integer> labelMap;
+    private final Map<Integer, Integer> labelMap = new HashMap<>() {{
+        put(0, NSR_LABEL);
+        put(1, AF_LABEL);
+        put(2, OTHER_LABEL);
+        put(3, NOISE_LABEL);
+    }};
 
     // 数据处理多线程服务
     private ExecutorService procService;
@@ -83,12 +97,10 @@ public class EcgRealTimeRhythmDetector {
     /**
      * 构造一个心电信号的心律异常检测器，并启动检测
      * @param modelId 采用的机器学习模型资源文件ID
-     * @param modelLabelMap 模型输出的心律异常结果标签与全局标签之间的映射关系
      * @param callback 检测结果回调
      */
-    public EcgRealTimeRhythmDetector(int modelId, Map<Integer, Integer> modelLabelMap, IEcgRhythmDetectCallback callback) throws OrtException {
+    public EcgRealTimeRhythmDetector(int modelId, IEcgRhythmDetectCallback callback) throws OrtException {
         this.callback = callback;
-        this.labelMap = modelLabelMap;
         resample = new ResampleFrom250To300();
         rhythmDetectModel = createOrtSession(modelId);
         startDetect();
@@ -98,6 +110,7 @@ public class EcgRealTimeRhythmDetector {
     /**
      * 重置检测器
      */
+    @Override
     public void reset() {
         stopDetect();
         resample.reset();
@@ -110,6 +123,7 @@ public class EcgRealTimeRhythmDetector {
      * 处理一个心电信号
      * @param ecgSignal 心电信号值
      */
+    @Override
     public void process(short ecgSignal) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
@@ -135,16 +149,18 @@ public class EcgRealTimeRhythmDetector {
                 int label = detectRhythm(sigBuf);
                 // 通过标签映射，获取应用定义的异常标签值
                 label = labelMap.get(label);
-                // 生成检测条目
-                long startTime;
-                if(curTime == INVALID_TIME)
-                    startTime = new Date().getTime() - ECG_SIGNAL_TIME_LENGTH*1000;
-                else
-                    startTime = curTime - ECG_SIGNAL_TIME_LENGTH*1000;
-                EcgRhythmDetectItem item = new EcgRhythmDetectItem(startTime, label);
-                // 用回调处理检测条目
-                if(callback != null)
-                    callback.onRhythmInfoUpdated(item);
+                if(label != INVALID_LABEL) {
+                    // 生成检测条目
+                    long startTime;
+                    if (curTime == INVALID_TIME)
+                        startTime = new Date().getTime() - ECG_SIGNAL_TIME_LENGTH * 1000;
+                    else
+                        startTime = curTime - ECG_SIGNAL_TIME_LENGTH * 1000;
+                    EcgRhythmDetectItem item = new EcgRhythmDetectItem(startTime, label);
+                    // 用回调处理检测条目
+                    if (callback != null)
+                        callback.onRhythmInfoUpdated(item);
+                }
                 // 更新信号缓存和位置
                 System.arraycopy(sigBuf, DETECT_INTERVAL_BUFFER_START, sigBuf, 0,
                         SIGNAL_BUFFER_LENGTH-DETECT_INTERVAL_BUFFER_START);
@@ -159,6 +175,7 @@ public class EcgRealTimeRhythmDetector {
     /**
      * 关闭检测器。一旦关闭，不能调用任何方法。
      */
+    @Override
     public void close() {
         stopDetect();
 
@@ -170,8 +187,60 @@ public class EcgRealTimeRhythmDetector {
         }
     }
 
+    /**
+     * 创建诊断报告
+     * @return 诊断报告
+     */
+    @Override
+    public EcgReport createReport(BleEcgRecord record) {
+        return new EcgReport(VER, PROVIDER,
+                new Date().getTime(), createReportContent(record), EcgReport.DONE);
+    }
 
-    //-----------------------------------------------私有方法
+    private String createReportContent(BleEcgRecord record) {
+        int aveHr = record.getAveHr();
+        List<Integer> rhythmItemLabel = record.getRhythmItemLabel();
+
+        String strHrResult;
+        // 先生成心率的诊断内容
+        if(aveHr == INVALID_HR) {
+            strHrResult = "";
+        } else {
+            if(aveHr > HR_TOO_HIGH_LIMIT)
+                strHrResult = "过速";
+            else if(aveHr < HR_TOO_LOW_LIMIT)
+                strHrResult = "过缓";
+            else
+                strHrResult = "正常";
+            strHrResult = "平均心率" + strHrResult + ":" + aveHr + "次/分钟;";
+        }
+
+        // 再生成心律异常的内容
+        int af_times = 0;
+        int other_times = 0;
+        for(int ll : rhythmItemLabel) {
+            if(ll == AF_LABEL)
+                af_times++;
+            else if(ll == OTHER_LABEL) {
+                other_times++;
+            }
+        }
+
+        String strRhythmResult = "";
+        if(af_times == 0 && other_times == 0) {
+            strRhythmResult = "未发现心律异常;";
+        } else {
+            if(af_times != 0) {
+                strRhythmResult += RHYTHM_LABEL_MAP.get(AF_LABEL)+af_times+"次;";
+            }
+            if(other_times != 0) {
+                strRhythmResult += RHYTHM_LABEL_MAP.get(OTHER_LABEL)+other_times+"次;";
+            }
+        }
+        return strHrResult+strRhythmResult;
+    }
+
+//-----------------------------------------------私有方法
     /**
      * 创建一个ORT模型的会话，该模型用来实现心律异常检测
      * @param modelId 模型资源ID

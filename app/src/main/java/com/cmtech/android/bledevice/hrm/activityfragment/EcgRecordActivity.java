@@ -1,11 +1,11 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
-import static com.cmtech.android.bledeviceapp.global.AppConstant.ALL_RHYTHM_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ALL_ARRHYTHM_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.content.Intent;
@@ -209,7 +209,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.findPrePositionFromCurrentPosition(ALL_RHYTHM_LABEL);
+                int pos = ecgRecord.getPreItemPositionFromCurrentPosition(ALL_ARRHYTHM_LABEL);
                 if(pos != INVALID_POS)
                     ecgView.showAt(pos);
                 else
@@ -224,7 +224,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getNextPositionFromCurrentPosition(ALL_RHYTHM_LABEL);
+                int pos = ecgRecord.getNextItemPositionFromCurrentPosition(ALL_ARRHYTHM_LABEL);
                 if(pos != INVALID_POS)
                     ecgView.showAt(pos);
                 else
