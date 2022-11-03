@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_SHARE_INFO;
 
 import android.os.Bundle;
@@ -20,12 +20,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ShareInfoAdapter;
-import com.cmtech.android.bledeviceapp.model.WebAsyncTask;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
+import com.cmtech.android.bledeviceapp.model.WebAsyncTask;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +69,7 @@ public class ShareManageActivity extends AppCompatActivity {
                 } catch (Exception ignored) {
                 }
                 if(id != INVALID_ID) {
-                    addShare(id);
+                    addShareInfo(id);
                 }
             }
         });
@@ -109,21 +108,23 @@ public class ShareManageActivity extends AppCompatActivity {
         // 从服务器下载满足条件的记录保存到本地数据库，之后再从本地数据库中读取满足条件的记录
         MyApplication.getAccount().downloadShareInfos(this, "更新中，请稍后...", new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                if (code == RETURN_CODE_SUCCESS) {
+            public void onFinish(int code, String msg) {
+                if (code == RCODE_SUCCESS) {
                     Set<Integer> cpSet = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
                     List<Integer> cpIds = new ArrayList<>(cpSet);
                     MyApplication.getAccount().downloadContactPeople(ShareManageActivity.this, null,
                             cpIds, new ICodeCallback() {
                                 @Override
-                                public void onFinish(int code) {
-                                    if(code == RETURN_CODE_SUCCESS) {
+                                public void onFinish(int code, String msg) {
+                                    if(code == RCODE_SUCCESS) {
                                         updateView();
+                                    } else {
+                                        Toast.makeText(ShareManageActivity.this, msg, Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
                 } else {
-                    Toast.makeText(ShareManageActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ShareManageActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -133,18 +134,15 @@ public class ShareManageActivity extends AppCompatActivity {
         shareInfoAdapter.notifyDataSetChanged();
     }
 
-    private void addShare(int id) {
+    private void addShareInfo(int id) {
         if(MyApplication.getAccountId() == id) return;
         new WebAsyncTask(this, "请稍等", CMD_ADD_SHARE_INFO,
                 new Object[]{id}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                if(code == RETURN_CODE_SUCCESS) {
+                Toast.makeText(ShareManageActivity.this, response.getMsg(), Toast.LENGTH_SHORT).show();
+                if(response.getCode() == RCODE_SUCCESS) {
                     updateShareInfoList();
-                    Toast.makeText(ShareManageActivity.this, "已申请", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(ShareManageActivity.this, "申请无效", Toast.LENGTH_SHORT).show();
                 }
             }
         }).execute(MyApplication.getAccount());

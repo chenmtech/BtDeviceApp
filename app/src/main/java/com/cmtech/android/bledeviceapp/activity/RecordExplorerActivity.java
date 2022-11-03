@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -33,7 +33,6 @@ import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.util.KeyBoardUtil;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.cmtech.android.bledeviceapp.view.layout.RecordSearchLayout;
 
 import org.litepal.LitePal;
@@ -249,7 +248,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     record.delete(RecordExplorerActivity.this, new ICodeCallback() {
                         @Override
-                        public void onFinish(int code) {
+                        public void onFinish(int code, String msg) {
                             if (recordList.remove(record)) {
                                 recordAdapter.unselected();
                                 updateView();
@@ -276,12 +275,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
         recordList.set(index, record);
         record.upload(this, new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                if (code == RETURN_CODE_SUCCESS) {
-                    Toast.makeText(RecordExplorerActivity.this, "记录已上传", Toast.LENGTH_SHORT).show();
+            public void onFinish(int code, String msg) {
+                Toast.makeText(RecordExplorerActivity.this, msg, Toast.LENGTH_SHORT).show();
+                if (code == RCODE_SUCCESS) {
                     updateView();
-                } else {
-                    Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -312,9 +309,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
         BasicRecord.downloadRecords(this, recordType, MyApplication.getAccountId(),
                 DEFAULT_DOWNLOAD_RECORD_NUM_PER_TIME, filterStr, filterTime, new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                if(code != RETURN_CODE_SUCCESS) {
-                    Toast.makeText(RecordExplorerActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+            public void onFinish(int code, String msg) {
+                if(code != RCODE_SUCCESS) {
+                    Toast.makeText(RecordExplorerActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
 
                 // 从本地读取记录

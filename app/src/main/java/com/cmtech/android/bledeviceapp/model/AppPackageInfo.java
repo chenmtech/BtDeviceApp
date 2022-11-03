@@ -93,23 +93,24 @@ public class AppPackageInfo implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void download(Context context, String showStr, ICodeCallback callback) {
-        new WebAsyncTask(context, "正在下载安装包，请稍后...", CMD_DOWNLOAD_APP_INFO, new IWebResponseCallback() {
+        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_APP_INFO, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                if (code == RETURN_CODE_SUCCESS) {
+                String msg = response.getMsg();
+                if (code == RCODE_SUCCESS) {
                     JSONObject json = (JSONObject) response.getContent();
                     if (json != null) {
                         try {
                             fromJson(json);
                         } catch (JSONException e) {
-                            e.printStackTrace();
-                            code = RETURN_CODE_DATA_ERR;
+                            code = RCODE_DATA_ERR;
+                            msg = "数据错误";
                         }
                     }
                 }
                 if(callback != null)
-                    callback.onFinish(code);
+                    callback.onFinish(code, msg);
             }
         }).execute(this);
     }

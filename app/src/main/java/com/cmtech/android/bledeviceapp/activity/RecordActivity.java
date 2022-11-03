@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,7 +15,6 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.view.layout.RecordIntroductionLayout;
 import com.cmtech.android.bledeviceapp.view.layout.RecordNoteLayout;
-import com.vise.log.ViseLog;
 
 public abstract class RecordActivity extends AppCompatActivity {
     protected BasicRecord record; // record
@@ -45,11 +44,7 @@ public abstract class RecordActivity extends AppCompatActivity {
         record.upload(this, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
-                if (code == RETURN_CODE_SUCCESS) {
-                    Toast.makeText(RecordActivity.this, "记录已上传", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(RecordActivity.this, msg, Toast.LENGTH_SHORT).show();
-                }
+                Toast.makeText(RecordActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -78,7 +73,6 @@ public abstract class RecordActivity extends AppCompatActivity {
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
                 int contactPersonId = data.getIntExtra("contactPersonId", INVALID_ID);
-                ViseLog.e("cp id:" + contactPersonId);
                 if(contactPersonId != INVALID_ID)
                     shareTo(contactPersonId);
             }
@@ -90,11 +84,7 @@ public abstract class RecordActivity extends AppCompatActivity {
             record.share(this, toId, new ICodeCallback() {
                 @Override
                 public void onFinish(int code, String msg) {
-                    if (code == RETURN_CODE_SUCCESS) {
-                        Toast.makeText(RecordActivity.this, "记录已分享", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(RecordActivity.this, msg, Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(RecordActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
@@ -108,11 +98,11 @@ public abstract class RecordActivity extends AppCompatActivity {
     public void downloadRecord() {
         String reportVer = record.getReportVer();
         record.download(this, "下载记录中，请稍等。", (code, msg) -> {
-            if (code == RETURN_CODE_SUCCESS) {
+            if (code == RCODE_SUCCESS) {
                 if (record.getReportVer().compareTo(reportVer) > 0) {
                     Toast.makeText(this, "诊断报告已更新。", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, "记录已下载。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                 }
                 initUI();
             } else {

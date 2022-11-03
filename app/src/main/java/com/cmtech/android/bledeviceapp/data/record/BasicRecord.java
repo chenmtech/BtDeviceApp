@@ -201,8 +201,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = null;
-                if(code == RETURN_CODE_SUCCESS) {
+                String msg = response.getMsg();
+                if(code == RCODE_SUCCESS) {
                     JSONArray jsonArr = (JSONArray) response.getContent();
                     if(jsonArr != null) {
                         for (int i = 0; i < jsonArr.length(); i++) {
@@ -225,8 +225,6 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             }
                         }
                     }
-                } else {
-                    msg = (String) response.getContent();
                 }
                 if(callback != null)
                     callback.onFinish(code, msg);
@@ -502,7 +500,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = (String)response.getContent();
+                String msg = response.getMsg();
                 if(callback != null)
                     callback.onFinish(code, msg);
             }
@@ -520,12 +518,10 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = null;
-                if(code == RETURN_CODE_SUCCESS) {
+                String msg = response.getMsg();
+                if(code == RCODE_SUCCESS) {
                     setNeedUpload(false);
                     save();
-                } else {
-                    msg = (String) response.getContent();
                 }
                 if(callback != null)
                     callback.onFinish(code, msg);
@@ -544,8 +540,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = null;
-                if (code == RETURN_CODE_SUCCESS) {
+                String msg = response.getMsg();
+                if (code == RCODE_SUCCESS) {
                     JSONObject content = (JSONObject) response.getContent();
                     if(content != null) {
                         try {
@@ -553,12 +549,10 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                             setNeedUpload(false);
                             save();
                         } catch (JSONException e) {
-                            e.printStackTrace();
-                            code = RETURN_CODE_DATA_ERR;
+                            code = RCODE_DATA_ERR;
+                            msg = "数据错误";
                         }
                     }
-                } else {
-                    msg = (String) response.getContent();
                 }
                 if(callback != null)
                     callback.onFinish(code, msg);
@@ -578,7 +572,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = (String) response.getContent();
+                String msg = response.getMsg();
                 //if(code == RETURN_CODE_SUCCESS) {
                     File sigFile = FileUtil.getFile(BasicRecord.SIG_FILE_PATH, getSigFileName());
                     if(sigFile.exists()) {

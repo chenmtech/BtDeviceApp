@@ -15,18 +15,10 @@ import android.content.Context;
  * Version:        1.0
  */
 public interface IWebOperation {
-    int RETURN_CODE_SUCCESS = 0; // web code success
-    int RETURN_CODE_WEB_FAILURE = 1; // web code failure
-    int RETURN_CODE_INVALID_PARA_ERR = 2;
-    int RETURN_CODE_SIGNUP_ERR = 3;
-    int RETURN_CODE_LOGIN_ERR = 4;
-    int RETURN_CODE_ACCOUNT_ERR = 5;
-    int RETURN_CODE_UPDATE_ERR = 6;
-    int RETURN_CODE_UPLOAD_ERR = 7;
-    int RETURN_CODE_DOWNLOAD_ERR = 8;
-    int RETURN_CODE_DELETE_ERR = 9;
-    int RETURN_CODE_DATA_ERR = 10;
-    int RETURN_CODE_CHANGE_PASSWORD = 11;
+    int RCODE_SUCCESS = 0; // web code success
+    int RCODE_WEB_FAILURE = 1; // web code failure
+    int RCODE_INVALID_PARA_ERR = 2;
+    int RCODE_DATA_ERR = 3;
 
     // 上传或者更新
     void upload(Context context, ICodeCallback callback);

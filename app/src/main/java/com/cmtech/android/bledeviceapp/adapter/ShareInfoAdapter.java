@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.model.ShareInfo.AGREE;
 import static com.cmtech.android.bledeviceapp.model.ShareInfo.DENY;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_SHARE_INFO;
@@ -208,12 +208,9 @@ public class ShareInfoAdapter extends RecyclerView.Adapter<ShareInfoAdapter.View
         new WebAsyncTask(context, "请稍等", CMD_CHANGE_SHARE_INFO, new Object[]{fromId, status}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                if (code == RETURN_CODE_SUCCESS) {
+                Toast.makeText(context, response.getMsg(), Toast.LENGTH_SHORT).show();
+                if (response.getCode() == RCODE_SUCCESS) {
                     ((ShareManageActivity)context).updateShareInfoList();
-                    Toast.makeText(context, "修改成功", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(context, "修改失败", Toast.LENGTH_SHORT).show();
                 }
             }
         }).execute(MyApplication.getAccount());

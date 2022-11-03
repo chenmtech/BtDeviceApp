@@ -2,9 +2,9 @@ package com.cmtech.android.bledeviceapp.util;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_WEB_FAILURE;
 
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
@@ -140,7 +140,7 @@ public class KMWebService11Util {
     //---------Post Request------------//
     public static WebResponse uploadAccountInfo(Account account) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = account.toJson();
         try {
@@ -149,7 +149,7 @@ public class KMWebService11Util {
             json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
@@ -157,7 +157,7 @@ public class KMWebService11Util {
 
     public static WebResponse downloadAccountInfo(Account account) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -166,7 +166,7 @@ public class KMWebService11Util {
             json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
@@ -174,7 +174,7 @@ public class KMWebService11Util {
 
     public static WebResponse downloadContactPeople(Account account, List<Integer> contactIds) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -185,14 +185,14 @@ public class KMWebService11Util {
             ViseLog.e(json.toString());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
     public static WebResponse downloadShareInfo(Account account) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -201,7 +201,7 @@ public class KMWebService11Util {
             json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
@@ -209,7 +209,7 @@ public class KMWebService11Util {
 
     public static WebResponse changeShareInfo(Account account, int fromId, int status) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -220,7 +220,7 @@ public class KMWebService11Util {
             json.put("status", status);
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
@@ -228,7 +228,7 @@ public class KMWebService11Util {
 
     public static WebResponse addShareInfo(Account account, int toId) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -238,7 +238,7 @@ public class KMWebService11Util {
             json.put("toId", toId);
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
@@ -246,7 +246,7 @@ public class KMWebService11Util {
 
     public static WebResponse uploadRecord(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json;
         try {
@@ -256,14 +256,14 @@ public class KMWebService11Util {
             json.put("accountId", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
     public static WebResponse shareRecord(Account account, BasicRecord record, int shareId) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -276,14 +276,14 @@ public class KMWebService11Util {
             json.put("shareId", shareId);
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
     public static WebResponse downloadRecord(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -296,14 +296,14 @@ public class KMWebService11Util {
             json.put("ver", record.getVer());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
     public static WebResponse deleteRecord(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -316,14 +316,14 @@ public class KMWebService11Util {
             json.put("ver", record.getVer());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
     public static WebResponse downloadRecords(Account account, BasicRecord record, long fromTime, int num, String filterStr) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -349,14 +349,14 @@ public class KMWebService11Util {
             json.put("filterStr", filterStr);
         } catch (JSONException e) {
             ViseLog.e(e);
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
     public static WebResponse retrieveDiagnoseReport(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RETURN_CODE_SUCCESS) return resp;
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
@@ -368,59 +368,52 @@ public class KMWebService11Util {
             ViseLog.e(json.toString());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
     // 账户登录
     private static WebResponse accountWebLogin(Account account) {
-        if(account == null) return new WebResponse(RETURN_CODE_DATA_ERR, null);
+        if(account == null) return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         if(!account.isWebLoginSuccess()) {
             WebResponse response = KMWebService11Util.login(account);
-            if(response.getCode() == RETURN_CODE_SUCCESS) {
+            if(response.getCode() == RCODE_SUCCESS) {
                 account.setWebLoginSuccess(true);
             }
             return response;
         } else
-            return new WebResponse(RETURN_CODE_SUCCESS, null);
+            return new WebResponse(RCODE_SUCCESS, "登录成功", null);
     }
 
     // 处理GET请求
     private static WebResponse processGetRequest(String url, Map<String, String> data) {
-        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        WebResponse wResp = new WebResponse(RCODE_WEB_FAILURE, "网络连接失败", null);
         try(Response response = HttpUtils.requestGet(url, data)) {
             String respBody = Objects.requireNonNull(response.body()).string();
-            JSONObject returnJson = new JSONObject(respBody);
-            int code = returnJson.getInt("code");
-            Object content = (returnJson.has("content")) ? returnJson.get("content") : null;
-            wResp.setCode(code);
-            wResp.setContent(content);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
+            JSONObject respJson = new JSONObject(respBody);
+            int code = respJson.getInt("code");
+            String msg = respJson.getString("message");
+            Object content = (respJson.has("content")) ? respJson.get("content") : null;
+            wResp.set(code, msg, content);
+        } catch (JSONException | IOException e) {
+            wResp.set(RCODE_DATA_ERR, "数据错误", null);
         }
         return wResp;
     }
 
     // 处理POST请求
     private static WebResponse processPostRequest(String url, JSONObject json) {
-        WebResponse wResp = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        WebResponse wResp = new WebResponse(RCODE_WEB_FAILURE, "网络连接失败", null);
         try(Response response = HttpUtils.requestPost(url, json)) {
             String respBody = Objects.requireNonNull(response.body()).string();
-            //ViseLog.e(respBody);
-            JSONObject returnJson = new JSONObject(respBody);
-            int code = returnJson.getInt("code");
-            Object content = (returnJson.has("content")) ? returnJson.get("content") : null;
-            wResp.setCode(code);
-            wResp.setContent(content);
-        } catch (JSONException e) {
-            ViseLog.e("processPostRequest:" + e);
-            wResp.setCode(RETURN_CODE_DATA_ERR);
-        } catch (IOException e) {
-            e.printStackTrace();
+            JSONObject respJson = new JSONObject(respBody);
+            int code = respJson.getInt("code");
+            String msg = respJson.getString("message");
+            Object content = (respJson.has("content")) ? respJson.get("content") : null;
+            wResp.set(code, msg, content);
+        } catch (JSONException | IOException e) {
+            wResp.set(RCODE_DATA_ERR, "数据错误", null);
         }
         return wResp;
     }

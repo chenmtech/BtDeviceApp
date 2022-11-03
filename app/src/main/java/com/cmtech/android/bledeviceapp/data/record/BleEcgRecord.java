@@ -442,17 +442,17 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                 UploadDownloadFileUtil.downloadFile(context, "ECG", getSigFileName(), BasicRecord.SIG_FILE_PATH, new ICodeCallback() {
                     @Override
                     public void onFinish(int code, String msg) {
-                        if(code==RETURN_CODE_SUCCESS) {
+                        if(code== RCODE_SUCCESS) {
                             BleEcgRecord.super.download(context, showStr, callback);
                         } else {
                             if(callback != null)
-                                callback.onFinish(RETURN_CODE_DOWNLOAD_ERR, "下载记录错误");
+                                callback.onFinish(code, msg);
                         }
                     }
                 });
             } else {
                 if(callback != null)
-                    callback.onFinish(RETURN_CODE_DOWNLOAD_ERR, "记录已损坏错误");
+                    callback.onFinish(RCODE_DATA_ERR, "记录已损坏错误");
             }
         }
         // 如果本地存在信号文件，则调用基类方法从数据库读取记录信息
@@ -477,10 +477,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                 UploadDownloadFileUtil.uploadFile(context, "ECG", sigFile, new ICodeCallback() {
                     @Override
                     public void onFinish(int code, String msg) {
-                        if (code == RETURN_CODE_SUCCESS) {
+                        if (code == RCODE_SUCCESS) {
                             BleEcgRecord.super.upload(context, callback);
-                        } else {
-                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR, msg);
+                        } else if(callback!=null){
+                            callback.onFinish(code, msg);
                         }
                     }
                 });
@@ -490,7 +490,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
                 super.upload(context, callback);
             }
         } else {
-            callback.onFinish(RETURN_CODE_UPLOAD_ERR, "记录已损坏");
+            callback.onFinish(RCODE_DATA_ERR, "记录已损坏");
         }
     }
 

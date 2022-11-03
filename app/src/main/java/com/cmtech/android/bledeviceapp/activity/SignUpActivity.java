@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,9 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.mob.MobSDK;
-import com.vise.log.ViseLog;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -198,14 +196,11 @@ public class SignUpActivity extends AppCompatActivity {
     private void signUp(String userName, String password) {
         MyApplication.getAccountManager().signUp(this, userName, password, new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                ViseLog.e("code:"+code);
-                if(code == RETURN_CODE_SUCCESS) {
-                    Toast.makeText(SignUpActivity.this, "账户注册成功", Toast.LENGTH_SHORT).show();
+            public void onFinish(int code, String msg) {
+                Toast.makeText(SignUpActivity.this, msg, Toast.LENGTH_SHORT).show();
+                if(code == RCODE_SUCCESS) {
                     etPassword.setText(""); // 清空显示的密码
                     finish();
-                } else {
-                    Toast.makeText(SignUpActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

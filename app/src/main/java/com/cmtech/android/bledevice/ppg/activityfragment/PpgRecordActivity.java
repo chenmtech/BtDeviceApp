@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ppg.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -39,14 +39,14 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onFinish(BlePpgRecord blePpgRecord) {
                 blePpgRecord.openSigFile();
                 if(blePpgRecord.noSignal()) {
-                    blePpgRecord.download(PpgRecordActivity.this, "下载记录中，请稍等。", code -> {
-                        if (code == RETURN_CODE_SUCCESS) {
+                    blePpgRecord.download(PpgRecordActivity.this, "下载记录中，请稍等。", (code,msg) -> {
+                        if (code == RCODE_SUCCESS) {
                             blePpgRecord.openSigFile();
                             blePpgRecord.setRecordSecond(blePpgRecord.getDataNum()/blePpgRecord.getSampleRate());
                             record = blePpgRecord;
                             initUI();
                         } else {
-                            Toast.makeText(PpgRecordActivity.this, "记录已损坏。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PpgRecordActivity.this, msg, Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {

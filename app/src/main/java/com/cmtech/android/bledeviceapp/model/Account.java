@@ -307,8 +307,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = null;
-                if(code == RETURN_CODE_SUCCESS) {
+                String msg = response.getMsg();
+                if(code == RCODE_SUCCESS) {
                     JSONArray jsonArr = (JSONArray) response.getContent();
                     if(jsonArr != null) {
                         List<ShareInfo> sis = new ArrayList<>();
@@ -327,8 +327,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                         LitePal.saveAll(sis);
                         readShareInfosFromLocalDb();
                     }
-                } else {
-                    msg = (String) response.getContent();
                 }
                 if(callback != null)
                     callback.onFinish(code, msg);
@@ -388,8 +386,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = null;
-                if(code == RETURN_CODE_SUCCESS) {
+                String msg = response.getMsg();
+                if(code == RCODE_SUCCESS) {
                     JSONArray jsonArr = (JSONArray) response.getContent();
                     if(jsonArr != null) {
                         for (int i = 0; i < jsonArr.length(); i++) {
@@ -407,8 +405,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                         }
                         readContactPeopleFromLocalDb();
                     }
-                } else {
-                    msg = (String) response.getContent();
                 }
                 if(callback != null)
                     callback.onFinish(code, msg);
@@ -422,7 +418,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback != null)
-                    callback.onFinish(response.getCode(), (String)response.getContent());
+                    callback.onFinish(response.getCode(), response.getMsg());
             }
         }).execute(this);
     }
@@ -433,11 +429,13 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = null;
-                if(code == RETURN_CODE_SUCCESS) {
+                String msg = response.getMsg();
+                if(code == RCODE_SUCCESS) {
                     JSONObject content = (JSONObject) response.getContent();
-                    if(content == null)
-                        code = RETURN_CODE_DATA_ERR;
+                    if(content == null) {
+                        code = RCODE_DATA_ERR;
+                        msg = "数据错误";
+                    }
                     else {
                         try {
                             setAccountId(content.getInt("id"));
@@ -445,12 +443,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                                 setWebLoginSuccess(true);
                             }
                         } catch (JSONException e) {
-                            e.printStackTrace();
-                            code = RETURN_CODE_DATA_ERR;
+                            code = RCODE_DATA_ERR;
+                            msg = "数据错误";
                         }
                     }
-                } else {
-                    msg = (String) response.getContent();
                 }
                 if(callback != null)
                     callback.onFinish(code, msg);
@@ -463,7 +459,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         new WebAsyncTask(context, "正在修改密码，请稍等...", CMD_CHANGE_PASSWORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode(), (String)response.getContent());
+                callback.onFinish(response.getCode(), response.getMsg());
             }
         }).execute(this);
     }
@@ -527,7 +523,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         new WebAsyncTask(context, "正在上传账户信息，请稍等...", CMD_UPLOAD_ACCOUNT, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode(), (String)response.getContent());
+                callback.onFinish(response.getCode(), response.getMsg());
             }
         }).execute(this);
     }
@@ -538,15 +534,13 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
-                String msg = null;
-                if (code == RETURN_CODE_SUCCESS) {
+                String msg = response.getMsg();
+                if (code == RCODE_SUCCESS) {
                     JSONObject content = (JSONObject) response.getContent();
                     if(content != null) {
                         fromJson(content);
                         saveToSharedPreference();
                     }
-                } else {
-                    msg = (String) response.getContent();
                 }
                 if(callback != null)
                     callback.onFinish(code, msg);

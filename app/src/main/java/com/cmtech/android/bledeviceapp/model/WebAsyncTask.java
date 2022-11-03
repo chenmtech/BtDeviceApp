@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_WEB_FAILURE;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_SHARE_INFO;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_PASSWORD;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_SHARE_INFO;
@@ -81,9 +81,9 @@ public class WebAsyncTask extends AsyncTask<Object, Void, WebResponse> {
     @Override
     protected WebResponse doInBackground(Object... objects) {
         if(objects == null || objects.length == 0 || objects[0] == null)
-            return new WebResponse(RETURN_CODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
 
-        WebResponse response = new WebResponse(RETURN_CODE_WEB_FAILURE, null);
+        WebResponse response = new WebResponse(RCODE_WEB_FAILURE, "网络连接失败", null);
         BasicRecord record = null;
         Account account = null;
 

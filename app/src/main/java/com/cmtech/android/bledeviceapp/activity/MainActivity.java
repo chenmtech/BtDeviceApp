@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.activity;
 import static com.cmtech.android.ble.core.DeviceConnectState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY_LEVEL;
 import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -159,12 +159,10 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         MyApplication.getAccount().readShareInfosFromLocalDb();
         MyApplication.getAccount().readContactPeopleFromLocalDb();
 
-        ViseLog.e(MyApplication.getAccount());
-
         MyApplication.getAccount().downloadShareInfos(this, null, new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                if(code == RETURN_CODE_SUCCESS) {
+            public void onFinish(int code, String msg) {
+                if(code == RCODE_SUCCESS) {
                     Set<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
                     List<Integer> cpNeedDownloadIds = new ArrayList<>();
                     for(int id : cpIds) {
@@ -249,8 +247,8 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         // 下载账户信息，因为下载后需要更新界面，所以放在这个函数中运行
         MyApplication.getAccount().download(this, null, new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                if(code == RETURN_CODE_SUCCESS) {
+            public void onFinish(int code, String msg) {
+                if(code == RCODE_SUCCESS) {
                     updateNavigationHeader();
                     tbManager.setNavIcon(MyApplication.getAccount().getIcon());
                 }
@@ -259,12 +257,12 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
 
         //获取应用升级信息
         AppUpdateManager appUpdateManager = MyApplication.getAppUpdateManager();
-        appUpdateManager.retrieveAppInfo(this, (code) -> {
-            if (code == RETURN_CODE_SUCCESS) {
+        appUpdateManager.retrieveAppInfo(this, (code, msg) -> {
+            if (code == RCODE_SUCCESS) {
                 if (appUpdateManager.needUpdate())
                     appUpdateManager.updateApp(this);
             } else {
-                //Toast.makeText(MainActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, msg+code, Toast.LENGTH_SHORT).show();
             }
         });
     }

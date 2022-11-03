@@ -1,9 +1,8 @@
 package com.cmtech.android.bledeviceapp.util;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.KMIC_URL;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DOWNLOAD_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_UPLOAD_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -48,7 +47,8 @@ public class UploadDownloadFileUtil {
         pBar.setMessage("正在上传信号，请稍候...");
         pBar.setProgress(0);
         pBar.show();
-        final int[] rtnCode = {RETURN_CODE_UPLOAD_ERR};
+        final int[] rtnCode = {RCODE_DATA_ERR};
+        final String[] msg = {"上传错误"};
         Thread uploadThread = new Thread() {
             public void run() {
                 String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
@@ -107,7 +107,8 @@ public class UploadDownloadFileUtil {
                         int res = conn.getResponseCode();
                         ViseLog.e(res);
                         if (res == 200) {
-                            rtnCode[0] = RETURN_CODE_SUCCESS;
+                            rtnCode[0] = RCODE_SUCCESS;
+                            msg[0] = "上传成功";
                             //ViseLog.e(dealResponseResult(conn.getInputStream()));
                         }
                     }
@@ -134,7 +135,7 @@ public class UploadDownloadFileUtil {
                         public void run() {
                             pBar.dismiss();
                             if(cb!=null) {
-                                cb.onFinish(rtnCode[0]);
+                                cb.onFinish(rtnCode[0], msg[0]);
                             }
                         }
                     });
@@ -160,7 +161,8 @@ public class UploadDownloadFileUtil {
         pBar.setMessage("正在下载信号，请稍候...");
         pBar.setProgress(0);
         pBar.show();
-        final int[] rtnCode = {RETURN_CODE_DOWNLOAD_ERR};
+        final int[] rtnCode = {RCODE_DATA_ERR};
+        final String[] msg = {"下载失败"};
         Thread downloadThread = new Thread() {
             public void run() {
                 Map<String, String> data = new HashMap<>();
@@ -198,7 +200,8 @@ public class UploadDownloadFileUtil {
                                 pBar.setProgress((int)(process*100.0/length)); // 实时更新进度了
                             }
                             is.close();
-                            rtnCode[0] = RETURN_CODE_SUCCESS;
+                            rtnCode[0] = RCODE_SUCCESS;
+                            msg[0] = "下载成功";
                         }
                         if (fos != null) {
                             fos.flush();
@@ -227,7 +230,7 @@ public class UploadDownloadFileUtil {
                         public void run() {
                             pBar.dismiss();
                             if(cb!=null) {
-                                cb.onFinish(rtnCode[0]);
+                                cb.onFinish(rtnCode[0], msg[0]);
                             }
                         }
                     });

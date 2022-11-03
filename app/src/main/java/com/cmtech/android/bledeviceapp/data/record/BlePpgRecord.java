@@ -110,16 +110,16 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
             if(UploadDownloadFileUtil.isFileExist("PPG", getSigFileName())) {
                 UploadDownloadFileUtil.downloadFile(context, "PPG", getSigFileName(), BasicRecord.SIG_FILE_PATH, new ICodeCallback() {
                     @Override
-                    public void onFinish(int code) {
-                        if(code==RETURN_CODE_SUCCESS) {
+                    public void onFinish(int code, String msg) {
+                        if(code== RCODE_SUCCESS) {
                             BlePpgRecord.super.download(context, showStr,  callback);
-                        } else {
-                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        } else if(callback != null){
+                            callback.onFinish(code, msg);
                         }
                     }
                 });
-            } else {
-                callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+            } else if(callback != null){
+                callback.onFinish(RCODE_DATA_ERR, "记录已损坏");
             }
         } else {
             super.download(context, showStr, callback);
@@ -133,19 +133,19 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
             if(!UploadDownloadFileUtil.isFileExist("PPG", getSigFileName())) {
                 UploadDownloadFileUtil.uploadFile(context, "PPG", sigFile, new ICodeCallback() {
                     @Override
-                    public void onFinish(int code) {
-                        if (code == RETURN_CODE_SUCCESS) {
+                    public void onFinish(int code, String msg) {
+                        if (code == RCODE_SUCCESS) {
                             BlePpgRecord.super.upload(context, callback);
-                        } else {
-                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        } else if(callback != null){
+                            callback.onFinish(code, msg);
                         }
                     }
                 });
             } else {
                 super.upload(context, callback);
             }
-        } else {
-            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
+        } else if(callback!=null){
+            callback.onFinish(RCODE_DATA_ERR,"记录已损坏");
         }
     }
 

@@ -1,31 +1,28 @@
 package com.cmtech.android.bledeviceapp.util;
 
-import com.vise.log.ViseLog;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_INVALID_PARA_ERR;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_WEB_FAILURE;
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_ACCOUNT_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_CHANGE_PASSWORD;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DATA_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DELETE_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_DOWNLOAD_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_INVALID_PARA_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_LOGIN_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SIGNUP_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_UPDATE_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_UPLOAD_ERR;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_WEB_FAILURE;
+import com.vise.log.ViseLog;
 
 public class WebFailureHandler {
     public static String toString(int rtnCode) {
         String errString = "";
         switch (rtnCode) {
-            case RETURN_CODE_WEB_FAILURE:
-                errString = "网络无法连接，请检查您的网络";
+            case RCODE_WEB_FAILURE:
+                errString = "无法连接网络";
                 break;
 
-            case RETURN_CODE_INVALID_PARA_ERR:
+            case RCODE_INVALID_PARA_ERR:
                 errString = "数据传输异常";
                 break;
 
+            case RCODE_DATA_ERR:
+                errString = "数据异常";
+                break;
+
+            /*
             case RETURN_CODE_SIGNUP_ERR:
                 errString = "注册失败，手机号已注册";
                 break;
@@ -54,13 +51,9 @@ public class WebFailureHandler {
                 errString = "删除失败";
                 break;
 
-            case RETURN_CODE_DATA_ERR:
-                errString = "数据读取异常";
-                break;
-
             case RETURN_CODE_CHANGE_PASSWORD:
                 errString = "修改密码错误";
-                break;
+                break;*/
 
             default:
                 errString = "未知错误";

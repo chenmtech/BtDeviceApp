@@ -118,16 +118,16 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
             if(UploadDownloadFileUtil.isFileExist("EEG", getSigFileName())) {
                 UploadDownloadFileUtil.downloadFile(context, "EEG", getSigFileName(), BasicRecord.SIG_FILE_PATH, new ICodeCallback() {
                     @Override
-                    public void onFinish(int code) {
-                        if(code==RETURN_CODE_SUCCESS) {
+                    public void onFinish(int code, String msg) {
+                        if(code== RCODE_SUCCESS) {
                             BleEegRecord.super.download(context, showStr, callback);
-                        } else {
-                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        } else if(callback != null){
+                            callback.onFinish(code, msg);
                         }
                     }
                 });
-            } else {
-                callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+            } else if(callback != null){
+                callback.onFinish(RCODE_DATA_ERR, "记录已损坏");
             }
         } else {
             super.download(context, showStr, callback);
@@ -141,11 +141,11 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
             if(!UploadDownloadFileUtil.isFileExist("EEG", getSigFileName())) {
                 UploadDownloadFileUtil.uploadFile(context, "EEG", sigFile, new ICodeCallback() {
                     @Override
-                    public void onFinish(int code) {
-                        if (code == RETURN_CODE_SUCCESS) {
+                    public void onFinish(int code, String msg) {
+                        if (code == RCODE_SUCCESS) {
                             BleEegRecord.super.upload(context, callback);
-                        } else {
-                            callback.onFinish(RETURN_CODE_DOWNLOAD_ERR);
+                        } else if(callback != null){
+                            callback.onFinish(code, msg);
                         }
                     }
                 });
@@ -153,7 +153,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
                 super.upload(context, callback);
             }
         } else {
-            callback.onFinish(RETURN_CODE_UPLOAD_ERR);
+            callback.onFinish(RCODE_DATA_ERR, "记录已损坏");
         }
     }
 

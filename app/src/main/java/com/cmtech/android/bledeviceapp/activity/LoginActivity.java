@@ -1,10 +1,12 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
+import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkPassword;
+import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkUserName;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
+
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
@@ -13,18 +15,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.mob.MobSDK;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkPassword;
-import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkUserName;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
  *
@@ -123,11 +119,11 @@ public class LoginActivity extends AppCompatActivity {
     private void login(String userName, String password) {
         MyApplication.getAccountManager().login(userName, password, this, "正在登录，请稍等...", new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                if(code == RETURN_CODE_SUCCESS && MyApplication.getAccountManager().isValid()) {
+            public void onFinish(int code, String msg) {
+                if(code == RCODE_SUCCESS && MyApplication.getAccountManager().isValid()) {
                     startMainActivity();
                 } else {
-                    Toast.makeText(LoginActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             }
         });

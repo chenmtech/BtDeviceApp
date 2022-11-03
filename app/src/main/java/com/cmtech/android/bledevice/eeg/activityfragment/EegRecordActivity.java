@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.eeg.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -39,14 +39,14 @@ public class EegRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onFinish(BleEegRecord bleEegRecord) {
                 bleEegRecord.openSigFile();
                 if(bleEegRecord.noSignal()) {
-                    bleEegRecord.download(EegRecordActivity.this, "下载记录中，请稍等。", code -> {
-                        if (code == RETURN_CODE_SUCCESS) {
+                    bleEegRecord.download(EegRecordActivity.this, "下载记录中，请稍等。", (code,msg) -> {
+                        if (code == RCODE_SUCCESS) {
                             bleEegRecord.openSigFile();
                             bleEegRecord.setRecordSecond(bleEegRecord.getDataNum()/bleEegRecord.getSampleRate());
                             record = bleEegRecord;
                             initUI();
                         } else {
-                            Toast.makeText(EegRecordActivity.this, "记录已损坏。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EegRecordActivity.this, msg, Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {

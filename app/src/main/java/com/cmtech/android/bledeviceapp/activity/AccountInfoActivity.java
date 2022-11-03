@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,12 +20,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
-import com.cmtech.android.bledeviceapp.fragment.AccountPublicInfoFragment;
 import com.cmtech.android.bledeviceapp.fragment.AccountPrivateInfoFragment;
+import com.cmtech.android.bledeviceapp.fragment.AccountPublicInfoFragment;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
@@ -88,14 +87,13 @@ public class AccountInfoActivity extends AppCompatActivity {
 
                 account.upload(AccountInfoActivity.this, new ICodeCallback() {
                     @Override
-                    public void onFinish(int code) {
-                        if (code == RETURN_CODE_SUCCESS) {
-                            Toast.makeText(AccountInfoActivity.this, "账户信息已更新。", Toast.LENGTH_SHORT).show();
+                    public void onFinish(int code, String msg) {
+                        Toast.makeText(AccountInfoActivity.this, msg, Toast.LENGTH_SHORT).show();
+                        if (code == RCODE_SUCCESS) {
                             Intent intent = new Intent();
                             setResult(RESULT_OK, intent);
                             finish();
-                        } else
-                            Toast.makeText(AccountInfoActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
             }
@@ -162,11 +160,10 @@ public class AccountInfoActivity extends AppCompatActivity {
     private void download() {
         account.download(this, "正在下载账户信息，请稍等...", new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                if (code == RETURN_CODE_SUCCESS) {
+            public void onFinish(int code, String msg) {
+                Toast.makeText(AccountInfoActivity.this, msg, Toast.LENGTH_SHORT).show();
+                if (code == RCODE_SUCCESS) {
                     updateUI();
-                } else {
-                    Toast.makeText(AccountInfoActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

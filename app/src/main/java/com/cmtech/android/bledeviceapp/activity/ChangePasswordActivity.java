@@ -1,12 +1,14 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
+import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkPassword;
+import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkUserName;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
@@ -15,23 +17,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.cmtech.android.bledeviceapp.util.WebFailureHandler;
 import com.mob.MobSDK;
-import com.vise.log.ViseLog;
 
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
-
-import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkPassword;
-import static com.cmtech.android.bledeviceapp.activity.SignUpActivity.checkUserName;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
 
 /**
  *
@@ -190,14 +186,11 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private void changePassword(String userName, String password) {
         MyApplication.getAccountManager().changePassword(this, userName, password, new ICodeCallback() {
             @Override
-            public void onFinish(int code) {
-                ViseLog.e("code:"+code);
-                if(code == RETURN_CODE_SUCCESS) {
-                    Toast.makeText(ChangePasswordActivity.this, "密码修改成功", Toast.LENGTH_SHORT).show();
+            public void onFinish(int code, String msg) {
+                Toast.makeText(ChangePasswordActivity.this, msg, Toast.LENGTH_SHORT).show();
+                if(code == RCODE_SUCCESS) {
                     etPassword.setText(""); // 清空显示的密码
                     finish();
-                } else {
-                    Toast.makeText(ChangePasswordActivity.this, WebFailureHandler.toString(code), Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -58,40 +58,35 @@
                 android:id="@+id/time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="时间："/>
+                android:text="时间:"
+                android:textSize="@dimen/smallest_font"/>
 
             <TextView
                 android:id="@+id/tv_report_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="  "/>
-        </LinearLayout>
+                android:text="  "
+                android:textSize="@dimen/smallest_font"/>
 
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:layout_marginStart="10dp"
-            android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="提供方："/>
+                android:text="算法提供:"
+                android:textSize="@dimen/smallest_font"/>
 
             <TextView
                 android:id="@+id/tv_report_provider"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="  "/>
+                android:text="  "
+                android:textSize="@dimen/smallest_font"/>
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
             android:text="*以上结论不能作为临床诊断依据。如有心脏不适，请及时就医。"
             android:textSize="@dimen/smallest_font"
             android:textColor="@color/red"/>

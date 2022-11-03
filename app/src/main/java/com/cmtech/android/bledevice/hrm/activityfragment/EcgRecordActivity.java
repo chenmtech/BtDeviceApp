@@ -6,7 +6,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.RHYTHM_LABEL_MAP;
-import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RETURN_CODE_SUCCESS;
+import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -99,14 +99,14 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onFinish(BleEcgRecord bleEcgRecord) {
                 bleEcgRecord.openSigFile();
                 if(bleEcgRecord.noSignal()) {
-                    bleEcgRecord.download(EcgRecordActivity.this, "下载记录中，请稍等。", code -> {
-                        if (code == RETURN_CODE_SUCCESS) {
+                    bleEcgRecord.download(EcgRecordActivity.this, "下载记录中，请稍等。", (code,msg) -> {
+                        if (code == RCODE_SUCCESS) {
                             bleEcgRecord.openSigFile();
                             bleEcgRecord.setRecordSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
                             record = bleEcgRecord;
                             initUI();
                         } else {
-                            Toast.makeText(EcgRecordActivity.this, "记录已损坏。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EcgRecordActivity.this, msg, Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else {
