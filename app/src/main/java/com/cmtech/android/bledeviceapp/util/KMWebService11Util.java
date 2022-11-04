@@ -85,7 +85,7 @@ public class KMWebService11Util {
     public static final int CMD_DOWNLOAD_CONTACT_PEOPLE = 16;
     // 下载APP更新信息
     public static final int CMD_DOWNLOAD_APP_INFO = 17;
-    // 下载APK文件
+    // 下载APK文件，执行这个命令不通过传输协议
     public static final int CMD_DOWNLOAD_APK = 18;
 
     //--------------------------------------------------------静态函数

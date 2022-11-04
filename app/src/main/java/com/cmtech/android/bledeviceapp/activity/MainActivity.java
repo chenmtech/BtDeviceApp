@@ -77,7 +77,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  *  MainActivity: 主界面
@@ -257,42 +256,12 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
 
         //获取应用升级信息
         AppUpdateManager appUpdateManager = MyApplication.getAppUpdateManager();
-        appUpdateManager.retrieveAppInfo(this, (code, msg) -> {
-            if (code == RCODE_SUCCESS) {
-                if (appUpdateManager.needUpdate())
-                    appUpdateManager.updateApp(this);
-            } else {
-                Toast.makeText(MainActivity.this, msg+code, Toast.LENGTH_SHORT).show();
+        appUpdateManager.retrieveNewestAppInfo(this, (code, msg) -> {
+            if (code == RCODE_SUCCESS && appUpdateManager.existUpdate()) {
+                appUpdateManager.updateApp(this);
             }
         });
     }
-
-/*    private void checkAppUpdateInfo() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            boolean haveInstallPermission = getPackageManager().canRequestPackageInstalls();
-            if (!haveInstallPermission) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("开启安装应用权限").setMessage("请打开“安装未知应用”权限，以方便升级本应用。");
-                builder.setCancelable(false);
-                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivityForSettingInstallPermission();
-                    }
-                }).show();
-                return;
-            }
-        }
-        //有权限，开始获取应用升级信息
-        MyApplication.getAppUpdateManager().retrieveAppInfo(this, null);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void startActivityForSettingInstallPermission() {
-        Uri packageURI = Uri.parse("package:" + getPackageName());
-        Intent intent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, packageURI);
-        startActivityForResult(intent, RC_OPEN_INSTALL_PERMISSION);
-    }*/
 
     private void initNavigation() {
         NavigationView navView = findViewById(R.id.nav_view);
@@ -341,6 +310,20 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                     case R.id.nav_manage_share: // 管理分享
                         intent = new Intent(MainActivity.this, ShareManageActivity.class);
                         startActivity(intent);
+                        return true;
+                    case R.id.nav_update_app: // 检查更新
+                        AppUpdateManager appUpdateManager = MyApplication.getAppUpdateManager();
+                        appUpdateManager.retrieveNewestAppInfo(MainActivity.this, (code, msg) -> {
+                            if (code == RCODE_SUCCESS) {
+                                if(appUpdateManager.existUpdate()) {
+                                    appUpdateManager.updateApp(MainActivity.this);
+                                } else {
+                                    Toast.makeText(MainActivity.this, "已是最新版本", Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         return true;
                     case R.id.nav_about_us: // open KM store
                         intent = new Intent(MainActivity.this, AboutUsActivity.class);

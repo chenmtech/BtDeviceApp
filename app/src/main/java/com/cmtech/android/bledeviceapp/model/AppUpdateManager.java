@@ -14,21 +14,36 @@ public class AppUpdateManager {
         appInfo = new AppPackageInfo();
     }
 
-    public void retrieveAppInfo(Context context, ICodeCallback callback) {
+    /**
+     * 获取最新的APP信息
+     * @param context
+     * @param callback
+     */
+    public void retrieveNewestAppInfo(Context context, ICodeCallback callback) {
         appInfo.download(context, null, callback);
     }
 
-    public boolean needUpdate() {
+    public AppPackageInfo getAppInfo() {
+        return appInfo;
+    }
+
+    /**
+     * 是否存在更新
+     * @return
+     */
+    public boolean existUpdate() {
         int currentVerCode = APKVersionCodeUtils.getVersionCode();
         return currentVerCode < appInfo.getVerCode();
     }
 
     public void updateApp(Context context) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        String msgBuilder = "新版本号：" + appInfo.getVerName() + "\n" +
+        String msgBuilder =
+                "当前版本：" + APKVersionCodeUtils.getVerName() + "\n" +
+                "新版本：" + appInfo.getVerName() + "\n" +
                 "更新内容：" + appInfo.getNote() + "\n" +
                 "安装包大小：" + appInfo.getSize() + "MB";
-        builder.setTitle("请更新应用程序").setMessage(msgBuilder);
+        builder.setTitle("App存在更新").setMessage(msgBuilder);
         builder.setCancelable(false);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override

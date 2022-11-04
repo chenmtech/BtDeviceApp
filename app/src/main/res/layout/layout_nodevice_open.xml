@@ -51,7 +51,7 @@
                 android:id="@+id/tv_copyright"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Copyright © 2020 KM Co. All Rights Reserved."
+                android:text="Copyright © 2020-22 KMIC Co. All Rights Reserved."
                 android:textSize="@dimen/smallest_font"/>
         </LinearLayout>
 

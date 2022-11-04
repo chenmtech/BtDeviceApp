@@ -43,8 +43,8 @@ public class UploadDownloadFileUtil {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
-        pBar.setTitle("上传信号");
-        pBar.setMessage("正在上传信号，请稍候...");
+        pBar.setTitle("上传");
+        pBar.setMessage("正在上传，请稍候...");
         pBar.setProgress(0);
         pBar.show();
         final int[] rtnCode = {RCODE_DATA_ERR};
@@ -157,8 +157,8 @@ public class UploadDownloadFileUtil {
         ProgressDialog pBar = new ProgressDialog(context);
         pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         pBar.setCancelable(false);
-        pBar.setTitle("下载信号");
-        pBar.setMessage("正在下载信号，请稍候...");
+        pBar.setTitle("下载");
+        pBar.setMessage("正在下载，请稍候...");
         pBar.setProgress(0);
         pBar.show();
         final int[] rtnCode = {RCODE_DATA_ERR};
@@ -295,6 +295,93 @@ public class UploadDownloadFileUtil {
         }
         resultData = byteArrayOutputStream.toString();
         return resultData;
+    }
+
+    /**
+     * 下载信号文件
+     * @param context
+     * @param fileUrl: 文件URL
+     * @param toFile：下载后的文件保存完整路径名，包括文件名
+     * @param cb：结束后的回调
+     */
+    public static void downloadFile(Context context, String fileUrl, File toFile, ICodeCallback cb) {
+        ProgressDialog pBar = new ProgressDialog(context);
+        pBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        pBar.setCancelable(false);
+        pBar.setTitle("下载");
+        pBar.setMessage("正在下载，请稍候...");
+        pBar.setProgress(0);
+        pBar.show();
+        final int[] rtnCode = {RCODE_DATA_ERR};
+        final String[] msg = {"下载失败"};
+        Thread downloadThread = new Thread() {
+            public void run() {
+                InputStream is = null;
+                FileOutputStream fos = null;
+                try {
+                    URL url = new URL(fileUrl);
+                    HttpURLConnection con = (HttpURLConnection) url.openConnection();
+                    con.setReadTimeout(TIME_OUT);
+                    con.setConnectTimeout(TIME_OUT);
+                    con.setRequestProperty("Charset", CHARSET);
+                    con.setRequestMethod("GET");
+                    int res = con.getResponseCode();
+                    ViseLog.e(res);
+                    if (res == 200) {
+                        int length = con.getContentLength();// 获取文件大小
+                        is = con.getInputStream();
+                        pBar.setMax(100); // 设置进度条的总长度
+                        if (is != null) {
+                            //将文件下载到指定路径中
+                            if(toFile.exists()) toFile.delete();
+                            fos = new FileOutputStream(toFile);
+                            byte[] buf = new byte[1024];
+                            int len;
+                            int process = 0;
+                            while ((len = is.read(buf)) != -1) {
+                                fos.write(buf, 0, len);
+                                process += len;
+                                pBar.setProgress((int)(process*100.0/length)); // 实时更新进度了
+                            }
+                            is.close();
+                            rtnCode[0] = RCODE_SUCCESS;
+                            msg[0] = "下载成功";
+                        }
+                        if (fos != null) {
+                            fos.flush();
+                            fos.close();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if(is!= null) {
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(fos!=null) {
+                        try {
+                            fos.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    ThreadUtil.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pBar.dismiss();
+                            if(cb!=null) {
+                                cb.onFinish(rtnCode[0], msg[0]);
+                            }
+                        }
+                    });
+                }
+            }
+        };
+        downloadThread.start();
     }
 
 }

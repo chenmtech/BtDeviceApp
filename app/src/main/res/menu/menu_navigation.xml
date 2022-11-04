@@ -21,6 +21,12 @@
             android:visible="true"/>
 
         <item
+            android:id="@+id/nav_update_app"
+            android:title="检查更新"
+            android:icon="@mipmap/ic_update_32px"
+            android:visible="true"/>
+
+        <item
             android:id="@+id/nav_about_us"
             android:title="@string/about_km"
             android:icon="@mipmap/ic_about_us_32px"
