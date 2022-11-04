@@ -19,8 +19,8 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:gravity="bottom"
         android:orientation="vertical">
 
@@ -29,31 +29,36 @@
             android:layout_height="32dp"
             android:layout_gravity="center_horizontal"
             android:layout_margin="2dp"
-            android:src="@mipmap/ic_kang"
-            android:contentDescription="@null"/>
+            android:contentDescription="@null"
+            android:src="@mipmap/ic_kang" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:orientation="horizontal">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Ver"
-                android:textSize="@dimen/smallest_font"/>
+                android:textSize="@dimen/smallest_font" />
+
             <TextView
                 android:id="@+id/tv_version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
-                android:textSize="@dimen/smallest_font"/>
-            <TextView
-                android:id="@+id/tv_copyright"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Copyright © 2020-22 KMIC Co. All Rights Reserved."
-                android:textSize="@dimen/smallest_font"/>
+                android:textSize="@dimen/smallest_font" />
+
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tv_copyright"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Copyright © 2020-22 KMIC Co. All Rights Reserved."
+            android:textSize="@dimen/smallest_font" />
     </LinearLayout>
 </RelativeLayout>
