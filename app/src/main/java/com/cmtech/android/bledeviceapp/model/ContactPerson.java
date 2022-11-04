@@ -36,11 +36,29 @@ import java.io.Serializable;
  */
 
 public class ContactPerson extends LitePalSupport implements Serializable, IJsonable {
+    public static final int DENY = 0;
+    public static final int WAITING = 1;
+    public static final int AGREE = 2;
+
     private int id;
+
+    // 账户ID
     private int accountId = INVALID_ID;
-    private String nickName = ""; // nick name
-    private String note = ""; // note
-    private String icon = ""; // icon file path in local disk
+
+    // 昵称
+    private String nickName = "";
+
+    // 简介
+    private String note = "";
+
+    // 头像图标文件本地路径名
+    private String icon = "";
+
+    // 这个联系人是否是向你申请的，还是你向他申请的
+    private boolean isFrom = true;
+
+    // 申请的状态
+    private int status = DENY;
 
     public ContactPerson() {
     }
@@ -48,9 +66,11 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     public int getAccountId() {
         return accountId;
     }
+
     public void setAccountId(int accountId) {
         this.accountId = accountId;
     }
+
     public String getNickName() {
         if(nickName.equals("")) {
             return "ID："+accountId;
@@ -58,18 +78,23 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
             return nickName;
         }
     }
+
     public void setNickName(String nickName) {
         this.nickName = nickName;
     }
+
     public String getNote() {
         return note;
     }
+
     public void setNote(String note) {
         this.note = note;
     }
+
     public String getIcon() {
         return icon;
     }
+
     public void setIcon(String icon) {
         this.icon = icon;
     }
@@ -126,7 +151,8 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     @Override
     public String toString() {
         return "AccountId: " + accountId + ",NickName：" + nickName + ' '
-                + ",Note：" + note + ",icon: " + icon;
+                + ",Note：" + note + ",icon: " + icon
+                + ",isFrom：" + isFrom + ",status: " + status;
     }
 
     @Override

@@ -92,7 +92,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     private boolean isWebLoginSuccess = false;
 
     // 分享信息列表
-    private final List<ShareInfo> shareInfos = new ArrayList<>();
+    //private final List<ShareInfo> shareInfos = new ArrayList<>();
 
     // 联系人列表
     // 账户的联系人包括两类人：第一类、对方申请分享给你的人；第二类、你申请分享给对方，且对方同意了的人。
@@ -598,7 +598,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
                 + ",gender:" + gender + ",birthday:" + birthday + ",weight:" + weight + ",height:" + height
                 + ",Note：" + note + ",icon: " + icon + ",isWebLoginSuccess:" + isWebLoginSuccess
-                + ", shareInfos: " + shareInfos + ", contactPeople: " + contactPeople;
+                + ", contactPeople: " + contactPeople;
     }
 
     @Override

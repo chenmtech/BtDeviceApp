@@ -2,7 +2,6 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_APPLY_NEW_SHARE;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -22,22 +21,19 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ShareInfoAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.cmtech.android.bledeviceapp.model.WebAsyncTask;
-import com.cmtech.android.bledeviceapp.model.WebResponse;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 用来管理分享信息的Activity
  */
 public class ShareManageActivity extends AppCompatActivity {
-    private ShareInfoAdapter siAdapter;
-    private RecyclerView rvShareInfo;
+    private ShareInfoAdapter siFromAdapter;
+    private RecyclerView rvShareFrom;
+    private ShareInfoAdapter siToAdapter;
+    private RecyclerView rvShareTo;
     private EditText etShareToId;
-    private Button btnApplyShare;
+    private Button btnApply;
 
 
     @Override
@@ -50,16 +46,22 @@ public class ShareManageActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         // 初始化分享信息列表
-        rvShareInfo = findViewById(R.id.rv_share_info);
-        rvShareInfo.setLayoutManager(new LinearLayoutManager(this));
-        rvShareInfo.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        siAdapter = new ShareInfoAdapter(MyApplication.getShareInfoList());
-        rvShareInfo.setAdapter(siAdapter);
+        rvShareFrom = findViewById(R.id.rv_share_from);
+        rvShareFrom.setLayoutManager(new LinearLayoutManager(this));
+        rvShareFrom.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        siFromAdapter = new ShareInfoAdapter(MyApplication.getShareInfoList());
+        rvShareFrom.setAdapter(siFromAdapter);
+
+        rvShareTo = findViewById(R.id.rv_share_to);
+        rvShareTo.setLayoutManager(new LinearLayoutManager(this));
+        rvShareTo.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        siToAdapter = new ShareInfoAdapter(MyApplication.getShareInfoList());
+        rvShareTo.setAdapter(siToAdapter);
 
         etShareToId = findViewById(R.id.et_share_to_id);
 
-        btnApplyShare = findViewById(R.id.btn_apply_share);
-        btnApplyShare.setOnClickListener(new View.OnClickListener() {
+        btnApply = findViewById(R.id.btn_apply_share);
+        btnApply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String idStr = etShareToId.getText().toString();
@@ -132,7 +134,7 @@ public class ShareManageActivity extends AppCompatActivity {
     }
 
     private void updateView() {
-        siAdapter.notifyDataSetChanged();
+        siFromAdapter.notifyDataSetChanged();
     }
 
     private void applyNewShare(int id) {
