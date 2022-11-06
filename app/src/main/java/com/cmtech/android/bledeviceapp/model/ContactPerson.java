@@ -45,6 +45,12 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     // 账户ID
     private int accountId = INVALID_ID;
 
+    // 这个联系人是否是向你申请的，还是你向他申请的
+    private boolean isFrom = true;
+
+    // 申请的状态
+    private int status = DENY;
+
     // 昵称
     private String nickName = "";
 
@@ -54,11 +60,6 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     // 头像图标文件本地路径名
     private String icon = "";
 
-    // 这个联系人是否是向你申请的，还是你向他申请的
-    private boolean isFrom = true;
-
-    // 申请的状态
-    private int status = DENY;
 
     public ContactPerson() {
     }
@@ -97,6 +98,22 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
 
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    public boolean isFrom() {
+        return isFrom;
+    }
+
+    public void setFrom(boolean from) {
+        isFrom = from;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.model;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.model.ContactPerson.AGREE;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.*;
 
 import android.content.Context;
@@ -13,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.activity.ShareManageActivity;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
@@ -33,8 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -275,7 +273,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 获取分享信息列表
-    public List<ShareInfo> getShareInfoList() {
+    /*public List<ShareInfo> getShareInfoList() {
         return shareInfos;
     }
 
@@ -301,10 +299,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         });
         this.shareInfos.clear();
         this.shareInfos.addAll(shareInfos);
-    }
+    }*/
 
-    // 从服务器下载账户的分享信息。下载成功后，更新本地数据库相关信息,以及更新shareInfos字段
-    public void downloadShareInfos(Context context, String showStr, ICodeCallback callback) {
+    // 从服务器更新联系人列表
+    public void updateContactPeopleInfos(Context context, String showStr, ICodeCallback callback) {
         new WebAsyncTask(context, showStr, CMD_DOWNLOAD_SHARE_INFO, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -313,21 +311,35 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 if(code == RCODE_SUCCESS) {
                     JSONArray jsonArr = (JSONArray) response.getContent();
                     if(jsonArr != null) {
-                        List<ShareInfo> sis = new ArrayList<>();
                         for (int i = 0; i < jsonArr.length(); i++) {
                             try {
                                 JSONObject json = (JSONObject) jsonArr.get(i);
                                 if (json == null) continue;
                                 ShareInfo si = new ShareInfo();
                                 si.fromJson(json);
-                                sis.add(si);
+                                ContactPerson cp = new ContactPerson();
+                                int myId = MyApplication.getAccountId();
+                                if(si.getFromId() == myId) {
+                                    cp.setAccountId(si.getToId());
+                                    cp.setFrom(false);
+                                } else {
+                                    cp.setFrom(true);
+                                    cp.setAccountId(si.getFromId());
+                                }
+                                cp.setStatus(si.getStatus());
+                                ContactPerson cpFind = LitePal.where("accountId = ? and isFrom = ", ""+cp.getAccountId(), ""+cp.isFrom())
+                                                .findFirst(ContactPerson.class);
+                                if(cpFind == null)
+                                    cp.save();
+                                else {
+                                    cpFind.setStatus(cp.getStatus());
+                                    cpFind.save();
+                                }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
                             }
                         }
-                        LitePal.deleteAll(ShareInfo.class);
-                        LitePal.saveAll(sis);
-                        readShareInfosFromLocalDb();
+                        readContactPeopleFromLocalDb();
                     }
                 }
                 if(callback != null)
@@ -339,9 +351,9 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     // 获取可以分享给对方的账户ID列表
     public List<Integer> getCanShareToIdList() {
         List<Integer> ids = new ArrayList<>();
-        for(ShareInfo si : shareInfos) {
-            if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE) {
-                ids.add(si.getToId());
+        for(ContactPerson cp : contactPeople) {
+            if(!cp.isFrom() && cp.getStatus() == ShareInfo.AGREE) {
+                ids.add(cp.getAccountId());
             }
         }
         return ids;
@@ -356,12 +368,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return contactPeople;
     }
 
-    // 从本地数据库读取联系人信息
-    public void readContactPeopleFromLocalDb() {
-        this.contactPeople.clear();
-        this.contactPeople.addAll(LitePal.findAll(ContactPerson.class));
-    }
-
     public ContactPerson getContactPerson(int id) {
         for(ContactPerson cp : contactPeople) {
             if(cp.getAccountId() == id) return cp;
@@ -370,16 +376,22 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 从分享列表中提取联系人ID列表
-    public List<Integer> extractContactPeopleIdsFromShareInfos() {
-        List<Integer> cps = new ArrayList<>();
-        for(ShareInfo si : shareInfos) {
-            if(si.getToId() == accountId && !cps.contains(si.getFromId())) {
-                cps.add(si.getFromId());
-            } else if(si.getFromId() == accountId && si.getStatus() == ShareInfo.AGREE && !cps.contains(si.getToId())) {
-                cps.add(si.getToId());
+    public List<Integer> getContactPeopleIdsForDetailInfo() {
+        Set<Integer> cps = new HashSet<>();
+        for(ContactPerson cp : contactPeople) {
+            if(cp.isFrom()) {
+                cps.add(cp.getAccountId());
+            } else if(cp.getStatus() == AGREE) {
+                cps.add(cp.getAccountId());
             }
         }
-        return cps;
+        return new ArrayList<>(cps);
+    }
+
+    // 从本地数据库读取联系人信息
+    public void readContactPeopleFromLocalDb() {
+        this.contactPeople.clear();
+        this.contactPeople.addAll(LitePal.findAll(ContactPerson.class));
     }
 
     // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
@@ -467,14 +479,14 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 申请一条新的分享
-    public void applyNewShare(Context context, int shareToId, ICodeCallback callback) {
+    public void requestNewShare(Context context, int shareToId, ICodeCallback callback) {
         if(accountId == shareToId) {
             Toast.makeText(context, "不能分享给自己", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        for(ShareInfo si : shareInfos) {
-            if(si.getFromId() == accountId && si.getToId() == shareToId) {
+        for(ContactPerson cp : contactPeople) {
+            if(!cp.isFrom() && cp.getAccountId() == shareToId) {
                 Toast.makeText(context, "不能重复申请", Toast.LENGTH_SHORT).show();
                 return;
             }

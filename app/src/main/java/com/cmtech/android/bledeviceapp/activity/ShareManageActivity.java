@@ -110,11 +110,11 @@ public class ShareManageActivity extends AppCompatActivity {
     // 更新分享信息列表
     public void updateShareInfoList() {
         // 从服务器下载分享信息保存到本地数据库，之后再从分享信息中下载联系人信息
-        MyApplication.getAccount().downloadShareInfos(this, "更新中，请稍后...", new ICodeCallback() {
+        MyApplication.getAccount().updateContactPeopleInfos(this, "更新中，请稍后...", new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 if (code == RCODE_SUCCESS) {
-                    List<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
+                    List<Integer> cpIds = MyApplication.getAccount().getContactPeopleIdsForDetailInfo();
                     MyApplication.getAccount().downloadContactPeopleInfos(ShareManageActivity.this, null,
                             cpIds, new ICodeCallback() {
                                 @Override
@@ -138,7 +138,7 @@ public class ShareManageActivity extends AppCompatActivity {
     }
 
     private void applyNewShare(int id) {
-        MyApplication.getAccount().applyNewShare(this, id, new ICodeCallback() {
+        MyApplication.getAccount().requestNewShare(this, id, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 Toast.makeText(ShareManageActivity.this, msg, Toast.LENGTH_SHORT).show();

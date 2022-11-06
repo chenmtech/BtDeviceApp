@@ -126,11 +126,6 @@ public class MyApplication extends Application {
         return instance.accountManager.getAccount();
     }
 
-    // 获取账户的分享信息列表
-    public static List<ShareInfo> getShareInfoList() {
-        return instance.accountManager.getShareInfoList();
-    }
-
     public static int getAccountId() {
         Account account = instance.accountManager.getAccount();
         if(account == null) return INVALID_ID;

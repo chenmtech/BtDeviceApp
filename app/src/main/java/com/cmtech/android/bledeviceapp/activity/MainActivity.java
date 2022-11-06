@@ -72,6 +72,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
+import org.w3c.dom.Text;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -155,20 +156,17 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             return;
         }
 
-        MyApplication.getAccount().readShareInfosFromLocalDb();
         MyApplication.getAccount().readContactPeopleFromLocalDb();
 
-        MyApplication.getAccount().downloadShareInfos(this, null, new ICodeCallback() {
+        MyApplication.getAccount().updateContactPeopleInfos(this, null, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 if(code == RCODE_SUCCESS) {
-                    List<Integer> cpIds = MyApplication.getAccount().extractContactPeopleIdsFromShareInfos();
+                    List<Integer> cpIds = MyApplication.getAccount().getContactPeopleIdsForDetailInfo();
                     List<Integer> cpNeedDownloadIds = new ArrayList<>();
                     for(int id : cpIds) {
                         ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
-                        // cp为null意味着这个联系人以前没有下载过，那么就下载这个联系人的信息
-                        // 至于cp的信息更新了，那么需要到ShareManageActivity中去更新
-                        if(cp == null) {
+                        if(TextUtils.isEmpty(cp.getIcon())) {
                             cpNeedDownloadIds.add(id);
                         }
                     }

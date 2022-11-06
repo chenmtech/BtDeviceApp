@@ -35,11 +35,6 @@ public class AccountManager {
         return account;
     }
 
-    public List<ShareInfo> getShareInfoList() {
-        if(account == null) return null;
-        return account.getShareInfoList();
-    }
-
     /**
      * 本地账户登录
      * 当应用程序启动时，会先检查本地账户登录是否成功
