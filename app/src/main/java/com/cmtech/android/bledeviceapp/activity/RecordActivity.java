@@ -80,7 +80,7 @@ public abstract class RecordActivity extends AppCompatActivity {
     }
 
     private void shareTo(int toId) {
-        if(MyApplication.getAccount().canShareTo(toId)) {
+        if(MyApplication.getAccount().getCanShareToIdList().contains(toId)) {
             record.share(this, toId, new ICodeCallback() {
                 @Override
                 public void onFinish(int code, String msg) {

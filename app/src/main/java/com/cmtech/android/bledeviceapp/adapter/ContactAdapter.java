@@ -158,7 +158,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
             public void onFinish(int code, String msg) {
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                 if (code == RCODE_SUCCESS) {
-                    ((ContactManageActivity)context).updateContactList();
+                    ((ContactManageActivity)context).updateContacts();
                 }
             }
         });
@@ -171,7 +171,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
             public void onFinish(int code, String msg) {
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                 if (code == RCODE_SUCCESS) {
-                    ((ContactManageActivity)context).updateContactList();
+                    ((ContactManageActivity)context).updateContacts();
                 }
             }
         });

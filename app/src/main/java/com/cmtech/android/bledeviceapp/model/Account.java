@@ -96,12 +96,9 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     // 该账号是否成功完成网络登录操作
     private boolean isWebLoginSuccess = false;
 
-    // 分享信息列表
-    //private final List<ShareInfo> shareInfos = new ArrayList<>();
-
     // 联系人列表
-    // 账户的联系人包括两类人：第一类、对方申请分享给你的人；第二类、你申请分享给对方，且对方同意了的人。
-    private final List<ContactPerson> contactPeople = new ArrayList<>();
+    // 账户的联系人包括两类人：第一类、对方申请了等待你批准的；第二类、双方同意建立联系的人。
+    private final List<ContactPerson> contacts = new ArrayList<>();
 
     //--------------------------------------------------------------静态函数
     // 从shared preference创建账户
@@ -122,7 +119,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     //--------------------------------------------------私有构造器
-    // 私有构造器，只能通过shared preference创建账户
+    // 私有构造器，只能通过createFromSharedPreference()来创建账户
     private Account() {
     }
 
@@ -278,40 +275,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }
     }
 
-    // 获取分享信息列表
-    /*public List<ShareInfo> getShareInfoList() {
-        return shareInfos;
-    }
-
-    // 从本地数据库中读取账户的分享信息列表,并按照分享状态排序
-    public void readShareInfosFromLocalDb() {
-        List<ShareInfo> shareInfos = new ArrayList<>(LitePal.where("fromId = ? or toId = ?",
-                "" + accountId, "" + accountId).find(ShareInfo.class));
-        Collections.sort(shareInfos, new Comparator<ShareInfo>() {
-            @Override
-            public int compare(ShareInfo o1, ShareInfo o2) {
-                int r1 = o1.getFromId()-accountId;
-                int r2 = o2.getFromId()-accountId;
-
-                if(r1 != r2) {
-                    if (r1 == 0) {
-                        return -1;
-                    } else if (r2 == 0) {
-                        return 1;
-                    }
-                }
-                return o2.getStatus()-o1.getStatus();
-            }
-        });
-        this.shareInfos.clear();
-        this.shareInfos.addAll(shareInfos);
-    }*/
-
-
     // 获取可以分享给对方的账户ID列表
     public List<Integer> getCanShareToIdList() {
         List<Integer> ids = new ArrayList<>();
-        for(ContactPerson cp : contactPeople) {
+        for(ContactPerson cp : contacts) {
             if(cp.getStatus() == AGREE) {
                 ids.add(cp.getAccountId());
             }
@@ -319,26 +286,23 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return ids;
     }
 
-    // 是否可以分享给指定ID人
-    public boolean canShareTo(int shareId) {
-        return getCanShareToIdList().contains(shareId);
+    // 返回联系人列表
+    public List<ContactPerson> getContacts() {
+        return contacts;
     }
 
-    public List<ContactPerson> getContactPeople() {
-        return contactPeople;
-    }
-
+    // 获取ID号对应的联系人对象
     public ContactPerson getContactPerson(int id) {
-        for(ContactPerson cp : contactPeople) {
+        for(ContactPerson cp : contacts) {
             if(cp.getAccountId() == id) return cp;
         }
         return null;
     }
 
-    // 从本地数据库读取联系人信息
+    // 从本地数据库读取联系人，按状态排序
     public void readContactFromLocalDb() {
-        this.contactPeople.clear();
-        this.contactPeople.addAll(LitePal.order("status desc").find(ContactPerson.class));
+        this.contacts.clear();
+        this.contacts.addAll(LitePal.order("status desc").find(ContactPerson.class));
     }
 
     // 账户注册
@@ -393,7 +357,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 从服务器下载联系人列表
+    // 下载联系人列表，只是简表信息，并更新本地数据库中信息
     public void downloadContactInfo(Context context, String showStr, ICodeCallback callback) {
         new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_INFO, new IWebResponseCallback() {
             @Override
@@ -403,6 +367,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 if(code == RCODE_SUCCESS) {
                     JSONArray jsonArr = (JSONArray) response.getContent();
                     if(jsonArr != null) {
+                        List<ContactPerson> revCps = new ArrayList<>();
                         for (int i = 0; i < jsonArr.length(); i++) {
                             try {
                                 JSONObject json = (JSONObject) jsonArr.get(i);
@@ -411,16 +376,25 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                                 int toId = json.getInt("toId");
                                 int status = json.getInt("status");
                                 int contactId = (fromId == accountId) ? toId : fromId;
+                                ContactPerson newCp = new ContactPerson(contactId, status);
+                                revCps.add(newCp);
                                 ContactPerson cpFind = LitePal.where("accountId = ?", ""+contactId)
                                         .findFirst(ContactPerson.class);
-                                if(cpFind == null)
-                                    new ContactPerson(contactId, status).save();
-                                else {
+                                if(cpFind == null) // 一个新的联系人，保存
+                                    newCp.save();
+                                else { // 原有的联系人，只需要改变状态，其他不要改变
                                     cpFind.setStatus(status);
                                     cpFind.save();
                                 }
                             } catch (JSONException ex) {
                                 ex.printStackTrace();
+                            }
+                        }
+                        // 移除在接收到的联系人列表中不存在的联系人，这是被删除了的联系人
+                        List<ContactPerson> curCps = LitePal.findAll(ContactPerson.class);
+                        for(ContactPerson cp : curCps) {
+                            if(!revCps.contains(cp)) {
+                                LitePal.deleteAll(ContactPerson.class, "accountId = ?", ""+cp.getAccountId());
                             }
                         }
                         readContactFromLocalDb();
@@ -432,10 +406,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
+    // 下载所有联系人的详细账户信息（不包含隐私信息），并保存到本地数据库中
     public void downloadContactDetailInfo(Context context, String showStr, ICodeCallback callback) {
         List<Integer> contactIds = new ArrayList<>();
-        for(ContactPerson cp : contactPeople) {
+        for(ContactPerson cp : contacts) {
             contactIds.add(cp.getAccountId());
         }
         new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_DETAIL_INFO, new Object[]{contactIds}, new IWebResponseCallback() {
@@ -470,10 +444,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
 
-    // 申请一条新的分享
-    public void requestNewShare(Context context, int toId, ICodeCallback callback) {
+    // 申请建立一个新的联系人
+    public void requestNewContact(Context context, int toId, ICodeCallback callback) {
         if(accountId == toId) {
-            Toast.makeText(context, "不能分享给自己", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "不能发给自己", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -488,7 +462,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 同意一条联系人申请
+    // 同意一个联系人的申请
     public void agreeContact(Context context, int fromId, ICodeCallback callback) {
         new WebAsyncTask(context, "请稍等", CMD_AGREE_CONTACT, new Object[]{fromId}, new IWebResponseCallback() {
             @Override
@@ -499,7 +473,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 删除一条联系人
+    // 删除一个联系人
     public void deleteContact(Context context, int contactId, ICodeCallback callback) {
         new WebAsyncTask(context, "请稍等", CMD_DELETE_CONTACT, new Object[]{contactId}, new IWebResponseCallback() {
             @Override
@@ -606,7 +580,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return "AccountId: " + accountId + ",UserName: " + userName + ",Password: " + password + ",NickName：" + nickName + ' '
                 + ",gender:" + gender + ",birthday:" + birthday + ",weight:" + weight + ",height:" + height
                 + ",Note：" + note + ",icon: " + icon + ",isWebLoginSuccess:" + isWebLoginSuccess
-                + ", contactPeople: " + contactPeople;
+                + ", contactPeople: " + contacts;
     }
 
     @Override

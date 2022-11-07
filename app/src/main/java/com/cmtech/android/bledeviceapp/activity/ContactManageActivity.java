@@ -21,9 +21,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ContactAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.cmtech.android.bledeviceapp.model.ContactPerson;
-
-import org.litepal.LitePal;
 
 /**
  * 用来管理联系人的Activity
@@ -48,7 +45,7 @@ public class ContactManageActivity extends AppCompatActivity {
         rvContact = findViewById(R.id.rv_contact_info);
         rvContact.setLayoutManager(new LinearLayoutManager(this));
         rvContact.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        contactAdapter = new ContactAdapter(MyApplication.getAccount().getContactPeople());
+        contactAdapter = new ContactAdapter(MyApplication.getAccount().getContacts());
         rvContact.setAdapter(contactAdapter);
 
         etContactId = findViewById(R.id.et_contact_id);
@@ -88,7 +85,7 @@ public class ContactManageActivity extends AppCompatActivity {
                 break;
 
             case R.id.item_refresh:
-                updateContactList();
+                updateContacts();
                 break;
         }
         return true;
@@ -99,14 +96,14 @@ public class ContactManageActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    // 更新分享信息列表
-    public void updateContactList() {
-        LitePal.deleteAll(ContactPerson.class);
+    // 更新联系人
+    public void updateContacts() {
         // 从服务器下载分享信息保存到本地数据库，之后再从分享信息中下载联系人信息
         MyApplication.getAccount().downloadContactInfo(this, "更新中，请稍后...", new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 if (code == RCODE_SUCCESS) {
+                    updateView();
                     MyApplication.getAccount().downloadContactDetailInfo(ContactManageActivity.this, null,
                             new ICodeCallback() {
                                 @Override
@@ -130,7 +127,7 @@ public class ContactManageActivity extends AppCompatActivity {
     }
 
     private void applyNewShare(int id) {
-        MyApplication.getAccount().requestNewShare(this, id, new ICodeCallback() {
+        MyApplication.getAccount().requestNewContact(this, id, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 Toast.makeText(ContactManageActivity.this, msg, Toast.LENGTH_SHORT).show();

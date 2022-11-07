@@ -145,16 +145,6 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
         return json;
     }
 
-    public void remove() {
-        if(!TextUtils.isEmpty(icon)) {
-            try {
-                FileUtil.deleteFile(new File(icon));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     @NonNull
     @Override
     public String toString() {
