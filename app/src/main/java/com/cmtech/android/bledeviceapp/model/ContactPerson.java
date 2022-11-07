@@ -36,16 +36,18 @@ import java.io.Serializable;
  */
 
 public class ContactPerson extends LitePalSupport implements Serializable, IJsonable {
+    //---------------------------------------------------------静态常量
+    // 联系人的两个状态。当对方在申请成为你的联系人，而你还没有批准时，状态为WAITING；当双方都同意成为联系人时，则状态为AGREE
     public static final int WAITING = 0;
     public static final int AGREE = 1;
 
     private int id;
 
     // 账户ID
-    private int accountId = INVALID_ID;
+    private int accountId;
 
     // 申请的状态
-    private int status = WAITING;
+    private int status;
 
     // 昵称
     private String nickName = "";
@@ -56,7 +58,13 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     // 头像图标文件本地路径名
     private String icon = "";
 
+    //------------------------------------------------------构造器
 
+    /**
+     *
+     * @param accountId 联系人的账户ID
+     * @param status 联系人的状态
+     */
     public ContactPerson(int accountId, int status) {
         this.accountId = accountId;
         this.status = status;
@@ -82,13 +90,13 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
         return nickName;
     }
 
+    // 当昵称为空时，显示ID号
     public String getNickNameOrId() {
-        String name = nickName.trim();
-        return TextUtils.isEmpty(name) ? "ID:"+accountId : name;
+        return TextUtils.isEmpty(nickName) ? "ID:"+accountId : nickName;
     }
 
     public void setNickName(String nickName) {
-        this.nickName = nickName;
+        this.nickName = nickName.trim();
     }
 
     public String getNote() {
@@ -96,7 +104,7 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     }
 
     public void setNote(String note) {
-        this.note = note;
+        this.note = note.trim();
     }
 
     public String getIcon() {
@@ -104,7 +112,7 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     }
 
     public void setIcon(String icon) {
-        this.icon = icon;
+        this.icon = icon.trim();
     }
 
     @Override

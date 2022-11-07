@@ -63,7 +63,6 @@ public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull SharePersonAdapter.ViewHolder holder, int position) {
-        position = holder.getAdapterPosition();
         ContactPerson cp = cps.get(position);
 
         int myId = MyApplication.getAccountId();

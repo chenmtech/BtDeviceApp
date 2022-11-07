@@ -45,28 +45,54 @@
                 android:id="@+id/tv_account_nick_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="昵称"
+                android:text="匿名"
                 android:textColor="@color/primary_text"
                 android:textSize="@dimen/normal_font"
                 android:maxLength="12"/>
-
-            <TextView
-                android:id="@+id/tv_user_name"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="用户名"
-                android:textColor="@color/secondary_text"
-                android:textSize="@dimen/normal_font"
-                android:maxLength="12"/>
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="\@"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="@dimen/normal_font"
+                    android:maxLength="12"/>
+                <TextView
+                    android:id="@+id/tv_user_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="@color/secondary_text"
+                    android:textSize="@dimen/normal_font"
+                    android:maxLength="12"/>
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tv_user_id"
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ID:"
-                android:textColor="@color/secondary_text"
-                android:textSize="@dimen/normal_font"
-                android:maxLength="12"/>
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ID:"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="@dimen/normal_font"
+                    android:maxLength="12"/>
+
+                <TextView
+                    android:id="@+id/tv_user_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textColor="@color/orange"
+                    android:textSize="@dimen/normal_font"
+                    android:maxLength="12"/>
+            </LinearLayout>
+
 
         </LinearLayout>
 

@@ -676,10 +676,10 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             }
 
             String username = account.getUserName();
-            tvUserName.setText("@" + username);
+            tvUserName.setText(username);
 
             int userId = account.getAccountId();
-            tvUserId.setText("ID:" + userId);
+            tvUserId.setText(userId);
 
             if(TextUtils.isEmpty(account.getIcon())) {
                 ivAccountImage.setImageResource(R.mipmap.ic_user);
