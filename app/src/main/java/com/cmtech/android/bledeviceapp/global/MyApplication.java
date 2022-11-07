@@ -12,7 +12,6 @@ import com.cmtech.android.ble.core.BleDeviceCommonInfo;
 import com.cmtech.android.ble.core.DeviceCommonInfo;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AppUpdateManager;
-import com.cmtech.android.bledeviceapp.model.ShareInfo;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;

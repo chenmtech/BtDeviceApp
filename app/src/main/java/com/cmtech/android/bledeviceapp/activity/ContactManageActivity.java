@@ -18,53 +18,46 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.ShareInfoAdapter;
+import com.cmtech.android.bledeviceapp.adapter.ContactAdapter;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
+import com.cmtech.android.bledeviceapp.model.ContactPerson;
 
-import java.util.List;
+import org.litepal.LitePal;
 
 /**
- * 用来管理分享信息的Activity
+ * 用来管理联系人的Activity
  */
-public class ShareManageActivity extends AppCompatActivity {
-    private ShareInfoAdapter siFromAdapter;
-    private RecyclerView rvShareFrom;
-    private ShareInfoAdapter siToAdapter;
-    private RecyclerView rvShareTo;
-    private EditText etShareToId;
-    private Button btnApply;
+public class ContactManageActivity extends AppCompatActivity {
+    private ContactAdapter contactAdapter;
+    private RecyclerView rvContact;
+    private EditText etContactId;
+    private Button btnAddContact;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_share_manage);
+        setContentView(R.layout.activity_contact_manage);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_share_manage);
+        Toolbar toolbar = findViewById(R.id.tb_contact_manage);
         setSupportActionBar(toolbar);
 
         // 初始化分享信息列表
-        rvShareFrom = findViewById(R.id.rv_share_from);
-        rvShareFrom.setLayoutManager(new LinearLayoutManager(this));
-        rvShareFrom.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        siFromAdapter = new ShareInfoAdapter(MyApplication.getShareInfoList());
-        rvShareFrom.setAdapter(siFromAdapter);
+        rvContact = findViewById(R.id.rv_contact_info);
+        rvContact.setLayoutManager(new LinearLayoutManager(this));
+        rvContact.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        contactAdapter = new ContactAdapter(MyApplication.getAccount().getContactPeople());
+        rvContact.setAdapter(contactAdapter);
 
-        rvShareTo = findViewById(R.id.rv_share_to);
-        rvShareTo.setLayoutManager(new LinearLayoutManager(this));
-        rvShareTo.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        siToAdapter = new ShareInfoAdapter(MyApplication.getShareInfoList());
-        rvShareTo.setAdapter(siToAdapter);
+        etContactId = findViewById(R.id.et_contact_id);
 
-        etShareToId = findViewById(R.id.et_share_to_id);
-
-        btnApply = findViewById(R.id.btn_apply_share);
-        btnApply.setOnClickListener(new View.OnClickListener() {
+        btnAddContact = findViewById(R.id.btn_add_contact);
+        btnAddContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String idStr = etShareToId.getText().toString();
+                String idStr = etContactId.getText().toString();
                 int id = INVALID_ID;
                 try{
                     id = Integer.parseInt(idStr);
@@ -73,7 +66,7 @@ public class ShareManageActivity extends AppCompatActivity {
                 if(id != INVALID_ID) {
                     applyNewShare(id);
                 } else {
-                    Toast.makeText(ShareManageActivity.this, "无效ID", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ContactManageActivity.this, "无效ID", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -95,7 +88,7 @@ public class ShareManageActivity extends AppCompatActivity {
                 break;
 
             case R.id.item_refresh:
-                updateShareInfoList();
+                updateContactList();
                 break;
         }
         return true;
@@ -106,45 +99,41 @@ public class ShareManageActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-
     // 更新分享信息列表
-    public void updateShareInfoList() {
+    public void updateContactList() {
+        LitePal.deleteAll(ContactPerson.class);
         // 从服务器下载分享信息保存到本地数据库，之后再从分享信息中下载联系人信息
-        MyApplication.getAccount().updateContactPeopleInfos(this, "更新中，请稍后...", new ICodeCallback() {
+        MyApplication.getAccount().downloadContactInfo(this, "更新中，请稍后...", new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 if (code == RCODE_SUCCESS) {
-                    List<Integer> cpIds = MyApplication.getAccount().getContactPeopleIdsForDetailInfo();
-                    MyApplication.getAccount().downloadContactPeopleInfos(ShareManageActivity.this, null,
-                            cpIds, new ICodeCallback() {
+                    MyApplication.getAccount().downloadContactDetailInfo(ContactManageActivity.this, null,
+                            new ICodeCallback() {
                                 @Override
                                 public void onFinish(int code, String msg) {
                                     if(code == RCODE_SUCCESS) {
                                         updateView();
                                     } else {
-                                        Toast.makeText(ShareManageActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ContactManageActivity.this, msg, Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
                 } else {
-                    Toast.makeText(ShareManageActivity.this, msg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ContactManageActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
     private void updateView() {
-        siFromAdapter.notifyDataSetChanged();
+        contactAdapter.notifyDataSetChanged();
     }
 
     private void applyNewShare(int id) {
         MyApplication.getAccount().requestNewShare(this, id, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
-                Toast.makeText(ShareManageActivity.this, msg, Toast.LENGTH_SHORT).show();
-                if(code==RCODE_SUCCESS) {
-                    updateShareInfoList();
-                }
+                Toast.makeText(ContactManageActivity.this, msg, Toast.LENGTH_SHORT).show();
             }
         });
     }

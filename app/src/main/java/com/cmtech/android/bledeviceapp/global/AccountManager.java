@@ -7,10 +7,7 @@ import android.content.Context;
 
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.ShareInfo;
 import com.vise.log.ViseLog;
-
-import java.util.List;
 
 /**
   *

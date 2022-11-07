@@ -85,7 +85,7 @@
         </activity>
 
         <activity
-            android:name=".activity.ShareManageActivity"
+            android:name=".activity.ContactManageActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"/>
         <activity

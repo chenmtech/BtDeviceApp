@@ -4,41 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/layout_manage_share">
+    android:id="@+id/layout_manage_contact">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/tb_share_manage"
+        android:id="@+id/tb_contact_manage"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        toolbar:title="管理分享"
+        toolbar:title="管理联系人"
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <include layout="@layout/divider_line"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="想分享给你"/>
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id = "@+id/rv_share_from"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-
-    <include layout="@layout/divider_line"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="你想分享给"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id = "@+id/rv_share_to"
+        android:id = "@+id/rv_contact_info"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
@@ -53,17 +33,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="申请分享给："/>
+            android:text="添加联系人："/>
 
         <EditText
-            android:id="@+id/et_share_to_id"
+            android:id="@+id/et_contact_id"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="请输入对方ID号"/>
 
         <Button
-            android:id="@+id/btn_apply_share"
+            android:id="@+id/btn_add_contact"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/button_circle_blue_style"

@@ -36,20 +36,16 @@ import java.io.Serializable;
  */
 
 public class ContactPerson extends LitePalSupport implements Serializable, IJsonable {
-    public static final int DENY = 0;
-    public static final int WAITING = 1;
-    public static final int AGREE = 2;
+    public static final int WAITING = 0;
+    public static final int AGREE = 1;
 
     private int id;
 
     // 账户ID
     private int accountId = INVALID_ID;
 
-    // 这个联系人是否是向你申请的，还是你向他申请的
-    private boolean isFrom = true;
-
     // 申请的状态
-    private int status = DENY;
+    private int status = WAITING;
 
     // 昵称
     private String nickName = "";
@@ -61,7 +57,9 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     private String icon = "";
 
 
-    public ContactPerson() {
+    public ContactPerson(int accountId, int status) {
+        this.accountId = accountId;
+        this.status = status;
     }
 
     public int getAccountId() {
@@ -72,12 +70,21 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
         this.accountId = accountId;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     public String getNickName() {
-        if(nickName.equals("")) {
-            return "ID："+accountId;
-        } else {
-            return nickName;
-        }
+        return nickName;
+    }
+
+    public String getNickNameOrId() {
+        String name = nickName.trim();
+        return TextUtils.isEmpty(name) ? "ID:"+accountId : name;
     }
 
     public void setNickName(String nickName) {
@@ -98,22 +105,6 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
 
     public void setIcon(String icon) {
         this.icon = icon;
-    }
-
-    public boolean isFrom() {
-        return isFrom;
-    }
-
-    public void setFrom(boolean from) {
-        isFrom = from;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 
     @Override
@@ -168,8 +159,7 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
     @Override
     public String toString() {
         return "AccountId: " + accountId + ",NickName：" + nickName + ' '
-                + ",Note：" + note + ",icon: " + icon
-                + ",isFrom：" + isFrom + ",status: " + status;
+                + ",Note：" + note + ",icon: " + icon + ",status: " + status;
     }
 
     @Override

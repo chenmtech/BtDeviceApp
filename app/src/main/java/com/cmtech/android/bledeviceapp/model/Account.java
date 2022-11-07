@@ -3,7 +3,16 @@ package com.cmtech.android.bledeviceapp.model;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.model.ContactPerson.AGREE;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.*;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_AGREE_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_PASSWORD;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_ACCOUNT;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_DETAIL_INFO;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_INFO;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_LOGIN;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_SIGNUP;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_UPLOAD_ACCOUNT;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -34,9 +43,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
   *
@@ -260,7 +267,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         editor.clear();
         editor.commit();
 
-        LitePal.deleteAll(ShareInfo.class);
         LitePal.deleteAll(ContactPerson.class);
 
         if(!TextUtils.isEmpty(icon)) {
@@ -301,58 +307,12 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         this.shareInfos.addAll(shareInfos);
     }*/
 
-    // 从服务器更新联系人列表
-    public void updateContactPeopleInfos(Context context, String showStr, ICodeCallback callback) {
-        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_SHARE_INFO, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                String msg = response.getMsg();
-                if(code == RCODE_SUCCESS) {
-                    JSONArray jsonArr = (JSONArray) response.getContent();
-                    if(jsonArr != null) {
-                        for (int i = 0; i < jsonArr.length(); i++) {
-                            try {
-                                JSONObject json = (JSONObject) jsonArr.get(i);
-                                if (json == null) continue;
-                                ShareInfo si = new ShareInfo();
-                                si.fromJson(json);
-                                ContactPerson cp = new ContactPerson();
-                                int myId = MyApplication.getAccountId();
-                                if(si.getFromId() == myId) {
-                                    cp.setAccountId(si.getToId());
-                                    cp.setFrom(false);
-                                } else {
-                                    cp.setFrom(true);
-                                    cp.setAccountId(si.getFromId());
-                                }
-                                cp.setStatus(si.getStatus());
-                                ContactPerson cpFind = LitePal.where("accountId = ? and isFrom = ", ""+cp.getAccountId(), ""+cp.isFrom())
-                                                .findFirst(ContactPerson.class);
-                                if(cpFind == null)
-                                    cp.save();
-                                else {
-                                    cpFind.setStatus(cp.getStatus());
-                                    cpFind.save();
-                                }
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                        readContactPeopleFromLocalDb();
-                    }
-                }
-                if(callback != null)
-                    callback.onFinish(code, msg);
-            }
-        }).execute(this);
-    }
 
     // 获取可以分享给对方的账户ID列表
     public List<Integer> getCanShareToIdList() {
         List<Integer> ids = new ArrayList<>();
         for(ContactPerson cp : contactPeople) {
-            if(!cp.isFrom() && cp.getStatus() == ShareInfo.AGREE) {
+            if(cp.getStatus() == AGREE) {
                 ids.add(cp.getAccountId());
             }
         }
@@ -375,55 +335,10 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return null;
     }
 
-    // 从分享列表中提取联系人ID列表
-    public List<Integer> getContactPeopleIdsForDetailInfo() {
-        Set<Integer> cps = new HashSet<>();
-        for(ContactPerson cp : contactPeople) {
-            if(cp.isFrom()) {
-                cps.add(cp.getAccountId());
-            } else if(cp.getStatus() == AGREE) {
-                cps.add(cp.getAccountId());
-            }
-        }
-        return new ArrayList<>(cps);
-    }
-
     // 从本地数据库读取联系人信息
-    public void readContactPeopleFromLocalDb() {
+    public void readContactFromLocalDb() {
         this.contactPeople.clear();
-        this.contactPeople.addAll(LitePal.findAll(ContactPerson.class));
-    }
-
-    // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
-    public void downloadContactPeopleInfos(Context context, String showStr, List<Integer> contactIds, ICodeCallback callback) {
-        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_PEOPLE, new Object[]{contactIds}, new IWebResponseCallback() {
-            @Override
-            public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                String msg = response.getMsg();
-                if(code == RCODE_SUCCESS) {
-                    JSONArray jsonArr = (JSONArray) response.getContent();
-                    if(jsonArr != null) {
-                        for (int i = 0; i < jsonArr.length(); i++) {
-                            try {
-                                JSONObject json = (JSONObject) jsonArr.get(i);
-                                if (json == null) continue;
-                                ContactPerson contactPerson = new ContactPerson();
-                                contactPerson.fromJson(json);
-                                contactPerson.saveOrUpdate("accountId = ?",
-                                        "" + contactPerson.getAccountId());
-                                ViseLog.e(contactPerson);
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                        readContactPeopleFromLocalDb();
-                    }
-                }
-                if(callback != null)
-                    callback.onFinish(code, msg);
-            }
-        }).execute(this);
+        this.contactPeople.addAll(LitePal.order("status desc").find(ContactPerson.class));
     }
 
     // 账户注册
@@ -478,22 +393,92 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
+    // 从服务器下载联系人列表
+    public void downloadContactInfo(Context context, String showStr, ICodeCallback callback) {
+        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_INFO, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                String msg = response.getMsg();
+                if(code == RCODE_SUCCESS) {
+                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    if(jsonArr != null) {
+                        for (int i = 0; i < jsonArr.length(); i++) {
+                            try {
+                                JSONObject json = (JSONObject) jsonArr.get(i);
+                                if (json == null) continue;
+                                int fromId = json.getInt("fromId");
+                                int toId = json.getInt("toId");
+                                int status = json.getInt("status");
+                                int contactId = (fromId == accountId) ? toId : fromId;
+                                ContactPerson cpFind = LitePal.where("accountId = ?", ""+contactId)
+                                        .findFirst(ContactPerson.class);
+                                if(cpFind == null)
+                                    new ContactPerson(contactId, status).save();
+                                else {
+                                    cpFind.setStatus(status);
+                                    cpFind.save();
+                                }
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                        readContactFromLocalDb();
+                    }
+                }
+                if(callback != null)
+                    callback.onFinish(code, msg);
+            }
+        }).execute(this);
+    }
+
+    // 下载contactId指定的账户ID号的联系人信息，并保存到本地数据库中
+    public void downloadContactDetailInfo(Context context, String showStr, ICodeCallback callback) {
+        List<Integer> contactIds = new ArrayList<>();
+        for(ContactPerson cp : contactPeople) {
+            contactIds.add(cp.getAccountId());
+        }
+        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_DETAIL_INFO, new Object[]{contactIds}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                int code = response.getCode();
+                String msg = response.getMsg();
+                if(code == RCODE_SUCCESS) {
+                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    if(jsonArr != null) {
+                        for (int i = 0; i < jsonArr.length(); i++) {
+                            try {
+                                JSONObject json = (JSONObject) jsonArr.get(i);
+                                if (json == null) continue;
+                                int contactId = json.getInt("accountId");
+                                ContactPerson cpFind = LitePal.where("accountId = ?", ""+contactId)
+                                        .findFirst(ContactPerson.class);
+                                if(cpFind == null) continue;
+                                cpFind.fromJson(json);
+                                cpFind.save();
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                        readContactFromLocalDb();
+                    }
+                }
+                if(callback != null)
+                    callback.onFinish(code, msg);
+            }
+        }).execute(this);
+    }
+
+
     // 申请一条新的分享
-    public void requestNewShare(Context context, int shareToId, ICodeCallback callback) {
-        if(accountId == shareToId) {
+    public void requestNewShare(Context context, int toId, ICodeCallback callback) {
+        if(accountId == toId) {
             Toast.makeText(context, "不能分享给自己", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        for(ContactPerson cp : contactPeople) {
-            if(!cp.isFrom() && cp.getAccountId() == shareToId) {
-                Toast.makeText(context, "不能重复申请", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        }
-
-        new WebAsyncTask(context, "请稍等", CMD_APPLY_NEW_SHARE,
-                new Object[]{shareToId}, new IWebResponseCallback() {
+        new WebAsyncTask(context, "请稍等", CMD_ADD_CONTACT,
+                new Object[]{toId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback!=null) {
@@ -503,9 +488,20 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 修改一条分享信息
-    public void changeShareInfo(Context context, int fromId, int status, ICodeCallback callback) {
-        new WebAsyncTask(context, "请稍等", CMD_CHANGE_SHARE_INFO, new Object[]{fromId, status}, new IWebResponseCallback() {
+    // 同意一条联系人申请
+    public void agreeContact(Context context, int fromId, ICodeCallback callback) {
+        new WebAsyncTask(context, "请稍等", CMD_AGREE_CONTACT, new Object[]{fromId}, new IWebResponseCallback() {
+            @Override
+            public void onFinish(WebResponse response) {
+                if(callback!=null)
+                    callback.onFinish(response.getCode(), response.getMsg());
+            }
+        }).execute(this);
+    }
+
+    // 删除一条联系人
+    public void deleteContact(Context context, int contactId, ICodeCallback callback) {
+        new WebAsyncTask(context, "请稍等", CMD_DELETE_CONTACT, new Object[]{contactId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback!=null)

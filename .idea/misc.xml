@@ -17,6 +17,7 @@
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_record_ecg.xml" value="0.16339323025491015" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_record_explorer.xml" value="0.16339323025491015" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_share_manage.xml" value="0.18" />
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/dialog_choose_share_person.xml" value="0.15177426250534418" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/dialog_device_info.xml" value="0.195382642154767" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_account_info.xml" value="0.195382642154767" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_device_hrm.xml" value="0.19427083333333334" />
@@ -31,6 +32,7 @@
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_record_report.xml" value="0.33" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/layout_record_search.xml" value="0.16973065412569474" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/navigation_header.xml" value="0.2804617357845233" />
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/recycle_item_contact.xml" value="0.13825929283771532" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/recycle_item_contact_person.xml" value="0.195382642154767" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/recycle_item_device_scan.xml" value="0.2278751603249252" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/recycle_item_record.xml" value="0.23129542539546816" />

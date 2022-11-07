@@ -75,18 +75,20 @@ public class KMWebService11Util {
     public static final int CMD_LOGIN = 11;
     // 修改账户密码
     public static final int CMD_CHANGE_PASSWORD = 12;
-    // 下载账户分享信息
-    public static final int CMD_DOWNLOAD_SHARE_INFO = 13;
-    // 修改一条账户分享信息
-    public static final int CMD_CHANGE_SHARE_INFO = 14;
-    // 申请一条新的账户分享
-    public static final int CMD_APPLY_NEW_SHARE = 15;
-    // 下载账户联系人
-    public static final int CMD_DOWNLOAD_CONTACT_PEOPLE = 16;
+    // 下载账户联系人信息，仅包括发起者ID，接收者ID，以及申请状态
+    public static final int CMD_DOWNLOAD_CONTACT_INFO = 13;
+    // 下载账户联系人详细信息，包括联系人ID，昵称，简介和头像
+    public static final int CMD_DOWNLOAD_CONTACT_DETAIL_INFO = 14;
+    // 添加一条申请联系人信息
+    public static final int CMD_ADD_CONTACT = 15;
+    // 同意一条账户联系人申请信息
+    public static final int CMD_AGREE_CONTACT = 16;
+    // 删除一条联系人信息
+    public static final int CMD_DELETE_CONTACT = 17;
     // 下载APP更新信息
-    public static final int CMD_DOWNLOAD_APP_INFO = 17;
-    // 下载APK文件，执行这个命令不通过传输协议
-    public static final int CMD_DOWNLOAD_APK = 18;
+    public static final int CMD_DOWNLOAD_APP_INFO = 18;
+    // 下载APK文件
+    public static final int CMD_DOWNLOAD_APK = 19;
 
     //--------------------------------------------------------静态函数
     //---------Get Request------------//
@@ -172,14 +174,30 @@ public class KMWebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
-    public static WebResponse downloadContactPeople(Account account, List<Integer> contactIds) {
+    public static WebResponse downloadContactInfo(Account account) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_DOWNLOAD_CONTACT_PEOPLE);
+            json.put("cmd", CMD_DOWNLOAD_CONTACT_INFO);
+            json.put("accountId", account.getAccountId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
+        }
+        return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
+    }
+
+    public static WebResponse downloadContactDetailInfo(Account account, List<Integer> contactIds) {
+        WebResponse resp = accountWebLogin(account);
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("sver", SVER);
+            json.put("cmd", CMD_DOWNLOAD_CONTACT_DETAIL_INFO);
             json.put("accountId", account.getAccountId());
             json.put("contactIds", ListStringUtil.listToString(contactIds));
             ViseLog.e(json.toString());
@@ -190,50 +208,14 @@ public class KMWebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
-    public static WebResponse downloadShareInfo(Account account) {
+    public static WebResponse addContact(Account account, int toId) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_DOWNLOAD_SHARE_INFO);
-            json.put("accountId", account.getAccountId());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
-        }
-        //ViseLog.e(json);
-        return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
-    }
-
-    public static WebResponse changeShareInfo(Account account, int fromId, int status) {
-        WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RCODE_SUCCESS) return resp;
-
-        JSONObject json = new JSONObject();
-        try {
-            json.put("sver", SVER);
-            json.put("cmd", CMD_CHANGE_SHARE_INFO);
-            json.put("accountId", account.getAccountId());
-            json.put("fromId", fromId);
-            json.put("status", status);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
-        }
-        //ViseLog.e(json);
-        return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
-    }
-
-    public static WebResponse addShareInfo(Account account, int toId) {
-        WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RCODE_SUCCESS) return resp;
-
-        JSONObject json = new JSONObject();
-        try {
-            json.put("sver", SVER);
-            json.put("cmd", CMD_APPLY_NEW_SHARE);
+            json.put("cmd", CMD_ADD_CONTACT);
             json.put("accountId", account.getAccountId());
             json.put("toId", toId);
         } catch (JSONException e) {
@@ -241,6 +223,40 @@ public class KMWebService11Util {
             return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
         //ViseLog.e(json);
+        return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
+    }
+
+    public static WebResponse agreeContact(Account account, int fromId) {
+        WebResponse resp = accountWebLogin(account);
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("sver", SVER);
+            json.put("cmd", CMD_AGREE_CONTACT);
+            json.put("accountId", account.getAccountId());
+            json.put("fromId", fromId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
+        }
+        return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
+    }
+
+    public static WebResponse deleteContact(Account account, int contactId) {
+        WebResponse resp = accountWebLogin(account);
+        if(resp.getCode() != RCODE_SUCCESS) return resp;
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("sver", SVER);
+            json.put("cmd", CMD_DELETE_CONTACT);
+            json.put("accountId", account.getAccountId());
+            json.put("contactId", contactId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
+        }
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 

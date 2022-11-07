@@ -1,11 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import com.cmtech.android.bledeviceapp.interfac.IJsonable;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.litepal.crud.LitePalSupport;
-
+/*
 public class ShareInfo extends LitePalSupport implements IJsonable {
     public static final int DENY = 0;
     public static final int WAITING = 1;
@@ -102,3 +97,4 @@ public class ShareInfo extends LitePalSupport implements IJsonable {
         return fromId + fromUserName + "->" + toId + toUserName +":" + status;
     }
 }
+*/

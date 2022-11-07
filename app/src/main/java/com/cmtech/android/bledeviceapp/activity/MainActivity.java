@@ -57,7 +57,6 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AppUpdateManager;
-import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
@@ -72,10 +71,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-import org.w3c.dom.Text;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -156,27 +153,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             return;
         }
 
-        MyApplication.getAccount().readContactPeopleFromLocalDb();
-
-        MyApplication.getAccount().updateContactPeopleInfos(this, null, new ICodeCallback() {
-            @Override
-            public void onFinish(int code, String msg) {
-                if(code == RCODE_SUCCESS) {
-                    List<Integer> cpIds = MyApplication.getAccount().getContactPeopleIdsForDetailInfo();
-                    List<Integer> cpNeedDownloadIds = new ArrayList<>();
-                    for(int id : cpIds) {
-                        ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
-                        if(TextUtils.isEmpty(cp.getIcon())) {
-                            cpNeedDownloadIds.add(id);
-                        }
-                    }
-
-                    if(!cpNeedDownloadIds.isEmpty())
-                        MyApplication.getAccount().downloadContactPeopleInfos(MainActivity.this, null,
-                                cpNeedDownloadIds, null);
-                }
-            }
-        });
+        MyApplication.getAccount().readContactFromLocalDb();
 
         // 启动通知服务
         Intent serviceIntent = new Intent(this, NotificationService.class);
@@ -305,8 +282,8 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                         intent = new Intent(MainActivity.this, RecordExplorerActivity.class);
                         startActivity(intent);
                         return true;
-                    case R.id.nav_manage_share: // 管理分享
-                        intent = new Intent(MainActivity.this, ShareManageActivity.class);
+                    case R.id.nav_manage_contact: // 管理联系人
+                        intent = new Intent(MainActivity.this, ContactManageActivity.class);
                         startActivity(intent);
                         return true;
                     case R.id.nav_update_app: // 检查更新

@@ -13,20 +13,21 @@
         android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="center_horizontal"
             android:layout_margin="8dp"
             android:orientation="vertical"
             android:visibility="visible">
             <com.cmtech.android.bledeviceapp.view.CircleImageView
-                android:id="@+id/iv_from_image"
+                android:id="@+id/iv_contact_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_user_32px"/>
 
             <TextView
-                android:id="@+id/tv_from_name"
+                android:id="@+id/tv_contact_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/anonymous"
@@ -35,7 +36,7 @@
                 android:maxLength="12"/>
 
             <TextView
-                android:id="@+id/tv_from_id"
+                android:id="@+id/tv_contact_id"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/anonymous"
@@ -44,44 +45,16 @@
                 android:maxLength="12"/>
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="申请分享给"
-            android:textSize="@dimen/normal_font"
-            android:textColor="@color/primary_text"/>
+        <EditText
+            android:id="@+id/et_contact_note"
+            style="@style/edittext_circle_gray_no_focusable_style"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:maxLength="100"
+            android:enabled="false"
+            android:hint="无"/>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_margin="8dp"
-            android:orientation="vertical"
-            android:visibility="visible">
-            <com.cmtech.android.bledeviceapp.view.CircleImageView
-                android:id="@+id/iv_to_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_user_32px"/>
-
-            <TextView
-                android:id="@+id/tv_to_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/anonymous"
-                android:textSize="@dimen/smallest_font"
-                android:textColor="@color/secondary_text"
-                android:maxLength="12"/>
-
-            <TextView
-                android:id="@+id/tv_to_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/anonymous"
-                android:textSize="@dimen/smallest_font"
-                android:textColor="@color/secondary_text"
-                android:maxLength="12"/>
-        </LinearLayout>
 
     </LinearLayout>
 

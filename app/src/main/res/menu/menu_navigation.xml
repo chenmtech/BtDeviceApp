@@ -15,8 +15,8 @@
             android:icon="@mipmap/ic_query_record"/>
 
         <item
-            android:id="@+id/nav_manage_share"
-            android:title="管理分享"
+            android:id="@+id/nav_manage_contact"
+            android:title="管理联系人"
             android:icon="@mipmap/ic_share_32px"
             android:visible="true"/>
 

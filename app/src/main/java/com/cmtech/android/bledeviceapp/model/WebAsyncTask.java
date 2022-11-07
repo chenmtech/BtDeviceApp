@@ -2,16 +2,17 @@ package com.cmtech.android.bledeviceapp.model;
 
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_WEB_FAILURE;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_APPLY_NEW_SHARE;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_AGREE_CONTACT;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_PASSWORD;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_SHARE_INFO;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_CONTACT;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_RECORD;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_ACCOUNT;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_APP_INFO;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_PEOPLE;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_DETAIL_INFO;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_INFO;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_RECORD;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_RECORDS;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_SHARE_INFO;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_LOGIN;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_QUERY_RECORD_ID;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_RETRIEVE_DIAGNOSE_REPORT;
@@ -166,28 +167,33 @@ public class WebAsyncTask extends AsyncTask<Object, Void, WebResponse> {
                 response = KMWebServiceUtil.changePassword(account);
                 break;
 
-            case CMD_DOWNLOAD_SHARE_INFO:
+            case CMD_DOWNLOAD_CONTACT_INFO:
                 account = (Account) objects[0];
-                response = KMWebServiceUtil.downloadShareInfo(account);
+                response = KMWebServiceUtil.downloadContactInfo(account);
                 break;
 
-            case CMD_CHANGE_SHARE_INFO:
-                account = (Account) objects[0];
-                int fromId = (Integer) params[0];
-                int status = (Integer) params[1];
-                response = KMWebServiceUtil.changeShareInfo(account, fromId, status);
-                break;
-
-            case CMD_APPLY_NEW_SHARE:
-                account = (Account) objects[0];
-                int toId = (Integer) params[0];
-                response = KMWebServiceUtil.addShareInfo(account, toId);
-                break;
-
-            case CMD_DOWNLOAD_CONTACT_PEOPLE:
+            case CMD_DOWNLOAD_CONTACT_DETAIL_INFO:
                 account = (Account) objects[0];
                 List<Integer> contactIds = (List<Integer>) params[0];
-                response = KMWebServiceUtil.downloadContactPeople(account, contactIds);
+                response = KMWebServiceUtil.downloadContactDetailInfo(account, contactIds);
+                break;
+
+            case CMD_AGREE_CONTACT:
+                account = (Account) objects[0];
+                int fromId = (Integer) params[0];
+                response = KMWebServiceUtil.agreeContact(account, fromId);
+                break;
+
+            case CMD_ADD_CONTACT:
+                account = (Account) objects[0];
+                int toId = (Integer) params[0];
+                response = KMWebServiceUtil.addContact(account, toId);
+                break;
+
+            case CMD_DELETE_CONTACT:
+                account = (Account) objects[0];
+                int contactId = (Integer) params[0];
+                response = KMWebServiceUtil.deleteContact(account, contactId);
                 break;
 
             case CMD_RETRIEVE_DIAGNOSE_REPORT:

@@ -105,7 +105,7 @@ public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.
         } else {
             ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
             if(cp != null) {
-                nameStr = cp.getNickName();
+                nameStr = cp.getNickNameOrId();
                 icon = cp.getIcon();
             } else {
                 nameStr = "ID："+ id;
