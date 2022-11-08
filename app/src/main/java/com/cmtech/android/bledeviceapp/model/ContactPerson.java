@@ -35,7 +35,7 @@ import java.io.Serializable;
   * Version:        1.0
  */
 
-public class ContactPerson extends LitePalSupport implements Serializable, IJsonable {
+public class ContactPerson extends LitePalSupport implements IJsonable {
     //---------------------------------------------------------静态常量
     // 联系人的两个状态。当对方在申请成为你的联系人，而你还没有批准时，状态为WAITING；当双方都同意成为联系人时，则状态为AGREE
     public static final int WAITING = 0;
@@ -70,6 +70,8 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
         this.status = status;
     }
 
+    //------------------------------------------------------实例方法
+
     public int getAccountId() {
         return accountId;
     }
@@ -88,11 +90,6 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
 
     public String getNickName() {
         return nickName;
-    }
-
-    // 当昵称为空时，显示ID号
-    public String getNickNameOrId() {
-        return TextUtils.isEmpty(nickName) ? "ID:"+accountId : nickName;
     }
 
     public void setNickName(String nickName) {
@@ -117,7 +114,7 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
 
     @Override
     public void fromJson(JSONObject json)  throws JSONException {
-        accountId = json.getInt("accountId");
+        //accountId = json.getInt("accountId");
         nickName = json.getString("nickName");
         note = json.getString("note");
         String iconStr = json.getString("iconStr");
@@ -138,19 +135,21 @@ public class ContactPerson extends LitePalSupport implements Serializable, IJson
 
     @Override
     public JSONObject toJson()  throws JSONException{
-        JSONObject json = new JSONObject();
-        json.put("accountId", accountId);
-        json.put("nickName", nickName);
-        json.put("note", note);
+        throw new IllegalStateException("can't access toJson().");
+    }
 
-        String iconStr = "";
+    // 重载了LitePalSupport中的delete，增加了删除头像图标文件的操作
+    @Override
+    public int delete() {
+        int rows = super.delete();
         if(!TextUtils.isEmpty(icon)) {
-            Bitmap bitmap = BitmapFactory.decodeFile(icon);
-            iconStr = BitmapUtil.bitmapToString(bitmap);
-            ViseLog.e("icon len:" + iconStr.length());
+            try {
+                FileUtil.deleteFile(new File(icon));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        json.put("iconStr", iconStr);
-        return json;
+        return rows;
     }
 
     @NonNull

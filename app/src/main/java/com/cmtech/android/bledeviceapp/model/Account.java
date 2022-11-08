@@ -8,7 +8,7 @@ import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_AGREE_
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_PASSWORD;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_CONTACT;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_ACCOUNT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_DETAIL_INFO;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_INFO;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_LOGIN;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_SIGNUP;
@@ -28,7 +28,6 @@ import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IJsonable;
 import com.cmtech.android.bledeviceapp.interfac.IWebOperation;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.vise.log.ViseLog;
 import com.vise.utils.cipher.BASE64;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
@@ -406,13 +405,13 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 下载所有联系人的详细账户信息（不包含隐私信息），并保存到本地数据库中
-    public void downloadContactDetailInfo(Context context, String showStr, ICodeCallback callback) {
+    // 下载所有联系人的账户信息（不包含隐私信息），并保存到本地数据库中
+    public void downloadContactAccountInfo(Context context, String showStr, ICodeCallback callback) {
         List<Integer> contactIds = new ArrayList<>();
         for(ContactPerson cp : contacts) {
             contactIds.add(cp.getAccountId());
         }
-        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_DETAIL_INFO, new Object[]{contactIds}, new IWebResponseCallback() {
+        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO, new Object[]{contactIds}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -424,8 +423,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                             try {
                                 JSONObject json = (JSONObject) jsonArr.get(i);
                                 if (json == null) continue;
-                                int contactId = json.getInt("accountId");
-                                ContactPerson cpFind = LitePal.where("accountId = ?", ""+contactId)
+                                int accountId = json.getInt("accountId");
+                                ContactPerson cpFind = LitePal.where("accountId = ?", ""+accountId)
                                         .findFirst(ContactPerson.class);
                                 if(cpFind == null) continue;
                                 cpFind.fromJson(json);
@@ -524,7 +523,6 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             if(!TextUtils.isEmpty(icon)) {
                 Bitmap bitmap = BitmapFactory.decodeFile(icon);
                 iconStr = BitmapUtil.bitmapToString(bitmap);
-                ViseLog.e("icon len:" + iconStr.length());
             }
             json.put("iconStr", iconStr);
             json.put("gender", gender);

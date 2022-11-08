@@ -104,7 +104,7 @@ public class ContactManageActivity extends AppCompatActivity {
             public void onFinish(int code, String msg) {
                 if (code == RCODE_SUCCESS) {
                     updateView();
-                    MyApplication.getAccount().downloadContactDetailInfo(ContactManageActivity.this, null,
+                    MyApplication.getAccount().downloadContactAccountInfo(ContactManageActivity.this, null,
                             new ICodeCallback() {
                                 @Override
                                 public void onFinish(int code, String msg) {

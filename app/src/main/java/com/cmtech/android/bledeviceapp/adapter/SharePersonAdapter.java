@@ -36,7 +36,7 @@ public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View view; // 设备视图
-        TextView name; //
+        TextView nameOrId; //
         ImageView image;
         Context context;
 
@@ -44,7 +44,7 @@ public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.
             super(itemView);
             this.context = context;
             view = itemView;
-            name = view.findViewById(R.id.tv_name);
+            nameOrId = view.findViewById(R.id.tv_name_or_id);
             image = view.findViewById(R.id.iv_image);
         }
     }
@@ -65,14 +65,18 @@ public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.
     public void onBindViewHolder(@NonNull SharePersonAdapter.ViewHolder holder, int position) {
         ContactPerson cp = cps.get(position);
 
-        int myId = MyApplication.getAccountId();
-        int id = cp.getAccountId();
-        Pair<String,String> rtn = getNameAndIcon(id, myId);
-        holder.name.setText(rtn.first);
-        if(TextUtils.isEmpty(rtn.second)) {
+        String nickName = cp.getNickName();
+        if(TextUtils.isEmpty(nickName)) {
+            holder.nameOrId.setText("ID:"+cp.getAccountId());
+        } else {
+            holder.nameOrId.setText(nickName);
+        }
+
+        String icon = cp.getIcon();
+        if(TextUtils.isEmpty(icon)) {
             holder.image.setImageResource(R.mipmap.ic_user_32px);
         } else {
-            Bitmap bitmap = MyBitmapUtil.showToDp(rtn.second,  32);
+            Bitmap bitmap = MyBitmapUtil.showToDp(icon,  32);
             holder.image.setImageBitmap(bitmap);
         }
 
@@ -81,7 +85,6 @@ public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.
             @Override
             public void onClick(View v) {
                 if(ClickCheckUtil.isFastClick()) return;
-                //Toast.makeText(holder.context, cp.getNote(), Toast.LENGTH_SHORT).show();
                 notifyItemChanged(pos);
                 pos = finalPosition;
                 notifyItemChanged(pos);
@@ -95,30 +98,12 @@ public class SharePersonAdapter extends RecyclerView.Adapter<SharePersonAdapter.
         }
     }
 
-    private Pair<String, String> getNameAndIcon(int id, int myId) {
-        String nameStr = "";
-        String icon = "";
-        if(id == myId) {
-            nameStr = MyApplication.getAccount().getNickNameOrUserIdIfNull();
-            icon = MyApplication.getAccount().getIcon();
-        } else {
-            ContactPerson cp = MyApplication.getAccount().getContactPerson(id);
-            if(cp != null) {
-                nameStr = cp.getNickNameOrId();
-                icon = cp.getIcon();
-            } else {
-                nameStr = "ID："+ id;
-                icon = "";
-            }
-        }
-        return new Pair<>(nameStr, icon);
-    }
-
     @Override
     public int getItemCount() {
         return cps.size();
     }
 
+    // 获取选择的联系人ID
     public int getSelectContactPersonId() {
         if(pos == -1) return INVALID_ID;
         return cps.get(pos).getAccountId();

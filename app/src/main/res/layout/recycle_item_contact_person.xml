@@ -15,7 +15,7 @@
         android:src="@mipmap/ic_user_32px"/>
 
     <TextView
-        android:id="@+id/tv_name"
+        android:id="@+id/tv_name_or_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/anonymous"

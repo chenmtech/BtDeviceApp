@@ -9,7 +9,7 @@ import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_RECORD;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_ACCOUNT;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_APP_INFO;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_DETAIL_INFO;
+import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_INFO;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_RECORD;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_RECORDS;
@@ -172,7 +172,7 @@ public class WebAsyncTask extends AsyncTask<Object, Void, WebResponse> {
                 response = KMWebServiceUtil.downloadContactInfo(account);
                 break;
 
-            case CMD_DOWNLOAD_CONTACT_DETAIL_INFO:
+            case CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO:
                 account = (Account) objects[0];
                 List<Integer> contactIds = (List<Integer>) params[0];
                 response = KMWebServiceUtil.downloadContactDetailInfo(account, contactIds);

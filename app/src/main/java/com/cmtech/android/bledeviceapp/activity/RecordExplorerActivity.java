@@ -103,7 +103,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
         SimpleAdapter simpleadapter = new SimpleAdapter(this, spinnerItems,
                 R.layout.recycle_item_record_type, new String[] { "icon", "name" },
-                new int[] {R.id.iv_icon,R.id.tv_name});
+                new int[] {R.id.iv_icon,R.id.tv_name_or_id});
         typeSpinner.setAdapter(simpleadapter);
         typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

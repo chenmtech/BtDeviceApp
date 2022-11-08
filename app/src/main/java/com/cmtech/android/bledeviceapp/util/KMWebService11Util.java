@@ -77,8 +77,8 @@ public class KMWebService11Util {
     public static final int CMD_CHANGE_PASSWORD = 12;
     // 下载账户联系人信息，仅包括发起者ID，接收者ID，以及申请状态
     public static final int CMD_DOWNLOAD_CONTACT_INFO = 13;
-    // 下载账户联系人详细信息，包括联系人ID，昵称，简介和头像
-    public static final int CMD_DOWNLOAD_CONTACT_DETAIL_INFO = 14;
+    // 下载联系人的账户信息，包括账户ID，昵称，简介和头像
+    public static final int CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO = 14;
     // 添加一条申请联系人信息
     public static final int CMD_ADD_CONTACT = 15;
     // 同意一条账户联系人申请信息
@@ -197,7 +197,7 @@ public class KMWebService11Util {
         JSONObject json = new JSONObject();
         try {
             json.put("sver", SVER);
-            json.put("cmd", CMD_DOWNLOAD_CONTACT_DETAIL_INFO);
+            json.put("cmd", CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO);
             json.put("accountId", account.getAccountId());
             json.put("contactIds", ListStringUtil.listToString(contactIds));
             ViseLog.e(json.toString());

@@ -40,7 +40,7 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
         ViewHolder(View itemView) {
             super(itemView);
             view = itemView;
-            name = view.findViewById(R.id.tv_name);
+            name = view.findViewById(R.id.tv_name_or_id);
             address = view.findViewById(R.id.tv_address);
             type = view.findViewById(R.id.tv_type);
             status = view.findViewById(R.id.tv_status);
