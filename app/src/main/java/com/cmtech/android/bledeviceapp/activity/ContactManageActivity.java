@@ -41,7 +41,7 @@ public class ContactManageActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_contact_manage);
         setSupportActionBar(toolbar);
 
-        // 初始化分享信息列表
+        // 初始化联系人列表
         rvContact = findViewById(R.id.rv_contact_info);
         rvContact.setLayoutManager(new LinearLayoutManager(this));
         rvContact.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -61,7 +61,7 @@ public class ContactManageActivity extends AppCompatActivity {
                 } catch (Exception ignored) {
                 }
                 if(id != INVALID_ID) {
-                    applyNewShare(id);
+                    addNewContact(id);
                 } else {
                     Toast.makeText(ContactManageActivity.this, "无效ID", Toast.LENGTH_SHORT).show();
                 }
@@ -85,7 +85,7 @@ public class ContactManageActivity extends AppCompatActivity {
                 break;
 
             case R.id.item_refresh:
-                updateContacts();
+                updateContact();
                 break;
         }
         return true;
@@ -97,9 +97,9 @@ public class ContactManageActivity extends AppCompatActivity {
     }
 
     // 更新联系人
-    public void updateContacts() {
-        // 从服务器下载分享信息保存到本地数据库，之后再从分享信息中下载联系人信息
-        MyApplication.getAccount().downloadContactInfo(this, "更新中，请稍后...", new ICodeCallback() {
+    public void updateContact() {
+        // 从服务器下载联系人信息保存到本地数据库，之后再从联系人信息中下载联系人账户信息
+        MyApplication.getAccount().downloadContactInfo(this, "更新联系人，请稍后...", new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 if (code == RCODE_SUCCESS) {
@@ -126,8 +126,8 @@ public class ContactManageActivity extends AppCompatActivity {
         contactAdapter.notifyDataSetChanged();
     }
 
-    private void applyNewShare(int id) {
-        MyApplication.getAccount().requestNewContact(this, id, new ICodeCallback() {
+    private void addNewContact(int id) {
+        MyApplication.getAccount().addNewContact(this, id, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 Toast.makeText(ContactManageActivity.this, msg, Toast.LENGTH_SHORT).show();

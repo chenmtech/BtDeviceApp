@@ -41,13 +41,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 /**
   *
   * ClassName:      Account
-  * Description:    账户类,代表当前登录app的账户
+  * Description:    账户类,代表当前登录的账户
   * Author:         chenm
   * CreateDate:     2018/10/27 上午3:57
   * UpdateUser:     chenm
@@ -96,7 +97,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     private boolean isWebLoginSuccess = false;
 
     // 联系人列表
-    // 账户的联系人包括两类人：第一类、对方申请了等待你批准的；第二类、双方同意建立联系的人。
+    // 账户的联系人包括两类人：第一类、对方申请了等待你批准的；第二类、双方已经同意建立联系的。
     private final List<ContactPerson> contacts = new ArrayList<>();
 
     //--------------------------------------------------------------静态函数
@@ -107,11 +108,14 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         account.accountId = settings.getInt("accountId", INVALID_ID);
         account.userName = settings.getString("userName", "");
         account.password = settings.getString("password", "");
-        account.nickName = settings.getString("nickName", "");
+        account.nickName = settings.getString("nickName", "匿名");
         account.note = settings.getString("note", "");
         account.icon = settings.getString("icon", "");
         account.gender = settings.getInt("gender", MALE);
-        account.birthday = settings.getLong("birthday", new Date(1990,0,1).getTime());
+        Calendar defaultBirth = Calendar.getInstance();
+        defaultBirth.clear();
+        defaultBirth.set(1990,0,1);
+        account.birthday = settings.getLong("birthday", defaultBirth.getTimeInMillis());
         account.weight = settings.getInt("weight", 80);
         account.height = settings.getInt("height", 180);
         return account;
@@ -177,8 +181,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 获取昵称，如果为空字符串，则返回ID号
-    public String getNickNameOrUserIdIfNull() {
-        if("".equals(nickName)) {
+    public String getNickNameOrId() {
+        if(TextUtils.isEmpty(nickName)) {
             return "ID:"+accountId;
         }
         return nickName;
@@ -274,8 +278,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }
     }
 
-    // 获取可以分享给对方的账户ID列表
-    public List<Integer> getCanShareToIdList() {
+    // 获取已经同意的联系人的账户ID列表
+    public List<Integer> getAgreedContactIdList() {
         List<Integer> ids = new ArrayList<>();
         for(ContactPerson cp : contacts) {
             if(cp.getStatus() == AGREE) {
@@ -283,6 +287,17 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             }
         }
         return ids;
+    }
+
+    // 获取已经同意的联系人列表
+    public List<ContactPerson> getAgreedContactList() {
+        List<ContactPerson> cps = new ArrayList<>();
+        for(ContactPerson cp : contacts) {
+            if(cp.getStatus() == AGREE) {
+                cps.add(cp);
+            }
+        }
+        return cps;
     }
 
     // 返回联系人列表
@@ -444,7 +459,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
 
     // 申请建立一个新的联系人
-    public void requestNewContact(Context context, int toId, ICodeCallback callback) {
+    public void addNewContact(Context context, int toId, ICodeCallback callback) {
         if(accountId == toId) {
             Toast.makeText(context, "不能发给自己", Toast.LENGTH_SHORT).show();
             return;
@@ -566,7 +581,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 不支持删除网络服务器端的账户信息
+    // 不支持删除服务器端的账户信息
     @Override
     public void delete(Context context, ICodeCallback callback) {
         throw new IllegalStateException();

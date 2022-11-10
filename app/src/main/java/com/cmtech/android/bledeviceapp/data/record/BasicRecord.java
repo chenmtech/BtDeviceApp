@@ -290,19 +290,21 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         return creatorId;
     }
 
-    public String getCreatorNickName() {
+    // 获取记录创建者的昵称或ID
+    public String getCreatorNickNameOrId() {
         if(MyApplication.getAccountId() == creatorId) {
-            return  MyApplication.getAccount().getNickNameOrUserIdIfNull();
+            return  MyApplication.getAccount().getNickNameOrId();
         } else {
             ContactPerson cp = MyApplication.getAccount().getContactPerson(creatorId);
-            if(cp == null) {
-                return "ID："+creatorId;
+            if(cp == null || TextUtils.isEmpty(cp.getNickName())) {
+                return "ID:"+creatorId;
             } else {
                 return cp.getNickName();
             }
         }
     }
 
+    // 获取创建者头像文件名字符串
     public String getCreatorIcon() {
         if(MyApplication.getAccountId() == creatorId) {
             return  MyApplication.getAccount().getIcon();

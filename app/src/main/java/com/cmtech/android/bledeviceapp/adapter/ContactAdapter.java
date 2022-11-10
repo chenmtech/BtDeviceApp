@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,22 +40,22 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     private final List<ContactPerson> cps;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        View view; // 设备视图
-        TextView tvName; //
-        TextView tvId;
-        ImageView ivImage;
-        EditText etNote;
-        TextView tvStatus;
-        Context context;
+        View view;
+        TextView tvNickname; // 昵称
+        TextView tvId; // ID
+        ImageView ivImage; // 头像
+        TextView tvNote; // 简介
+        TextView tvStatus; // 状态
+        Context context; // 上下文
 
         ViewHolder(Context context, View itemView) {
             super(itemView);
             this.context = context;
             view = itemView;
-            tvName = view.findViewById(R.id.tv_contact_name);
+            tvNickname = view.findViewById(R.id.tv_contact_nickname);
             tvId = view.findViewById(R.id.tv_contact_id);
             ivImage = view.findViewById(R.id.iv_contact_image);
-            etNote = view.findViewById(R.id.et_contact_note);
+            tvNote = view.findViewById(R.id.tv_contact_note);
             tvStatus = view.findViewById(R.id.tv_status);
         }
     }
@@ -77,22 +76,25 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
     public void onBindViewHolder(@NonNull ContactAdapter.ViewHolder holder, int position) {
         ContactPerson cp = cps.get(position);
 
-        holder.tvId.setText("ID:"+cp.getAccountId());
         String name = cp.getNickName();
         if(TextUtils.isEmpty(name))
-            holder.tvName.setVisibility(View.GONE);
+            holder.tvNickname.setVisibility(View.GONE);
         else {
-            holder.tvName.setVisibility(View.VISIBLE);
-            holder.tvName.setText(name);
+            holder.tvNickname.setVisibility(View.VISIBLE);
+            holder.tvNickname.setText(name);
         }
+
+        holder.tvId.setText(cp.getAccountId());
+
         if(TextUtils.isEmpty(cp.getIcon())) {
             holder.ivImage.setImageResource(R.mipmap.ic_user_32px);
         } else {
             Bitmap bitmap = MyBitmapUtil.showToDp(cp.getIcon(),  32);
             holder.ivImage.setImageBitmap(bitmap);
         }
+
         if(!TextUtils.isEmpty(cp.getNote()))
-            holder.etNote.setText(cp.getNote());
+            holder.tvNote.setText(cp.getNote());
 
         String statusStr = "";
         switch (cp.getStatus()) {
@@ -108,7 +110,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         holder.view.setOnLongClickListener(new View.OnLongClickListener() {
             final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
-                public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
+                public boolean onMenuItemClick(MenuItem item) {
                     switch (item.getItemId()) {
                         case 1: // delete
                             if (ClickCheckUtil.isFastClick()) return true;
@@ -151,14 +153,14 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         return cps.size();
     }
 
-    // 同意申请
-    private void agreeContact(Context context, int fromId) {
-        MyApplication.getAccount().agreeContact(context, fromId, new ICodeCallback() {
+    // 同意一条联系人申请
+    private void agreeContact(Context context, int contactId) {
+        MyApplication.getAccount().agreeContact(context, contactId, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                 if (code == RCODE_SUCCESS) {
-                    ((ContactManageActivity)context).updateContacts();
+                    ((ContactManageActivity)context).updateContact();
                 }
             }
         });
@@ -171,7 +173,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
             public void onFinish(int code, String msg) {
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
                 if (code == RCODE_SUCCESS) {
-                    ((ContactManageActivity)context).updateContacts();
+                    ((ContactManageActivity)context).updateContact();
                 }
             }
         });

@@ -37,9 +37,9 @@ import java.io.Serializable;
 
 public class ContactPerson extends LitePalSupport implements IJsonable {
     //---------------------------------------------------------静态常量
-    // 联系人的两个状态。当对方在申请成为你的联系人，而你还没有批准时，状态为WAITING；当双方都同意成为联系人时，则状态为AGREE
-    public static final int WAITING = 0;
-    public static final int AGREE = 1;
+    // 联系人的两个状态。
+    public static final int WAITING = 0; // 当对方在申请成为你的联系人，而你还没有批准时，状态为WAITING；
+    public static final int AGREE = 1; // 当双方都同意成为联系人时，则状态为AGREE
 
     private int id;
 

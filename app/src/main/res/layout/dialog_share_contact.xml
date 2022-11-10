@@ -7,7 +7,7 @@
     android:layout_margin="10dp">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_share_person"
+        android:id="@+id/rv_share_contact"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -30,7 +30,7 @@
             style="@style/button_circle_blue_style"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:text="@string/ok"/>
+            android:text="@string/ok" />
     </LinearLayout>
 
 

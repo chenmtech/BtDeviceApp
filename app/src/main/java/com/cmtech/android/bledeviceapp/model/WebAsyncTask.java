@@ -36,7 +36,9 @@ import java.util.List;
 
 /**
  * ClassName:      WebAsyncTask
- * Description:    执行网络异步操作的AsyncTask类
+ * Description:    执行网络异步操作的AsyncTask类。
+ *                 这个类的作用主要是帮助KMWebService类完成三个任务：
+ *                 1、解析参数；2、异步执行KMWebService中的任务；3、在主线程执行回调cb
  * Author:         chenm
  * CreateDate:     2020/4/20 上午6:44
  * UpdateUser:     更新者

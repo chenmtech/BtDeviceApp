@@ -62,7 +62,7 @@ public abstract class RecordActivity extends AppCompatActivity {
         if(record.getAccountId() != record.getCreatorId()) {
             Toast.makeText(this, "本条记录不能分享。", Toast.LENGTH_SHORT).show();
         } else {
-            Intent intent = new Intent(RecordActivity.this, ChooseSharePersonActivity.class);
+            Intent intent = new Intent(RecordActivity.this, ShareContactActivity.class);
             startActivityForResult(intent, 1);
         }
     }
@@ -72,7 +72,7 @@ public abstract class RecordActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                int contactPersonId = data.getIntExtra("contactPersonId", INVALID_ID);
+                int contactPersonId = data.getIntExtra("contactId", INVALID_ID);
                 if(contactPersonId != INVALID_ID)
                     shareTo(contactPersonId);
             }
@@ -80,7 +80,7 @@ public abstract class RecordActivity extends AppCompatActivity {
     }
 
     private void shareTo(int toId) {
-        if(MyApplication.getAccount().getCanShareToIdList().contains(toId)) {
+        if(MyApplication.getAccount().getAgreedContactIdList().contains(toId)) {
             record.share(this, toId, new ICodeCallback() {
                 @Override
                 public void onFinish(int code, String msg) {

@@ -100,7 +100,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         BasicRecord record = records.get(position);
         if(record == null) return;
 
-        holder.tvCreatorName.setText(record.getCreatorNickName());
+        holder.tvCreatorName.setText(record.getCreatorNickNameOrId());
         String icon = record.getCreatorIcon();
         if(TextUtils.isEmpty(icon)) {
             holder.ivCreatorImage.setImageResource(R.mipmap.ic_user_32px);

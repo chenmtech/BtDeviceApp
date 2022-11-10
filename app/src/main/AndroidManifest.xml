@@ -111,7 +111,7 @@
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
 
         <activity
-            android:name=".activity.ChooseSharePersonActivity"
+            android:name=".activity.ShareContactActivity"
             android:label="请选择分享给："
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
