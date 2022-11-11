@@ -24,8 +24,8 @@ import com.mob.MobSDK;
 
 /**
  *
- * ClassName:      SplashActivity
- * Description:    登录界面Activity
+ * ClassName:      LoginActivity
+ * Description:    登录Activity
  * Author:         chenm
  * CreateDate:     2018/10/27 09:18
  * UpdateUser:     chenm
@@ -46,8 +46,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        if (MyApplication.getAccountManager().localLogin()) {
-            //ViseLog.e("local login ok");
+        if (MyApplication.getAccountManager().isLocalLoginSuccess()) {
             startMainActivity();
             return;
         }
@@ -117,11 +116,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String userName, String password) {
-        MyApplication.getAccountManager().login(userName, password, this, "正在登录，请稍等...", new ICodeCallback() {
+        MyApplication.getAccountManager().login(this, userName, password, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
-                if(code == RCODE_SUCCESS && MyApplication.getAccountManager().isValid()) {
-                    startMainActivity();
+                if(code == RCODE_SUCCESS) {
+                    if(MyApplication.getAccountManager().isValid())
+                        startMainActivity();
+                    else
+                        Toast.makeText(LoginActivity.this, "账户错误", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(LoginActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }

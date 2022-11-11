@@ -208,7 +208,7 @@ public class KMWebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
-    public static WebResponse addContact(Account account, int toId) {
+    public static WebResponse addContact(Account account, int contactId) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
@@ -217,7 +217,7 @@ public class KMWebService11Util {
             json.put("sver", SVER);
             json.put("cmd", CMD_ADD_CONTACT);
             json.put("accountId", account.getAccountId());
-            json.put("toId", toId);
+            json.put("contactId", contactId);
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
@@ -226,7 +226,7 @@ public class KMWebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
-    public static WebResponse agreeContact(Account account, int fromId) {
+    public static WebResponse agreeContact(Account account, int contactId) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
@@ -235,7 +235,7 @@ public class KMWebService11Util {
             json.put("sver", SVER);
             json.put("cmd", CMD_AGREE_CONTACT);
             json.put("accountId", account.getAccountId());
-            json.put("fromId", fromId);
+            json.put("contactId", contactId);
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
@@ -391,7 +391,7 @@ public class KMWebService11Util {
 
     // 账户登录
     private static WebResponse accountWebLogin(Account account) {
-        if(account == null) return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
+        if(account == null) return new WebResponse(RCODE_DATA_ERR, "账户错误", null);
         if(!account.isWebLoginSuccess()) {
             WebResponse response = KMWebService11Util.login(account);
             if(response.getCode() == RCODE_SUCCESS) {

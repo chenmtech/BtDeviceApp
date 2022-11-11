@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.model.ContactPerson.AGREE;
+import static com.cmtech.android.bledeviceapp.model.ContactPerson.WAITING;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_CONTACT;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_AGREE_CONTACT;
 import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_PASSWORD;
@@ -300,12 +301,23 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         return cps;
     }
 
+    // 获取等待批准的联系人的账户ID列表
+    public List<Integer> getWaitingContactIdList() {
+        List<Integer> ids = new ArrayList<>();
+        for(ContactPerson cp : contacts) {
+            if(cp.getStatus() == WAITING) {
+                ids.add(cp.getAccountId());
+            }
+        }
+        return ids;
+    }
+
     // 返回联系人列表
     public List<ContactPerson> getContacts() {
         return contacts;
     }
 
-    // 获取ID号对应的联系人对象
+    // 获取指定账户ID号对应的联系人对象
     public ContactPerson getContactPerson(int id) {
         for(ContactPerson cp : contacts) {
             if(cp.getAccountId() == id) return cp;
@@ -331,8 +343,8 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     // 账户登录
-    public void login(Context context, String showString, ICodeCallback callback) {
-        new WebAsyncTask(context, showString, CMD_LOGIN, new IWebResponseCallback() {
+    public void login(Context context, ICodeCallback callback) {
+        new WebAsyncTask(context, "正在登录，请稍等...", CMD_LOGIN, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -346,9 +358,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                     else {
                         try {
                             setAccountId(content.getInt("id"));
-                            if (accountId != INVALID_ID) {
-                                setWebLoginSuccess(true);
-                            }
+                            setWebLoginSuccess(accountId != INVALID_ID);
                         } catch (JSONException e) {
                             code = RCODE_DATA_ERR;
                             msg = "数据错误";
@@ -366,12 +376,13 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         new WebAsyncTask(context, "正在修改密码，请稍等...", CMD_CHANGE_PASSWORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode(), response.getMsg());
+                if(callback != null)
+                    callback.onFinish(response.getCode(), response.getMsg());
             }
         }).execute(this);
     }
 
-    // 下载联系人列表，只是简表信息，并更新本地数据库中信息
+    // 下载联系人列表，并更新到本地数据库中
     public void downloadContactInfo(Context context, String showStr, ICodeCallback callback) {
         new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_INFO, new IWebResponseCallback() {
             @Override
@@ -396,7 +407,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                                         .findFirst(ContactPerson.class);
                                 if(cpFind == null) // 一个新的联系人，保存
                                     newCp.save();
-                                else { // 原有的联系人，只需要改变状态，其他不要改变
+                                else { // 已有联系人，只需要改变状态，其他不要改变
                                     cpFind.setStatus(status);
                                     cpFind.save();
                                 }
@@ -404,11 +415,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                                 ex.printStackTrace();
                             }
                         }
-                        // 移除在接收到的联系人列表中不存在的联系人，这是被删除了的联系人
+                        // 移除在接收到的联系人列表中不存在的联系人，这些是被删除的联系人
                         List<ContactPerson> curCps = LitePal.findAll(ContactPerson.class);
                         for(ContactPerson cp : curCps) {
                             if(!revCps.contains(cp)) {
-                                LitePal.deleteAll(ContactPerson.class, "accountId = ?", ""+cp.getAccountId());
+                                cp.delete();
                             }
                         }
                         readContactFromLocalDb();
@@ -458,15 +469,27 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
 
-    // 申请建立一个新的联系人
-    public void addNewContact(Context context, int toId, ICodeCallback callback) {
-        if(accountId == toId) {
-            Toast.makeText(context, "不能发给自己", Toast.LENGTH_SHORT).show();
+    // 申请添加一个联系人
+    public void addNewContact(Context context, int contactId, ICodeCallback callback) {
+        if(accountId == contactId) {
+            Toast.makeText(context, "不能添加自己", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 已经同意了
+        if(getAgreedContactIdList().contains(contactId)) {
+            Toast.makeText(context, "不能重复添加", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 对方已经申请了，直接同意
+        if(getWaitingContactIdList().contains(contactId)) {
+            agreeContact(context, contactId, callback);
             return;
         }
 
         new WebAsyncTask(context, "请稍等", CMD_ADD_CONTACT,
-                new Object[]{toId}, new IWebResponseCallback() {
+                new Object[]{contactId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback!=null) {
@@ -476,9 +499,9 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 同意一个联系人的申请
-    public void agreeContact(Context context, int fromId, ICodeCallback callback) {
-        new WebAsyncTask(context, "请稍等", CMD_AGREE_CONTACT, new Object[]{fromId}, new IWebResponseCallback() {
+    // 批准一个联系人的申请
+    public void agreeContact(Context context, int contactId, ICodeCallback callback) {
+        new WebAsyncTask(context, "请稍等", CMD_AGREE_CONTACT, new Object[]{contactId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback!=null)
@@ -553,10 +576,11 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        new WebAsyncTask(context, "正在上传账户信息，请稍等...", CMD_UPLOAD_ACCOUNT, new IWebResponseCallback() {
+        new WebAsyncTask(context, "正在上传，请稍等...", CMD_UPLOAD_ACCOUNT, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                callback.onFinish(response.getCode(), response.getMsg());
+                if(callback!=null)
+                    callback.onFinish(response.getCode(), response.getMsg());
             }
         }).execute(this);
     }
@@ -581,7 +605,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 不支持删除服务器端的账户信息
+    // 不支持删除服务器端的账户
     @Override
     public void delete(Context context, ICodeCallback callback) {
         throw new IllegalStateException();

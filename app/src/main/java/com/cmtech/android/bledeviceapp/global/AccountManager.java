@@ -22,7 +22,7 @@ import com.vise.log.ViseLog;
  */
 
 public class AccountManager {
-    private Account account; // account
+    private Account account;
 
     AccountManager() {
         account = Account.createFromSharedPreference();
@@ -34,28 +34,27 @@ public class AccountManager {
 
     /**
      * 本地账户登录
-     * 当应用程序启动时，会先检查本地账户登录是否成功
-     * 如果可以，则允许用户继续使用app功能，保证在没有网络的情况下继续使用app一些功能
-     * 如果不可以，则要求用户必须重新进行网络登录
+     * 当应用程序启动时，会先检查账户本地登录是否成功
+     * 如果本地登录成功，则允许用户继续使用app的本地功能，保证在没有网络的情况下继续使用
+     * 如果本地登录失败，则要求用户必须重新进行网络登录
      * @return true: 本地登录成功； false：本地登录失败
      */
-    public boolean localLogin() {
+    public boolean isLocalLoginSuccess() {
         ViseLog.e(account);
         return isValid();
     }
 
     /**
-     * 用密码进行网络登录
+     * 网络登录
+     * @param context：上下文
      * @param userName：用户名
      * @param password：密码
-     * @param context：上下文
-     * @param showString：登录时显示的进度提示字符串，如果为null或""，则不显示进度条，在后台登录；否则在前台登录
      * @param callback：登录后的回调
      */
-    public void login(String userName, String password, final Context context, String showString, ICodeCallback callback) {
+    public void login(final Context context, String userName, String password, ICodeCallback callback) {
         account.setUserName(userName);
         account.setPassword(password);
-        account.login(context, showString, callback);
+        account.login(context, callback);
     }
 
     /**
@@ -72,6 +71,13 @@ public class AccountManager {
         account.signUp(context, callback);
     }
 
+    /**
+     * 修改密码
+     * @param context：上下文
+     * @param userName：用户名
+     * @param password：密码
+     * @param callback：修改后回调
+     */
     public void changePassword(final Context context, String userName, String password, ICodeCallback callback) {
         account.setUserName(userName);
         account.setPassword(password);
@@ -92,7 +98,7 @@ public class AccountManager {
 
     /**
      * 当前账户是否为有效账户
-     * @return
+     * @return 是否有效
      */
     public boolean isValid() {
         return account != null && (account.getAccountId() != INVALID_ID);

@@ -71,7 +71,6 @@ public class ContactPerson extends LitePalSupport implements IJsonable {
     }
 
     //------------------------------------------------------实例方法
-
     public int getAccountId() {
         return accountId;
     }
