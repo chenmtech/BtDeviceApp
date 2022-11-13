@@ -2,24 +2,24 @@ package com.cmtech.android.bledeviceapp.model;
 
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_WEB_FAILURE;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_CONTACT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_AGREE_CONTACT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_PASSWORD;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_CONTACT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_RECORD;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_ACCOUNT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_APP_INFO;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_INFO;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_RECORD;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_RECORDS;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_LOGIN;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_QUERY_RECORD_ID;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_RETRIEVE_DIAGNOSE_REPORT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_SHARE_RECORD;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_SIGNUP;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_UPLOAD_ACCOUNT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_UPLOAD_RECORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_ADD_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_AGREE_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_RESET_PASSWORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DELETE_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DELETE_RECORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_ACCOUNT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_APP_INFO;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_CONTACT_INFO;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_RECORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_RECORDS;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_LOGIN;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_QUERY_RECORD_ID;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_RETRIEVE_DIAGNOSE_REPORT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_SHARE_RECORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_SIGNUP;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_UPLOAD_ACCOUNT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_UPLOAD_RECORD;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -29,16 +29,16 @@ import android.text.TextUtils;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
-import com.cmtech.android.bledeviceapp.util.KMWebServiceUtil;
+import com.cmtech.android.bledeviceapp.util.WebServiceUtil;
 
 import java.util.Date;
 import java.util.List;
 
 /**
- * ClassName:      WebAsyncTask
- * Description:    执行网络异步操作的AsyncTask类。
- *                 这个类的作用主要是帮助KMWebService类完成三个任务：
- *                 1、解析参数；2、异步执行KMWebService中的任务；3、在主线程执行回调cb
+ * ClassName:      WebServiceAsyncTask
+ * Description:    执行网络服务异步任务的AsyncTask类。
+ *                 这个类的作用主要是帮助WebServiceUtil类完成三个任务：
+ *                 1、异步执行WebServiceUtil中的任务；2、解析输入参数；3、在主线程执行IWebResponseCallback回调
  * Author:         chenm
  * CreateDate:     2020/4/20 上午6:44
  * UpdateUser:     更新者
@@ -46,7 +46,7 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class WebAsyncTask extends AsyncTask<Object, Void, WebResponse> {
+public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
     private static final int DEFAULT_RECORD_DOWNLOAD_NUM = 10; // default download record num per time
 
     private final ProgressDialog progressDialog;
@@ -54,11 +54,11 @@ public class WebAsyncTask extends AsyncTask<Object, Void, WebResponse> {
     private final Object[] params;
     private final IWebResponseCallback callback;
 
-    public WebAsyncTask(Context context, String showString, int cmd, IWebResponseCallback callback) {
+    public WebServiceAsyncTask(Context context, String showString, int cmd, IWebResponseCallback callback) {
         this(context, showString, cmd, null, callback);
     }
 
-    public WebAsyncTask(Context context, String showString, int cmd, Object[] params, IWebResponseCallback callback) {
+    public WebServiceAsyncTask(Context context, String showString, int cmd, Object[] params, IWebResponseCallback callback) {
         super();
 
         this.cmd = cmd;
@@ -94,25 +94,25 @@ public class WebAsyncTask extends AsyncTask<Object, Void, WebResponse> {
             // QUERY ID
             case CMD_QUERY_RECORD_ID:
                 record = (BasicRecord) objects[0];
-                response = KMWebServiceUtil.queryRecordId(record.getTypeCode(), record.getCreateTime(), record.getDevAddress(), record.getVer());
+                response = WebServiceUtil.queryRecordId(MyApplication.getAccount(), record);
                 break;
 
             // UPLOAD
             case CMD_UPLOAD_RECORD:
                 record = (BasicRecord) objects[0];
-                response = KMWebServiceUtil.uploadRecord(MyApplication.getAccount(), record);
+                response = WebServiceUtil.uploadRecord(MyApplication.getAccount(), record);
                 break;
 
             // DOWNLOAD
             case CMD_DOWNLOAD_RECORD:
                 record = (BasicRecord) objects[0];
-                response = KMWebServiceUtil.downloadRecord(MyApplication.getAccount(), record);
+                response = WebServiceUtil.downloadRecord(MyApplication.getAccount(), record);
                 break;
 
             // DELETE
             case CMD_DELETE_RECORD:
                 record = (BasicRecord) objects[0];
-                response = KMWebServiceUtil.deleteRecord(MyApplication.getAccount(), record);
+                response = WebServiceUtil.deleteRecord(MyApplication.getAccount(), record);
                 break;
 
             // DOWNLOAD RECORD LIST
@@ -133,78 +133,78 @@ public class WebAsyncTask extends AsyncTask<Object, Void, WebResponse> {
                     filterStr = (String) params[1];
                     filterTime = (Long) params[2];
                 }
-                response = KMWebServiceUtil.downloadRecords(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
+                response = WebServiceUtil.downloadRecords(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
                 break;
 
             case CMD_SHARE_RECORD:
                 record = (BasicRecord) objects[0];
                 int shareId = (Integer) params[0];
-                response = KMWebServiceUtil.shareRecord(MyApplication.getAccount(), record, shareId);
+                response = WebServiceUtil.shareRecord(MyApplication.getAccount(), record, shareId);
                 break;
 
             // UPLOAD
             case CMD_UPLOAD_ACCOUNT:
                 account = (Account) objects[0];
-                response = KMWebServiceUtil.uploadAccountInfo(account);
+                response = WebServiceUtil.uploadAccountInfo(account);
                 break;
 
             // DOWNLOAD
             case CMD_DOWNLOAD_ACCOUNT:
                 account = (Account) objects[0];
-                response = KMWebServiceUtil.downloadAccountInfo(account);
+                response = WebServiceUtil.downloadAccountInfo(account);
                 break;
 
             case CMD_SIGNUP:
                 account = (Account) objects[0];
-                response = KMWebServiceUtil.signUp(account);
+                response = WebServiceUtil.signUp(account);
                 break;
 
             case CMD_LOGIN:
                 account = (Account) objects[0];
-                response = KMWebServiceUtil.login(account);
+                response = WebServiceUtil.login(account);
                 break;
 
-            case CMD_CHANGE_PASSWORD:
+            case CMD_RESET_PASSWORD:
                 account = (Account) objects[0];
-                response = KMWebServiceUtil.changePassword(account);
+                response = WebServiceUtil.resetPassword(account);
                 break;
 
             case CMD_DOWNLOAD_CONTACT_INFO:
                 account = (Account) objects[0];
-                response = KMWebServiceUtil.downloadContactInfo(account);
+                response = WebServiceUtil.downloadContactInfo(account);
                 break;
 
             case CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO:
                 account = (Account) objects[0];
                 List<Integer> contactIds = (List<Integer>) params[0];
-                response = KMWebServiceUtil.downloadContactDetailInfo(account, contactIds);
+                response = WebServiceUtil.downloadContactDetailInfo(account, contactIds);
                 break;
 
             case CMD_AGREE_CONTACT:
                 account = (Account) objects[0];
                 int fromId = (Integer) params[0];
-                response = KMWebServiceUtil.agreeContact(account, fromId);
+                response = WebServiceUtil.agreeContact(account, fromId);
                 break;
 
             case CMD_ADD_CONTACT:
                 account = (Account) objects[0];
                 int toId = (Integer) params[0];
-                response = KMWebServiceUtil.addContact(account, toId);
+                response = WebServiceUtil.addContact(account, toId);
                 break;
 
             case CMD_DELETE_CONTACT:
                 account = (Account) objects[0];
                 int contactId = (Integer) params[0];
-                response = KMWebServiceUtil.deleteContact(account, contactId);
+                response = WebServiceUtil.deleteContact(account, contactId);
                 break;
 
             case CMD_RETRIEVE_DIAGNOSE_REPORT:
                 record = (BasicRecord) objects[0];
-                response = KMWebServiceUtil.retrieveDiagnoseReport(MyApplication.getAccount(), record);
+                response = WebServiceUtil.retrieveDiagnoseReport(MyApplication.getAccount(), record);
                 break;
 
             case CMD_DOWNLOAD_APP_INFO:
-                response = KMWebServiceUtil.downloadNewestAppUpdateInfo();
+                response = WebServiceUtil.downloadAppUpdateInfo();
                 break;
 
             default:

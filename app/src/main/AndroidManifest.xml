@@ -68,7 +68,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.ChangePasswordActivity"
+            android:name=".activity.ResetPasswordActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity

@@ -4,16 +4,16 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.model.ContactPerson.AGREE;
 import static com.cmtech.android.bledeviceapp.model.ContactPerson.WAITING;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_ADD_CONTACT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_AGREE_CONTACT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_CHANGE_PASSWORD;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DELETE_CONTACT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_ACCOUNT;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_CONTACT_INFO;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_LOGIN;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_SIGNUP;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_UPLOAD_ACCOUNT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_ADD_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_AGREE_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_RESET_PASSWORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DELETE_CONTACT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_ACCOUNT;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_CONTACT_INFO;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_LOGIN;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_SIGNUP;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_UPLOAD_ACCOUNT;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -333,7 +332,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 账户注册
     public void signUp(Context context, ICodeCallback callback) {
-        new WebAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "正在注册，请稍等...", CMD_SIGNUP, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback != null)
@@ -344,7 +343,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 账户登录
     public void login(Context context, ICodeCallback callback) {
-        new WebAsyncTask(context, "正在登录，请稍等...", CMD_LOGIN, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "正在登录，请稍等...", CMD_LOGIN, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -371,9 +370,9 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         }).execute(this);
     }
 
-    // 修改密码
-    public void changePassword(Context context, ICodeCallback callback) {
-        new WebAsyncTask(context, "正在修改密码，请稍等...", CMD_CHANGE_PASSWORD, new IWebResponseCallback() {
+    // 重置密码
+    public void resetPassword(Context context, ICodeCallback callback) {
+        new WebServiceAsyncTask(context, "正在重置密码，请稍等...", CMD_RESET_PASSWORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback != null)
@@ -384,7 +383,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 下载联系人列表，并更新到本地数据库中
     public void downloadContactInfo(Context context, String showStr, ICodeCallback callback) {
-        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_INFO, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_INFO, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -437,7 +436,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
         for(ContactPerson cp : contacts) {
             contactIds.add(cp.getAccountId());
         }
-        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO, new Object[]{contactIds}, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, showStr, CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO, new Object[]{contactIds}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -488,7 +487,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
             return;
         }
 
-        new WebAsyncTask(context, "请稍等", CMD_ADD_CONTACT,
+        new WebServiceAsyncTask(context, "请稍等", CMD_ADD_CONTACT,
                 new Object[]{contactId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
@@ -501,7 +500,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 批准一个联系人的申请
     public void agreeContact(Context context, int contactId, ICodeCallback callback) {
-        new WebAsyncTask(context, "请稍等", CMD_AGREE_CONTACT, new Object[]{contactId}, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "请稍等", CMD_AGREE_CONTACT, new Object[]{contactId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback!=null)
@@ -512,7 +511,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     // 删除一个联系人
     public void deleteContact(Context context, int contactId, ICodeCallback callback) {
-        new WebAsyncTask(context, "请稍等", CMD_DELETE_CONTACT, new Object[]{contactId}, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "请稍等", CMD_DELETE_CONTACT, new Object[]{contactId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback!=null)
@@ -576,7 +575,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        new WebAsyncTask(context, "正在上传，请稍等...", CMD_UPLOAD_ACCOUNT, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "正在上传，请稍等...", CMD_UPLOAD_ACCOUNT, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 if(callback!=null)
@@ -587,7 +586,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
 
     @Override
     public void download(Context context, String showStr, ICodeCallback callback) {
-        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_ACCOUNT, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, showStr, CMD_DOWNLOAD_ACCOUNT, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();

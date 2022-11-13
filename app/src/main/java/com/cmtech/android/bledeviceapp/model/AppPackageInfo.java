@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_SUCCESS;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.CMD_DOWNLOAD_APP_INFO;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_APP_INFO;
 
 import android.content.Context;
 import android.content.Intent;
@@ -81,9 +81,9 @@ public class AppPackageInfo implements Serializable, IJsonable {
         throw new JSONException("Cannot use toJson of AppPackageInfo");
     }
 
-    // 下载最新的app版本信息
+    // 下载app更新信息
     public void download(Context context, String showStr, ICodeCallback callback) {
-        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_APP_INFO, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, showStr, CMD_DOWNLOAD_APP_INFO, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();

@@ -72,16 +72,16 @@ public class AccountManager {
     }
 
     /**
-     * 修改密码
+     * 重置密码
      * @param context：上下文
      * @param userName：用户名
      * @param password：密码
-     * @param callback：修改后回调
+     * @param callback：重置后回调
      */
-    public void changePassword(final Context context, String userName, String password, ICodeCallback callback) {
+    public void resetPassword(final Context context, String userName, String password, ICodeCallback callback) {
         account.setUserName(userName);
         account.setPassword(password);
-        account.changePassword(context, callback);
+        account.resetPassword(context, callback);
     }
 
     /**

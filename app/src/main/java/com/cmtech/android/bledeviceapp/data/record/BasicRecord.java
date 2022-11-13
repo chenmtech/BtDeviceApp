@@ -4,7 +4,7 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
-import static com.cmtech.android.bledeviceapp.util.KMWebService11Util.*;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.*;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.model.WebAsyncTask;
+import com.cmtech.android.bledeviceapp.model.WebServiceAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
@@ -197,7 +197,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             return;
         }
 
-        new WebAsyncTask(context, "获取记录中，请稍等。", CMD_DOWNLOAD_RECORDS, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "获取记录中，请稍等。", CMD_DOWNLOAD_RECORDS, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -498,7 +498,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     public void share(Context context, int shareId, ICodeCallback callback) {
-        new WebAsyncTask(context, "分享记录中，请稍等。", CMD_SHARE_RECORD, new Object[]{shareId}, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "分享记录中，请稍等。", CMD_SHARE_RECORD, new Object[]{shareId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -516,7 +516,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      */
     @Override
     public void upload(Context context, ICodeCallback callback) {
-        new WebAsyncTask(context, "上传记录中，请稍等。", CMD_UPLOAD_RECORD, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "上传记录中，请稍等。", CMD_UPLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -538,7 +538,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      */
     @Override
     public void download(Context context, String showStr, ICodeCallback callback) {
-        new WebAsyncTask(context, showStr, CMD_DOWNLOAD_RECORD, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, showStr, CMD_DOWNLOAD_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -570,7 +570,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @Override
     public void delete(Context context, ICodeCallback callback) {
         Class<? extends BasicRecord> recordClass = getClass();
-        new WebAsyncTask(context, "删除记录中，请稍等。", CMD_DELETE_RECORD, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "删除记录中，请稍等。", CMD_DELETE_RECORD, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();

@@ -31,8 +31,8 @@ import cn.smssdk.SMSSDK;
 
 /**
  *
- * ClassName:      SplashActivity
- * Description:    修改密码界面Activity
+ * ClassName:      ResetPasswordActivity
+ * Description:    重置密码界面Activity
  * Author:         chenm
  * CreateDate:     2018/10/27 09:18
  * UpdateUser:     chenm
@@ -40,12 +40,12 @@ import cn.smssdk.SMSSDK;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class ChangePasswordActivity extends AppCompatActivity {
+public class ResetPasswordActivity extends AppCompatActivity {
     private static final String CHINA_PHONE_NUMBER = "86";
     private static final int MSG_COUNT_DOWN_SECOND = 1;
     private EditText etUserName;
     private EditText etPassword;
-    private Button btnChangePassword;
+    private Button btnResetPassword;
     private Button btnGetVeriCode;
     private CheckBox cbGrant;
 
@@ -72,17 +72,17 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达
-                            ChangePasswordActivity.this.userNameVerified = userNameVerifing;
-                            Toast.makeText(ChangePasswordActivity.this, "验证码已发出，请稍等。", Toast.LENGTH_SHORT).show();
+                            ResetPasswordActivity.this.userNameVerified = userNameVerifing;
+                            Toast.makeText(ResetPasswordActivity.this, "验证码已发出，请稍等。", Toast.LENGTH_SHORT).show();
                         } else {
                             ((Throwable) data).printStackTrace();
                         }
                     } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
                         if (result == SMSSDK.RESULT_COMPLETE) {
-                            // 验证码验证通过的结果, 启动注册
-                            changePassword(userNameVerified, password);
+                            // 验证码验证通过, 启动重置密码
+                            resetPassword(userNameVerified, password);
                         } else {
-                            Toast.makeText(ChangePasswordActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ResetPasswordActivity.this, "验证码错误", Toast.LENGTH_SHORT).show();
                             ((Throwable) data).printStackTrace();
                         }
                     }
@@ -99,10 +99,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 int nSecond = msg.arg1;
 
                 if(nSecond != 0)
-                    ChangePasswordActivity.this.btnGetVeriCode.setText(String.format(Locale.getDefault(), "%d秒后\n重新获取", nSecond));
+                    ResetPasswordActivity.this.btnGetVeriCode.setText(String.format(Locale.getDefault(), "%d秒后\n重新获取", nSecond));
                 else {
-                    ChangePasswordActivity.this.btnGetVeriCode.setText("获取验证码");
-                    ChangePasswordActivity.this.btnGetVeriCode.setEnabled(true);
+                    ResetPasswordActivity.this.btnGetVeriCode.setText("获取验证码");
+                    ResetPasswordActivity.this.btnGetVeriCode.setEnabled(true);
                 }
             }
             return false;
@@ -112,7 +112,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_change_password);
+        setContentView(R.layout.activity_reset_password);
 
         // 注册一个事件回调，用于处理SMSSDK接口请求的结果
         SMSSDK.registerEventHandler(eventHandler);
@@ -131,19 +131,19 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     btnGetVeriCode.setEnabled(false);
                     startCountDownTimer();
                 } else
-                    Toast.makeText(ChangePasswordActivity.this, "手机号格式错误，请重新输入。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ResetPasswordActivity.this, "手机号格式错误，请重新输入。", Toast.LENGTH_SHORT).show();
             }
         });
 
         EditText etVeriCode = findViewById(R.id.et_qr_code);
-        btnChangePassword = findViewById(R.id.btn_change_password);
-        btnChangePassword.setOnClickListener(new View.OnClickListener() {
+        btnResetPassword = findViewById(R.id.btn_reset_password);
+        btnResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!isPrivacyGrantChecked()) return;
                 String userName = etUserName.getText().toString().trim();
-                if(ChangePasswordActivity.this.userNameVerified == null || !ChangePasswordActivity.this.userNameVerified.equals(userName)) {
-                    Toast.makeText(ChangePasswordActivity.this, "请先获取手机号验证码。", Toast.LENGTH_SHORT).show();
+                if(ResetPasswordActivity.this.userNameVerified == null || !ResetPasswordActivity.this.userNameVerified.equals(userName)) {
+                    Toast.makeText(ResetPasswordActivity.this, "请先获取手机号验证码。", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 password = etPassword.getText().toString().trim();
@@ -152,7 +152,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     SMSSDK.submitVerificationCode(CHINA_PHONE_NUMBER, userName, veriCode); // 提交验证码进行验证
                 }
                 else {
-                    Toast.makeText(ChangePasswordActivity.this, "用户名或密码格式错误", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ResetPasswordActivity.this, "用户名或密码格式错误", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -183,11 +183,11 @@ public class ChangePasswordActivity extends AppCompatActivity {
         }
     }
 
-    private void changePassword(String userName, String password) {
-        MyApplication.getAccountManager().changePassword(this, userName, password, new ICodeCallback() {
+    private void resetPassword(String userName, String password) {
+        MyApplication.getAccountManager().resetPassword(this, userName, password, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
-                Toast.makeText(ChangePasswordActivity.this, msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ResetPasswordActivity.this, msg, Toast.LENGTH_SHORT).show();
                 if(code == RCODE_SUCCESS) {
                     etPassword.setText(""); // 清空显示的密码
                     finish();
