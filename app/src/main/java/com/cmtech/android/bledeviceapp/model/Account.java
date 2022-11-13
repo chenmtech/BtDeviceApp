@@ -521,56 +521,47 @@ public class Account implements Serializable, IJsonable, IWebOperation {
     }
 
     @Override
-    public void fromJson(JSONObject json) {
-        try {
-            nickName = json.getString("nickName");
-            note = json.getString("note");
-            String iconStr = json.getString("iconStr");
-            if (!TextUtils.isEmpty(iconStr)) {
-                Bitmap bitmap = BitmapUtil.byteToBitmap(BASE64.decode(iconStr));
-                if (bitmap != null) {
-                    try {
-                        assert DIR_IMAGE != null;
-                        File iconFile = FileUtil.getFile(DIR_IMAGE, userName + ".jpg");
-                        BitmapUtil.saveBitmap(bitmap, iconFile);
-                        icon = iconFile.getCanonicalPath();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+    public void fromJson(JSONObject json) throws JSONException{
+        nickName = json.getString("nickName");
+        note = json.getString("note");
+        String iconStr = json.getString("iconStr");
+        if (!TextUtils.isEmpty(iconStr)) {
+            Bitmap bitmap = BitmapUtil.byteToBitmap(BASE64.decode(iconStr));
+            if (bitmap != null) {
+                try {
+                    assert DIR_IMAGE != null;
+                    File iconFile = FileUtil.getFile(DIR_IMAGE, userName + ".jpg");
+                    BitmapUtil.saveBitmap(bitmap, iconFile);
+                    icon = iconFile.getCanonicalPath();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-            gender = json.getInt("gender");
-            birthday = json.getLong("birthday");
-            weight = json.getInt("weight");
-            height = json.getInt("height");
-        } catch (JSONException ex) {
-            ex.printStackTrace();
         }
+        gender = json.getInt("gender");
+        birthday = json.getLong("birthday");
+        weight = json.getInt("weight");
+        height = json.getInt("height");
     }
 
     @Override
-    public JSONObject toJson() {
-        try {
-            JSONObject json = new JSONObject();
-            json.put("ver", "1.0");
-            json.put("nickName", nickName);
-            json.put("note", note);
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = new JSONObject();
+        json.put("ver", "1.0");
+        json.put("nickName", nickName);
+        json.put("note", note);
 
-            String iconStr = "";
-            if(!TextUtils.isEmpty(icon)) {
-                Bitmap bitmap = BitmapFactory.decodeFile(icon);
-                iconStr = BitmapUtil.bitmapToString(bitmap);
-            }
-            json.put("iconStr", iconStr);
-            json.put("gender", gender);
-            json.put("birthday", birthday);
-            json.put("weight", weight);
-            json.put("height", height);
-            return json;
-        } catch (JSONException ex) {
-            ex.printStackTrace();
-            return null;
+        String iconStr = "";
+        if(!TextUtils.isEmpty(icon)) {
+            Bitmap bitmap = BitmapFactory.decodeFile(icon);
+            iconStr = BitmapUtil.bitmapToString(bitmap);
         }
+        json.put("iconStr", iconStr);
+        json.put("gender", gender);
+        json.put("birthday", birthday);
+        json.put("weight", weight);
+        json.put("height", height);
+        return json;
     }
 
     @Override
@@ -594,8 +585,13 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 if (code == RCODE_SUCCESS) {
                     JSONObject content = (JSONObject) response.getContent();
                     if(content != null) {
-                        fromJson(content);
-                        saveToSharedPreference();
+                        try {
+                            fromJson(content);
+                            saveToSharedPreference();
+                        } catch (JSONException ex) {
+                            code = RCODE_DATA_ERR;
+                            msg = "数据错误";
+                        }
                     }
                 }
                 if(callback != null)

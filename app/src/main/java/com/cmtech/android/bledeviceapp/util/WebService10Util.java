@@ -56,7 +56,7 @@ public class WebService10Util {
     private static final String CMD_LOGIN = "login";
 
     // 修改账号密码
-    private static final String CMD_CHANGE_PASSWORD = "changePassword";
+    private static final String CMD_RESET_PASSWORD = "resetPassword";
 
     // 下载账户的所有分享信息
     private static final String CMD_DOWNLOAD_SHARE_INFO = "downloadShareInfo";
@@ -117,9 +117,9 @@ public class WebService10Util {
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);
     }
 
-    public static WebResponse changePassword(Account account) {
+    public static WebResponse resetPassword(Account account) {
         Map<String, String> data = new HashMap<>();
-        data.put("cmd", CMD_CHANGE_PASSWORD);
+        data.put("cmd", CMD_RESET_PASSWORD);
         data.put("userName", account.getUserName());
         data.put("password", MD5Utils.getMD5Code(account.getPassword()));
         return processGetRequest(KMIC_URL + ACCOUNT_SERVLET_URL, data);

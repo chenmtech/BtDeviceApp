@@ -20,6 +20,7 @@ import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_SHARE_RE
 import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_SIGNUP;
 import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_UPLOAD_ACCOUNT;
 import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_UPLOAD_RECORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.DEFAULT_RECORD_DOWNLOAD_NUM;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.os.AsyncTask;
 import android.text.TextUtils;
 
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
+import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.WebServiceUtil;
@@ -47,8 +49,6 @@ import java.util.List;
  * Version:        1.0
  */
 public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
-    private static final int DEFAULT_RECORD_DOWNLOAD_NUM = 10; // default download record num per time
-
     private final ProgressDialog progressDialog;
     private final int cmd;
     private final Object[] params;
@@ -118,6 +118,7 @@ public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
             // DOWNLOAD RECORD LIST
             case CMD_DOWNLOAD_RECORDS:
                 record = (BasicRecord) objects[0];
+                RecordType type = record.getType();
                 int downloadNum = 0;
                 String filterStr = "";
                 long filterTime = new Date().getTime();
@@ -133,7 +134,7 @@ public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
                     filterStr = (String) params[1];
                     filterTime = (Long) params[2];
                 }
-                response = WebServiceUtil.downloadRecords(MyApplication.getAccount(), record, filterTime, downloadNum, filterStr);
+                response = WebServiceUtil.downloadRecords(MyApplication.getAccount(), type, filterTime, downloadNum, filterStr);
                 break;
 
             case CMD_SHARE_RECORD:
@@ -177,7 +178,7 @@ public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
             case CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO:
                 account = (Account) objects[0];
                 List<Integer> contactIds = (List<Integer>) params[0];
-                response = WebServiceUtil.downloadContactDetailInfo(account, contactIds);
+                response = WebServiceUtil.downloadContactAccountInfo(account, contactIds);
                 break;
 
             case CMD_AGREE_CONTACT:

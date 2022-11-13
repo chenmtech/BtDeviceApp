@@ -36,6 +36,9 @@ import okhttp3.Response;
  */
 public class WebService11Util {
     //-----------------------------------------------静态常量
+    // 缺省每次要下载的记录个数
+    public static final int DEFAULT_RECORD_DOWNLOAD_NUM = 10;
+
     // 网络协议版本号
     private static final String SVER = "1.1";
 
@@ -94,9 +97,6 @@ public class WebService11Util {
     //---------使用Get Request网络操作------------//
     // 查询记录的ID号
     public static WebResponse queryRecordId(Account account, BasicRecord record) {
-        WebResponse resp = accountWebLogin(account);
-        if(resp.getCode() != RCODE_SUCCESS) return resp;
-
         Map<String, String> data = new HashMap<>();
         data.put("sver", SVER);
         data.put("cmd", String.valueOf(CMD_QUERY_RECORD_ID));
@@ -147,13 +147,14 @@ public class WebService11Util {
     }
 
     //---------使用Post Request网络操作------------//
-
+    // 上传账户信息
     public static WebResponse uploadAccountInfo(Account account) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
-        JSONObject json = account.toJson();
+        JSONObject json;
         try {
+            json = account.toJson();
             json.put("sver", SVER);
             json.put("cmd", CMD_UPLOAD_ACCOUNT);
             json.put("accountId", account.getAccountId());
@@ -161,10 +162,10 @@ public class WebService11Util {
             e.printStackTrace();
             return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
-        //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
+    // 下载账户信息
     public static WebResponse downloadAccountInfo(Account account) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -178,10 +179,10 @@ public class WebService11Util {
             e.printStackTrace();
             return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
-        //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
+    // 下载联系人信息
     public static WebResponse downloadContactInfo(Account account) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -198,7 +199,8 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
-    public static WebResponse downloadContactDetailInfo(Account account, List<Integer> contactIds) {
+    // 下载联系人账户信息
+    public static WebResponse downloadContactAccountInfo(Account account, List<Integer> contactIds) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
@@ -216,6 +218,7 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
+    // 添加联系人
     public static WebResponse addContact(Account account, int contactId) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -230,10 +233,10 @@ public class WebService11Util {
             e.printStackTrace();
             return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         }
-        //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
+    // 同意联系人的申请
     public static WebResponse agreeContact(Account account, int contactId) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -251,6 +254,7 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
+    // 删除联系人
     public static WebResponse deleteContact(Account account, int contactId) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -268,6 +272,7 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
     }
 
+    // 上传记录
     public static WebResponse uploadRecord(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -285,7 +290,8 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
-    public static WebResponse shareRecord(Account account, BasicRecord record, int shareId) {
+    // 给联系人分享一条记录
+    public static WebResponse shareRecord(Account account, BasicRecord record, int contactId) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
@@ -297,7 +303,7 @@ public class WebService11Util {
             json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
-            json.put("shareId", shareId);
+            json.put("contactId", contactId);
         } catch (JSONException e) {
             e.printStackTrace();
             return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
@@ -305,6 +311,7 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
+    // 下载一条记录
     public static WebResponse downloadRecord(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -325,6 +332,7 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
+    // 删除一条记录
     public static WebResponse deleteRecord(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -345,7 +353,16 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
-    public static WebResponse downloadRecords(Account account, BasicRecord record, long fromTime, int num, String filterStr) {
+    /**
+     * 下载记录列表
+     * @param account 账户
+     * @param recordType 保存要下载的记录类型
+     * @param fromTime 起始时间
+     * @param num 记录个数
+     * @param filterStr 滤波字符串
+     * @return 网络响应
+     */
+    public static WebResponse downloadRecords(Account account, RecordType recordType, long fromTime, int num, String filterStr) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
@@ -355,16 +372,15 @@ public class WebService11Util {
             json.put("cmd", CMD_DOWNLOAD_RECORDS);
             json.put("accountId", account.getAccountId());
 
-            RecordType type = record.getType();
             StringBuilder builder = new StringBuilder();
-            if(type == RecordType.ALL) {
+            if(recordType == RecordType.ALL) {
                 for(RecordType t : SUPPORT_RECORD_TYPES) {
                     if(t != RecordType.ALL) {
                         builder.append(t.getCode()).append(",");
                     }
                 }
             } else {
-                builder.append(type.getCode());
+                builder.append(recordType.getCode());
             }
             json.put("recordTypeCode", builder.toString());
             //json.put("creatorId", record.getCreatorId());
@@ -378,6 +394,7 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
+    // 获取记录的诊断报告
     public static WebResponse retrieveDiagnoseReport(Account account, BasicRecord record) {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
@@ -387,6 +404,7 @@ public class WebService11Util {
             json.put("sver", SVER);
             json.put("cmd", CMD_RETRIEVE_DIAGNOSE_REPORT);
             json.put("accountId", account.getAccountId());
+            json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             ViseLog.e(json.toString());
