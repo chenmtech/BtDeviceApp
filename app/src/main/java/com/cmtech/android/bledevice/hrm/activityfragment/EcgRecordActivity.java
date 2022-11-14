@@ -98,11 +98,11 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             @Override
             public void onFinish(BleEcgRecord bleEcgRecord) {
                 bleEcgRecord.openSigFile();
-                if(bleEcgRecord.noSignal()) {
-                    bleEcgRecord.download(EcgRecordActivity.this, "下载记录中，请稍等。", (code,msg) -> {
+                if(bleEcgRecord.noSignalFile()) {
+                    bleEcgRecord.download(EcgRecordActivity.this, "下载记录信号，请稍等。", (code,msg) -> {
                         if (code == RCODE_SUCCESS) {
                             bleEcgRecord.openSigFile();
-                            bleEcgRecord.setRecordSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
+                            bleEcgRecord.setSigSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
                             record = bleEcgRecord;
                             initUI();
                         } else {
@@ -110,7 +110,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
                         }
                     });
                 } else {
-                    bleEcgRecord.setRecordSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
+                    bleEcgRecord.setSigSecond(bleEcgRecord.getDataNum()/bleEcgRecord.getSampleRate());
                     record = bleEcgRecord;
                     initUI();
                 }
@@ -142,7 +142,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getTimeAtCurrentPosition()));
 
         tvTimeLength = findViewById(R.id.tv_time_length);
-        int timeLength = record.getRecordSecond();
+        int timeLength = record.getSigSecond();
         tvTimeLength.setText(DateTimeUtil.secToTime(timeLength));
 
         sbReplay = findViewById(R.id.sb_replay);

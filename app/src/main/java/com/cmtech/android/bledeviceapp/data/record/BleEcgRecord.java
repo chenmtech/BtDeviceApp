@@ -96,7 +96,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     //-----------------------------------------------------------公有实例方法
     // 创建并打开信号文件
-    public void createSigFile() {
+    public void createSigFile() throws IOException{
         super.createSigFile(BYTES_PER_DATUM);
     }
 

@@ -42,7 +42,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     // 创建信号文件
-    public void createSigFile() {
+    public void createSigFile() throws IOException{
         super.createSigFile(BYTES_PER_DATUM);
     }
 

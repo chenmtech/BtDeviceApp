@@ -22,7 +22,6 @@ import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import org.json.JSONArray;
@@ -43,7 +42,7 @@ import java.util.List;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.data.record
  * ClassName:      BasicRecord
- * Description:    各种记录类的共同基本信息基类
+ * Description:    各种记录类的共同基类
  * Author:         chenm
  * CreateDate:     2020/4/2 下午2:44
  * UpdateUser:     chenm
@@ -69,8 +68,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     public static final File SIG_FILE_PATH = DIR_DOC;
 
     // 诊断报告状态
-    public static final int DONE = 0; // 已完成
-    public static final int PROCESSING = 1; // 处理中
+    public static final int REPORT_DONE = 0; // 已完成
+
+    public static final int REPORT_WAITING = 1; // 等待处理
 
 
     //-----------------------------------------实例变量
@@ -78,7 +78,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // ID号
     private int id;
 
-    // 记录拥有者账户ID号
+    // 记录拥有者账户ID
     private int accountId = INVALID_ID;
 
     // 创建时间
@@ -90,16 +90,16 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // 记录版本号
     private String ver = DEFAULT_RECORD_VER;
 
-    // 记录创建者ID号
+    // 记录创建者账户ID
     private int creatorId = INVALID_ID;
 
     // 备注
     private String note = "";
 
-    // 记录信号长度，单位:秒
-    private int recordSecond = 0;
+    // 信号长度秒数
+    private int sigSecond = 0;
 
-    // 是否需要上传
+    // 是否需要上传，当记录刚刚生成或者它的内容已经被修改时，就需要上传到服务器端。
     private boolean needUpload = true;
 
 
@@ -117,7 +117,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     private String reportContent = DEFAULT_REPORT_CONTENT;
 
     // 报告状态
-    private int reportStatus = DONE;
+    private int reportStatus = REPORT_DONE;
 
 
     //------------------------------------------------不需要保存到数据库中的属性
@@ -125,7 +125,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @Column(ignore = true)
     private final RecordType type;
 
-    // 记录保存的数据文件类实例
+    // 信号保存的文件实例
     @Column(ignore = true)
     protected RecordFile sigFile;
 
@@ -133,15 +133,15 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     //-----------------------------------------静态函数
 
     /**
-     * 从本地数据库读取满足条件的记录字段信息
+     * 从本地数据库读取满足条件的记录信息
      * @param type：记录类型，如果是ALL，则包含所有记录类型
      * @param accountId：记录拥有者ID
-     * @param filterTime：过滤的起始时间
-     * @param filterStr：过滤的字符串
-     * @param num：记录数
+     * @param fromTime：起始时间
+     * @param filterStr：过滤的字符串，在备注中包含的字符串
+     * @param num：记录条数
      * @return 查询到的记录对象列表
      */
-    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, int accountId, long filterTime, String filterStr, int num) {
+    public static List<? extends BasicRecord> readRecordsFromLocalDb(RecordType type, int accountId, long fromTime, String filterStr, int num) {
         List<RecordType> types = new ArrayList<>();
         if(type == RecordType.ALL) {
             for(RecordType t : SUPPORT_RECORD_TYPES) {
@@ -159,11 +159,11 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
             if (recordClass != null) {
                 if(TextUtils.isEmpty(filterStr)) {
                     records.addAll(LitePal.where("accountId = ? and createTime < ?",
-                                    ""+accountId, ""+filterTime)
+                                    ""+accountId, ""+fromTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
                     records.addAll(LitePal.where("accountId = ? and createTime < ? and note like ?",
-                                    ""+accountId, ""+filterTime, "%"+filterStr+"%")
+                                    ""+accountId, ""+fromTime, "%"+filterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
             }
@@ -187,17 +187,16 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param context
      * @param num：获取记录数
      * @param filterStr：过滤的字符串
-     * @param filterTime：过滤的起始时间
+     * @param fromTime：起始时间
      * @param callback：返回回调
      */
-    public static void downloadRecords(Context context, RecordType type, int accountId, int num, String filterStr, long filterTime, ICodeCallback callback) {
+    public static void downloadRecords(Context context, RecordType type, int accountId, int num, String filterStr, long fromTime, ICodeCallback callback) {
         BasicRecord record = RecordFactory.create(type, DEFAULT_RECORD_VER, accountId, INVALID_TIME, null);
         if(record == null) {
-            ViseLog.e("The record type is not supported.");
             return;
         }
 
-        new WebServiceAsyncTask(context, "获取记录中，请稍等。", CMD_DOWNLOAD_RECORDS, new Object[]{num, filterStr, filterTime}, new IWebResponseCallback() {
+        new WebServiceAsyncTask(context, "获取记录中，请稍等。", CMD_DOWNLOAD_RECORDS, new Object[]{num, filterStr, fromTime}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
@@ -236,6 +235,15 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
 
     //-----------------------------------------构造器
+
+    /**
+     * 创建记录
+     * @param type 记录类型
+     * @param ver 记录版本
+     * @param creatorId 记录创建者ID
+     * @param createTime 记录创建时间
+     * @param devAddress 记录创建的设备蓝牙地址
+     */
     BasicRecord(RecordType type, String ver, int creatorId, long createTime, String devAddress) {
         this.type = type;
         this.ver = ver;
@@ -292,9 +300,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     // 获取记录创建者的昵称或ID
     public String getCreatorNickNameOrId() {
+        // 创建者就是用户本人
         if(MyApplication.getAccountId() == creatorId) {
             return  MyApplication.getAccount().getNickNameOrId();
-        } else {
+        }
+        // 创建者是别的联系人
+        else {
             ContactPerson cp = MyApplication.getAccount().getContactPerson(creatorId);
             if(cp == null || TextUtils.isEmpty(cp.getNickName())) {
                 return "ID:"+creatorId;
@@ -320,7 +331,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     /**
      * 在输出诊断报告中产生创建者昵称
-     * @return
+     * @return 创建者昵称
      */
     public String getCreatorNickNameInOutputReport() {
         Account account = MyApplication.getAccount();
@@ -354,12 +365,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.note = note;
     }
 
-    public int getRecordSecond() {
-        return recordSecond;
+    public int getSigSecond() {
+        return sigSecond;
     }
 
-    public void setRecordSecond(int recordSecond) {
-        this.recordSecond = recordSecond;
+    public void setSigSecond(int sigSecond) {
+        this.sigSecond = sigSecond;
     }
 
     public String getReportVer() {
@@ -398,24 +409,23 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.needUpload = needUpload;
     }
 
+    // 获取信号文件名：设备地址（去掉:）+创建时间
     public String getSigFileName() {
         return getDevAddress().replace(":", "")+getCreateTime();
     }
 
-    // 创建信号文件
-    public void createSigFile(int datumByteNum) {
-        try {
-            sigFile = new RecordFile(getSigFileName(), datumByteNum, "c");
-        } catch (IOException e) {
-            e.printStackTrace();
-            sigFile = null;
-        }
+    /**
+     * 创建信号文件
+     * @param bytePerDatum 信号的每个数据有几个字节构成
+     */
+    public void createSigFile(int bytePerDatum) throws IOException{
+        sigFile = new RecordFile(getSigFileName(), bytePerDatum, "c");
     }
 
     // 打开信号文件
-    public void openSigFile(int datumByteNum) {
+    public void openSigFile(int bytePerDatum) {
         try {
-            sigFile = new RecordFile(getSigFileName(), datumByteNum, "o");
+            sigFile = new RecordFile(getSigFileName(), bytePerDatum, "o");
         } catch (IOException e) {
             e.printStackTrace();
             sigFile = null;
@@ -437,7 +447,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     public void fromJson(JSONObject json) throws JSONException{
         creatorId = json.getInt("creatorId");
         note = json.getString("note");
-        recordSecond = json.getInt("recordSecond");
+        sigSecond = json.getInt("sigSecond");
         reportVer = json.getString("reportVer");
         reportProvider = json.getString("reportProvider");
         reportTime = json.getLong("reportTime");
@@ -455,7 +465,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("creatorId", creatorId);
         json.put("ver", ver);
         json.put("note", note);
-        json.put("recordSecond", recordSecond);
+        json.put("sigSecond", sigSecond);
         json.put("reportVer", reportVer);
         json.put("reportProvider", reportProvider);
         json.put("reportTime", reportTime);
@@ -464,7 +474,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         return json;
     }
 
-    public boolean noSignal() {
+    // 没有信号文件
+    public boolean noSignalFile() {
         return (sigFile==null);
     }
 
@@ -482,6 +493,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         }
     }
 
+    // 在信号文件中定位
     public void seek(int pos) {
         if(sigFile!= null) {
             try {
@@ -492,27 +504,32 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         }
     }
 
+    // 获取信号数据个数
     public int getDataNum() {
         if(sigFile == null) return 0;
         return sigFile.size();
     }
 
-    public void share(Context context, int shareId, ICodeCallback callback) {
-        new WebServiceAsyncTask(context, "分享记录中，请稍等。", CMD_SHARE_RECORD, new Object[]{shareId}, new IWebResponseCallback() {
+    /**
+     * 向一个联系人分享本记录
+     * @param context 上下文
+     * @param contactId 联系人ID
+     * @param callback 回调
+     */
+    public void share(Context context, int contactId, ICodeCallback callback) {
+        new WebServiceAsyncTask(context, "分享记录中，请稍等。", CMD_SHARE_RECORD, new Object[]{contactId}, new IWebResponseCallback() {
             @Override
             public void onFinish(WebResponse response) {
-                int code = response.getCode();
-                String msg = response.getMsg();
                 if(callback != null)
-                    callback.onFinish(code, msg);
+                    callback.onFinish(response.getCode(), response.getMsg());
             }
         }).execute(this);
     }
 
     /**
      * 上传记录信息
-     * @param context
-     * @param callback
+     * @param context 上下文
+     * @param callback 回调
      */
     @Override
     public void upload(Context context, ICodeCallback callback) {
@@ -544,10 +561,10 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                 int code = response.getCode();
                 String msg = response.getMsg();
                 if (code == RCODE_SUCCESS) {
-                    JSONObject content = (JSONObject) response.getData();
-                    if(content != null) {
+                    JSONObject data = (JSONObject) response.getData();
+                    if(data != null) {
                         try {
-                            fromJson(content);
+                            fromJson(data);
                             setNeedUpload(false);
                             save();
                         } catch (JSONException e) {
@@ -592,7 +609,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @NonNull
     @Override
     public String toString() {
-        return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + note + "-" + recordSecond + "-" + needUpload + "-" + reportContent;
+        return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + note + "-" + sigSecond + "-" + needUpload + "-" + reportContent;
     }
 
     @Override

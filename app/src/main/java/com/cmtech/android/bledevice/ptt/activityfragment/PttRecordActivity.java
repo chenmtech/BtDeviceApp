@@ -45,11 +45,11 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
             @Override
             public void onFinish(BlePttRecord blePttRecord) {
                 blePttRecord.openSigFile();
-                if(blePttRecord.noSignal()) {
+                if(blePttRecord.noSignalFile()) {
                     blePttRecord.download(PttRecordActivity.this, "下载记录中，请稍等。", (code,msg) -> {
                         if (code == RCODE_SUCCESS) {
                             blePttRecord.openSigFile();
-                            blePttRecord.setRecordSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());
+                            blePttRecord.setSigSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());
                             record = blePttRecord;
                             initUI();
                         } else {
@@ -57,7 +57,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
                         }
                     });
                 } else {
-                    blePttRecord.setRecordSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());
+                    blePttRecord.setSigSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());
                     record = blePttRecord;
                     initUI();
                 }
@@ -90,7 +90,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
 
         tvTotalTime = findViewById(R.id.tv_total_time);
-        int timeLength = record.getRecordSecond();
+        int timeLength = record.getSigSecond();
         tvTotalTime.setText(DateTimeUtil.secToMinute(timeLength));
 
         sbReplay = findViewById(R.id.sb_replay);

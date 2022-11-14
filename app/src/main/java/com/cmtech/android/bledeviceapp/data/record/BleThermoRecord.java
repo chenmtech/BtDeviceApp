@@ -50,7 +50,7 @@ public class BleThermoRecord extends BasicRecord {
     }
 
     @Override
-    public boolean noSignal() {
+    public boolean noSignalFile() {
         return temp.isEmpty();
     }
 

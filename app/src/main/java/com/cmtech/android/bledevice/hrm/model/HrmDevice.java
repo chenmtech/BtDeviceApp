@@ -288,7 +288,7 @@ public class HrmDevice extends AbstractDevice {
                         sum += num;
                     }
 
-                    hrRecord.setRecordSecond(sum);
+                    hrRecord.setSigSecond(sum);
                     hrRecord.save();
                     Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
@@ -326,11 +326,17 @@ public class HrmDevice extends AbstractDevice {
         if(record) {
             ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             if(ecgRecord != null) {
+                try {
+                    ecgRecord.createSigFile();
+                } catch (IOException e) {
+                    ecgRecord = null;
+                    ThreadUtil.showToastInMainThread(getContext(), "创建记录失败", Toast.LENGTH_SHORT);
+                    return;
+                }
                 ecgRecord.setSampleRate(sampleRate);
                 ecgRecord.setCaliValue(caliValue);
                 ecgRecord.setLeadTypeCode(leadType.getCode());
                 ecgRecord.setInterrupt(true);
-                ecgRecord.createSigFile();
                 ecgRecord.save();
                 recordingRecord = ecgRecord;
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
@@ -347,7 +353,7 @@ public class HrmDevice extends AbstractDevice {
             if(ecgRecord != null) {
                 int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
 
-                ecgRecord.setRecordSecond(second);
+                ecgRecord.setSigSecond(second);
                 ecgRecord.setReport(rhythmDetector.createReport(ecgRecord));
                 ecgRecord.closeSigFile();
                 ecgRecord.save();
@@ -468,7 +474,7 @@ public class HrmDevice extends AbstractDevice {
 
                 // 每记录一分钟就自动保存一次记录，防止数据异常丢失太多
                 if(second % 60 == 0) {
-                    ecgRecord.setRecordSecond(second);
+                    ecgRecord.setSigSecond(second);
                     ecgRecord.save();
                 }
             }

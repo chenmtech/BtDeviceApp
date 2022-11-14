@@ -26,6 +26,7 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
 import org.litepal.crud.callback.SaveCallback;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -174,16 +175,22 @@ public class PpgDevice extends AbstractDevice {
         if(isRecord) {
             ppgRecord = (BlePpgRecord) RecordFactory.create(PPG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             if(ppgRecord != null) {
+                try {
+                    ppgRecord.createSigFile();
+                } catch (IOException e) {
+                    ppgRecord = null;
+                    ThreadUtil.showToastInMainThread(getContext(), "创建记录失败", Toast.LENGTH_SHORT);
+                    return;
+                }
                 ppgRecord.setSampleRate(sampleRate);
                 ppgRecord.setCaliValue(caliValue);
-                ppgRecord.createSigFile();
                 ppgRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(ppgRecord != null) {
                 int second = ppgRecord.getDataNum() / ppgRecord.getSampleRate();
-                ppgRecord.setRecordSecond(second);
+                ppgRecord.setSigSecond(second);
                 ppgRecord.saveAsync().listen(new SaveCallback() {
                     @Override
                     public void onFinish(boolean success) {

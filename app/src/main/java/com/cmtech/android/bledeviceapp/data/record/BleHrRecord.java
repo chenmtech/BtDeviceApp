@@ -85,7 +85,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
     }
 
     @Override
-    public boolean noSignal() {
+    public boolean noSignalFile() {
         return hrList.isEmpty();
     }
 
@@ -102,7 +102,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
             throw new IllegalStateException();
         }
 
-        return HRProcessor.calculateCalories(hrAve, getRecordSecond(), account);
+        return HRProcessor.calculateCalories(hrAve, getSigSecond(), account);
     }
 
     public short getHrMax() {

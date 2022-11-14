@@ -50,7 +50,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
     // 记录设备地址
     private TextView tvAddress;
 
-    // 下载更新按钮
+    // 下载按钮
     private TextView tvDownload;
 
     // 上传按钮

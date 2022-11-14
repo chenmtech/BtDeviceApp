@@ -30,6 +30,7 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -189,17 +190,23 @@ public class PttDevice extends AbstractDevice {
         if(isRecord) {
             pttRecord = (BlePttRecord) RecordFactory.create(PTT, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             if(pttRecord != null) {
+                try {
+                    pttRecord.createSigFile();
+                } catch (IOException e) {
+                    pttRecord = null;
+                    ThreadUtil.showToastInMainThread(getContext(), "创建记录失败", Toast.LENGTH_SHORT);
+                    return;
+                }
                 pttRecord.setSampleRate(sampleRate);
                 pttRecord.setEcgCaliValue(DEFAULT_ECG_CALI);
                 pttRecord.setPpgCaliValue(DEFAULT_PPG_CALI);
-                pttRecord.createSigFile();
                 pttRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(pttRecord != null) {
                 int second = pttRecord.getDataNum() / pttRecord.getSampleRate();
-                pttRecord.setRecordSecond(second);
+                pttRecord.setSigSecond(second);
                 pttRecord.saveAsync().listen(new SaveCallback() {
                     @Override
                     public void onFinish(boolean success) {

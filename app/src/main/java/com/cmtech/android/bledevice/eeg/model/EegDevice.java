@@ -27,6 +27,7 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
 import org.litepal.crud.callback.SaveCallback;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -205,17 +206,23 @@ public class EegDevice extends AbstractDevice {
         if(isRecord) {
             eegRecord = (BleEegRecord) RecordFactory.create(EEG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
             if(eegRecord != null) {
+                try {
+                    eegRecord.createSigFile();
+                } catch (IOException e) {
+                    eegRecord = null;
+                    ThreadUtil.showToastInMainThread(getContext(), "创建记录失败", Toast.LENGTH_SHORT);
+                    return;
+                }
                 eegRecord.setSampleRate(sampleRate);
                 eegRecord.setCaliValue(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
-                eegRecord.createSigFile();
                 eegRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(eegRecord != null) {
                 int second = eegRecord.getDataNum() / eegRecord.getSampleRate();
-                eegRecord.setRecordSecond(second);
+                eegRecord.setSigSecond(second);
                 eegRecord.saveAsync().listen(new SaveCallback() {
                     @Override
                     public void onFinish(boolean success) {

@@ -16,7 +16,7 @@ public class HRProcessor {
         int burned = 0;
         if(person.getGender() == Account.MALE) {
             burned = (int)( ( (-55.0969 + (0.6309*aveHr) + (0.1988*person.getWeight()) + (0.2017*age) )/4.184 )*timeLengthInSecond/60 );
-            //ViseLog.e(new GregorianCalendar().get(Calendar.YEAR)+ " "+ new Date(person.getBirthday()).getYear() + " " +age+" "+hrAve+ " "+ person.getWeight() + " " + getRecordSecond());
+            //ViseLog.e(new GregorianCalendar().get(Calendar.YEAR)+ " "+ new Date(person.getBirthday()).getYear() + " " +age+" "+hrAve+ " "+ person.getWeight() + " " + getSigSecond());
         } else {
             burned = (int)( ((-20.4022 + (0.4472*aveHr) - (0.1263*person.getWeight()) + (0.074*age))/4.184)*timeLengthInSecond/60 );
         }
