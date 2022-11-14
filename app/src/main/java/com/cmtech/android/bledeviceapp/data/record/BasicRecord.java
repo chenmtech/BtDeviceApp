@@ -203,7 +203,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                 int code = response.getCode();
                 String msg = response.getMsg();
                 if(code == RCODE_SUCCESS) {
-                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    JSONArray jsonArr = (JSONArray) response.getData();
                     if(jsonArr != null) {
                         for (int i = 0; i < jsonArr.length(); i++) {
                             try {
@@ -544,7 +544,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                 int code = response.getCode();
                 String msg = response.getMsg();
                 if (code == RCODE_SUCCESS) {
-                    JSONObject content = (JSONObject) response.getContent();
+                    JSONObject content = (JSONObject) response.getData();
                     if(content != null) {
                         try {
                             fromJson(content);

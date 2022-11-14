@@ -89,7 +89,7 @@ public class AppPackageInfo implements Serializable, IJsonable {
                 int code = response.getCode();
                 String msg = response.getMsg();
                 if (code == RCODE_SUCCESS) {
-                    JSONObject json = (JSONObject) response.getContent();
+                    JSONObject json = (JSONObject) response.getData();
                     if (json != null) {
                         try {
                             fromJson(json);

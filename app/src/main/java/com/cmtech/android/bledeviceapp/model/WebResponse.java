@@ -4,8 +4,8 @@ package com.cmtech.android.bledeviceapp.model;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.model
  * ClassName:      WebResponse
- * Description:    java类作用描述
- * Author:         作者名
+ * Description:    网络操作的响应类
+ * Author:         chenm
  * CreateDate:     2020/10/29 上午6:15
  * UpdateUser:     更新者
  * UpdateDate:     2020/10/29 上午6:15
@@ -13,30 +13,39 @@ package com.cmtech.android.bledeviceapp.model;
  * Version:        1.0
  */
 public class WebResponse {
+    // 响应代码
     private int code;
-    private String msg;
-    private Object content;
 
-    public WebResponse(int code, Object content) {
-        this(code, "", content);
+    // 响应消息
+    private String msg;
+
+    // 响应数据
+    private Object data;
+
+    public WebResponse(int code) {
+        this(code, "", null);
     }
 
-    public WebResponse(int code, String msg, Object content) {
+    public WebResponse(int code, Object data) {
+        this(code, "", data);
+    }
+
+    public WebResponse(int code, String msg, Object data) {
         this.code = code;
         this.msg = msg;
-        this.content = content;
+        this.data = data;
     }
 
     public int getCode() {
         return code;
     }
 
-    public Object getContent() {
-        return content;
-    }
-
     public String getMsg() {
         return msg;
+    }
+
+    public Object getData() {
+        return data;
     }
 
 /*    public void setCode(int code) {
@@ -51,9 +60,9 @@ public class WebResponse {
         this.msg = msg;
     }*/
 
-    public void set(int code, String msg, Object content) {
+    public void set(int code, String msg, Object data) {
         this.code = code;
         this.msg = msg;
-        this.content = content;
+        this.data = data;
     }
 }

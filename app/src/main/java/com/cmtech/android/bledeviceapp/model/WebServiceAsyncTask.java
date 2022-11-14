@@ -49,25 +49,40 @@ import java.util.List;
  * Version:        1.0
  */
 public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
+    // 旋转进度条
     private final ProgressDialog progressDialog;
-    private final int cmd;
-    private final Object[] params;
-    private final IWebResponseCallback callback;
 
-    public WebServiceAsyncTask(Context context, String showString, int cmd, IWebResponseCallback callback) {
-        this(context, showString, cmd, null, callback);
+    // 网络服务命令
+    private final int cmd;
+
+    // 额外的参数
+    private final Object[] params;
+
+    // 网络响应回调
+    private final IWebResponseCallback wRespCb;
+
+    public WebServiceAsyncTask(Context context, String showStr, int cmd, IWebResponseCallback wRespCb) {
+        this(context, showStr, cmd, null, wRespCb);
     }
 
-    public WebServiceAsyncTask(Context context, String showString, int cmd, Object[] params, IWebResponseCallback callback) {
+    /**
+     * 创建一个网络服务异步任务
+     * @param context 上下文
+     * @param showText 在进度条上显示的文本，如果为空，则不显示进度条
+     * @param cmd 网络服务命令
+     * @param params 额外参数
+     * @param wRespCb 网络响应回调
+     */
+    public WebServiceAsyncTask(Context context, String showText, int cmd, Object[] params, IWebResponseCallback wRespCb) {
         super();
 
         this.cmd = cmd;
         this.params = params;
-        this.callback = callback;
+        this.wRespCb = wRespCb;
 
-        if(!TextUtils.isEmpty(showString)) {
+        if(!TextUtils.isEmpty(showText)) {
             progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage(showString);
+            progressDialog.setMessage(showText);
             progressDialog.setCancelable(false);
             progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         } else {
@@ -87,8 +102,8 @@ public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
             return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
 
         WebResponse response = new WebResponse(RCODE_WEB_FAILURE, "网络连接失败", null);
-        BasicRecord record = null;
-        Account account = null;
+        BasicRecord record;
+        Account account;
 
         switch (cmd) {
             // QUERY ID
@@ -137,73 +152,84 @@ public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
                 response = WebServiceUtil.downloadRecords(MyApplication.getAccount(), type, filterTime, downloadNum, filterStr);
                 break;
 
+            // 分享记录
             case CMD_SHARE_RECORD:
                 record = (BasicRecord) objects[0];
-                int shareId = (Integer) params[0];
-                response = WebServiceUtil.shareRecord(MyApplication.getAccount(), record, shareId);
+                int shareContactId = (Integer) params[0];
+                response = WebServiceUtil.shareRecord(MyApplication.getAccount(), record, shareContactId);
                 break;
 
-            // UPLOAD
+            // 获取记录的诊断报告
+            case CMD_RETRIEVE_DIAGNOSE_REPORT:
+                record = (BasicRecord) objects[0];
+                response = WebServiceUtil.retrieveDiagnoseReport(MyApplication.getAccount(), record);
+                break;
+
+            // 上传账户信息
             case CMD_UPLOAD_ACCOUNT:
                 account = (Account) objects[0];
                 response = WebServiceUtil.uploadAccountInfo(account);
                 break;
 
-            // DOWNLOAD
+            // 下载账户信息
             case CMD_DOWNLOAD_ACCOUNT:
                 account = (Account) objects[0];
                 response = WebServiceUtil.downloadAccountInfo(account);
                 break;
 
+            // 注册新账户
             case CMD_SIGNUP:
                 account = (Account) objects[0];
                 response = WebServiceUtil.signUp(account);
                 break;
 
+            // 账户登录
             case CMD_LOGIN:
                 account = (Account) objects[0];
                 response = WebServiceUtil.login(account);
                 break;
 
+            // 重置密码
             case CMD_RESET_PASSWORD:
                 account = (Account) objects[0];
                 response = WebServiceUtil.resetPassword(account);
                 break;
 
+            // 下载账户联系人信息
             case CMD_DOWNLOAD_CONTACT_INFO:
                 account = (Account) objects[0];
                 response = WebServiceUtil.downloadContactInfo(account);
                 break;
 
+            // 下载联系人的公开账户信息
             case CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO:
                 account = (Account) objects[0];
                 List<Integer> contactIds = (List<Integer>) params[0];
                 response = WebServiceUtil.downloadContactAccountInfo(account, contactIds);
                 break;
 
+            // 批准联系人申请
             case CMD_AGREE_CONTACT:
                 account = (Account) objects[0];
-                int fromId = (Integer) params[0];
-                response = WebServiceUtil.agreeContact(account, fromId);
+                int agreeContactId = (Integer) params[0];
+                response = WebServiceUtil.agreeContact(account, agreeContactId);
                 break;
 
+            // 申请新的联系人
             case CMD_ADD_CONTACT:
                 account = (Account) objects[0];
-                int toId = (Integer) params[0];
-                response = WebServiceUtil.addContact(account, toId);
+                int addContactId = (Integer) params[0];
+                response = WebServiceUtil.addContact(account, addContactId);
                 break;
 
+            // 删除一个联系人
             case CMD_DELETE_CONTACT:
                 account = (Account) objects[0];
-                int contactId = (Integer) params[0];
-                response = WebServiceUtil.deleteContact(account, contactId);
+                int deleteContactId = (Integer) params[0];
+                response = WebServiceUtil.deleteContact(account, deleteContactId);
                 break;
 
-            case CMD_RETRIEVE_DIAGNOSE_REPORT:
-                record = (BasicRecord) objects[0];
-                response = WebServiceUtil.retrieveDiagnoseReport(MyApplication.getAccount(), record);
-                break;
-
+            // 下载app更新信息
             case CMD_DOWNLOAD_APP_INFO:
                 response = WebServiceUtil.downloadAppUpdateInfo();
                 break;
@@ -217,8 +243,8 @@ public class WebServiceAsyncTask extends AsyncTask<Object, Void, WebResponse> {
 
     @Override
     protected void onPostExecute(WebResponse response) {
-        if(callback != null)
-            callback.onFinish(response);
+        if(wRespCb != null)
+            wRespCb.onFinish(response);
 
         if(progressDialog != null)
             progressDialog.dismiss();

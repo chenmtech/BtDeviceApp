@@ -415,9 +415,9 @@ public class WebService11Util {
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
 
-    // 账户登录
+    // 账户登录，如果已经登录过，则直接返回登录成功
     private static WebResponse accountWebLogin(Account account) {
-        if(account == null) return new WebResponse(RCODE_DATA_ERR, "账户错误", null);
+        if(account == null) return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
         if(!account.isWebLoginSuccess()) {
             WebResponse response = WebService11Util.login(account);
             if(response.getCode() == RCODE_SUCCESS) {
@@ -436,8 +436,8 @@ public class WebService11Util {
             JSONObject respJson = new JSONObject(respBody);
             int code = respJson.getInt("code");
             String msg = respJson.getString("message");
-            Object content = (respJson.has("content")) ? respJson.get("content") : null;
-            wResp.set(code, msg, content);
+            Object respData = (respJson.has("data")) ? respJson.get("data") : null;
+            wResp.set(code, msg, respData);
         } catch (JSONException | IOException e) {
             wResp.set(RCODE_DATA_ERR, "数据错误", null);
         }
@@ -452,8 +452,8 @@ public class WebService11Util {
             JSONObject respJson = new JSONObject(respBody);
             int code = respJson.getInt("code");
             String msg = respJson.getString("message");
-            Object content = (respJson.has("content")) ? respJson.get("content") : null;
-            wResp.set(code, msg, content);
+            Object data = (respJson.has("data")) ? respJson.get("data") : null;
+            wResp.set(code, msg, data);
         } catch (JSONException | IOException e) {
             wResp.set(RCODE_DATA_ERR, "数据错误", null);
         }

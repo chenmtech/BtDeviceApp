@@ -349,7 +349,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 int code = response.getCode();
                 String msg = response.getMsg();
                 if(code == RCODE_SUCCESS) {
-                    JSONObject content = (JSONObject) response.getContent();
+                    JSONObject content = (JSONObject) response.getData();
                     if(content == null) {
                         code = RCODE_DATA_ERR;
                         msg = "数据错误";
@@ -389,7 +389,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 int code = response.getCode();
                 String msg = response.getMsg();
                 if(code == RCODE_SUCCESS) {
-                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    JSONArray jsonArr = (JSONArray) response.getData();
                     if(jsonArr != null) {
                         List<ContactPerson> revCps = new ArrayList<>();
                         for (int i = 0; i < jsonArr.length(); i++) {
@@ -442,7 +442,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 int code = response.getCode();
                 String msg = response.getMsg();
                 if(code == RCODE_SUCCESS) {
-                    JSONArray jsonArr = (JSONArray) response.getContent();
+                    JSONArray jsonArr = (JSONArray) response.getData();
                     if(jsonArr != null) {
                         for (int i = 0; i < jsonArr.length(); i++) {
                             try {
@@ -583,7 +583,7 @@ public class Account implements Serializable, IJsonable, IWebOperation {
                 int code = response.getCode();
                 String msg = response.getMsg();
                 if (code == RCODE_SUCCESS) {
-                    JSONObject content = (JSONObject) response.getContent();
+                    JSONObject content = (JSONObject) response.getData();
                     if(content != null) {
                         try {
                             fromJson(content);

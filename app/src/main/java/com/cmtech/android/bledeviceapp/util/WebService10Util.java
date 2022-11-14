@@ -140,13 +140,14 @@ public class WebService10Util {
         WebResponse resp = accountWebLogin(account);
         if(resp.getCode() != RCODE_SUCCESS) return resp;
 
-        JSONObject json = account.toJson();
+        JSONObject json;
         try {
+            json = account.toJson();
             json.put("cmd", CMD_UPLOAD);
             json.put("id", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RCODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR);
         }
         //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
@@ -162,7 +163,7 @@ public class WebService10Util {
             json.put("id", account.getAccountId());
         } catch (JSONException e) {
             e.printStackTrace();
-            return new WebResponse(RCODE_DATA_ERR, null);
+            return new WebResponse(RCODE_DATA_ERR);
         }
         //ViseLog.e(json);
         return processPostRequest(KMIC_URL + ACCOUNT_SERVLET_URL, json);
