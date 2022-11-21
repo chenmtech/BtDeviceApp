@@ -1,9 +1,14 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AFIB_LABEL;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ALL_ARRHYTHM_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ARRHYTHM_LABEL_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ARRHYTHMIA_DESC_MAP;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.OTHER_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_DESC_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
@@ -12,7 +17,9 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
@@ -167,6 +174,52 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     }
 
     /**
+     * 生成诊断报告
+     * @param rhythmDetector 心律检测器
+     */
+    public void createReport(IEcgRealTimeRhythmDetector rhythmDetector) {
+        String strHrResult;
+        // 先生成心率的诊断内容
+        if(aveHr == INVALID_HR) {
+            strHrResult = "";
+        } else {
+            if(aveHr > HR_TOO_HIGH_LIMIT)
+                strHrResult = "过速";
+            else if(aveHr < HR_TOO_LOW_LIMIT)
+                strHrResult = "过缓";
+            else
+                strHrResult = "正常";
+            strHrResult = "平均心率" + strHrResult + ":" + aveHr + "次/分钟;";
+        }
+
+        // 再生成心律异常的内容
+        int AFIB_times = 0;
+        int other_times = 0;
+        for(int label : rhythmLabels) {
+            if(label == AFIB_LABEL)
+                AFIB_times++;
+            else if(label == OTHER_LABEL) {
+                other_times++;
+            }
+        }
+
+        String strRhythmResult = "";
+        if(AFIB_times == 0 && other_times == 0) {
+            strRhythmResult = "未发现房颤异常;";
+        } else {
+            if(AFIB_times != 0) {
+                strRhythmResult += RHYTHM_DESC_MAP.get(AFIB_LABEL)+AFIB_times+"次;";
+            }
+            if(other_times != 0) {
+                strRhythmResult += RHYTHM_DESC_MAP.get(OTHER_LABEL)+other_times+"次;";
+            }
+        }
+        String reportContent = strHrResult+strRhythmResult;
+        setReport(new EcgReport(rhythmDetector.getVer(), rhythmDetector.getProvider(),
+                new Date().getTime(), reportContent, EcgReport.DONE));
+    }
+
+    /**
      * 添加一条心律异常检测项
      * @param item 一条检测项
      */
@@ -305,7 +358,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             boolean found;
             // 标签既不是NSR，也不是NOISE
             if(label == ALL_ARRHYTHM_LABEL)
-                found = ARRHYTHM_LABEL_MAP.containsKey(rhythmLabels.get(j));
+                found = ARRHYTHMIA_DESC_MAP.containsKey(rhythmLabels.get(j));
             else
                 found = (rhythmLabels.get(j) == label);
 
@@ -344,7 +397,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             boolean found;
             // 标签既不是NSR，也不是NOISE
             if(label == ALL_ARRHYTHM_LABEL)
-                found = ARRHYTHM_LABEL_MAP.containsKey(rhythmLabels.get(j));
+                found = ARRHYTHMIA_DESC_MAP.containsKey(rhythmLabels.get(j));
             else
                 found = (rhythmLabels.get(j) == label);
 

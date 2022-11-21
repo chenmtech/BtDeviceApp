@@ -11,15 +11,18 @@ public interface IEcgRealTimeRhythmDetector {
         void onRhythmInfoUpdated(EcgRhythmDetectItem item);
     }
 
-    // 处理一个心电信号值
-    void process(short ecgSignal);
+    // 获取版本号
+    String getVer();
 
-    // 对心电记录创建诊断报告
-    EcgReport createReport(BleEcgRecord record);
+    // 获取提供者
+    String getProvider();
+
+    // 处理一个心电信号值，要求归一化为毫伏值
+    void process(float ecgSignalmV);
 
     // 重置
     void reset();
 
-    // 关闭
-    void close();
+    // 销毁
+    void destroy();
 }

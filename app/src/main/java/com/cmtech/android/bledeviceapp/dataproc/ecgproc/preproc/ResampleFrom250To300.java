@@ -55,13 +55,13 @@ public class ResampleFrom250To300 {
         filter.createStructure(StructType.FIR_LPF);
     }
 
-    public List<Short> process(short ecgData) {
-        short[] in = new short[L];
+    public List<Float> process(float ecgData) {
+        float[] in = new float[L];
         in[0] = ecgData;
 
-        List<Short> out = new ArrayList<>();
-        for(short num : in) {
-            short after = (short)(L*filter.filter(num));
+        List<Float> out = new ArrayList<>();
+        for(float num : in) {
+            float after = (float)(L*filter.filter(num));
             hasSkipped++;
             if(hasSkipped == needSkipped) {
                 hasSkipped = 0;

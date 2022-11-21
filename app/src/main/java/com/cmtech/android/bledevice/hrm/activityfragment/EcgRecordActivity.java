@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ALL_ARRHYTHM_LABEL;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_LABEL_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_DESC_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
@@ -392,7 +392,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         String labelStr = "";
         int label = ((BleEcgRecord)record).getLabelAtTime(currentTime);
         if(label != INVALID_LABEL)
-            labelStr = RHYTHM_LABEL_MAP.get(label);
+            labelStr = RHYTHM_DESC_MAP.get(label);
         tvCurrentLongTime.setText(
                 DateTimeUtil.timeToStringWithTodayYesterday(currentTime)+" "+labelStr);
         sbReplay.setProgress(second);

@@ -3,8 +3,8 @@ package com.cmtech.android.bledevice.hrm.model;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AF_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_LABEL_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AFIB_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_DESC_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
@@ -25,7 +25,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector11;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
@@ -77,8 +76,7 @@ public class HrmDevice extends AbstractDevice {
     private static final byte ECG_MODE = (byte)0x01;
 
     // 心律检测模型资源
-    //private static final int RHYTHM_DETECT_MODEL = R.raw.afdetect_1;
-    private static final int RHYTHM_DETECT_MODEL = R.raw.keras_model;
+    private static final int RHYTHM_DETECT_MODEL = R.raw.model11_keras;
 
     //--------------------------------------------设备用到的蓝牙相关常量
     // 心率测量的服务和特征值UUID字符串，数值见蓝牙相关协议文档
@@ -354,7 +352,7 @@ public class HrmDevice extends AbstractDevice {
                 int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
 
                 ecgRecord.setSigSecond(second);
-                ecgRecord.setReport(rhythmDetector.createReport(ecgRecord));
+                ecgRecord.createReport(rhythmDetector);
                 ecgRecord.closeSigFile();
                 ecgRecord.save();
                 recordingRecord = null;
@@ -482,7 +480,7 @@ public class HrmDevice extends AbstractDevice {
 
         // 心律检测
         if(rhythmDetector != null) {
-            rhythmDetector.process((short) ecgSignal);
+            rhythmDetector.process((float)ecgSignal/gain);
         }
 
         /*
@@ -518,8 +516,8 @@ public class HrmDevice extends AbstractDevice {
         if(MyApplication.isRunInForeground()) {
             if (listener != null) {
                 int label = rhythmItem.getLabel();
-                listener.onEcgRhythmDetectInfoUpdated(label, RHYTHM_LABEL_MAP.get(label));
-                if(label == AF_LABEL) {
+                listener.onEcgRhythmDetectInfoUpdated(label, RHYTHM_DESC_MAP.get(label));
+                if(label == AFIB_LABEL) {
                     MyApplication.getTts().speak("发现房颤");
                 }
             }
@@ -551,7 +549,7 @@ public class HrmDevice extends AbstractDevice {
             speaker.stop();
 
         if(rhythmDetector != null) {
-            rhythmDetector.close();
+            rhythmDetector.destroy();
             rhythmDetector = null;
         }
     }

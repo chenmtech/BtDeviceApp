@@ -7,23 +7,23 @@ public class EcgRhythmConstant {
     public static final int INVALID_LABEL = -1;
     public static final int NSR_LABEL = 0;
     public static final int NOISE_LABEL = 1;
-    public static final int AF_LABEL = 2;
+    public static final int AFIB_LABEL = 2;
     public static final int OTHER_LABEL = 3;
     public static final int SB_LABEL = 4;
     public static final int ALL_ARRHYTHM_LABEL = 100;
 
-    // 所有心律标签
-    public static final Map<Integer, String> RHYTHM_LABEL_MAP = new HashMap<>(){{
+    // 心律和它对应的描述字符串的映射
+    public static final Map<Integer, String> RHYTHM_DESC_MAP = new HashMap<>(){{
         put(NSR_LABEL, "窦性心律");
         put(NOISE_LABEL, "噪声");
-        put(AF_LABEL, "房颤");
+        put(AFIB_LABEL, "房颤");
         put(OTHER_LABEL, "其他异常");
         put(SB_LABEL, "窦性心动过缓");
     }};
 
-    // 异常标签
-    public static final Map<Integer, String> ARRHYTHM_LABEL_MAP = new HashMap<>(){{
-        put(AF_LABEL, "房颤");
+    // 异常心律和它对应的描述字符串的映射
+    public static final Map<Integer, String> ARRHYTHMIA_DESC_MAP = new HashMap<>(){{
+        put(AFIB_LABEL, "房颤");
         put(OTHER_LABEL, "其他异常");
     }};
 }
