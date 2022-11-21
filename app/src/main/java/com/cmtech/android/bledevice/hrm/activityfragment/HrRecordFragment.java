@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
-import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledeviceapp.data.record.BleHrRecord.HR_MA_FILTER_SPAN;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -61,7 +61,7 @@ public class HrRecordFragment extends Fragment {
         etHrAve = view.findViewById(R.id.et_hr_ave_value);
         hrLineChart = view.findViewById(R.id.hr_line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MA_FILTER_SPAN);
-        updateHrInfo(new ArrayList<>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
+        updateHrInfo(new ArrayList<>(), INVALID_HR, INVALID_HR);
 
         TextView tvYUnit = view.findViewById(R.id.line_chart_y_unit);
         tvYUnit.setText(R.string.BPM);

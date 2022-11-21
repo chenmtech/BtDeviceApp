@@ -35,7 +35,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     private static final int BYTES_PER_DATUM = 2;
 
     private int sampleRate = 0; // sample rate
-    private int caliValue = 0; // calibration value
+    private int gain = 0; // calibration value
 
     private BlePpgRecord(String ver, int accountId, long createTime, String devAddress) {
         super(PPG, ver, accountId, createTime, devAddress);
@@ -55,14 +55,14 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
-        caliValue = json.getInt("caliValue");
+        gain = json.getInt("gain");
     }
 
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
         json.put("sampleRate", sampleRate);
-        json.put("caliValue", caliValue);
+        json.put("gain", gain);
         return json;
     }
 
@@ -76,12 +76,12 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     @Override
-    public int getCaliValue() {
-        return caliValue;
+    public int getGain() {
+        return gain;
     }
 
-    public void setCaliValue(int caliValue) {
-        this.caliValue = caliValue;
+    public void setGain(int gain) {
+        this.gain = gain;
     }
 
     @Override
@@ -152,6 +152,6 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue;
+        return super.toString() + "-" + sampleRate + "-" + gain;
     }
 }

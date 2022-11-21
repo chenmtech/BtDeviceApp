@@ -94,7 +94,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     private int creatorId = INVALID_ID;
 
     // 备注
-    private String note = "";
+    private String comment = "";
 
     // 信号长度秒数
     private int sigSecond = 0;
@@ -162,7 +162,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
                                     ""+accountId, ""+fromTime)
                             .order("createTime desc").limit(num).find(recordClass, true));
                 } else {
-                    records.addAll(LitePal.where("accountId = ? and createTime < ? and note like ?",
+                    records.addAll(LitePal.where("accountId = ? and createTime < ? and comment like ?",
                                     ""+accountId, ""+fromTime, "%"+filterStr+"%")
                             .order("createTime desc").limit(num).find(recordClass, true));
                 }
@@ -357,12 +357,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         }
     }
 
-    public String getNote() {
-        return note;
+    public String getComment() {
+        return comment;
     }
 
-    public void setNote(String note) {
-        this.note = note;
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public int getSigSecond() {
@@ -446,7 +446,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         creatorId = json.getInt("creatorId");
-        note = json.getString("note");
+        comment = json.getString("comment");
         sigSecond = json.getInt("sigSecond");
         reportVer = json.getString("reportVer");
         reportProvider = json.getString("reportProvider");
@@ -464,7 +464,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("devAddress", devAddress);
         json.put("creatorId", creatorId);
         json.put("ver", ver);
-        json.put("note", note);
+        json.put("comment", comment);
         json.put("sigSecond", sigSecond);
         json.put("reportVer", reportVer);
         json.put("reportProvider", reportProvider);
@@ -609,7 +609,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @NonNull
     @Override
     public String toString() {
-        return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + note + "-" + sigSecond + "-" + needUpload + "-" + reportContent;
+        return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + comment + "-" + sigSecond + "-" + needUpload + "-" + reportContent;
     }
 
     @Override

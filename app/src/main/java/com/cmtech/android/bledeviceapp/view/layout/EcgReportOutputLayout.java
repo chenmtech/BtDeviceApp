@@ -125,7 +125,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         }
 
         tvPrintTime.setText(dateFmt1.format(new Date().getTime()));
-        tvNote.setText(record.getNote());
+        tvNote.setText(record.getComment());
 
         new DrawEcgViewAsyncTask(getContext(), showText, callback).execute(record);
     }
@@ -153,7 +153,7 @@ public class EcgReportOutputLayout extends LinearLayout {
 
             int begin = 0;
             for (ScanEcgView scanEcgView : ECG_VIEWS) {
-                scanEcgView.setup(record.getSampleRate(), record.getCaliValue(), RollWaveView.DEFAULT_ZERO_LOCATION);
+                scanEcgView.setup(record.getSampleRate(), record.getGain(), RollWaveView.DEFAULT_ZERO_LOCATION);
                 int dataNum = scanEcgView.getWidth() / scanEcgView.getPixelPerData();
                 if (record.getDataNum() > begin) {
                     scanEcgView.startShow();

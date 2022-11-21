@@ -183,7 +183,7 @@ public class PpgDevice extends AbstractDevice {
                     return;
                 }
                 ppgRecord.setSampleRate(sampleRate);
-                ppgRecord.setCaliValue(caliValue);
+                ppgRecord.setGain(caliValue);
                 ppgRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }

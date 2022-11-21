@@ -8,6 +8,7 @@ import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.NSR_LABEL;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.OTHER_LABEL;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_LABEL_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.SB_LABEL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
@@ -38,53 +39,42 @@ import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
 
 /**
- * 心电信号心律实时检测器
- * 该检测器默认输入心电信号的采样率为250Hz
- * 心电信号会先重采样为300Hz，再进行心律检测。
- * 因为默认机器学习模型训练时用到的信号数据集采样率都是300Hz的
+ * 心电信号心律实时检测器1.1版本
+ * 该检测器要求输入心电信号的采样率为250Hz
+ * 因为使用的机器学习模型训练用到的信号数据集采样率都是250Hz
  */
-public class EcgRealTimeRhythmDetector implements IEcgRealTimeRhythmDetector{
+public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
     //--------------------------------------------------------------常量
-    private static final String VER = "1.0";
+    private static final String VER = "1.1";
 
     private static final String PROVIDER = "康明智联";
 
     // 信号采样率
-    private static final int SAMPLE_RATE = 300;
+    private static final int SAMPLE_RATE = 250;
 
     // 用于一次检测的信号时长
-    private static final int ECG_SIGNAL_TIME_LENGTH = 20;
-
-    // 检测间隔时长
-    private static final int DETECT_INTERVAL_TIME_LENGTH = 10;
+    private static final int ECG_SIGNAL_TIME_LENGTH = 10;
 
     // 存放信号的缓存长度
     private static final int SIGNAL_BUFFER_LENGTH = ECG_SIGNAL_TIME_LENGTH*SAMPLE_RATE;
 
-    // 检测间隔对应的缓存长度
-    private static final int DETECT_INTERVAL_BUFFER_START = DETECT_INTERVAL_TIME_LENGTH*SAMPLE_RATE;
-
 
     //------------------------------------------------------------实例变量
-
     // 信号数据缓存
     private final float[] sigBuf = new float[SIGNAL_BUFFER_LENGTH];
 
     // 信号数据缓存的当前位置
     private int pos = 0;
 
-    // ECG信号重采样器，采样频率从250Hz变为300Hz
-    private final ResampleFrom250To300 resample;
-
-    // 心律异常检测器，由一个ORT机器学习模型构建的ORT会话，由该会话来完成心律异常检测
+    // 心律检测器，由一个ORT机器学习模型构建的ORT会话，由该会话来完成心律检测
     private final OrtSession rhythmDetectModel;
 
     // 检测模型输出标签与全局标签的映射关系
     private final Map<Integer, Integer> labelMap = new HashMap<>() {{
-        put(0, NSR_LABEL);
-        put(1, AF_LABEL);
-        put(2, OTHER_LABEL);
-        put(3, NOISE_LABEL);
+        put(0, AF_LABEL);
+        put(1, NSR_LABEL);
+        put(2, SB_LABEL);
+        put(3, OTHER_LABEL);
     }};
 
     // 数据处理多线程服务
@@ -100,9 +90,8 @@ public class EcgRealTimeRhythmDetector implements IEcgRealTimeRhythmDetector{
      * @param modelId 采用的机器学习模型资源文件ID
      * @param callback 检测结果回调
      */
-    public EcgRealTimeRhythmDetector(int modelId, IEcgRhythmDetectCallback callback) throws OrtException {
+    public EcgRealTimeRhythmDetector11(int modelId, IEcgRhythmDetectCallback callback) throws OrtException {
         this.callback = callback;
-        resample = new ResampleFrom250To300();
         rhythmDetectModel = createOrtSession(modelId);
         startDetect();
     }
@@ -114,7 +103,6 @@ public class EcgRealTimeRhythmDetector implements IEcgRealTimeRhythmDetector{
     @Override
     public void reset() {
         stopDetect();
-        resample.reset();
         Arrays.fill(sigBuf, (short) 0);
         pos = 0;
         startDetect();
@@ -137,11 +125,8 @@ public class EcgRealTimeRhythmDetector implements IEcgRealTimeRhythmDetector{
     }
 
     public void postprocess(short ecgSignal, long curTime) {
-        // 先做重采样，获取输出信号，并将信号放入缓存
-        List<Short> resampleSignal = resample.process(ecgSignal);
-        for(short sig : resampleSignal) {
-            sigBuf[pos++] = sig;
-        }
+        // 将信号放入缓存
+        sigBuf[pos++] = ecgSignal;
 
         // 判断信号缓存是否已满，如果是，进行检测
         if(pos == SIGNAL_BUFFER_LENGTH) {
@@ -163,9 +148,7 @@ public class EcgRealTimeRhythmDetector implements IEcgRealTimeRhythmDetector{
                         callback.onRhythmInfoUpdated(item);
                 }
                 // 更新信号缓存和位置
-                System.arraycopy(sigBuf, DETECT_INTERVAL_BUFFER_START, sigBuf, 0,
-                        SIGNAL_BUFFER_LENGTH-DETECT_INTERVAL_BUFFER_START);
-                pos = DETECT_INTERVAL_BUFFER_START;
+                pos = 0;
             } catch (OrtException e) {
                 e.printStackTrace();
                 pos = 0;

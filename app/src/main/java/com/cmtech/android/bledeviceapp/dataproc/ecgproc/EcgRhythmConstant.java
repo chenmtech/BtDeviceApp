@@ -9,6 +9,7 @@ public class EcgRhythmConstant {
     public static final int NOISE_LABEL = 1;
     public static final int AF_LABEL = 2;
     public static final int OTHER_LABEL = 3;
+    public static final int SB_LABEL = 4;
     public static final int ALL_ARRHYTHM_LABEL = 100;
 
     // 所有心律标签
@@ -17,6 +18,7 @@ public class EcgRhythmConstant {
         put(NOISE_LABEL, "噪声");
         put(AF_LABEL, "房颤");
         put(OTHER_LABEL, "其他异常");
+        put(SB_LABEL, "窦性心动过缓");
     }};
 
     // 异常标签

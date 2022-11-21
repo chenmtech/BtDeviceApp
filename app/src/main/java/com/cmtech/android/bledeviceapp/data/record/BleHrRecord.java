@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
-import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 import androidx.annotation.NonNull;
 
@@ -34,8 +34,8 @@ public class BleHrRecord extends BasicRecord implements Serializable {
 
     private final List<Short> hrList = new ArrayList<>(); // filtered HR list
     private final List<Integer> hrHist = new ArrayList<>(); // HR histogram value
-    private short hrMax = INVALID_HEART_RATE; // HR max
-    private short hrAve = INVALID_HEART_RATE; // HR average
+    private short hrMax = INVALID_HR; // HR max
+    private short hrAve = INVALID_HR; // HR average
 
     @Column(ignore = true)
     private transient final HrMAFilter hrMAFilter = new HrMAFilter(HR_MA_FILTER_SPAN); // moving average filter
@@ -148,7 +148,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
 
         short fHr = hrMAFilter.process(hr, interval);
 
-        boolean fHrUpdated = (fHr != INVALID_HEART_RATE);
+        boolean fHrUpdated = (fHr != INVALID_HR);
         if(fHrUpdated)
             hrList.add(fHr);
         return fHrUpdated;

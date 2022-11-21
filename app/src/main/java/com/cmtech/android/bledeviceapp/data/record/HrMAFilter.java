@@ -2,7 +2,7 @@ package com.cmtech.android.bledeviceapp.data.record;
 
 import com.vise.log.ViseLog;
 
-import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 
 // moving average filter
 public class HrMAFilter {
@@ -21,7 +21,7 @@ public class HrMAFilter {
     }
 
     public short process(short hr, int interval) {
-        short filteredHr = INVALID_HEART_RATE;
+        short filteredHr = INVALID_HR;
         sumTmp += hr;
         numTmp++;
         periodTmp += interval;

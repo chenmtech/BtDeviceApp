@@ -214,7 +214,7 @@ public class EegDevice extends AbstractDevice {
                     return;
                 }
                 eegRecord.setSampleRate(sampleRate);
-                eegRecord.setCaliValue(caliValue);
+                eegRecord.setGain(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
                 eegRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);

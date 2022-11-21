@@ -26,6 +26,7 @@ import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector11;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
@@ -36,16 +37,12 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
-import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
-import ai.onnxruntime.OrtSession;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -61,19 +58,16 @@ import ai.onnxruntime.OrtSession;
  */
 public class HrmDevice extends AbstractDevice {
     //----------------------------------------------------常量
-    // 无效心率值
-    public static final short INVALID_HEART_RATE = -1;
-
     // 心率记录最短时间：秒。在记录心率时，如果时长小于该值，就不会保存
-    private static final int HR_RECORD_MIN_SECOND = 5;
+    private static final int HR_RECORD_SHORTEST_SECOND = 5;
 
-    // 缺省1mV标定值
-    private static final int DEFAULT_CALI_1MV = 164;
+    // 缺省1mV电压对应的ADU单位值，称为gain
+    private static final int DEFAULT_GAIN = 164;
 
     // 缺省采样率: Hz
     private static final int DEFAULT_SAMPLE_RATE = 250;
 
-    // 缺省导联
+    // 缺省心电导联
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I;
 
     // 设备工作模式：心率模式
@@ -82,7 +76,9 @@ public class HrmDevice extends AbstractDevice {
     // 设备工作模式：心电模式
     private static final byte ECG_MODE = (byte)0x01;
 
-    private static final int RHYTHM_DETECT_MODEL = R.raw.afdetect_1;
+    // 心律检测模型资源
+    //private static final int RHYTHM_DETECT_MODEL = R.raw.afdetect_1;
+    private static final int RHYTHM_DETECT_MODEL = R.raw.keras_model;
 
     //--------------------------------------------设备用到的蓝牙相关常量
     // 心率测量的服务和特征值UUID字符串，数值见蓝牙相关协议文档
@@ -122,21 +118,21 @@ public class HrmDevice extends AbstractDevice {
     // 心电服务和特征值，该服务和特征值由我自己定义
     private static final String ecgServiceUuid = "AA40";
     private static final String ecgMeasUuid = "AA41";
-    private static final String ecg1mVCaliUuid = "AA42";
+    private static final String ecgGainUuid = "AA42";
     private static final String ecgSampleRateUuid = "AA43";
     private static final String ecgLeadTypeUuid = "AA44";
     private static final String modeStatusUuid = "AA45";
 
     private static final UUID ecgServiceUUID = UuidUtil.stringToUUID(ecgServiceUuid, MY_BASE_UUID);
     private static final UUID ecgMeasUUID = UuidUtil.stringToUUID(ecgMeasUuid, MY_BASE_UUID);
-    private static final UUID ecg1mVCaliUUID = UuidUtil.stringToUUID(ecg1mVCaliUuid, MY_BASE_UUID);
+    private static final UUID ecgGainUUID = UuidUtil.stringToUUID(ecgGainUuid, MY_BASE_UUID);
     private static final UUID ecgSampleRateUUID = UuidUtil.stringToUUID(ecgSampleRateUuid, MY_BASE_UUID);
     private static final UUID ecgLeadTypeUUID = UuidUtil.stringToUUID(ecgLeadTypeUuid, MY_BASE_UUID);
     private static final UUID modeStatusUUID = UuidUtil.stringToUUID(modeStatusUuid, MY_BASE_UUID);
 
     private static final BleGattElement ECGMEAS = new BleGattElement(ecgServiceUUID, ecgMeasUUID, null, "ECG Data Packet");
     private static final BleGattElement ECGMEASCCC = new BleGattElement(ecgServiceUUID, ecgMeasUUID, CCC_UUID, "ECG Data Packet CCC");
-    private static final BleGattElement ECG1MVCALI = new BleGattElement(ecgServiceUUID, ecg1mVCaliUUID, null, "ECG 1mV Calibration");
+    private static final BleGattElement ECGGAIN = new BleGattElement(ecgServiceUUID, ecgGainUUID, null, "ECG 1mV ADU, Gain");
     private static final BleGattElement ECGSAMPLERATE = new BleGattElement(ecgServiceUUID, ecgSampleRateUUID, null, "ECG Sample Rate");
     private static final BleGattElement ECGLEADTYPE = new BleGattElement(ecgServiceUUID, ecgLeadTypeUUID, null, "ECG Lead Type");
     private static final BleGattElement MODESTATUS = new BleGattElement(ecgServiceUUID, modeStatusUUID, null, "Work Mode Status");
@@ -145,8 +141,8 @@ public class HrmDevice extends AbstractDevice {
     // 采样率，单位Hz
     private int sampleRate = DEFAULT_SAMPLE_RATE;
 
-    // 1mV标定值
-    private int caliValue = DEFAULT_CALI_1MV; // 1mV calibration value
+    // 增益，gain
+    private int gain = DEFAULT_GAIN; // 1mV ADU
 
     // ECG导联类型
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE;
@@ -175,20 +171,20 @@ public class HrmDevice extends AbstractDevice {
     // ECG数据包解析器
     private EcgDataPacketParser ecgDataPacketParser;
 
-    // 心率记录
+    // 心率记录实例
     private BleHrRecord hrRecord;
 
-    // 心电信号记录
+    // 心电信号记录实例
     private BleEcgRecord ecgRecord;
 
     // HRM设备监听器
     private OnHrmListener listener;
 
-    // 心律异常实时检测器
+    // 心律实时检测器
     private IEcgRealTimeRhythmDetector rhythmDetector;
 
-    // 当设备断开后重新连接，需要插入的信号零值个数
-    private int numZeroForReconnect = 2*DEFAULT_SAMPLE_RATE;
+    // 每次当设备断开后重新连接，需要插入的信号零值个数
+    private int insertZeroWhenReconnect = 2*DEFAULT_SAMPLE_RATE;
 
     //-----------------------------------------------静态类
     // 心率播报器类
@@ -223,7 +219,6 @@ public class HrmDevice extends AbstractDevice {
     }
 
     //---------------------------------------------------------构造器
-
     /**
      * HRM设备构造器
      * @param context：上下文
@@ -243,10 +238,15 @@ public class HrmDevice extends AbstractDevice {
     }
 
     //---------------------------------------------------公有方法
-    public void setEcgRecordNote(String note) {
+
+    /**
+     * 设置心电记录的备注信息
+     * @param comment 备注
+     */
+    public void setEcgRecordComment(String comment) {
         if(ecgRecordStatus && ecgRecord != null) {
-            ecgRecord.setNote(note);
-            ViseLog.e(note);
+            ecgRecord.setComment(comment);
+            ViseLog.e(comment);
         }
     }
 
@@ -271,7 +271,7 @@ public class HrmDevice extends AbstractDevice {
         else {
             if(hrRecord != null) {
                 // 心率记录时长不够
-                if (hrRecord.getHrList().size() < HR_RECORD_MIN_SECOND) {
+                if (hrRecord.getHrList().size() < HR_RECORD_SHORTEST_SECOND) {
                     Toast.makeText(getContext(), R.string.record_too_short, Toast.LENGTH_SHORT).show();
                 }
                 // 记录时长已够
@@ -334,7 +334,7 @@ public class HrmDevice extends AbstractDevice {
                     return;
                 }
                 ecgRecord.setSampleRate(sampleRate);
-                ecgRecord.setCaliValue(caliValue);
+                ecgRecord.setGain(gain);
                 ecgRecord.setLeadTypeCode(leadType.getCode());
                 ecgRecord.setInterrupt(true);
                 ecgRecord.save();
@@ -455,9 +455,9 @@ public class HrmDevice extends AbstractDevice {
      * @param ecgSignal：一个心电信号值
      */
     public void processEcgSignal(int ecgSignal) {
-        if(numZeroForReconnect != 0) {
+        if(insertZeroWhenReconnect != 0) {
             ecgSignal = 0;
-            numZeroForReconnect--;
+            insertZeroWhenReconnect--;
         }
 
         // 显示信号
@@ -480,7 +480,7 @@ public class HrmDevice extends AbstractDevice {
             }
         }
 
-        // 心律异常检测
+        // 心律检测
         if(rhythmDetector != null) {
             rhythmDetector.process((short) ecgSignal);
         }
@@ -511,7 +511,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     /**
-     * 更新心律异常检测条目
+     * 更新心律检测条目
      * @param rhythmItem 一条心律异常检测条目
      */
     private void updateRhythmDetectItem(EcgRhythmDetectItem rhythmItem) {
@@ -575,7 +575,7 @@ public class HrmDevice extends AbstractDevice {
             setBatteryMeasure(true);
         }
 
-        elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE, MODESTATUS};
+        elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECGGAIN, ECGSAMPLERATE, ECGLEADTYPE, MODESTATUS};
         if(connector.containGattElements(elements)) {
             readModeStatus();
             connector.runInstantly(new IBleDataCallback() {
@@ -583,7 +583,7 @@ public class HrmDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if(hrMode) {
                         if (listener != null)
-                            listener.onUIUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, true);
+                            listener.onUIUpdated(sampleRate, gain, DEFAULT_ZERO_LOCATION, true);
 
                         setEcgOn(false);
                     }
@@ -665,8 +665,8 @@ public class HrmDevice extends AbstractDevice {
         return sampleRate;
     }
 
-    public final int getCaliValue() {
-        return caliValue;
+    public final int getGain() {
+        return gain;
     }
 
     public final boolean isHrMode() {
@@ -824,8 +824,10 @@ public class HrmDevice extends AbstractDevice {
     private void initEcgService() {
         // 读采样率
         readSampleRate();
-        // 读1mV标定值
-        read1mVCali();
+
+        // 读增益值
+        readGain();
+
         // 读导联类型
         readLeadType();
 
@@ -839,16 +841,17 @@ public class HrmDevice extends AbstractDevice {
                 // 生成QRS波检测器
                 //qrsDetector = new QrsDetector(sampleRate);
 
-                // 启动心律异常检测器
+                // 启动心律检测器
                 if(rhythmDetector == null) {
                     try {
-                        rhythmDetector = new EcgRealTimeRhythmDetector(RHYTHM_DETECT_MODEL, item -> updateRhythmDetectItem(item));
+                        //rhythmDetector = new EcgRealTimeRhythmDetector(RHYTHM_DETECT_MODEL, item -> updateRhythmDetectItem(item));
+                        rhythmDetector = new EcgRealTimeRhythmDetector11(RHYTHM_DETECT_MODEL, item -> updateRhythmDetectItem(item));
                     } catch (OrtException e) {
                         rhythmDetector = null;
                         ThreadUtil.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(getContext(), "心律异常检测模型加载失败", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "心律检测模型加载失败", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -858,7 +861,7 @@ public class HrmDevice extends AbstractDevice {
 
                 // 更新设备监听器
                 if (listener != null)
-                    listener.onUIUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, hrMode);
+                    listener.onUIUpdated(sampleRate, gain, DEFAULT_ZERO_LOCATION, hrMode);
             }
 
             @Override
@@ -873,7 +876,7 @@ public class HrmDevice extends AbstractDevice {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 sampleRate = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
-                numZeroForReconnect = 2*sampleRate;
+                insertZeroWhenReconnect = 2*sampleRate;
             }
 
             @Override
@@ -882,11 +885,11 @@ public class HrmDevice extends AbstractDevice {
         });
     }
 
-    private void read1mVCali() {
-        ((BleConnector)connector).read(ECG1MVCALI, new IBleDataCallback() {
+    private void readGain() {
+        ((BleConnector)connector).read(ECGGAIN, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                caliValue = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
+                gain = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
             }
 
             @Override
@@ -906,33 +909,5 @@ public class HrmDevice extends AbstractDevice {
             public void onFailure(BleException exception) {
             }
         });
-    }
-
-    /**
-     * 创建一个ORT模型的会话，该模型用来实现心律异常诊断
-     * @param modelId：模型资源ID
-     * @return：ORT会话
-     */
-    private OrtSession createOrtSession(int modelId){
-        BufferedInputStream buf = null;
-        try {
-            InputStream inputStream = getContext().getResources().openRawResource(modelId);
-            byte[] modelOrt = new byte[inputStream.available()];
-            buf = new BufferedInputStream((inputStream));
-            int readLen = buf.read(modelOrt, 0, modelOrt.length);
-            if(readLen == modelOrt.length)
-                return OrtEnvironment.getEnvironment().createSession(modelOrt);
-        } catch (OrtException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(buf != null) {
-                try {
-                    buf.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return null;
     }
 }

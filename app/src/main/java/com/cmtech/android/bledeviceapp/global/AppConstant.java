@@ -38,7 +38,9 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 public class AppConstant {
     public static final int INVALID_ID = -1;
-    public static final int INVALID_HR = 0;
+
+    // 无效心率值
+    public static final short INVALID_HR = -1;
     public static final String MY_BASE_UUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8"; // my base UUID
     public static final String STANDARD_BLE_UUID = "0000XXXX-0000-1000-8000-00805F9B34FB"; // standard BLE UUID
     public static final UUID CCC_UUID = UuidUtil.stringToUUID("2902", STANDARD_BLE_UUID); // client characteristic config UUID

@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -43,7 +42,7 @@ public class RecordNoteLayout extends LinearLayout {
      */
     public void updateView() {
         if(record != null) {
-            etNote.setText(record.getNote());
+            etNote.setText(record.getComment());
         }
     }
 
@@ -54,8 +53,8 @@ public class RecordNoteLayout extends LinearLayout {
     public void saveNote() {
         if(record != null) {
             String note = etNote.getText().toString();
-            if(!record.getNote().equals(note)) {
-                record.setNote(note);
+            if(!record.getComment().equals(note)) {
+                record.setComment(note);
                 record.setNeedUpload(true);
                 record.save();
             }

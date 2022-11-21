@@ -115,10 +115,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
         holder.tvAddress.setText(record.getDevAddress());
 
-        if(TextUtils.isEmpty(record.getNote())) {
+        if(TextUtils.isEmpty(record.getComment())) {
             holder.tvNote.setText(R.string.null_content);
         } else {
-            holder.tvNote.setText(record.getNote());
+            holder.tvNote.setText(record.getComment());
         }
 
         if(record.needUpload()) {

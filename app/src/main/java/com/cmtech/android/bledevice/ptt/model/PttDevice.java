@@ -198,8 +198,8 @@ public class PttDevice extends AbstractDevice {
                     return;
                 }
                 pttRecord.setSampleRate(sampleRate);
-                pttRecord.setEcgCaliValue(DEFAULT_ECG_CALI);
-                pttRecord.setPpgCaliValue(DEFAULT_PPG_CALI);
+                pttRecord.setEcgGain(DEFAULT_ECG_CALI);
+                pttRecord.setPpgGain(DEFAULT_PPG_CALI);
                 pttRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }

@@ -35,7 +35,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     private static final int BYTES_PER_DATUM = 2;
 
     private int sampleRate = 0; // sample rate
-    private int caliValue = 0; // calibration value of 1mV
+    private int gain = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
 
     private BleEegRecord(String ver, int accountId, long createTime, String devAddress) {
@@ -56,7 +56,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
         sampleRate = json.getInt("sampleRate");
-        caliValue = json.getInt("caliValue");
+        gain = json.getInt("gain");
         leadTypeCode = json.getInt("leadTypeCode");
     }
 
@@ -64,7 +64,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
         json.put("sampleRate", sampleRate);
-        json.put("caliValue", caliValue);
+        json.put("gain", gain);
         json.put("leadTypeCode", leadTypeCode);
         return json;
     }
@@ -79,12 +79,12 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     @Override
-    public int getCaliValue() {
-        return caliValue;
+    public int getGain() {
+        return gain;
     }
 
-    public void setCaliValue(int caliValue) {
-        this.caliValue = caliValue;
+    public void setGain(int gain) {
+        this.gain = gain;
     }
 
     public void setLeadTypeCode(int leadTypeCode) {
@@ -160,6 +160,6 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode;
+        return super.toString() + "-" + sampleRate + "-" + gain + "-" + leadTypeCode;
     }
 }

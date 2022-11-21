@@ -143,7 +143,8 @@ public class RollRecordView extends RollWaveView {
     public void setup(ISignalRecord record, float zeroLocation, float secondPerGrid, float mvPerGrid, int pixelPerGrid) {
         setRecord(record);
         int pixelPerData = Math.round(pixelPerGrid / (secondPerGrid * record.getSampleRate())); // 计算横向分辨率
-        float valuePerPixel = record.getCaliValue() * mvPerGrid / pixelPerGrid; // 计算纵向分辨率
+        float valuePerPixel = record.getGain() * mvPerGrid / pixelPerGrid; // 计算纵向分辨率
+        ViseLog.e(""+record.getSampleRate()+" "+record.getGain());
         setResolution(pixelPerData, valuePerPixel);
         setPixelPerGrid(pixelPerGrid);
         setZeroLocation(zeroLocation);

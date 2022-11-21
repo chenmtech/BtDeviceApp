@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public interface ISignalRecord {
     int getSampleRate();
-    int getCaliValue();
+    int getGain();
     boolean isEOD();
     void seek(int pos);
     int readData() throws IOException;
