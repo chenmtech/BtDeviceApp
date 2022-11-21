@@ -84,7 +84,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
             holder.tvNickname.setText(name);
         }
 
-        holder.tvId.setText(cp.getAccountId());
+        holder.tvId.setText(String.valueOf(cp.getAccountId()));
 
         if(TextUtils.isEmpty(cp.getIcon())) {
             holder.ivImage.setImageResource(R.mipmap.ic_user_32px);
