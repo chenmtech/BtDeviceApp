@@ -38,7 +38,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     private int gain = 0; // calibration value
 
     private BlePpgRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(PPG, ver, accountId, createTime, devAddress);
+        super(PPG, ver, accountId, createTime, devAddress, 1);
     }
 
     // 创建信号文件
@@ -87,14 +87,14 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     @Override
     public int[] readData() throws IOException {
         if(sigFile == null) throw new IOException();
-        return new int[]{sigFile.readShort()};
+        return sigFile.readShort();
     }
 
     public boolean process(int ppg) {
         boolean success = false;
         try {
             if(sigFile != null) {
-                sigFile.writeInt(ppg);
+                sigFile.writeInt(new int[]{ppg});
                 success = true;
             }
         } catch (IOException e) {

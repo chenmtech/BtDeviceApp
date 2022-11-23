@@ -98,7 +98,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      * @param accountId 创建者的ID号
      */
     private BleEcgRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(ECG, ver, accountId, createTime, devAddress);
+        super(ECG, ver, accountId, createTime, devAddress, 1);
     }
 
     //-----------------------------------------------------------公有实例方法
@@ -159,7 +159,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         boolean success = false;
         try {
             if(sigFile != null) {
-                sigFile.writeShort(ecg);
+                sigFile.writeShort(new short[]{ecg});
                 if (interrupt) {
                     segPoses.add(sigFile.size() - 1);
                     segTimes.add(new Date().getTime());
@@ -424,7 +424,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Override
     public int[] readData() throws IOException {
         if(sigFile == null) throw new IOException();
-        return new int[]{sigFile.readShort()};
+        return sigFile.readShort();
     }
 
     //-------------------------------------------------实现IDiagnosable方法

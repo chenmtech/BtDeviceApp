@@ -251,13 +251,14 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param createTime 记录创建时间
      * @param devAddress 记录创建的设备蓝牙地址
      */
-    BasicRecord(RecordType type, String ver, int creatorId, long createTime, String devAddress) {
+    BasicRecord(RecordType type, String ver, int creatorId, long createTime, String devAddress, int sigChannel) {
         this.type = type;
         this.ver = ver;
         this.createTime = createTime;
         this.devAddress = devAddress;
         this.accountId = creatorId;
         this.creatorId = creatorId;
+        this.sigChannel = sigChannel;
     }
 
     //-----------------------------------------实例方法
@@ -434,13 +435,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param bytePerDatum 信号的每个数据有几个字节构成
      */
     public void createSigFile(int bytePerDatum) throws IOException{
-        sigFile = new RecordFile(getSigFileName(), bytePerDatum, "c");
+        sigFile = new RecordFile(getSigFileName(), bytePerDatum, sigChannel, "c");
     }
 
     // 打开信号文件
     public void openSigFile(int bytePerDatum) {
         try {
-            sigFile = new RecordFile(getSigFileName(), bytePerDatum, "o");
+            sigFile = new RecordFile(getSigFileName(), bytePerDatum, sigChannel, "o");
         } catch (IOException e) {
             e.printStackTrace();
             sigFile = null;
@@ -521,7 +522,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         }
     }
 
-    // 获取信号数据个数
+    // 获取信号数据帧数
     public int getDataNum() {
         if(sigFile == null) return 0;
         return sigFile.size();

@@ -24,7 +24,7 @@ public class BleTempHumidRecord extends BasicRecord {
     private String location = "室内";
 
     private BleTempHumidRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(TH, ver, accountId, createTime, devAddress);
+        super(TH, ver, accountId, createTime, devAddress, 2);
     }
 
     @Override

@@ -39,7 +39,7 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     private int leadTypeCode = 0; // lead type code
 
     private BleEegRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(EEG, ver, accountId, createTime, devAddress);
+        super(EEG, ver, accountId, createTime, devAddress, 1);
     }
 
     // 创建信号文件
@@ -94,14 +94,14 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     @Override
     public int[] readData() throws IOException {
         if(sigFile == null) throw new IOException();
-        return new int[]{sigFile.readShort()};
+        return sigFile.readShort();
     }
 
     public boolean process(int eeg) {
         boolean success = false;
         try {
             if(sigFile != null) {
-                sigFile.writeShort((short) eeg);
+                sigFile.writeShort(new short[]{(short) eeg});
                 success = true;
             }
         } catch (IOException e) {
