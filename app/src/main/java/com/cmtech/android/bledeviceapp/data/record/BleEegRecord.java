@@ -92,9 +92,9 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     @Override
-    public int readData() throws IOException {
+    public int[] readData() throws IOException {
         if(sigFile == null) throw new IOException();
-        return sigFile.readShort();
+        return new int[]{sigFile.readShort()};
     }
 
     public boolean process(int eeg) {

@@ -1,15 +1,17 @@
 package com.cmtech.android.bledevice.ppg.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import com.cmtech.android.bledevice.ppg.model.OnPpgListener;
 import com.cmtech.android.bledevice.ppg.model.PpgDevice;
@@ -18,12 +20,11 @@ import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanPpgView;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -110,7 +111,7 @@ public class PpgFragment extends DeviceFragment implements OnPpgListener, OnWave
 
     @Override
     public void onPpgSignalShowed(final int ppgSignal) {
-        ppgView.addData(ppgSignal);
+        ppgView.addData(new int[]{ppgSignal});
     }
 
     @Override

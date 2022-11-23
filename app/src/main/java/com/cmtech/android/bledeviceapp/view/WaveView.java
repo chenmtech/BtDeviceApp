@@ -19,8 +19,6 @@ import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
-import java.util.List;
-
 
 public abstract class WaveView extends View {
     private static final int DEFAULT_SIZE = 100; // 缺省View的大小
@@ -185,10 +183,7 @@ public abstract class WaveView extends View {
     public abstract void stopShow();
 
     // 添加单个数据
-    public abstract void addData(final int datum, boolean show);
-
-    // 添加数据
-    public abstract void addData(final List<Integer> data, boolean show);
+    public abstract void addData(final int[] data, boolean show);
 
     //创建背景Bitmap
     private Bitmap createBackBitmap()

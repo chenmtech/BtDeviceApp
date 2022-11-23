@@ -104,9 +104,9 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
     }
 
     @Override
-    public int readData() throws IOException {
+    public int[] readData() throws IOException {
         if(sigFile == null) throw new IOException();
-        return sigFile.readInt();
+        return new int[]{sigFile.readShort(), sigFile.readShort()};
     }
 
     public boolean process(int ecg, int ppg) {

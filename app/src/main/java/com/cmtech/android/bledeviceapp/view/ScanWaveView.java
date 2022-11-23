@@ -168,29 +168,17 @@ public class ScanWaveView extends WaveView {
     }
 
     // 显示数据
-    public void addData(final int datum) {
-        addData(datum, true);
+    public void addData(final int[] data) {
+        addData(data, true);
     }
 
     @Override
-    public void addData(final int datum, boolean show) {
+    public void addData(final int[] data, boolean show) {
         if(showWave && !ExecutorUtil.isDead(showService)) {
             showService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    drawData(datum, show);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void addData(final List<Integer> data, boolean show) {
-        if(showWave && !ExecutorUtil.isDead(showService)) {
-            showService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    drawData(data, show);
+                    drawData(data[0], show);
                 }
             });
         }

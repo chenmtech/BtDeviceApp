@@ -422,9 +422,9 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
 
     // 从信号文件中读取一个数据
     @Override
-    public int readData() throws IOException {
+    public int[] readData() throws IOException {
         if(sigFile == null) throw new IOException();
-        return sigFile.readShort();
+        return new int[]{sigFile.readShort()};
     }
 
     //-------------------------------------------------实现IDiagnosable方法

@@ -152,8 +152,8 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
     @Override
     public void onPttSignalShowed(int ecgSignal, int ppgSignal) {
-        ecgView.addData(ecgSignal);
-        ppgView.addData(ppgSignal);
+        ecgView.addData(new int[]{ecgSignal});
+        ppgView.addData(new int[]{ppgSignal});
     }
 
     @Override

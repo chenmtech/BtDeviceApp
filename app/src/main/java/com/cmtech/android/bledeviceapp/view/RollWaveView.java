@@ -14,8 +14,6 @@ import android.util.AttributeSet;
 
 import com.cmtech.android.bledeviceapp.util.FixSizeLinkedList;
 
-import java.util.List;
-
 /**
  * RollWaveView: 卷轴滚动式的波形显示视图
  * Created by bme on 2018/12/06.
@@ -82,20 +80,9 @@ public abstract class RollWaveView extends WaveView {
 
     // 添加数据
     @Override
-    public void addData(final int datum, boolean show) {
+    public void addData(final int[] data, boolean show) {
         synchronized (viewData) {
-            viewData.add(datum);
-        }
-        if(show) {
-            showView();
-        }
-    }
-
-    // 添加数据
-    @Override
-    public void addData(List<Integer> data, boolean show) {
-        synchronized (viewData) {
-            viewData.addAll(data);
+            viewData.add(data[0]);
         }
         if(show) {
             showView();

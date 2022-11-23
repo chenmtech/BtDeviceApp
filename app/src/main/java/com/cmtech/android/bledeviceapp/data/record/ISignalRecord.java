@@ -19,6 +19,6 @@ public interface ISignalRecord {
     int getGain();
     boolean isEOD();
     void seek(int pos);
-    int readData() throws IOException;
+    int[] readData() throws IOException;
     int getDataNum();
 }

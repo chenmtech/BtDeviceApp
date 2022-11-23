@@ -1,29 +1,30 @@
 package com.cmtech.android.bledevice.eeg.activityfragment;
 
+import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
+
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import com.google.android.material.tabs.TabLayout;
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
+
 import com.cmtech.android.bledevice.eeg.model.EegDevice;
 import com.cmtech.android.bledevice.eeg.model.OnEegListener;
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
+import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEegView;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
-import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
+import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -110,7 +111,7 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
 
     @Override
     public void onEegSignalShowed(final int eegSignal) {
-        eegView.addData(eegSignal);
+        eegView.addData(new int[]{eegSignal});
     }
 
     @Override
