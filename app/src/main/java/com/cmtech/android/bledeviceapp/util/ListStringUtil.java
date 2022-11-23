@@ -45,4 +45,17 @@ public class ListStringUtil {
             e.printStackTrace();
         }
     }
+
+    public static String strArrToString(String[] strArr) {
+        StringBuilder builder = new StringBuilder();
+        for(String ele : strArr) {
+            builder.append(ele).append(',');
+        }
+        builder.deleteCharAt(builder.length()-1);
+        return builder.toString();
+    }
+
+    public static String[] stringToStrArr(String str) {
+        return str.split(",");
+    }
 }

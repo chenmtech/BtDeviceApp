@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.annotation.Column;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
     private transient long preTime = 0;
 
     private BleHrRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(HR, ver, accountId, createTime, devAddress, 1);
+        super(HR, ver, accountId, createTime, devAddress, 1, 2, new String[]{"bpm"});
         initHrHistogram();
     }
 
@@ -102,7 +103,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
             throw new IllegalStateException();
         }
 
-        return HRProcessor.calculateCalories(hrAve, getSigSecond(), account);
+        return HRProcessor.calculateCalories(hrAve, getSigLen(), account);
     }
 
     public short getHrMax() {
@@ -152,6 +153,36 @@ public class BleHrRecord extends BasicRecord implements Serializable {
         if(fHrUpdated)
             hrList.add(fHr);
         return fHrUpdated;
+    }
+
+    @Override
+    public int[] readData() throws IOException {
+        throw new IOException("Error!");
+    }
+
+    @Override
+    public int getDataNum() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public int getGain() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public int getSampleRate() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public boolean isEOD() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public void seek(int pos) {
+        throw new IllegalStateException("");
     }
 
     @NonNull

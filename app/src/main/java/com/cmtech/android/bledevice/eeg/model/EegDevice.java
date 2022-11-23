@@ -221,8 +221,7 @@ public class EegDevice extends AbstractDevice {
             }
         } else {
             if(eegRecord != null) {
-                int second = eegRecord.getDataNum() / eegRecord.getSampleRate();
-                eegRecord.setSigSecond(second);
+                eegRecord.setSigLen(eegRecord.getDataNum());
                 eegRecord.saveAsync().listen(new SaveCallback() {
                     @Override
                     public void onFinish(boolean success) {

@@ -29,62 +29,26 @@ import java.io.Serializable;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializable {
+public class BleEegRecord extends BasicRecord implements Serializable {
     //-----------------------------------------常量
-    // 记录每个数据的字节数
-    private static final int BYTES_PER_DATUM = 2;
 
-    private int sampleRate = 0; // sample rate
-    private int gain = 0; // calibration value of 1mV
     private int leadTypeCode = 0; // lead type code
 
     private BleEegRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(EEG, ver, accountId, createTime, devAddress, 1);
-    }
-
-    // 创建信号文件
-    public void createSigFile() throws IOException{
-        super.createSigFile(BYTES_PER_DATUM);
-    }
-
-    // 打开信号文件
-    public void openSigFile() {
-        super.openSigFile(BYTES_PER_DATUM);
+        super(EEG, ver, accountId, createTime, devAddress, 1, 2, new String[]{"mV"});
     }
 
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
-        sampleRate = json.getInt("sampleRate");
-        gain = json.getInt("gain");
         leadTypeCode = json.getInt("leadTypeCode");
     }
 
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        json.put("sampleRate", sampleRate);
-        json.put("gain", gain);
         json.put("leadTypeCode", leadTypeCode);
         return json;
-    }
-
-    @Override
-    public int getSampleRate() {
-        return sampleRate;
-    }
-
-    public void setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-    }
-
-    @Override
-    public int getGain() {
-        return gain;
-    }
-
-    public void setGain(int gain) {
-        this.gain = gain;
     }
 
     public void setLeadTypeCode(int leadTypeCode) {
@@ -109,7 +73,6 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
         }
         return success;
     }
-
 
     @Override
     public void download(Context context, String showStr, ICodeCallback callback) {
@@ -160,6 +123,6 @@ public class BleEegRecord extends BasicRecord implements ISignalRecord, Serializ
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + gain + "-" + leadTypeCode;
+        return super.toString() + "-" + leadTypeCode;
     }
 }

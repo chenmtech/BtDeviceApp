@@ -42,7 +42,7 @@ public class EegRecordActivity extends RecordActivity implements OnRollWaveViewL
                     bleEegRecord.download(EegRecordActivity.this, "下载记录中，请稍等。", (code,msg) -> {
                         if (code == RCODE_SUCCESS) {
                             bleEegRecord.openSigFile();
-                            bleEegRecord.setSigSecond(bleEegRecord.getDataNum()/bleEegRecord.getSampleRate());
+                            bleEegRecord.setSigLen(bleEegRecord.getDataNum());
                             record = bleEegRecord;
                             initUI();
                         } else {
@@ -50,7 +50,7 @@ public class EegRecordActivity extends RecordActivity implements OnRollWaveViewL
                         }
                     });
                 } else {
-                    bleEegRecord.setSigSecond(bleEegRecord.getDataNum()/bleEegRecord.getSampleRate());
+                    bleEegRecord.setSigLen(bleEegRecord.getDataNum());
                     record = bleEegRecord;
                     initUI();
                 }
@@ -71,7 +71,7 @@ public class EegRecordActivity extends RecordActivity implements OnRollWaveViewL
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
 
         tvTotalTime = findViewById(R.id.tv_total_time);
-        int timeLength = record.getSigSecond();
+        int timeLength = record.getSigLen()/record.getSampleRate();
         tvTotalTime.setText(DateTimeUtil.secToMinute(timeLength));
 
         sbReplay = findViewById(R.id.sb_replay);

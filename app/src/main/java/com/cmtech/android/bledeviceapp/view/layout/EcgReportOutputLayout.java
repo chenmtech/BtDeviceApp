@@ -109,7 +109,7 @@ public class EcgReportOutputLayout extends LinearLayout {
         tvRecordPerson.setText(record.getCreatorNickNameInOutputReport());
         tvRecordPersonNote.setText(record.getCreatorNoteInOutputReport());
         long endTime = record.getCreateTime();
-        long beginTime = endTime-record.getSigSecond()*1000;
+        long beginTime = endTime-record.getSigLen()* 1000L /record.getSampleRate();
         tvRecordBeginTime.setText(dateFmt.format(beginTime));
 
         tvXResolution.setText(String.format(Locale.getDefault(), "%.1f", ScanEcgView.SECOND_PER_GRID*5));

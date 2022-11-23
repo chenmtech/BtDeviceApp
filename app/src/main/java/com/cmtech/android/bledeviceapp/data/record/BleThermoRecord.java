@@ -9,6 +9,7 @@ import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,7 @@ public class BleThermoRecord extends BasicRecord {
     private float highestTemp = 0.0f;
 
     private BleThermoRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(THERMO, ver, accountId, createTime, devAddress, 1);
+        super(THERMO, ver, accountId, createTime, devAddress, 1, 4, new String[]{"C"});
     }
 
     @Override
@@ -68,6 +69,36 @@ public class BleThermoRecord extends BasicRecord {
 
     public void addTemp(float temp) {
         this.temp.add(temp);
+    }
+
+    @Override
+    public int[] readData() throws IOException {
+        throw new IOException("Error!");
+    }
+
+    @Override
+    public int getDataNum() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public int getGain() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public int getSampleRate() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public boolean isEOD() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public void seek(int pos) {
+        throw new IllegalStateException("");
     }
 
     @NonNull

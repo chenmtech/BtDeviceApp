@@ -198,15 +198,13 @@ public class PttDevice extends AbstractDevice {
                     return;
                 }
                 pttRecord.setSampleRate(sampleRate);
-                pttRecord.setEcgGain(DEFAULT_ECG_CALI);
-                pttRecord.setPpgGain(DEFAULT_PPG_CALI);
+                pttRecord.setGain(DEFAULT_ECG_CALI);
                 pttRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }
         } else {
             if(pttRecord != null) {
-                int second = pttRecord.getDataNum() / pttRecord.getSampleRate();
-                pttRecord.setSigSecond(second);
+                pttRecord.setSigLen(pttRecord.getDataNum());
                 pttRecord.saveAsync().listen(new SaveCallback() {
                     @Override
                     public void onFinish(boolean success) {

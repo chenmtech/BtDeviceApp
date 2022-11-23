@@ -189,8 +189,7 @@ public class PpgDevice extends AbstractDevice {
             }
         } else {
             if(ppgRecord != null) {
-                int second = ppgRecord.getDataNum() / ppgRecord.getSampleRate();
-                ppgRecord.setSigSecond(second);
+                ppgRecord.setSigLen(ppgRecord.getDataNum());
                 ppgRecord.saveAsync().listen(new SaveCallback() {
                     @Override
                     public void onFinish(boolean success) {

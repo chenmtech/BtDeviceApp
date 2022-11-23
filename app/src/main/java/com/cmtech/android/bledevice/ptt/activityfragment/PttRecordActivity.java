@@ -49,7 +49,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
                     blePttRecord.download(PttRecordActivity.this, "下载记录中，请稍等。", (code,msg) -> {
                         if (code == RCODE_SUCCESS) {
                             blePttRecord.openSigFile();
-                            blePttRecord.setSigSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());
+                            blePttRecord.setSigLen(blePttRecord.getDataNum());
                             record = blePttRecord;
                             initUI();
                         } else {
@@ -57,7 +57,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
                         }
                     });
                 } else {
-                    blePttRecord.setSigSecond(blePttRecord.getDataNum()/blePttRecord.getSampleRate());
+                    blePttRecord.setSigLen(blePttRecord.getDataNum());
                     record = blePttRecord;
                     initUI();
                 }
@@ -71,8 +71,8 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
         BleEcgRecord ecgRecord = (BleEcgRecord) RecordFactory.create(RecordType.ECG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress());
-        ecgRecord.setSampleRate(((BlePttRecord)record).getSampleRate());
-        ecgRecord.setGain(((BlePttRecord)record).getEcgGain());
+        ecgRecord.setSampleRate(record.getSampleRate());
+        ecgRecord.setGain(record.getGain());
         //ecgRecord.setEcgData(((BlePttRecord)record).getEcgData());
         ecgView.setup(ecgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
         ecgView.setGestureDetector(null);
@@ -80,8 +80,8 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         ppgView = findViewById(R.id.roll_ppg_view);
         //ppgView.setListener(this);
         BlePpgRecord ppgRecord = (BlePpgRecord) RecordFactory.create(RecordType.PPG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress());
-        ppgRecord.setSampleRate(((BlePttRecord)record).getSampleRate());
-        ppgRecord.setGain(((BlePttRecord)record).getPpgGain());
+        ppgRecord.setSampleRate(record.getSampleRate());
+        ppgRecord.setGain(record.getGain());
         //ppgRecord.setPpgData(((BlePttRecord)record).getPpgData());
         ppgView.setup(ppgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
         ppgView.setGestureDetector(null);
@@ -90,7 +90,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
 
         tvTotalTime = findViewById(R.id.tv_total_time);
-        int timeLength = record.getSigSecond();
+        int timeLength = record.getSigLen()/record.getSampleRate();
         tvTotalTime.setText(DateTimeUtil.secToMinute(timeLength));
 
         sbReplay = findViewById(R.id.sb_replay);

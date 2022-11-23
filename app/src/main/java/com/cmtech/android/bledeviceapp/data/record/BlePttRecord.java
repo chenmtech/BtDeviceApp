@@ -29,78 +29,21 @@ import java.io.Serializable;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializable {
+public class BlePttRecord extends BasicRecord implements Serializable {
     //-----------------------------------------常量
-    // 记录每个数据的字节数
-    private static final int BYTES_PER_DATUM = 2;
-
-    private int sampleRate = 0; // sample rate
-    private int ecgGain = 0; // ecg calibration value
-    private int ppgGain = 0; // ppg calibration value
-
     private BlePttRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(PTT, ver, accountId, createTime, devAddress, 2);
-    }
-
-    // 创建信号文件
-    public void createSigFile() throws IOException{
-        super.createSigFile(BYTES_PER_DATUM);
-    }
-
-    // 打开信号文件
-    public void openSigFile() {
-        super.openSigFile(BYTES_PER_DATUM);
+        super(PTT, ver, accountId, createTime, devAddress, 2, 2, new String[]{"mV","unknown"});
     }
 
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
-        sampleRate = json.getInt("sampleRate");
-        ecgGain = json.getInt("ecgGain");
-        ppgGain = json.getInt("ppgGain");
     }
 
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        json.put("sampleRate", sampleRate);
-        json.put("ecgGain", ecgGain);
-        json.put("ppgGain", ppgGain);
         return json;
-    }
-
-    @Override
-    public int getSampleRate() {
-        return sampleRate;
-    }
-
-    public void setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-    }
-
-    @Override
-    public int getGain() {
-        throw new IllegalArgumentException();
-    }
-
-    public void setGain(int gain) {
-        throw new IllegalArgumentException();
-    }
-
-    public int getEcgGain() {
-        return ecgGain;
-    }
-
-    public void setEcgGain(int ecgGain) {
-        this.ecgGain = ecgGain;
-    }
-
-    public int getPpgGain() {
-        return ppgGain;
-    }
-
-    public void setPpgGain(int ppgGain) {
-        this.ppgGain = ppgGain;
     }
 
     @Override
@@ -171,6 +114,6 @@ public class BlePttRecord extends BasicRecord implements ISignalRecord, Serializ
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + ecgGain + "-" + ppgGain;
+        return super.toString();
     }
 }

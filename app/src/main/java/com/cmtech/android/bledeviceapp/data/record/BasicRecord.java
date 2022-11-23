@@ -26,6 +26,7 @@ import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.model.WebServiceAsyncTask;
+import com.cmtech.android.bledeviceapp.util.ListStringUtil;
 import com.vise.utils.file.FileUtil;
 
 import org.json.JSONArray;
@@ -54,7 +55,7 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
+public abstract class BasicRecord extends LitePalSupport implements ISignalRecord, IJsonable, IWebOperation {
     //-----------------------------------------常量
     // 缺省记录版本号
     public static final String DEFAULT_RECORD_VER = "1.0";
@@ -97,14 +98,26 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // 创建者账户ID
     private int creatorId = INVALID_ID;
 
-    // 备注
-    private String comment = "";
-
-    // 信号长度秒数
-    private int sigSecond = 0;
+    // 信号采样率, 单位：Hz
+    private int sampleRate = 0;
 
     // 信号通道数
-    private int sigChannel = 1;
+    private int sigChannel;
+
+    // 信号长度: 秒数
+    private int sigLen = 0;
+
+    // 每个数据的字节数
+    private int bytePerDatum;
+
+    // 增益，即一个物理单位对应的ADU值
+    private int gain = 0;
+
+    // 每个通道的物理量单位名称
+    private String[] unit;
+
+    // 备注
+    private String comment = "";
 
     // 是否需要上传，当记录刚刚生成或者它的内容已经被修改时，就需要上传到服务器端。
     private boolean needUpload = true;
@@ -251,7 +264,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
      * @param createTime 记录创建时间
      * @param devAddress 记录创建的设备蓝牙地址
      */
-    BasicRecord(RecordType type, String ver, int creatorId, long createTime, String devAddress, int sigChannel) {
+    BasicRecord(RecordType type, String ver, int creatorId, long createTime, String devAddress,
+                int sigChannel, int bytePerDatum, String[] unit) {
         this.type = type;
         this.ver = ver;
         this.createTime = createTime;
@@ -259,6 +273,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.accountId = creatorId;
         this.creatorId = creatorId;
         this.sigChannel = sigChannel;
+        this.bytePerDatum = bytePerDatum;
+        this.unit = unit;
     }
 
     //-----------------------------------------实例方法
@@ -373,20 +389,42 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.comment = comment;
     }
 
-    public int getSigSecond() {
-        return sigSecond;
+    @Override
+    public int getGain() {
+        return gain;
     }
 
-    public void setSigSecond(int sigSecond) {
-        this.sigSecond = sigSecond;
+    @Override
+    public int getSampleRate() {
+        return sampleRate;
+    }
+
+    public int getBytePerDatum() {
+        return bytePerDatum;
+    }
+
+    public String[] getUnit() {
+        return unit;
+    }
+
+    public void setSampleRate(int sampleRate) {
+        this.sampleRate = sampleRate;
+    }
+
+    public void setGain(int gain) {
+        this.gain = gain;
+    }
+
+    public int getSigLen() {
+        return sigLen;
+    }
+
+    public void setSigLen(int sigLen) {
+        this.sigLen = sigLen;
     }
 
     public int getSigChannel() {
         return sigChannel;
-    }
-
-    public void setSigChannel(int sigChannel) {
-        this.sigChannel = sigChannel;
     }
 
     public String getReportVer() {
@@ -432,14 +470,13 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     /**
      * 创建信号文件
-     * @param bytePerDatum 信号的每个数据有几个字节构成
      */
-    public void createSigFile(int bytePerDatum) throws IOException{
+    public void createSigFile() throws IOException{
         sigFile = new RecordFile(getSigFileName(), bytePerDatum, sigChannel, "c");
     }
 
     // 打开信号文件
-    public void openSigFile(int bytePerDatum) {
+    public void openSigFile() {
         try {
             sigFile = new RecordFile(getSigFileName(), bytePerDatum, sigChannel, "o");
         } catch (IOException e) {
@@ -463,8 +500,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     public void fromJson(JSONObject json) throws JSONException{
         creatorId = json.getInt("creatorId");
         comment = json.getString("comment");
-        sigSecond = json.getInt("sigSecond");
+        sampleRate = json.getInt("sampleRate");
         sigChannel = json.getInt("sigChannel");
+        sigLen = json.getInt("sigLen");
+        bytePerDatum = json.getInt("bytePerDatum");
+        gain = json.getInt("gain");
+        unit = ListStringUtil.stringToStrArr(json.getString("unit"));
         reportVer = json.getString("reportVer");
         reportProvider = json.getString("reportProvider");
         reportTime = json.getLong("reportTime");
@@ -482,8 +523,12 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("creatorId", creatorId);
         json.put("ver", ver);
         json.put("comment", comment);
-        json.put("sigSecond", sigSecond);
+        json.put("sampleRate", sampleRate);
         json.put("sigChannel", sigChannel);
+        json.put("sigLen", sigLen);
+        json.put("bytePerDatum", bytePerDatum);
+        json.put("gain", gain);
+        json.put("unit", ListStringUtil.strArrToString(unit));
         json.put("reportVer", reportVer);
         json.put("reportProvider", reportProvider);
         json.put("reportTime", reportTime);
@@ -498,6 +543,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     // 是否到达信号末尾
+    @Override
     public boolean isEOD() {
         if(sigFile != null) {
             try {
@@ -512,6 +558,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     // 在信号文件中定位
+    @Override
     public void seek(int pos) {
         if(sigFile!= null) {
             try {
@@ -523,6 +570,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     }
 
     // 获取信号数据帧数
+    @Override
     public int getDataNum() {
         if(sigFile == null) return 0;
         return sigFile.size();
@@ -628,7 +676,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @Override
     public String toString() {
         return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId +
-                "-" + comment + "-" + sigSecond + "-" + sigChannel + "-" + needUpload + "-" + reportContent;
+                "-" + comment + "-" + sampleRate + "-" + bytePerDatum + "-" + gain + "-" +
+                sigLen + "-" + sigChannel + "-" + needUpload + "-" + reportContent;
     }
 
     @Override

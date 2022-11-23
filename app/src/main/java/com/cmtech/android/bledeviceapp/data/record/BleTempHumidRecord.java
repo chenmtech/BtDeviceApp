@@ -5,6 +5,8 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.TH;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.thm.model
@@ -24,7 +26,7 @@ public class BleTempHumidRecord extends BasicRecord {
     private String location = "室内";
 
     private BleTempHumidRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(TH, ver, accountId, createTime, devAddress, 2);
+        super(TH, ver, accountId, createTime, devAddress, 2, 4, new String[]{"C", "%RH"});
     }
 
     @Override
@@ -72,6 +74,37 @@ public class BleTempHumidRecord extends BasicRecord {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+
+    @Override
+    public int[] readData() throws IOException {
+        throw new IOException("Error!");
+    }
+
+    @Override
+    public int getDataNum() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public int getGain() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public int getSampleRate() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public boolean isEOD() {
+        throw new IllegalStateException("");
+    }
+
+    @Override
+    public void seek(int pos) {
+        throw new IllegalStateException("");
     }
 
 }

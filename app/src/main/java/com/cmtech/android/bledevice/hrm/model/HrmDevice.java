@@ -286,7 +286,7 @@ public class HrmDevice extends AbstractDevice {
                         sum += num;
                     }
 
-                    hrRecord.setSigSecond(sum);
+                    hrRecord.setSigLen(sum);
                     hrRecord.save();
                     Toast.makeText(getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 }
@@ -349,9 +349,7 @@ public class HrmDevice extends AbstractDevice {
             this.ecgRecordStatus = record;
 
             if(ecgRecord != null) {
-                int second = ecgRecord.getDataNum() / ecgRecord.getSampleRate();
-
-                ecgRecord.setSigSecond(second);
+                ecgRecord.setSigLen(ecgRecord.getDataNum());
                 ecgRecord.createReport(rhythmDetector);
                 ecgRecord.closeSigFile();
                 ecgRecord.save();
@@ -472,7 +470,7 @@ public class HrmDevice extends AbstractDevice {
 
                 // 每记录一分钟就自动保存一次记录，防止数据异常丢失太多
                 if(second % 60 == 0) {
-                    ecgRecord.setSigSecond(second);
+                    ecgRecord.setSigLen(ecgRecord.getDataNum());
                     ecgRecord.save();
                 }
             }

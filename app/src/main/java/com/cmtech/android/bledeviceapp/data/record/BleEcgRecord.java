@@ -50,18 +50,10 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnosable, Serializable {
+public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializable {
     //-----------------------------------------常量
-    // 记录每个信号数据所需的字节数，因为用的是short类型数据，所以是2个字节
-    private static final int BYTES_PER_DATUM = 2;
 
     //------------------------------------------实例变量，这些变量值会保存到本地和远程数据库中
-    // 采样率
-    private int sampleRate = 0;
-
-    // 增益，即1mV ADU
-    private int gain = 0;
-
     // 心电导联代码
     private int leadTypeCode = 0;
 
@@ -98,27 +90,10 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
      * @param accountId 创建者的ID号
      */
     private BleEcgRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(ECG, ver, accountId, createTime, devAddress, 1);
+        super(ECG, ver, accountId, createTime, devAddress, 1, 2, new String[]{"mV"});
     }
 
     //-----------------------------------------------------------公有实例方法
-    // 创建并打开信号文件
-    public void createSigFile() throws IOException{
-        super.createSigFile(BYTES_PER_DATUM);
-    }
-
-    // 打开信号文件
-    public void openSigFile() {
-        super.openSigFile(BYTES_PER_DATUM);
-    }
-
-    public void setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-    }
-
-    public void setGain(int gain) {
-        this.gain = gain;
-    }
 
     public void setLeadTypeCode(int leadTypeCode) {
         this.leadTypeCode = leadTypeCode;
@@ -281,7 +256,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             startPos = segPoses.get(i-1);
             startTime = segTimes.get(i-1);
         }
-        return startTime + (pos - startPos)*1000L/sampleRate;
+        return startTime + (pos - startPos)*1000L/getSampleRate();
     }
 
     /**
@@ -310,7 +285,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
             startPos = segPoses.get(i-1);
             startTime = segTimes.get(i-1);
         }
-        return (int) (startPos + (time - startTime)*sampleRate/1000);
+        return (int) (startPos + (time - startTime)*getSampleRate()/1000);
     }
 
     /**
@@ -408,18 +383,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
         return INVALID_POS;
     }
 
-
-    //-------------------------------------------------实现ISignalRecord方法
-    @Override
-    public int getGain() {
-        return gain;
-    }
-
-    @Override
-    public int getSampleRate() {
-        return sampleRate;
-    }
-
     // 从信号文件中读取一个数据
     @Override
     public int[] readData() throws IOException {
@@ -451,8 +414,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
-        sampleRate = json.getInt("sampleRate");
-        gain = json.getInt("gain");
         leadTypeCode = json.getInt("leadTypeCode");
         aveHr = json.getInt("aveHr");
         ListStringUtil.stringToList(json.getString("segPoses"), segPoses, Integer.class);
@@ -464,8 +425,6 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        json.put("sampleRate", sampleRate);
-        json.put("gain", gain);
         json.put("leadTypeCode", leadTypeCode);
         json.put("aveHr", aveHr);
         json.put("segPoses", ListStringUtil.listToString(segPoses));
@@ -478,7 +437,7 @@ public class BleEcgRecord extends BasicRecord implements ISignalRecord, IDiagnos
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + gain + "-" + leadTypeCode +
+        return super.toString() + "-" + leadTypeCode +
                 "-" + segPoses + "-" + segTimes + "-" + rhythmTimes + "-" + rhythmLabels;
     }
 

@@ -29,59 +29,22 @@ import java.io.Serializable;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializable {
+public class BlePpgRecord extends BasicRecord implements Serializable {
     //-----------------------------------------常量
-    // 记录每个数据的字节数
-    private static final int BYTES_PER_DATUM = 2;
-
-    private int sampleRate = 0; // sample rate
-    private int gain = 0; // calibration value
 
     private BlePpgRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(PPG, ver, accountId, createTime, devAddress, 1);
-    }
-
-    // 创建信号文件
-    public void createSigFile() throws IOException{
-        super.createSigFile(BYTES_PER_DATUM);
-    }
-
-    // 打开信号文件
-    public void openSigFile() {
-        super.openSigFile(BYTES_PER_DATUM);
+        super(PPG, ver, accountId, createTime, devAddress, 1, 2, new String[]{"unknown"});
     }
 
     @Override
     public void fromJson(JSONObject json) throws JSONException{
         super.fromJson(json);
-        sampleRate = json.getInt("sampleRate");
-        gain = json.getInt("gain");
     }
 
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        json.put("sampleRate", sampleRate);
-        json.put("gain", gain);
         return json;
-    }
-
-    @Override
-    public int getSampleRate() {
-        return sampleRate;
-    }
-
-    public void setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-    }
-
-    @Override
-    public int getGain() {
-        return gain;
-    }
-
-    public void setGain(int gain) {
-        this.gain = gain;
     }
 
     @Override
@@ -94,7 +57,7 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
         boolean success = false;
         try {
             if(sigFile != null) {
-                sigFile.writeInt(new int[]{ppg});
+                sigFile.writeShort(new short[]{(short) ppg});
                 success = true;
             }
         } catch (IOException e) {
@@ -152,6 +115,6 @@ public class BlePpgRecord extends BasicRecord implements ISignalRecord, Serializ
     @NonNull
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + gain;
+        return super.toString();
     }
 }
