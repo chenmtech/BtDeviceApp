@@ -4,7 +4,11 @@ import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
-import static com.cmtech.android.bledeviceapp.util.WebService11Util.*;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DELETE_RECORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_RECORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_RECORDS;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_SHARE_RECORD;
+import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_UPLOAD_RECORD;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -12,8 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
-import com.cmtech.android.bledeviceapp.model.WebServiceAsyncTask;
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
@@ -23,6 +25,7 @@ import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
+import com.cmtech.android.bledeviceapp.model.WebServiceAsyncTask;
 import com.vise.utils.file.FileUtil;
 
 import org.json.JSONArray;
@@ -79,7 +82,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // ID号
     private int id;
 
-    // 记录拥有者账户ID
+    // 拥有者账户ID
     private int accountId = INVALID_ID;
 
     // 创建时间
@@ -91,7 +94,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     // 记录版本号
     private String ver = DEFAULT_RECORD_VER;
 
-    // 记录创建者账户ID
+    // 创建者账户ID
     private int creatorId = INVALID_ID;
 
     // 备注
@@ -99,6 +102,9 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
 
     // 信号长度秒数
     private int sigSecond = 0;
+
+    // 信号通道数
+    private int sigChannel = 1;
 
     // 是否需要上传，当记录刚刚生成或者它的内容已经被修改时，就需要上传到服务器端。
     private boolean needUpload = true;
@@ -374,6 +380,14 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.sigSecond = sigSecond;
     }
 
+    public int getSigChannel() {
+        return sigChannel;
+    }
+
+    public void setSigChannel(int sigChannel) {
+        this.sigChannel = sigChannel;
+    }
+
     public String getReportVer() {
         return reportVer;
     }
@@ -410,7 +424,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         this.needUpload = needUpload;
     }
 
-    // 获取信号文件名：设备地址（去掉:）+创建时间
+    // 获取信号文件名：设备地址（去掉':'）+创建时间
     public String getSigFileName() {
         return getDevAddress().replace(":", "")+getCreateTime();
     }
@@ -449,6 +463,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         creatorId = json.getInt("creatorId");
         comment = json.getString("comment");
         sigSecond = json.getInt("sigSecond");
+        sigChannel = json.getInt("sigChannel");
         reportVer = json.getString("reportVer");
         reportProvider = json.getString("reportProvider");
         reportTime = json.getLong("reportTime");
@@ -467,6 +482,7 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
         json.put("ver", ver);
         json.put("comment", comment);
         json.put("sigSecond", sigSecond);
+        json.put("sigChannel", sigChannel);
         json.put("reportVer", reportVer);
         json.put("reportProvider", reportProvider);
         json.put("reportTime", reportTime);
@@ -610,7 +626,8 @@ public abstract class BasicRecord extends LitePalSupport implements IJsonable, I
     @NonNull
     @Override
     public String toString() {
-        return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId + "-" + comment + "-" + sigSecond + "-" + needUpload + "-" + reportContent;
+        return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId +
+                "-" + comment + "-" + sigSecond + "-" + sigChannel + "-" + needUpload + "-" + reportContent;
     }
 
     @Override
