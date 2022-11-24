@@ -21,8 +21,8 @@ import com.cmtech.android.bledeviceapp.R;
 
 public abstract class WaveView extends View {
     //----------------------------------------------常量
-    public static final float DEFAULT_ZERO_LOCATION = 0.5f; // 缺省的零值位置在纵向的高度比
-    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 波形颜色
+    //public static final float DEFAULT_ZERO_LOCATION = 0.5f; // 缺省的零值位置在纵向的高度比
+    private static final int[] WAVE_COLORS = new int[]{Color.YELLOW, Color.WHITE}; // 波形颜色
 
     private static final int SMALL_GRID_NUM_PER_LARGE_GRID = 5; // 每个大栅格包含多少个小栅格
     private static final int DEFAULT_SIZE = 100; // 缺省View的大小
@@ -54,12 +54,15 @@ public abstract class WaveView extends View {
     protected int pixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，即X方向每个数据点占多少个像素，pixel/data
     protected float valuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，即Y方向每个像素代表的信号值，value/pixel
 
+    protected int initX; //画图起始横坐标
+    protected int preX; //画线的前一个点横坐标
 
-    protected int initX, initY; //画图起始坐标
-    protected int preX, preY; //画线的前一个点坐标
-    protected final Paint wavePaint = new Paint(); // 波形画笔
-    private final int waveColor; // 波形颜色
-    private float zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
+    protected final int viewNum;
+    private final int[] waveColors; // 波形颜色
+    protected final Paint[] wavePaints; // 波形画笔
+    protected int[] initYs; //画图起始纵坐标
+    protected int[] preYs; //画线的前一个点纵坐标
+    private float zeroLocations[]; //表示零值位置占视图高度的百分比
 
     protected OnWaveViewListener listener; // 监听器
 
@@ -74,7 +77,9 @@ public abstract class WaveView extends View {
         largeGridLineWidth = DEFAULT_LARGE_GRID_LINE_WIDTH;
         smallGridLineWidth = DEFAULT_SMALL_GRID_LINE_WIDTH;
 
-        waveColor = DEFAULT_WAVE_COLOR;
+        viewNum = 1;
+        waveColors = new int[]{WAVE_COLORS[0]};
+        wavePaints = new Paint[]{new Paint()};
     }
 
     public WaveView(Context context, AttributeSet attrs) {
@@ -85,11 +90,15 @@ public abstract class WaveView extends View {
         bgColor = styledAttributes.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
         largeGridColor = styledAttributes.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_LARGE_GRID_COLOR);
         smallGridColor = styledAttributes.getColor(R.styleable.WaveView_small_grid_line_color, DEFAULT_SMALL_GRID_COLOR);
-        waveColor = styledAttributes.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
 
         zeroLineWidth = styledAttributes.getInt(R.styleable.WaveView_zero_line_width, DEFAULT_ZERO_LINE_WIDTH);
         largeGridLineWidth = styledAttributes.getInt(R.styleable.WaveView_large_grid_line_width, DEFAULT_LARGE_GRID_LINE_WIDTH);
         smallGridLineWidth = styledAttributes.getInt(R.styleable.WaveView_small_grid_line_width, DEFAULT_SMALL_GRID_LINE_WIDTH);
+
+        viewNum = styledAttributes.getInt(R.styleable.WaveView_view_num, 1);
+        waveColors = new int[viewNum]; System.arraycopy(WAVE_COLORS, 0, waveColors, 0, viewNum);
+
+
         styledAttributes.recycle();
     }
 
@@ -172,9 +181,11 @@ public abstract class WaveView extends View {
 
     // 初始化波形画笔
     public void initWavePaint() {
-        wavePaint.setAlpha(255);
-        wavePaint.setStrokeWidth(waveWidth);
-        wavePaint.setColor(waveColor);
+        for(int i = 0; i < wavePaints.length; i++) {
+            wavePaints[i].setAlpha(255);
+            wavePaints[i].setStrokeWidth(waveWidth);
+            wavePaints[i].setColor(waveColors[i]);
+        }
     }
 
     // 开始显示
