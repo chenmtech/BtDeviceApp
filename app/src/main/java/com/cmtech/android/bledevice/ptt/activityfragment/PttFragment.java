@@ -1,8 +1,8 @@
 package com.cmtech.android.bledevice.ptt.activityfragment;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_CALI;
-import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_CALI;
+import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_GAIN;
+import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_GAIN;
 import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 import android.content.Intent;
@@ -93,10 +93,10 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         spinner.setAdapter(adapter);
 
         ecgView = view.findViewById(R.id.ecg_view);
-        ecgView.setup(device.getSampleRate(), DEFAULT_ECG_CALI, DEFAULT_ZERO_LOCATION);
+        ecgView.setup(device.getSampleRate(), DEFAULT_ECG_GAIN, DEFAULT_ZERO_LOCATION);
 
         ppgView = view.findViewById(R.id.ppg_view);
-        ppgView.setup(device.getSampleRate(), DEFAULT_PPG_CALI, DEFAULT_ZERO_LOCATION);
+        ppgView.setup(device.getSampleRate(), DEFAULT_PPG_GAIN, DEFAULT_ZERO_LOCATION);
 
         pager = view.findViewById(R.id.ptt_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ptt_control_panel_tab);

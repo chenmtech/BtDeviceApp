@@ -49,8 +49,9 @@ public class BleHrRecord extends BasicRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
-    private BleHrRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(HR, ver, accountId, createTime, devAddress, 1, 2, new String[]{"bpm"});
+    private BleHrRecord(String ver, int accountId, long createTime, String devAddress,
+                        int sampleRate, int channelNum, String gain, String unit) {
+        super(HR, ver, accountId, createTime, devAddress, sampleRate, channelNum, 2, gain, unit);
         initHrHistogram();
     }
 
@@ -166,7 +167,7 @@ public class BleHrRecord extends BasicRecord implements Serializable {
     }
 
     @Override
-    public int getGain() {
+    public List<Integer> getGain() {
         throw new IllegalStateException("");
     }
 

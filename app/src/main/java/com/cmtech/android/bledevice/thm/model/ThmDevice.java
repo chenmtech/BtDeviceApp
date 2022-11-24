@@ -24,6 +24,7 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.cmtech.bmefile.ByteUtil;
 import com.vise.log.ViseLog;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -111,7 +112,8 @@ public class ThmDevice extends AbstractDevice {
     }
 
     public void save(String loc) {
-        BleTempHumidRecord record = (BleTempHumidRecord) RecordFactory.create(RecordType.TH, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
+        BleTempHumidRecord record = (BleTempHumidRecord) RecordFactory.create(RecordType.TH, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress(),
+                1, 2, "100,100", "C,%RH");
         record.setTemperature(tempHumidData.getTemp()/100.0f);
         record.setHumid(tempHumidData.getHumid()/100.0f);
         record.setHeatIndex(tempHumidData.calculateHeatIndex());

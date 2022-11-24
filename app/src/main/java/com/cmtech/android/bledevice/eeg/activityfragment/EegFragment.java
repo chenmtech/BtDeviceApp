@@ -67,7 +67,7 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
         tvMessage = view.findViewById(R.id.tv_message);
 
         eegView = view.findViewById(R.id.eeg_view);
-        eegView.setup(device.getSampleRate(), device.getCaliValue(), DEFAULT_ZERO_LOCATION);
+        eegView.setup(device.getSampleRate(), device.getGain(), DEFAULT_ZERO_LOCATION);
 
         pager = view.findViewById(R.id.eeg_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.eeg_control_panel_tab);

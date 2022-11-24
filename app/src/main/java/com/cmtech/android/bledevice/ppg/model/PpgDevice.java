@@ -27,7 +27,9 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import org.litepal.crud.callback.SaveCallback;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -45,7 +47,7 @@ import java.util.UUID;
 
 
 public class PpgDevice extends AbstractDevice {
-    private static final int DEFAULT_CALI_VALUE = 100; // default calibration value
+    private static final int DEFAULT_GAIN = 100; // default gain value
     private static final int DEFAULT_SAMPLE_RATE = 200; // default sample rate, unit: Hz
     private static final int PPG_RECORD_MAX_SECOND = 30;
 
@@ -62,7 +64,7 @@ public class PpgDevice extends AbstractDevice {
     private static final BleGattElement PPGSAMPLERATE = new BleGattElement(ppgServiceUUID, ppgSampleRateUUID, null, "PPG Sample Rate");
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
-    private int caliValue = DEFAULT_CALI_VALUE; // calibration value
+    private int gain = DEFAULT_GAIN; // gain value
 
     private PpgDataProcessor dataProcessor; // ppg data processor
 
@@ -79,8 +81,8 @@ public class PpgDevice extends AbstractDevice {
         return sampleRate;
     }
 
-    public final int getCaliValue() {
-        return caliValue;
+    public final int getGain() {
+        return gain;
     }
 
     public void setListener(OnPpgListener listener) {
@@ -117,7 +119,7 @@ public class PpgDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if (listener != null)
-                        listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION);
+                        listener.onFragmentUpdated(sampleRate, gain, DEFAULT_ZERO_LOCATION);
 
                     updateSignalShowState(true);
 
@@ -173,7 +175,8 @@ public class PpgDevice extends AbstractDevice {
 
         isRecording = isRecord;
         if(isRecord) {
-            ppgRecord = (BlePpgRecord) RecordFactory.create(PPG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
+            ppgRecord = (BlePpgRecord) RecordFactory.create(PPG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress(),
+                    sampleRate, 1, String.valueOf(gain), "unknown");
             if(ppgRecord != null) {
                 try {
                     ppgRecord.createSigFile();
@@ -182,8 +185,6 @@ public class PpgDevice extends AbstractDevice {
                     ThreadUtil.showToastInMainThread(getContext(), "创建记录失败", Toast.LENGTH_SHORT);
                     return;
                 }
-                ppgRecord.setSampleRate(sampleRate);
-                ppgRecord.setGain(caliValue);
                 ppgRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }

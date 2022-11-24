@@ -22,8 +22,10 @@ import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.vise.log.ViseLog;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -143,11 +145,11 @@ public class ThermoDevice extends AbstractDevice {
         if(this.isRecord == isRecord) return;
 
         if(isRecord) {
-            record = (BleThermoRecord) RecordFactory.create(RecordType.THERMO, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
+            record = (BleThermoRecord) RecordFactory.create(RecordType.THERMO, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress(),
+                    1, 1, "1", "C");
             Toast.makeText(MyApplication.getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
         } else {
             if(record != null) {
-                record.setCreateTime(new Date().getTime());
                 record.save();
                 Toast.makeText(MyApplication.getContext(), R.string.save_record_success, Toast.LENGTH_SHORT).show();
                 record = null;

@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -34,8 +35,9 @@ public class BleEegRecord extends BasicRecord implements Serializable {
 
     private int leadTypeCode = 0; // lead type code
 
-    private BleEegRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(EEG, ver, accountId, createTime, devAddress, 1, 2, new String[]{"mV"});
+    private BleEegRecord(String ver, int accountId, long createTime, String devAddress,
+                         int sampleRate, int channelNum, String gain, String unit) {
+        super(EEG, ver, accountId, createTime, devAddress, sampleRate, channelNum, 2, gain, unit);
     }
 
     @Override

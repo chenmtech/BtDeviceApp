@@ -39,6 +39,7 @@ import org.litepal.crud.LitePalSupport;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -74,7 +75,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
 
     // 诊断报告状态
     public static final int REPORT_DONE = 0; // 已完成
-
     public static final int REPORT_WAITING = 1; // 等待处理
 
 
@@ -82,6 +82,9 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
 
     // ID号
     private int id;
+
+    // 版本号
+    private String ver = DEFAULT_RECORD_VER;
 
     // 拥有者账户ID
     private int accountId = INVALID_ID;
@@ -92,9 +95,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     // 创建设备地址
     private final String devAddress;
 
-    // 记录版本号
-    private String ver = DEFAULT_RECORD_VER;
-
     // 创建者账户ID
     private int creatorId = INVALID_ID;
 
@@ -102,24 +102,26 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     private int sampleRate = 0;
 
     // 信号通道数
-    private int sigChannel;
+    private int channelNum;
 
-    // 信号长度: 秒数
+    // 信号长度: 数据帧数
     private int sigLen = 0;
 
     // 每个数据的字节数
     private int bytePerDatum;
 
-    // 增益，即一个物理单位对应的ADU值
-    private int gain = 0;
+    // 每个通道的增益，即一个物理单位对应的ADU值
+    // 构成一个字符串，比如：两个通道的情况"164,100"
+    private String gain;
 
     // 每个通道的物理量单位名称
-    private String[] unit;
+    // 构成一个字符串，比如：两个通道的情况"mV,unknown"
+    private String unit;
 
     // 备注
     private String comment = "";
 
-    // 是否需要上传，当记录刚刚生成或者它的内容已经被修改时，就需要上传到服务器端。
+    // 是否需要上传，当记录刚刚生成或者它的内容已经被修改时，就需要上传到服务器端。但这个字段本身不会保存到服务器端
     private boolean needUpload = true;
 
 
@@ -204,14 +206,15 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
 
     /**
      * 从服务器端获取满足条件的记录信息，保存到本地数据库中，记录信息不包含信号文件数据
-     * @param context
+     * @param context 上下文
      * @param num：获取记录数
      * @param filterStr：过滤的字符串
      * @param fromTime：起始时间
      * @param callback：返回回调
      */
     public static void downloadRecords(Context context, RecordType type, int accountId, int num, String filterStr, long fromTime, ICodeCallback callback) {
-        BasicRecord record = RecordFactory.create(type, DEFAULT_RECORD_VER, accountId, INVALID_TIME, null);
+        BasicRecord record = RecordFactory.create(type, DEFAULT_RECORD_VER, accountId, INVALID_TIME, null,
+                1,1, "1", "unknown");
         if(record == null) {
             return;
         }
@@ -233,7 +236,8 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
                                 int accountId = json.getInt("accountId");
                                 long createTime = json.getLong("createTime");
                                 String devAddress = json.getString("devAddress");
-                                BasicRecord record = RecordFactory.create(type, ver, accountId, createTime, devAddress);
+                                BasicRecord record = RecordFactory.create(type, ver, accountId, createTime, devAddress,
+                                        1,1, "1", "unknown");
                                 if (record != null) {
                                     record.fromJson(json);
                                     record.setNeedUpload(false);
@@ -265,15 +269,17 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
      * @param devAddress 记录创建的设备蓝牙地址
      */
     BasicRecord(RecordType type, String ver, int creatorId, long createTime, String devAddress,
-                int sigChannel, int bytePerDatum, String[] unit) {
+                int sampleRate, int channelNum, int bytePerDatum, String gain, String unit) {
         this.type = type;
         this.ver = ver;
         this.createTime = createTime;
         this.devAddress = devAddress;
         this.accountId = creatorId;
         this.creatorId = creatorId;
-        this.sigChannel = sigChannel;
+        this.sampleRate = sampleRate;
+        this.channelNum = channelNum;
         this.bytePerDatum = bytePerDatum;
+        this.gain = gain;
         this.unit = unit;
     }
 
@@ -284,10 +290,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
 
     public String getVer() {
         return ver;
-    }
-
-    public void setVer(String ver) {
-        this.ver= ver;
     }
 
     public RecordType getType() {
@@ -308,10 +310,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
 
     public long getCreateTime() {
         return createTime;
-    }
-
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
     }
 
     public String getDevAddress() {
@@ -390,7 +388,13 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     }
 
     @Override
-    public int getGain() {
+    public List<Integer> getGain() {
+        List<Integer> intGain = new ArrayList<>();
+        ListStringUtil.stringToList(gain, intGain, Integer.class);
+        return intGain;
+    }
+
+    public String getGainString() {
         return gain;
     }
 
@@ -403,16 +407,12 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         return bytePerDatum;
     }
 
-    public String[] getUnit() {
+    public List<String> getUnit() {
+        return ListStringUtil.stringToStrList(unit);
+    }
+
+    public String getUnitString() {
         return unit;
-    }
-
-    public void setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-    }
-
-    public void setGain(int gain) {
-        this.gain = gain;
     }
 
     public int getSigLen() {
@@ -423,8 +423,8 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         this.sigLen = sigLen;
     }
 
-    public int getSigChannel() {
-        return sigChannel;
+    public int getChannelNum() {
+        return channelNum;
     }
 
     public String getReportVer() {
@@ -472,13 +472,13 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
      * 创建信号文件
      */
     public void createSigFile() throws IOException{
-        sigFile = new RecordFile(getSigFileName(), bytePerDatum, sigChannel, "c");
+        sigFile = new RecordFile(getSigFileName(), bytePerDatum, channelNum, "c");
     }
 
     // 打开信号文件
     public void openSigFile() {
         try {
-            sigFile = new RecordFile(getSigFileName(), bytePerDatum, sigChannel, "o");
+            sigFile = new RecordFile(getSigFileName(), bytePerDatum, channelNum, "o");
         } catch (IOException e) {
             e.printStackTrace();
             sigFile = null;
@@ -501,11 +501,11 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         creatorId = json.getInt("creatorId");
         comment = json.getString("comment");
         sampleRate = json.getInt("sampleRate");
-        sigChannel = json.getInt("sigChannel");
+        channelNum = json.getInt("channelNum");
         sigLen = json.getInt("sigLen");
         bytePerDatum = json.getInt("bytePerDatum");
-        gain = json.getInt("gain");
-        unit = ListStringUtil.stringToStrArr(json.getString("unit"));
+        gain = json.getString("gain");
+        unit = json.getString("unit");
         reportVer = json.getString("reportVer");
         reportProvider = json.getString("reportProvider");
         reportTime = json.getLong("reportTime");
@@ -524,11 +524,11 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         json.put("ver", ver);
         json.put("comment", comment);
         json.put("sampleRate", sampleRate);
-        json.put("sigChannel", sigChannel);
+        json.put("channelNum", channelNum);
         json.put("sigLen", sigLen);
         json.put("bytePerDatum", bytePerDatum);
         json.put("gain", gain);
-        json.put("unit", ListStringUtil.strArrToString(unit));
+        json.put("unit", unit);
         json.put("reportVer", reportVer);
         json.put("reportProvider", reportProvider);
         json.put("reportTime", reportTime);
@@ -677,7 +677,7 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     public String toString() {
         return id + "-" + type + "-" + ver + "-" + accountId + "-" + createTime + "-" + devAddress + "-" + creatorId +
                 "-" + comment + "-" + sampleRate + "-" + bytePerDatum + "-" + gain + "-" +
-                sigLen + "-" + sigChannel + "-" + needUpload + "-" + reportContent;
+                sigLen + "-" + channelNum + "-" + needUpload + "-" + reportContent;
     }
 
     @Override

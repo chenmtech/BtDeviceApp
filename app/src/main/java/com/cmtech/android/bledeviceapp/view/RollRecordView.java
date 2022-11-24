@@ -14,6 +14,7 @@ import com.cmtech.android.bledeviceapp.data.record.ISignalRecord;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -143,8 +144,8 @@ public class RollRecordView extends RollWaveView {
     public void setup(ISignalRecord record, float zeroLocation, float secondPerGrid, float mvPerGrid, int pixelPerGrid) {
         setRecord(record);
         int pixelPerData = Math.round(pixelPerGrid / (secondPerGrid * record.getSampleRate())); // 计算横向分辨率
-        float valuePerPixel = record.getGain() * mvPerGrid / pixelPerGrid; // 计算纵向分辨率
-        ViseLog.e(""+record.getSampleRate()+" "+record.getGain());
+        float valuePerPixel = record.getGain().get(0) * mvPerGrid / pixelPerGrid; // 计算纵向分辨率
+        ViseLog.e(""+record.getSampleRate()+" "+ record.getGain().toString());
         setResolution(pixelPerData, valuePerPixel);
         setPixelPerGrid(pixelPerGrid);
         setZeroLocation(zeroLocation);

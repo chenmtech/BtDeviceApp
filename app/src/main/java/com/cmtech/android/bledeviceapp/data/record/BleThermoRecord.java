@@ -30,8 +30,9 @@ public class BleThermoRecord extends BasicRecord {
     private final List<Float> temp = new ArrayList<>();
     private float highestTemp = 0.0f;
 
-    private BleThermoRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(THERMO, ver, accountId, createTime, devAddress, 1, 4, new String[]{"C"});
+    private BleThermoRecord(String ver, int accountId, long createTime, String devAddress,
+                            int sampleRate, int channelNum, String gain, String unit) {
+        super(THERMO, ver, accountId, createTime, devAddress, sampleRate, channelNum, 4, gain, unit);
     }
 
     @Override
@@ -82,7 +83,7 @@ public class BleThermoRecord extends BasicRecord {
     }
 
     @Override
-    public int getGain() {
+    public List<Integer> getGain() {
         throw new IllegalStateException("");
     }
 

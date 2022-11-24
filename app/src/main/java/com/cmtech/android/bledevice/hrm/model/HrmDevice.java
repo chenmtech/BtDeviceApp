@@ -37,8 +37,10 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import ai.onnxruntime.OrtException;
@@ -258,7 +260,8 @@ public class HrmDevice extends AbstractDevice {
         this.hrRecordStatus = record;
         // 开始记录
         if(record) {
-            hrRecord = (BleHrRecord) RecordFactory.create(HR, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
+            hrRecord = (BleHrRecord) RecordFactory.create(HR, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress(),
+                    1, 1, "1", "bpm");
             if(listener != null && hrRecord != null) {
                 recordingRecord = hrRecord;
                 listener.onHRStatisticInfoUpdated(hrRecord);
@@ -322,7 +325,8 @@ public class HrmDevice extends AbstractDevice {
 
         // 开始记录
         if(record) {
-            ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
+            ecgRecord = (BleEcgRecord) RecordFactory.create(ECG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress(),
+                    sampleRate, 1, String.valueOf(gain), "mV");
             if(ecgRecord != null) {
                 try {
                     ecgRecord.createSigFile();
@@ -331,8 +335,6 @@ public class HrmDevice extends AbstractDevice {
                     ThreadUtil.showToastInMainThread(getContext(), "创建记录失败", Toast.LENGTH_SHORT);
                     return;
                 }
-                ecgRecord.setSampleRate(sampleRate);
-                ecgRecord.setGain(gain);
                 ecgRecord.setLeadTypeCode(leadType.getCode());
                 ecgRecord.setInterrupt(true);
                 ecgRecord.save();

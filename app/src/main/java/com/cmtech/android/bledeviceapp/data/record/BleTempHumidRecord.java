@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -25,8 +26,9 @@ public class BleTempHumidRecord extends BasicRecord {
     private float heatIndex = 0.0f;
     private String location = "室内";
 
-    private BleTempHumidRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(TH, ver, accountId, createTime, devAddress, 2, 4, new String[]{"C", "%RH"});
+    private BleTempHumidRecord(String ver, int accountId, long createTime, String devAddress,
+                               int sampleRate, int channelNum, String gain, String unit) {
+        super(TH, ver, accountId, createTime, devAddress, sampleRate, channelNum, 4, gain, unit);
     }
 
     @Override
@@ -88,7 +90,7 @@ public class BleTempHumidRecord extends BasicRecord {
     }
 
     @Override
-    public int getGain() {
+    public List<Integer> getGain() {
         throw new IllegalStateException("");
     }
 

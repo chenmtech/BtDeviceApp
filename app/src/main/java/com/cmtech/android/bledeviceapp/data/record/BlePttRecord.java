@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -31,8 +32,9 @@ import java.io.Serializable;
  */
 public class BlePttRecord extends BasicRecord implements Serializable {
     //-----------------------------------------常量
-    private BlePttRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(PTT, ver, accountId, createTime, devAddress, 2, 2, new String[]{"mV","unknown"});
+    private BlePttRecord(String ver, int accountId, long createTime, String devAddress,
+                         int sampleRate, int channelNum, String gain, String unit) {
+        super(PTT, ver, accountId, createTime, devAddress, sampleRate, channelNum, 2, gain, unit);
     }
 
     @Override

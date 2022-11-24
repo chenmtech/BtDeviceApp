@@ -28,7 +28,9 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import org.litepal.crud.callback.SaveCallback;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -46,7 +48,7 @@ import java.util.UUID;
 
 
 public class EegDevice extends AbstractDevice {
-    private static final int DEFAULT_CALI_1MV = 40960; // default 1mV calibration value
+    private static final int DEFAULT_GAIN = 40960; // default gain value
     private static final int DEFAULT_SAMPLE_RATE = 250; // default sample rate, unit: Hz
     private static final EegLeadType DEFAULT_LEAD_TYPE = EegLeadType.LEAD_I; // default lead type
 
@@ -78,7 +80,7 @@ public class EegDevice extends AbstractDevice {
 
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
-    private int caliValue = DEFAULT_CALI_1MV; // 1mV calibration value
+    private int gain = DEFAULT_GAIN; // gain value
     private EegLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
 
     private boolean hasBattService = false; // has battery service
@@ -97,8 +99,8 @@ public class EegDevice extends AbstractDevice {
         return sampleRate;
     }
 
-    public final int getCaliValue() {
-        return caliValue;
+    public final int getGain() {
+        return gain;
     }
 
     public boolean isEegRecord() {
@@ -140,7 +142,7 @@ public class EegDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if (listener != null)
-                        listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION);
+                        listener.onFragmentUpdated(sampleRate, gain, DEFAULT_ZERO_LOCATION);
 
                     updateSignalShowState(true);
 
@@ -204,7 +206,8 @@ public class EegDevice extends AbstractDevice {
 
         isEegRecord = isRecord;
         if(isRecord) {
-            eegRecord = (BleEegRecord) RecordFactory.create(EEG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
+            eegRecord = (BleEegRecord) RecordFactory.create(EEG, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress(),
+                    sampleRate, 1, String.valueOf(gain), "mV");
             if(eegRecord != null) {
                 try {
                     eegRecord.createSigFile();
@@ -213,8 +216,6 @@ public class EegDevice extends AbstractDevice {
                     ThreadUtil.showToastInMainThread(getContext(), "创建记录失败", Toast.LENGTH_SHORT);
                     return;
                 }
-                eegRecord.setSampleRate(sampleRate);
-                eegRecord.setGain(caliValue);
                 eegRecord.setLeadTypeCode(leadType.getCode());
                 eegRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
@@ -333,7 +334,7 @@ public class EegDevice extends AbstractDevice {
         ((BleConnector)connector).read(EEG1MVCALI, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                caliValue = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
+                gain = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
             }
 
             @Override

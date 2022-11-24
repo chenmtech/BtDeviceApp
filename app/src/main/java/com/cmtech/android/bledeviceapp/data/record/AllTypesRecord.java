@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.data.record;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ALL;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -17,8 +18,9 @@ import java.io.IOException;
  * Version:        1.0
  */
 public class AllTypesRecord extends BasicRecord {
-    private AllTypesRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(ALL, ver, accountId, createTime, devAddress, 1, 1, new String[]{"unknown"});
+    private AllTypesRecord(String ver, int accountId, long createTime, String devAddress,
+                           int sampleRate, int channelNum, String gain, String unit) {
+        super(ALL, ver, accountId, createTime, devAddress, sampleRate, channelNum, 1, gain, unit);
     }
 
     @Override
@@ -32,7 +34,7 @@ public class AllTypesRecord extends BasicRecord {
     }
 
     @Override
-    public int getGain() {
+    public List<Integer> getGain() {
         throw new IllegalStateException("");
     }
 

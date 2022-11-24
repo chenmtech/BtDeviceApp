@@ -67,7 +67,7 @@ public class PpgFragment extends DeviceFragment implements OnPpgListener, OnWave
         tvMessage = view.findViewById(R.id.tv_message);
 
         ppgView = view.findViewById(R.id.ppg_view);
-        ppgView.setup(device.getSampleRate(), device.getCaliValue(), DEFAULT_ZERO_LOCATION);
+        ppgView.setup(device.getSampleRate(), device.getGain(), DEFAULT_ZERO_LOCATION);
 
         pager = view.findViewById(R.id.ppg_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ppg_control_panel_tab);

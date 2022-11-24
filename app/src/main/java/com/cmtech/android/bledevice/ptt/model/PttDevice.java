@@ -31,7 +31,9 @@ import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -50,8 +52,8 @@ import java.util.UUID;
 
 public class PttDevice extends AbstractDevice {
     private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
-    public static final int DEFAULT_ECG_CALI = 160; // default ecg 1mV calibration value
-    public static final int DEFAULT_PPG_CALI = 100; // default ppg calibration value
+    public static final int DEFAULT_ECG_GAIN = 160; // default ecg 1mV calibration value
+    public static final int DEFAULT_PPG_GAIN = 100; // default ppg calibration value
     private static final int PTT_RECORD_MAX_SECOND = 30;
 
     // ppg service
@@ -132,7 +134,7 @@ public class PttDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if (listener != null)
-                        listener.onFragmentUpdated(sampleRate, DEFAULT_ECG_CALI, DEFAULT_PPG_CALI, DEFAULT_ZERO_LOCATION);
+                        listener.onFragmentUpdated(sampleRate, DEFAULT_ECG_GAIN, DEFAULT_PPG_GAIN, DEFAULT_ZERO_LOCATION);
 
                     updateSignalShowState(true);
 
@@ -188,7 +190,8 @@ public class PttDevice extends AbstractDevice {
 
         isPttRecord = isRecord;
         if(isRecord) {
-            pttRecord = (BlePttRecord) RecordFactory.create(PTT, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress());
+            pttRecord = (BlePttRecord) RecordFactory.create(PTT, DEFAULT_RECORD_VER, MyApplication.getAccountId(), new Date().getTime(), getAddress(),
+                    sampleRate, 2, DEFAULT_ECG_GAIN+","+DEFAULT_PPG_GAIN, "mV,unknown");
             if(pttRecord != null) {
                 try {
                     pttRecord.createSigFile();
@@ -197,8 +200,6 @@ public class PttDevice extends AbstractDevice {
                     ThreadUtil.showToastInMainThread(getContext(), "创建记录失败", Toast.LENGTH_SHORT);
                     return;
                 }
-                pttRecord.setSampleRate(sampleRate);
-                pttRecord.setGain(DEFAULT_ECG_CALI);
                 pttRecord.save();
                 ThreadUtil.showToastInMainThread(getContext(), R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT);
             }

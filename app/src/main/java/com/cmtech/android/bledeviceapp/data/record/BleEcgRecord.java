@@ -89,8 +89,9 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
      * @param devAddress 创建设备的蓝牙地址
      * @param accountId 创建者的ID号
      */
-    private BleEcgRecord(String ver, int accountId, long createTime, String devAddress) {
-        super(ECG, ver, accountId, createTime, devAddress, 1, 2, new String[]{"mV"});
+    private BleEcgRecord(String ver, int accountId, long createTime, String devAddress,
+                         int sampleRate, int channelNum, String gain, String unit) {
+        super(ECG, ver, accountId, createTime, devAddress, sampleRate, channelNum, 2, gain, unit);
     }
 
     //-----------------------------------------------------------公有实例方法

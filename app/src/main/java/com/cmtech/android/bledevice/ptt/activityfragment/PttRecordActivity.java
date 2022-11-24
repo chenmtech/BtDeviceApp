@@ -70,18 +70,16 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
-        BleEcgRecord ecgRecord = (BleEcgRecord) RecordFactory.create(RecordType.ECG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress());
-        ecgRecord.setSampleRate(record.getSampleRate());
-        ecgRecord.setGain(record.getGain());
+        BleEcgRecord ecgRecord = (BleEcgRecord) RecordFactory.create(RecordType.ECG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress(),
+                record.getSampleRate(), record.getChannelNum(), record.getGainString(), record.getUnitString());
         //ecgRecord.setEcgData(((BlePttRecord)record).getEcgData());
         ecgView.setup(ecgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
         ecgView.setGestureDetector(null);
 
         ppgView = findViewById(R.id.roll_ppg_view);
         //ppgView.setListener(this);
-        BlePpgRecord ppgRecord = (BlePpgRecord) RecordFactory.create(RecordType.PPG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress());
-        ppgRecord.setSampleRate(record.getSampleRate());
-        ppgRecord.setGain(record.getGain());
+        BlePpgRecord ppgRecord = (BlePpgRecord) RecordFactory.create(RecordType.PPG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress(),
+                record.getSampleRate(), record.getChannelNum(), record.getGainString(), record.getUnitString());
         //ppgRecord.setPpgData(((BlePttRecord)record).getPpgData());
         ppgView.setup(ppgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
         ppgView.setGestureDetector(null);

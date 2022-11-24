@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -16,7 +17,7 @@ import java.io.IOException;
  */
 public interface ISignalRecord {
     int getSampleRate();
-    int getGain();
+    List<Integer> getGain();
     boolean isEOD();
     void seek(int pos);
     int[] readData() throws IOException;
