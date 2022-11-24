@@ -39,7 +39,6 @@ import org.litepal.crud.LitePalSupport;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -110,12 +109,12 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     // 每个数据的字节数
     private int bytePerDatum;
 
-    // 每个通道的增益，即一个物理单位对应的ADU值
-    // 构成一个字符串，比如：两个通道的情况"164,100"
+    // 每个通道的增益字符串，即一个物理单位对应的ADU值构成一个字符串，比如：两个通道的情况"164,100"
+    // 之所以不用int[]或List<Integer>，是因为这样方便数据库的读写操作，而且也不会太影响性能
+    // 下面的unit同理
     private String gain;
 
-    // 每个通道的物理量单位名称
-    // 构成一个字符串，比如：两个通道的情况"mV,unknown"
+    // 每个通道的物理量单位字符串，比如：两个通道的情况"mV,unknown"
     private String unit;
 
     // 备注
@@ -472,13 +471,13 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
      * 创建信号文件
      */
     public void createSigFile() throws IOException{
-        sigFile = new RecordFile(getSigFileName(), bytePerDatum, channelNum, "c");
+        sigFile = new RecordFile(getSigFileName(), channelNum, bytePerDatum, "c");
     }
 
     // 打开信号文件
     public void openSigFile() {
         try {
-            sigFile = new RecordFile(getSigFileName(), bytePerDatum, channelNum, "o");
+            sigFile = new RecordFile(getSigFileName(), channelNum, bytePerDatum, "o");
         } catch (IOException e) {
             e.printStackTrace();
             sigFile = null;
@@ -517,11 +516,11 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     public JSONObject toJson() throws JSONException{
         JSONObject json = new JSONObject();
         json.put("recordTypeCode", type.getCode());
+        json.put("ver", ver);
         json.put("accountId", accountId);
         json.put("createTime", createTime);
         json.put("devAddress", devAddress);
         json.put("creatorId", creatorId);
-        json.put("ver", ver);
         json.put("comment", comment);
         json.put("sampleRate", sampleRate);
         json.put("channelNum", channelNum);

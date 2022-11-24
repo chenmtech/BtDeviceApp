@@ -13,22 +13,22 @@ public class RecordFile {
     // 文件句柄
     private RandomAccessFile raf;
 
-    // 记录中每个数据占用的字节数bytes per datum
+    // 信号通道数
+    private final int channelNum;
+
+    // 每个数据占用的字节数
     private final int bytePerDatum;
 
-    // 信号通道数
-    private final int channels;
-
-    // 每一帧数据占用的字节数，bytePerFrame = bytePerDatum * channels
+    // 每一帧数据占用的字节数，bytePerFrame = bytePerDatum * channelNum
     private final int bytePerFrame;
 
     // 包含的数据帧数
     private int size;
 
-    public RecordFile(String fileName, int bytePerDatum, int channels, String mode) throws IOException {
+    public RecordFile(String fileName, int channelNum, int bytePerDatum, String mode) throws IOException {
+        this.channelNum = channelNum;
         this.bytePerDatum = bytePerDatum;
-        this.channels = channels;
-        bytePerFrame = this.bytePerDatum * this.channels;
+        bytePerFrame = this.bytePerDatum * this.channelNum;
 
         // 打开文件
         if(mode.equals("o")) {
@@ -61,8 +61,8 @@ public class RecordFile {
 
     // 读单个short类型的帧数据
     public int[] readShort() throws IOException {
-        int[] data = new int[channels];
-        for(int i = 0; i < channels; i++)
+        int[] data = new int[channelNum];
+        for(int i = 0; i < channelNum; i++)
             data[i] = raf.readShort();
 
         return data;
@@ -70,7 +70,7 @@ public class RecordFile {
 
     // 写入单个short类型的帧数据
     public void writeShort(short[] data) throws IOException{
-        assert data.length == channels;
+        assert data.length == channelNum;
         for(short d : data)
             raf.writeShort(d);
         size++;
@@ -78,8 +78,8 @@ public class RecordFile {
 
     // 读单个int类型的帧数据
     public int[] readInt() throws IOException {
-        int[] data = new int[channels];
-        for(int i = 0; i < channels; i++)
+        int[] data = new int[channelNum];
+        for(int i = 0; i < channelNum; i++)
             data[i] = raf.readInt();
 
         return data;
@@ -87,7 +87,7 @@ public class RecordFile {
 
     // 写入单个int类型的帧数据
     public void writeInt(int[] data) throws IOException{
-        assert data.length == channels;
+        assert data.length == channelNum;
         for(int d : data)
             raf.writeInt(d);
         size++;
