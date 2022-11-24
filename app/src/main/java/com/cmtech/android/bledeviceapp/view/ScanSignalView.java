@@ -30,9 +30,7 @@ public class ScanSignalView extends ScanWaveView {
 
         setResolution(pixelPerData, valuePerPixel);
         setZeroLocation(zeroLocation);
-
         setPixelPerGrid(pixelPerGrid);
-
         resetView(true);
     }
 }
