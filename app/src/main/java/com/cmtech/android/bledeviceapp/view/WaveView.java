@@ -19,45 +19,46 @@ import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
-
 public abstract class WaveView extends View {
+    //----------------------------------------------常量
+    public static final float DEFAULT_ZERO_LOCATION = 0.5f; // 缺省的零值位置在纵向的高度比
+    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 波形颜色
+
+    private static final int SMALL_GRID_NUM_PER_LARGE_GRID = 5; // 每个大栅格包含多少个小栅格
     private static final int DEFAULT_SIZE = 100; // 缺省View的大小
     private static final int DEFAULT_PIXEL_PER_DATA = 2; // 缺省横向每个数据占的像素数
     private static final float DEFAULT_VALUE_PER_PIXEL = 1.0f; // 缺省纵向每个像素代表的数值
-    public static final float DEFAULT_ZERO_LOCATION = 0.5f; // 缺省的零值位置在纵向的高度比
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 每个小栅格的像素个数
-    private static final int SMALL_GRID_NUM_PER_LARGE_GRID = 5; // 每个大栅格包含多少个小栅格
     private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK; // 背景色
-    private static final int DEFAULT_LARGE_GRID_LINE_COLOR = Color.RED; // 大栅格线颜色
-    private static final int DEFAULT_SMALL_GRID_LINE_COLOR = Color.RED; // 小栅格线颜色
-    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 波形颜色
+    private static final int DEFAULT_LARGE_GRID_COLOR = Color.RED; // 大栅格线颜色
+    private static final int DEFAULT_SMALL_GRID_COLOR = Color.RED; // 小栅格线颜色
     private static final int DEFAULT_ZERO_LINE_WIDTH = 4; // 零位置线宽
     private static final int DEFAULT_LARGE_GRID_LINE_WIDTH = 2; // 大栅格线宽
     private static final int DEFAULT_SMALL_GRID_LINE_WIDTH = 0; // 小栅格线宽，0代表头发丝风格
     private static final int DEFAULT_WAVE_WIDTH = 2; // 波形线宽
 
+    //--------------------------------------------实例变量
     protected int viewWidth = DEFAULT_SIZE; //视图宽度
     protected int viewHeight = DEFAULT_SIZE; //视图高度
-    protected int initX, initY; //画图起始坐标
-    protected int preX, preY; //画线的前一个点坐标
-    protected final Paint wavePaint = new Paint(); // 波形画笔
     protected Bitmap backBitmap;  //背景bitmap
-
-    private final boolean showGridLine; // 是否显示栅格线
-
     private final int bgColor; // 背景颜色
-    private final int largeGridLineColor; // 大栅格线颜色
-    private final int smallGridLineColor; // 小栅格线颜色
-    private final int waveColor; // 波形颜色
-
+    private final int largeGridColor; // 大栅格线颜色
+    private final int smallGridColor; // 小栅格线颜色
     private final int zeroLineWidth; // 零线宽度
     private final int largeGridLineWidth; // 大栅格线宽
     private final int smallGridLineWidth; // 小栅格线宽
     private final int waveWidth = DEFAULT_WAVE_WIDTH; // 波形线宽
+    private final boolean showGridLine; // 是否显示栅格线
 
     protected int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每个栅格的像素个数
-    protected int pixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
-    protected float valuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，表示Y方向每个像素代表的信号值，value/pixel
+    protected int pixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，即X方向每个数据点占多少个像素，pixel/data
+    protected float valuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，即Y方向每个像素代表的信号值，value/pixel
+
+
+    protected int initX, initY; //画图起始坐标
+    protected int preX, preY; //画线的前一个点坐标
+    protected final Paint wavePaint = new Paint(); // 波形画笔
+    private final int waveColor; // 波形颜色
     private float zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
 
     protected OnWaveViewListener listener; // 监听器
@@ -67,13 +68,13 @@ public abstract class WaveView extends View {
 
         showGridLine = true;
         bgColor = DEFAULT_BACKGROUND_COLOR;
-        largeGridLineColor = DEFAULT_LARGE_GRID_LINE_COLOR;
-        smallGridLineColor = DEFAULT_SMALL_GRID_LINE_COLOR;
-        waveColor = DEFAULT_WAVE_COLOR;
-
+        largeGridColor = DEFAULT_LARGE_GRID_COLOR;
+        smallGridColor = DEFAULT_SMALL_GRID_COLOR;
         zeroLineWidth = DEFAULT_ZERO_LINE_WIDTH;
         largeGridLineWidth = DEFAULT_LARGE_GRID_LINE_WIDTH;
         smallGridLineWidth = DEFAULT_SMALL_GRID_LINE_WIDTH;
+
+        waveColor = DEFAULT_WAVE_COLOR;
     }
 
     public WaveView(Context context, AttributeSet attrs) {
@@ -82,8 +83,8 @@ public abstract class WaveView extends View {
         TypedArray styledAttributes = context.obtainStyledAttributes(attrs, R.styleable.WaveView);
         showGridLine = styledAttributes.getBoolean(R.styleable.WaveView_show_grid_line, true);
         bgColor = styledAttributes.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
-        largeGridLineColor = styledAttributes.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_LARGE_GRID_LINE_COLOR);
-        smallGridLineColor = styledAttributes.getColor(R.styleable.WaveView_small_grid_line_color, DEFAULT_SMALL_GRID_LINE_COLOR);
+        largeGridColor = styledAttributes.getColor(R.styleable.WaveView_large_grid_line_color, DEFAULT_LARGE_GRID_COLOR);
+        smallGridColor = styledAttributes.getColor(R.styleable.WaveView_small_grid_line_color, DEFAULT_SMALL_GRID_COLOR);
         waveColor = styledAttributes.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
 
         zeroLineWidth = styledAttributes.getInt(R.styleable.WaveView_zero_line_width, DEFAULT_ZERO_LINE_WIDTH);
@@ -197,7 +198,7 @@ public abstract class WaveView extends View {
         Paint paint = new Paint();
 
         // 画零位线
-        setPaint(paint, largeGridLineColor, zeroLineWidth);
+        setPaint(paint, largeGridColor, zeroLineWidth);
         backCanvas.drawLine(initX, initY, initX + viewWidth, initY, paint);
 
         // 画水平线
@@ -209,26 +210,26 @@ public abstract class WaveView extends View {
                 deltaY = pixelPerGrid;
             }
 
-            setPaint(paint, smallGridLineColor, smallGridLineWidth);
+            setPaint(paint, smallGridColor, smallGridLineWidth);
             int y = initY + deltaY;
             int n = 1;
             while((drawed == 0 && y >= 0) || (drawed == 1 && y <= viewHeight) ) {
                 backCanvas.drawLine(initX, y, initX + viewWidth, y, paint);
                 y += deltaY;
                 if(++n == SMALL_GRID_NUM_PER_LARGE_GRID) {
-                    setPaint(paint, largeGridLineColor, largeGridLineWidth);
+                    setPaint(paint, largeGridColor, largeGridLineWidth);
                     n = 0;
                 }
                 else {
-                    setPaint(paint, smallGridLineColor, smallGridLineWidth);
+                    setPaint(paint, smallGridColor, smallGridLineWidth);
                 }
             }
         }
 
         // 画垂直线
-        setPaint(paint, largeGridLineColor, largeGridLineWidth);
+        setPaint(paint, largeGridColor, largeGridLineWidth);
         backCanvas.drawLine(initX, 0, initX, viewHeight, paint);
-        setPaint(paint, smallGridLineColor, smallGridLineWidth);
+        setPaint(paint, smallGridColor, smallGridLineWidth);
 
         int x = initX + pixelPerGrid;
         int n = 1;
@@ -236,11 +237,11 @@ public abstract class WaveView extends View {
             backCanvas.drawLine(x, 0, x, viewHeight, paint);
             x += pixelPerGrid;
             if(++n == SMALL_GRID_NUM_PER_LARGE_GRID) {
-                setPaint(paint, largeGridLineColor, largeGridLineWidth);
+                setPaint(paint, largeGridColor, largeGridLineWidth);
                 n = 0;
             }
             else {
-                setPaint(paint, smallGridLineColor, smallGridLineWidth);
+                setPaint(paint, smallGridColor, smallGridLineWidth);
             }
         }
 
