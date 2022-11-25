@@ -194,9 +194,9 @@ public class ScanWaveView extends WaveView {
 
     @Override
     public void initWavePaint() {
+        super.initWavePaint();
         //for(int i = 0; i < waveNum; i++)
         //    wavePaints[i].setXfermode(srcOverMode);
-        super.initWavePaint();
     }
 
     private void drawData(int[] data, boolean updateView) {

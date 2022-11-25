@@ -32,6 +32,7 @@ import java.util.List;
  */
 public class BlePpgRecord extends BasicRecord implements Serializable {
     //-----------------------------------------常量
+    private int leadTypeCode = 0; // lead type code
 
     private BlePpgRecord(String ver, int accountId, long createTime, String devAddress,
                          int sampleRate, int channelNum, String gain, String unit) {
@@ -46,6 +47,7 @@ public class BlePpgRecord extends BasicRecord implements Serializable {
     @Override
     public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
+        json.put("leadTypeCode", leadTypeCode);
         return json;
     }
 

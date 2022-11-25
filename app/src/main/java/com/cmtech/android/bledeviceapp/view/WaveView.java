@@ -47,9 +47,9 @@ public abstract class WaveView extends View {
     private final int smallGridLineWidth; // 小栅格线宽
     private final int waveWidth = DEFAULT_WAVE_WIDTH; // 波形线宽
     private final boolean showGridLine; // 是否显示栅格线
-
     protected int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每个栅格的像素个数
-    protected int pixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，即X方向每个数据点占多少个像素，pixel/data
+
+    protected int pixelPerData = DEFAULT_PIXEL_PER_DATA; // 横向分辨率，即X方向每个数据点占多少个像素，pixel/data
 
     protected int initX; //起始横坐标
     protected int preX; //画线的前一个点横坐标

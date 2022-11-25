@@ -13,21 +13,18 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
-import com.cmtech.android.bledeviceapp.data.record.BlePpgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BlePttRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
-import com.cmtech.android.bledeviceapp.view.RollEcgView;
-import com.cmtech.android.bledeviceapp.view.RollPpgView;
+import com.cmtech.android.bledeviceapp.view.RollPttView;
 
 import org.litepal.LitePal;
 import org.litepal.crud.callback.FindCallback;
 
 public class PttRecordActivity extends RecordActivity implements OnRollWaveViewListener {
-    private RollEcgView ecgView; // ecgView
-    private RollPpgView ppgView; // ppgView
+    private RollPttView pttView; // pttView
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
@@ -67,21 +64,10 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
     public void initUI() {
         super.initUI();
 
-        ecgView = findViewById(R.id.roll_ecg_view);
-        ecgView.setListener(this);
-        BleEcgRecord ecgRecord = (BleEcgRecord) RecordFactory.create(RecordType.ECG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress(),
-                record.getSampleRate(), record.getChannelNum(), record.getGainString(), record.getUnitString());
-        //ecgRecord.setEcgData(((BlePttRecord)record).getEcgData());
-        ecgView.setup(ecgRecord);
-        ecgView.setGestureDetector(null);
-
-        ppgView = findViewById(R.id.roll_ppg_view);
-        //ppgView.setListener(this);
-        BlePpgRecord ppgRecord = (BlePpgRecord) RecordFactory.create(RecordType.PPG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress(),
-                record.getSampleRate(), record.getChannelNum(), record.getGainString(), record.getUnitString());
-        //ppgRecord.setPpgData(((BlePttRecord)record).getPpgData());
-        ppgView.setup(ppgRecord);
-        ppgView.setGestureDetector(null);
+        pttView = findViewById(R.id.roll_ptt_view);
+        pttView.setListener(this);
+        pttView.setup((BlePttRecord) record);
+        //pttView.setGestureDetector(null);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
@@ -96,8 +82,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(b) {
-                    ecgView.showAtSecond(i);
-                    ppgView.showAtSecond(i);
+                    pttView.showAtSecond(i);
                 }
             }
             @Override
@@ -111,17 +96,14 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         btnReplayCtrl = findViewById(R.id.ib_replay_control);
         btnReplayCtrl.setOnClickListener(view -> {
-            if(ecgView.isShowing()) {
-                ecgView.stopShow();
-                ppgView.stopShow();
+            if(pttView.isShowing()) {
+                pttView.stopShow();
             } else {
-                ecgView.startShow();
-                ppgView.startShow();
+                pttView.startShow();
             }
         });
 
-        ecgView.startShow();
-        ppgView.startShow();
+        pttView.startShow();
     }
 
     @Override
@@ -141,10 +123,8 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
 
     @Override
     public void onBackPressed() {
-        if(ecgView != null)
-            ecgView.stopShow();
-        if(ppgView != null)
-            ppgView.stopShow();
+        if(pttView != null)
+            pttView.stopShow();
 
         super.onBackPressed();
     }

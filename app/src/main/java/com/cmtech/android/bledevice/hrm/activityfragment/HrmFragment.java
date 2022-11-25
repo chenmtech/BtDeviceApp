@@ -90,7 +90,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         flInEcgMode = view.findViewById(R.id.fl_in_ecg_mode);
         flInEcgMode.setVisibility(View.GONE);
 
-        ecgView = view.findViewById(R.id.ecg_view);
+        ecgView = view.findViewById(R.id.ptt_view);
         ecgView.setup(device.getSampleRate(), device.getGain());
 
         tvSwitchMode = view.findViewById(R.id.tv_switch_mode);

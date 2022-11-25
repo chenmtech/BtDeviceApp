@@ -41,13 +41,13 @@
                     android:layout_marginEnd="6dp">
 
                     <com.cmtech.android.bledeviceapp.view.RollRecordView
-                        android:id="@+id/roll_ecg_view"
+                        android:id="@+id/roll_ptt_view"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
                         cmtech:background_color="#666"
                         cmtech:large_grid_line_color="#f00"
                         cmtech:small_grid_line_color="#f00"
-                        cmtech:wave_color="#ff0"
+                        cmtech:wave_num="1"
                         cmtech:show_grid_line="true"/>
 
                     <TextView

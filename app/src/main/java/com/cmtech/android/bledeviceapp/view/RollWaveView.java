@@ -32,9 +32,8 @@ public abstract class RollWaveView extends WaveView {
     public RollWaveView(Context context) {
         super(context);
 
-        viewData = new ArrayList<>(waveNum);
-        for(int i = 0; i < waveNum; i++)
-            viewData.set(i, new FixSizeLinkedList<>(1));
+        viewData = new ArrayList<>(1);
+        viewData.add(new FixSizeLinkedList<>(1));
     }
 
     public RollWaveView(Context context, AttributeSet attrs) {
@@ -42,7 +41,7 @@ public abstract class RollWaveView extends WaveView {
 
         viewData = new ArrayList<>(waveNum);
         for(int i = 0; i < waveNum; i++)
-            viewData.set(i, new FixSizeLinkedList<>(1));
+            viewData.add(new FixSizeLinkedList<>(1));
     }
 
     @Override
@@ -62,7 +61,6 @@ public abstract class RollWaveView extends WaveView {
     public void resetView(boolean includeBackground)
     {
         super.resetView(includeBackground);
-
         setDataNumInView(viewWidth, pixelPerData);
     }
 
@@ -117,18 +115,19 @@ public abstract class RollWaveView extends WaveView {
     {
         synchronized (viewData) {
             for(int i = 0; i < waveNum; i++) {
-                if (viewData.get(i).size() <= 1) {
+                FixSizeLinkedList<Integer> oneWaveData = viewData.get(i);
+                if (oneWaveData.size() <= 1) {
                     return;
                 }
                 Path path = new Path();
-                int beginPos = dataNumInView - viewData.size();
+                int beginPos = dataNumInView - oneWaveData.size();
 
                 preX = initX + pixelPerData * beginPos;
-                preYs[i] = initYs[i] - Math.round(viewData.get(i).get(0) / valuePerPixel[i]);
+                preYs[i] = initYs[i] - Math.round(oneWaveData.get(0) / valuePerPixel[i]);
                 path.moveTo(preX, preYs[i]);
-                for (int j = 1; j < viewData.get(i).size(); j++) {
+                for (int j = 1; j < oneWaveData.size(); j++) {
                     preX += pixelPerData;
-                    preYs[i] = initYs[i] - Math.round(viewData.get(i).get(j) / valuePerPixel[i]);
+                    preYs[i] = initYs[i] - Math.round(oneWaveData.get(j) / valuePerPixel[i]);
                     path.lineTo(preX, preYs[i]);
                 }
                 canvas.drawPath(path, wavePaints[i]);

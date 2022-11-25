@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.ptt.activityfragment;
 
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_GAIN;
-import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_GAIN;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,7 +27,6 @@ import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
-import com.cmtech.android.bledeviceapp.view.ScanPpgView;
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.ArrayList;
@@ -51,8 +49,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     private static final int RC_CONFIG = 1;
     private PttDevice device; // device
 
-    private ScanEcgView ecgView; // ECG View
-    private ScanPpgView ppgView; // PPG View
+    private ScanEcgView pttView; // PTT View
     private TextView tvMessage; // message
     private EditText etPtt; // ptt
     private EditText etSbp;
@@ -80,7 +77,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        tvMessage = view.findViewById(R.id.tv_ppg_message);
+        tvMessage = view.findViewById(R.id.tv_ptt_message);
         etPtt = view.findViewById(R.id.et_ptt);
         etSbp = view.findViewById(R.id.et_sbp);
         etDbp = view.findViewById(R.id.et_dbp);
@@ -91,11 +88,8 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinner.setAdapter(adapter);
 
-        ecgView = view.findViewById(R.id.ecg_view);
-        ecgView.setup(device.getSampleRate(), DEFAULT_ECG_GAIN);
-
-        ppgView = view.findViewById(R.id.ppg_view);
-        ppgView.setup(device.getSampleRate(), DEFAULT_PPG_GAIN);
+        pttView = view.findViewById(R.id.ptt_view);
+        pttView.setup(device.getSampleRate(), DEFAULT_ECG_GAIN);
 
         pager = view.findViewById(R.id.ptt_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ptt_control_panel_tab);
@@ -109,8 +103,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         layout.setupWithViewPager(pager);
 
         device.setListener(this);
-        ecgView.setListener(this);
-        ppgView.setListener(this);
+        pttView.setListener(this);
 
         // 打开设备
         device.open();
@@ -142,8 +135,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ecgView.setup(sampleRate, ecgCaliValue);
-                    ppgView.setup(sampleRate, ppgCaliValue);
+                    pttView.setup(sampleRate, ecgCaliValue);
                 }
             });
         }
@@ -151,8 +143,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
 
     @Override
     public void onPttSignalShowed(int ecgSignal, int ppgSignal) {
-        ecgView.addData(new int[]{ecgSignal});
-        ppgView.addData(new int[]{ppgSignal});
+        pttView.addData(new int[]{ecgSignal, ppgSignal});
     }
 
     @Override
@@ -182,11 +173,9 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     @Override
     public void onPttSignalShowStatusUpdated(boolean isShow) {
         if(isShow) {
-            ecgView.startShow();
-            ppgView.startShow();
+            pttView.startShow();
         } else {
-            ecgView.stopShow();
-            ppgView.stopShow();
+            pttView.stopShow();
         }
     }
 
@@ -220,8 +209,7 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         if(device != null)
             device.removeListener();
 
-        ecgView.stopShow();
-        ppgView.stopShow();
+        pttView.stopShow();
     }
 
     public void setPttRecord(boolean isRecord) {

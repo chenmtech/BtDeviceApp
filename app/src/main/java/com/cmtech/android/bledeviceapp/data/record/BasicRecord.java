@@ -27,6 +27,7 @@ import com.cmtech.android.bledeviceapp.model.ContactPerson;
 import com.cmtech.android.bledeviceapp.model.WebResponse;
 import com.cmtech.android.bledeviceapp.model.WebServiceAsyncTask;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import org.json.JSONArray;
@@ -223,6 +224,7 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
             public void onFinish(WebResponse response) {
                 int code = response.getCode();
                 String msg = response.getMsg();
+                ViseLog.e(code+msg);
                 if(code == RCODE_SUCCESS) {
                     JSONArray jsonArr = (JSONArray) response.getData();
                     if(jsonArr != null) {
@@ -243,7 +245,7 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
                                     record.saveIfNotExist("accountId = ? and createTime = ? and devAddress = ?", "" + record.getAccountId(), "" + record.getCreateTime(), record.getDevAddress());
                                 }
                             } catch (JSONException ex) {
-                                ex.printStackTrace();
+                                ViseLog.e(ex.toString());
                             }
                         }
                     }

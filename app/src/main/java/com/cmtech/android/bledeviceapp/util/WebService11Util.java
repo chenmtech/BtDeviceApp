@@ -383,13 +383,12 @@ public class WebService11Util {
                 builder.append(recordType.getCode());
             }
             json.put("recordTypeCode", builder.toString());
-            //json.put("creatorId", record.getCreatorId());
             json.put("fromTime", fromTime);
             json.put("num", num);
             json.put("filterStr", filterStr);
         } catch (JSONException e) {
             ViseLog.e(e);
-            return new WebResponse(RCODE_DATA_ERR, "数据错误", null);
+            return new WebResponse(RCODE_DATA_ERR, "数据错误1", null);
         }
         return processPostRequest(KMIC_URL + RECORD_SERVLET_URL, json);
     }
@@ -447,15 +446,20 @@ public class WebService11Util {
     // 处理POST请求
     private static WebResponse processPostRequest(String url, JSONObject json) {
         WebResponse wResp = new WebResponse(RCODE_WEB_FAILURE, "网络连接失败", null);
+        String respBody = "";
         try(Response response = HttpUtils.requestPost(url, json)) {
-            String respBody = Objects.requireNonNull(response.body()).string();
+            respBody = Objects.requireNonNull(response.body()).string();
             JSONObject respJson = new JSONObject(respBody);
             int code = respJson.getInt("code");
             String msg = respJson.getString("message");
             Object data = (respJson.has("data")) ? respJson.get("data") : null;
             wResp.set(code, msg, data);
-        } catch (JSONException | IOException e) {
-            wResp.set(RCODE_DATA_ERR, "数据错误", null);
+        } catch (JSONException e) {
+            wResp.set(RCODE_DATA_ERR, "数据错误2", null);
+            ViseLog.e(respBody);
+        } catch (IOException e) {
+            wResp.set(RCODE_DATA_ERR, "数据错误3", null);
+            ViseLog.e(respBody);
         }
         return wResp;
     }

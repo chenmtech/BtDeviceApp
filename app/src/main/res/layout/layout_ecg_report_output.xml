@@ -112,9 +112,9 @@
         cmtech:background_color="#fff"
         cmtech:large_grid_line_color="@color/primary_dark"
         cmtech:small_grid_line_color="@color/secondary_dark"
-        cmtech:wave_color="#f00"
         cmtech:show_grid_line="true"
-        cmtech:large_grid_line_width="4"/>
+        cmtech:large_grid_line_width="4"
+        cmtech:wave_num="1"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -224,9 +224,9 @@
         cmtech:background_color="#fff"
         cmtech:large_grid_line_color="@color/primary_dark"
         cmtech:small_grid_line_color="@color/secondary_dark"
-        cmtech:wave_color="#f00"
         cmtech:show_grid_line="true"
-        cmtech:large_grid_line_width="4"/>
+        cmtech:large_grid_line_width="4"
+        cmtech:wave_num="1"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -337,7 +337,7 @@
         cmtech:large_grid_line_width="4"
         cmtech:show_grid_line="true"
         cmtech:small_grid_line_color="@color/secondary_dark"
-        cmtech:wave_color="#f00" />
+        cmtech:wave_num="1"/>
 
     <LinearLayout
         android:layout_width="match_parent"

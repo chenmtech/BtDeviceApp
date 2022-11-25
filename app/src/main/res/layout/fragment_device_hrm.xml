@@ -50,14 +50,14 @@
             android:layout_height="match_parent"
             android:visibility="gone">
             <com.cmtech.android.bledeviceapp.view.ScanEcgView
-                android:id="@+id/ecg_view"
+                android:id="@+id/ptt_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 cmtech:background_color="@color/ecg_view_background"
                 cmtech:large_grid_line_color="@color/ecg_view_grid"
                 cmtech:small_grid_line_color="@color/ecg_view_grid"
-                cmtech:wave_color="@color/ecg_view_wave"
-                cmtech:show_grid_line="true"/>
+                cmtech:show_grid_line="true"
+                cmtech:wave_num="1"/>
 
             <TextView
                 android:id="@+id/tv_hr_in_ecg_mode"

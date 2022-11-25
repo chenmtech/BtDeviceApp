@@ -5,7 +5,6 @@
         <attr name="background_color" format="color" />
         <attr name="large_grid_line_color" format="color"/>
         <attr name="small_grid_line_color" format="color"/>
-        <attr name="wave_color" format="color"/>
         <attr name="wave_num" format="integer"/>
         <attr name="zero_line_width" format="integer"/>
         <attr name="large_grid_line_width" format="integer"/>

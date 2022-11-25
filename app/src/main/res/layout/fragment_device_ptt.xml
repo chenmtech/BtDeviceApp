@@ -13,43 +13,17 @@
         android:layout_height="0dp"
         android:layout_weight="1">
         <com.cmtech.android.bledeviceapp.view.ScanEcgView
-            android:id="@+id/ecg_view"
+            android:id="@+id/ptt_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             cmtech:background_color="@color/ecg_view_background"
             cmtech:large_grid_line_color="@color/ecg_view_grid"
             cmtech:small_grid_line_color="@color/ecg_view_grid"
-            cmtech:wave_color="@color/ecg_view_wave"
-            cmtech:show_grid_line="true"/>
+            cmtech:show_grid_line="true"
+            cmtech:wave_num="2"/>
 
         <TextView
-            android:id="@+id/tv_ecg_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="2dp"
-            android:text="@string/pause_show"
-            android:textSize="@dimen/big_font"
-            android:textColor="@color/primary"
-            android:visibility="gone"/>
-    </FrameLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-        <com.cmtech.android.bledeviceapp.view.ScanPpgView
-            android:id="@+id/ppg_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            cmtech:background_color="@color/ecg_view_background"
-            cmtech:large_grid_line_color="@color/ecg_view_grid"
-            cmtech:small_grid_line_color="@color/ecg_view_grid"
-            cmtech:wave_color="@color/ecg_view_wave"
-            cmtech:show_grid_line="true"/>
-
-        <TextView
-            android:id="@+id/tv_ppg_message"
+            android:id="@+id/tv_ptt_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"

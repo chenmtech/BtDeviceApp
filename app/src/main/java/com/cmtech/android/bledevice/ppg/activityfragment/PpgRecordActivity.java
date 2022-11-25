@@ -15,6 +15,7 @@ import com.cmtech.android.bledeviceapp.data.record.BlePpgRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollPpgView;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 import org.litepal.crud.callback.FindCallback;
@@ -36,6 +37,7 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
         LitePal.findAsync(BlePpgRecord.class, recordId, true).listen(new FindCallback<BlePpgRecord>() {
             @Override
             public void onFinish(BlePpgRecord blePpgRecord) {
+                ViseLog.e(blePpgRecord);
                 blePpgRecord.openSigFile();
                 if(blePpgRecord.noSignalFile()) {
                     blePpgRecord.download(PpgRecordActivity.this, "下载记录中，请稍等。", (code,msg) -> {
@@ -51,6 +53,7 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
                 } else {
                     blePpgRecord.setSigLen(blePpgRecord.getDataNum());
                     record = blePpgRecord;
+                    ViseLog.e(blePpgRecord);
                     initUI();
                 }
             }

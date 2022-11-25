@@ -130,7 +130,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         reportOutputLayout = findViewById(R.id.layout_ecg_report_output);
         reportOutputLayout.setRecord((BleEcgRecord) record);
 
-        ecgView = findViewById(R.id.roll_ecg_view);
+        ecgView = findViewById(R.id.roll_ptt_view);
         ecgView.setListener(this);
         ecgView.setup((BleEcgRecord) record);
 
