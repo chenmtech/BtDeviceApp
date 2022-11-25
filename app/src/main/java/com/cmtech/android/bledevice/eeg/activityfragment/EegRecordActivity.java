@@ -15,7 +15,6 @@ import com.cmtech.android.bledeviceapp.data.record.BleEegRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEegView;
-import com.cmtech.android.bledeviceapp.view.RollWaveView;
 
 import org.litepal.LitePal;
 import org.litepal.crud.callback.FindCallback;
@@ -65,7 +64,7 @@ public class EegRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         eegView = findViewById(R.id.roll_eeg_view);
         eegView.setListener(this);
-        eegView.setup((BleEegRecord) record, RollWaveView.DEFAULT_ZERO_LOCATION);
+        eegView.setup((BleEegRecord) record);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));

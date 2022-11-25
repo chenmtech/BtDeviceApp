@@ -15,7 +15,6 @@ import com.cmtech.android.bledeviceapp.data.record.BlePpgRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollPpgView;
-import com.cmtech.android.bledeviceapp.view.RollWaveView;
 
 import org.litepal.LitePal;
 import org.litepal.crud.callback.FindCallback;
@@ -63,7 +62,7 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         ppgView = findViewById(R.id.roll_ppg_view);
         ppgView.setListener(this);
-        ppgView.setup((BlePpgRecord) record, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ppgView.setup((BlePpgRecord) record);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToMinute(0));

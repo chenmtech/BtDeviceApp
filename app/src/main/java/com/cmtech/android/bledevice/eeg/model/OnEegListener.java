@@ -14,7 +14,7 @@ package com.cmtech.android.bledevice.eeg.model;
  */
 
 public interface OnEegListener {
-    void onFragmentUpdated(int sampleRate, int value1mV, float zeroLocation); // fragment updated
+    void onFragmentUpdated(int sampleRate, int gain); // fragment updated
     void onEegSignalShowed(int eegSignal); // eeg signal showed
     void onEegSignalRecordStatusChanged(boolean isRecord); // eeg signal record status changed
     void onEegSignalRecordTimeUpdated(int second); // eeg signal record time updated

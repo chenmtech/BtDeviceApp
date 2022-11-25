@@ -14,7 +14,7 @@ import com.cmtech.android.bledeviceapp.data.record.ISignalRecord;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 public class RollRecordView extends RollWaveView {
     // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
     private static final int MIN_TIME_INTERVAL = 30;
-
 
     private static final int MSG_UPDATE_VIEW = 1;
     private static final int MSG_UPDATE_SHOW_STATE = 2;
@@ -141,14 +140,45 @@ public class RollRecordView extends RollWaveView {
         return true;
     }
 
-    public void setup(ISignalRecord record, float zeroLocation, float secondPerGrid, float mvPerGrid, int pixelPerGrid) {
+    public void setup(ISignalRecord record, float[] zeroLocs, float secPerGrid, float physicValuePerGrid, int pixelPerGrid) {
+        assert record.getChannelNum() == zeroLocs.length;
+
         setRecord(record);
-        int pixelPerData = Math.round(pixelPerGrid / (secondPerGrid * record.getSampleRate())); // 计算横向分辨率
-        float valuePerPixel = record.getGain().get(0) * mvPerGrid / pixelPerGrid; // 计算纵向分辨率
-        ViseLog.e(""+record.getSampleRate()+" "+ record.getGain().toString());
+
+        setWaveZeroLocs(zeroLocs);
+
+        // 计算并设置横向和纵向分辨率
+        int pixelPerData = Math.round(pixelPerGrid / (secPerGrid * record.getSampleRate())); // 计算横向分辨率
+        float[] valuePerPixel = new float[waveNum];
+        List<Integer> gain = record.getGain();
+        for(int i = 0; i < waveNum; i++)
+            valuePerPixel[i] = gain.get(i) * physicValuePerGrid / pixelPerGrid; // 纵向分辨率
         setResolution(pixelPerData, valuePerPixel);
+
         setPixelPerGrid(pixelPerGrid);
-        setZeroLocation(zeroLocation);
+
+        resetView(true);
+    }
+
+    public void setup(ISignalRecord record, float secPerGrid, float physicValuePerGrid, int pixelPerGrid) {
+        float[] zeroLocs = new float[record.getChannelNum()];
+        for(int i = 0; i < zeroLocs.length; i++)
+            zeroLocs[i] = (1.0f+2*i) / (2*zeroLocs.length);
+
+        setRecord(record);
+
+        setWaveZeroLocs(zeroLocs);
+
+        // 计算并设置横向和纵向分辨率
+        int pixelPerData = Math.round(pixelPerGrid / (secPerGrid * record.getSampleRate())); // 计算横向分辨率
+        float[] valuePerPixel = new float[waveNum];
+        List<Integer> gain = record.getGain();
+        for(int i = 0; i < waveNum; i++)
+            valuePerPixel[i] = gain.get(i) * physicValuePerGrid / pixelPerGrid; // 纵向分辨率
+        setResolution(pixelPerData, valuePerPixel);
+
+        setPixelPerGrid(pixelPerGrid);
+
         resetView(true);
     }
 

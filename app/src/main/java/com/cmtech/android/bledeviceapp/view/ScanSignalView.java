@@ -24,13 +24,47 @@ public class ScanSignalView extends ScanWaveView {
         super(context, attrs);
     }
 
-    public void setup(int sampleRate, int caliValue, float zeroLocation, float secondPerGrid, float mvPerGrid, int pixelPerGrid) {
-        int pixelPerData = Math.round(pixelPerGrid / (secondPerGrid * sampleRate)); // 计算横向分辨率
-        float valuePerPixel = caliValue * mvPerGrid / pixelPerGrid; // 计算纵向分辨率
+    /**
+     * 设置信号波形视图
+     * @param zeroLocs 每个波形的零位置，它的长度代表波形个数
+     * @param sampleRate 采样频率，每个波形数据的采样频率必须相同
+     * @param gain 增益，即每个波形中的一个单位物理量对应的ADU值
+     * @param secPerGrid 横向每个栅格对应的时间秒数
+     * @param physicValuePerGrid 纵向每个栅格对应的物理量,比如：mv/grid
+     * @param pixelPerGrid 每个栅格的像素个数，横向和纵向一样
+     */
+    public void setup(float[] zeroLocs, int sampleRate, int[] gain, float secPerGrid, float physicValuePerGrid, int pixelPerGrid) {
+        // 设置每个波形的零位置
+        setWaveZeroLocs(zeroLocs);
 
+        // 计算并设置横向和纵向分辨率
+        int pixelPerData = Math.round(pixelPerGrid / (secPerGrid * sampleRate)); // 横向分辨率
+        float[] valuePerPixel = new float[gain.length];
+        for(int i = 0; i < gain.length; i++)
+            valuePerPixel[i] = gain[i] * physicValuePerGrid / pixelPerGrid; // 纵向分辨率
         setResolution(pixelPerData, valuePerPixel);
-        setZeroLocation(zeroLocation);
+
+        // 设置每个栅格的像素个数
         setPixelPerGrid(pixelPerGrid);
+
         resetView(true);
+    }
+
+    /**
+     * 设置信号波形视图
+     * @param waveNum 波形个数
+     * @param sampleRate 采样频率，每个波形数据的采样频率必须相同
+     * @param gain 增益，即每个波形中的一个单位物理量对应的ADU值
+     * @param secPerGrid 横向每个栅格对应的时间秒数
+     * @param physicNumPerGrid 纵向每个栅格对应的物理量,比如：mv/grid
+     * @param pixelPerGrid 每个栅格的像素个数，横向和纵向一样
+     */
+    public void setup(int waveNum, int sampleRate, int[] gain, float secPerGrid, float physicNumPerGrid, int pixelPerGrid) {
+        assert gain.length == waveNum;
+
+        float[] zeroLocs = new float[waveNum];
+        for(int i = 0; i < waveNum; i++)
+            zeroLocs[i] = (1.0f+2*i) / (2*waveNum);
+        setup(zeroLocs, sampleRate, gain, secPerGrid, physicNumPerGrid, pixelPerGrid);
     }
 }

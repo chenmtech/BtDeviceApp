@@ -17,6 +17,7 @@ import java.util.List;
  */
 public interface ISignalRecord {
     int getSampleRate();
+    int getChannelNum();
     List<Integer> getGain();
     boolean isEOD();
     void seek(int pos);

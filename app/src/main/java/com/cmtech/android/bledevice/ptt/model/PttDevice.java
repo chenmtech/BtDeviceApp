@@ -4,7 +4,6 @@ import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RE
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.PTT;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 import android.content.Context;
 import android.util.Pair;
@@ -134,7 +133,7 @@ public class PttDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if (listener != null)
-                        listener.onFragmentUpdated(sampleRate, DEFAULT_ECG_GAIN, DEFAULT_PPG_GAIN, DEFAULT_ZERO_LOCATION);
+                        listener.onFragmentUpdated(sampleRate, DEFAULT_ECG_GAIN, DEFAULT_PPG_GAIN);
 
                     updateSignalShowState(true);
 

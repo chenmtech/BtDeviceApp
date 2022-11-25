@@ -27,7 +27,7 @@ public interface OnHrmListener {
     void onHRCtrlPtUpdated(int ctrl);
 
     // UI更新
-    void onUIUpdated(int sampleRate, int value1mV, float zeroLocation, boolean inHrMode);
+    void onUIUpdated(int sampleRate, int gain, boolean inHrMode);
 
     // 心率记录状态更新
     void onHRRecordStatusUpdated(boolean record);

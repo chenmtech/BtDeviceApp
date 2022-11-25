@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.ppg.activityfragment;
 
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -67,7 +65,7 @@ public class PpgFragment extends DeviceFragment implements OnPpgListener, OnWave
         tvMessage = view.findViewById(R.id.tv_message);
 
         ppgView = view.findViewById(R.id.ppg_view);
-        ppgView.setup(device.getSampleRate(), device.getGain(), DEFAULT_ZERO_LOCATION);
+        ppgView.setup(device.getSampleRate(), device.getGain());
 
         pager = view.findViewById(R.id.ppg_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ppg_control_panel_tab);
@@ -98,12 +96,12 @@ public class PpgFragment extends DeviceFragment implements OnPpgListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int value1mV, final float zeroLocation) {
+    public void onFragmentUpdated(final int sampleRate, final int gain) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ppgView.setup(sampleRate, value1mV, zeroLocation);
+                    ppgView.setup(sampleRate, gain);
                 }
             });
         }

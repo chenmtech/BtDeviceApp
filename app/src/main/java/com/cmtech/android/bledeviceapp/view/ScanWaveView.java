@@ -20,7 +20,6 @@ import android.view.MotionEvent;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.vise.log.ViseLog;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -39,14 +38,15 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class ScanWaveView extends WaveView {
-    private int curX, curY; //画线的当前点坐标
+    private int curX; // 波形线的当前横坐标
+    private int[] curYs; //每个波形线的当前纵坐标
     private final Rect deleteRect = new Rect(); // 要抹去的小矩形
 
     private Bitmap waveBitmap;	//波形bitmap
     private Canvas waveCanvas;	//波形canvas
 
     private boolean first = true; // 是否是第一个数据
-    protected boolean showWave = true; // 是否显示波形
+    protected boolean showWave = true; // 是否显示波形，还是暂停显示
 
     private final PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
     private final PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
@@ -63,7 +63,7 @@ public class ScanWaveView extends WaveView {
         }
         @Override
         public boolean onSingleTapUp(MotionEvent motionEvent) {
-            setShowWave(!showWave);
+            setShowWave(!showWave); // 是否暂停显示
             return false;
         }
         @Override
@@ -95,6 +95,12 @@ public class ScanWaveView extends WaveView {
     }
 
     @Override
+    public void initWave(int waveNum) {
+        super.initWave(waveNum);
+        curYs = new int[waveNum];
+    }
+
+    @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
     }
@@ -123,21 +129,23 @@ public class ScanWaveView extends WaveView {
     }
 
     // 重置view
-    // includeBackground: 是否重绘背景bitmap
+    // resetBackground: 是否重绘背景bitmap
     @Override
-    public void resetView(boolean includeBackground)
+    public void resetView(boolean resetBackground)
     {
-        super.resetView(includeBackground);
+        super.resetView(resetBackground);
 
         // 创建波形bitmap和canvas
         waveBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
         waveCanvas = new Canvas(waveBitmap);
 
         curX = initX;
-        curY = initY;
+        for(int i = 0; i < waveNum; i++)
+            curYs[i] = initYs[i];
 
         first = true;
-        setShowWave(true);
+        showWave = true;
+        setShowWave(showWave);
     }
 
     // 开始显示
@@ -178,7 +186,7 @@ public class ScanWaveView extends WaveView {
             showService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    drawData(data[0], show);
+                    drawData(data, show);
                 }
             });
         }
@@ -186,33 +194,32 @@ public class ScanWaveView extends WaveView {
 
     @Override
     public void initWavePaint() {
-        wavePaint.setXfermode(srcOverMode);
+        //for(int i = 0; i < waveNum; i++)
+        //    wavePaints[i].setXfermode(srcOverMode);
         super.initWavePaint();
     }
 
-    private void drawData(int data, boolean updateView) {
-        int dataY = initY - Math.round(data / valuePerPixel);
+    private void drawData(int[] data, boolean updateView) {
+        int[] dataYs = new int[waveNum];
+        for(int i = 0; i < waveNum; i++)
+            dataYs[i] = initYs[i] - Math.round(data[i] / valuePerPixel[i]);
+
         if (first) {
-            preY = dataY;
+            for(int i = 0; i < waveNum; i++)
+                preYs[i] = dataYs[i];
             first = false;
         } else {
-            drawDataOnWaveCanvas(dataY);
+            drawDataOnWaveCanvas(dataYs);
             if(updateView)
                 postInvalidate();
         }
     }
 
-    private void drawData(List<Integer> data, boolean updateView) {
-        for(Integer d : data) {
-            drawData(d, false);
-        }
-        if(updateView)
-            postInvalidate();
-    }
-
-    private void drawDataOnWaveCanvas(int dataY)
+    private void drawDataOnWaveCanvas(int[] dataYs)
     {
-        curY = dataY;
+        for(int i = 0; i < waveNum; i++)
+            curYs[i] = dataYs[i];
+
         if(preX == viewWidth)	//最后一个像素，抹去第一列
         {
             curX = initX;
@@ -221,14 +228,16 @@ public class ScanWaveView extends WaveView {
         else	//画线
         {
             curX += pixelPerData;
-            waveCanvas.drawLine(preX, preY, curX, curY, wavePaint);
+            for(int i = 0; i < waveNum; i++)
+                waveCanvas.drawLine(preX, preYs[i], curX, curYs[i], wavePaints[i]);
             deleteRect.set(curX +1, 0, curX + pixelPerGrid, viewHeight);
         }
         preX = curX;
-        preY = curY;
+        for(int i = 0; i < waveNum; i++)
+            preYs[i] = curYs[i];
         //抹去前面一个矩形区域
-        wavePaint.setXfermode(srcInMode);
-        waveCanvas.drawBitmap(backBitmap, deleteRect, deleteRect, wavePaint);
-        wavePaint.setXfermode(srcOverMode);
+        //wavePaints[0].setXfermode(srcInMode);
+        waveCanvas.drawBitmap(backBitmap, deleteRect, deleteRect, null);
+        //wavePaints[0].setXfermode(srcOverMode);
     }
 }

@@ -18,7 +18,11 @@ public class RollPpgView extends RollRecordView {
         super(context, attrs);
     }
 
-    public void setup(BlePpgRecord record, float zeroLocation) {
-        super.setup(record, zeroLocation, SECOND_PER_GRID, MV_PER_GRID, PIXEL_PER_GRID);
+    public void setup(BlePpgRecord record, float[] zeroLocs) {
+        super.setup(record, zeroLocs, SECOND_PER_GRID, MV_PER_GRID, PIXEL_PER_GRID);
+    }
+
+    public void setup(BlePpgRecord record) {
+        super.setup(record, SECOND_PER_GRID, MV_PER_GRID, PIXEL_PER_GRID);
     }
 }

@@ -14,24 +14,35 @@ import android.util.AttributeSet;
 
 import com.cmtech.android.bledeviceapp.util.FixSizeLinkedList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * RollWaveView: 卷轴滚动式的波形显示视图
  * Created by bme on 2018/12/06.
  */
 
 public abstract class RollWaveView extends WaveView {
-    protected int dataNumInView; // View上一屏包含的数据点数
+    protected int dataNumInView; // View一屏包含的数据点数
 
-    protected final FixSizeLinkedList<Integer> viewData = new FixSizeLinkedList<>(1); //要显示数据缓冲
+    protected final List<FixSizeLinkedList<Integer>> viewData; //要显示的波形数据缓冲
 
     protected OnRollWaveViewListener listener;
 
     public RollWaveView(Context context) {
         super(context);
+
+        viewData = new ArrayList<>(waveNum);
+        for(int i = 0; i < waveNum; i++)
+            viewData.set(i, new FixSizeLinkedList<>(1));
     }
 
     public RollWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        viewData = new ArrayList<>(waveNum);
+        for(int i = 0; i < waveNum; i++)
+            viewData.set(i, new FixSizeLinkedList<>(1));
     }
 
     @Override
@@ -57,7 +68,9 @@ public abstract class RollWaveView extends WaveView {
 
     @Override
     public void initWavePaint() {
-        wavePaint.setStyle(Paint.Style.STROKE);
+        for(Paint p : wavePaints)
+            p.setStyle(Paint.Style.STROKE);
+
         super.initWavePaint();
     }
 
@@ -68,13 +81,15 @@ public abstract class RollWaveView extends WaveView {
     public void setDataNumInView(int viewWidth, int pixelPerData) {
         dataNumInView = viewWidth/pixelPerData+1;
         synchronized (viewData) {
-            viewData.setCapacity(dataNumInView);
+            for(int i = 0; i < waveNum; i++)
+                viewData.get(i).setCapacity(dataNumInView);
         }
     }
 
     public void clearData() {
         synchronized (viewData) {
-            viewData.clear();
+            for(int i = 0; i < waveNum; i++)
+                viewData.get(i).clear();
         }
     }
 
@@ -82,7 +97,8 @@ public abstract class RollWaveView extends WaveView {
     @Override
     public void addData(final int[] data, boolean show) {
         synchronized (viewData) {
-            viewData.add(data[0]);
+            for(int i = 0; i < waveNum; i++)
+                viewData.get(i).add(data[i]);
         }
         if(show) {
             showView();
@@ -99,24 +115,24 @@ public abstract class RollWaveView extends WaveView {
 
     private void drawDataOnCanvas(Canvas canvas)
     {
-        Path path = new Path();
         synchronized (viewData) {
-            if (viewData.size() <= 1) {
-                return;
-            }
+            for(int i = 0; i < waveNum; i++) {
+                if (viewData.get(i).size() <= 1) {
+                    return;
+                }
+                Path path = new Path();
+                int beginPos = dataNumInView - viewData.size();
 
-            int beginPos = dataNumInView - viewData.size();
-
-            preX = initX + pixelPerData * beginPos;
-            preY = initY - Math.round(viewData.get(0) / valuePerPixel);
-            path.moveTo(preX, preY);
-            for (int i = 1; i < viewData.size(); i++) {
-                preX += pixelPerData;
-                preY = initY - Math.round(viewData.get(i) / valuePerPixel);
-                path.lineTo(preX, preY);
+                preX = initX + pixelPerData * beginPos;
+                preYs[i] = initYs[i] - Math.round(viewData.get(i).get(0) / valuePerPixel[i]);
+                path.moveTo(preX, preYs[i]);
+                for (int j = 1; j < viewData.get(i).size(); j++) {
+                    preX += pixelPerData;
+                    preYs[i] = initYs[i] - Math.round(viewData.get(i).get(j) / valuePerPixel[i]);
+                    path.lineTo(preX, preYs[i]);
+                }
+                canvas.drawPath(path, wavePaints[i]);
             }
         }
-
-        canvas.drawPath(path, wavePaint);
     }
 }

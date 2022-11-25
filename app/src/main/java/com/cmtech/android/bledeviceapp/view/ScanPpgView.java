@@ -8,9 +8,9 @@ import android.view.MotionEvent;
 import com.vise.log.ViseLog;
 
 public class ScanPpgView extends ScanSignalView {
-    public static final int PIXEL_PER_GRID = 10; // 每个小栅格包含的像素个数
     public static final float SECOND_PER_GRID = 0.04f; // 横向每个小栅格代表的秒数，对应于走纸速度
-    public static final float MV_PER_GRID = 0.1f; // 纵向每个小栅格代表的mV，对应于灵敏度
+    public static final float PHYSIC_PER_GRID = 0.1f; // 纵向每个小栅格代表的物理量，对应于灵敏度
+    public static final int PIXEL_PER_GRID = 10; // 每个小栅格包含的像素个数
 
     private class MyGestureListener implements GestureDetector.OnGestureListener {
         @Override
@@ -55,11 +55,11 @@ public class ScanPpgView extends ScanSignalView {
         gestureDetector.setIsLongpressEnabled(false);
     }
 
-    public void setup(int sampleRate, int caliValue, float zeroLocation) {
-        super.setup(sampleRate, caliValue, zeroLocation, SECOND_PER_GRID, MV_PER_GRID, PIXEL_PER_GRID);
+    public void setup(int sampleRate, int gain) {
+        super.setup(1, sampleRate, new int[]{gain}, SECOND_PER_GRID, PHYSIC_PER_GRID, PIXEL_PER_GRID);
     }
 
     private void setYScale(float yScale) {
-        this.valuePerPixel = valuePerPixel*yScale;
+        this.valuePerPixel[0] *= yScale;
     }
 }

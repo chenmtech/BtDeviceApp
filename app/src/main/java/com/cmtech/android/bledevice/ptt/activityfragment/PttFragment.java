@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.ptt.activityfragment;
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_ECG_GAIN;
 import static com.cmtech.android.bledevice.ptt.model.PttDevice.DEFAULT_PPG_GAIN;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -93,10 +92,10 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
         spinner.setAdapter(adapter);
 
         ecgView = view.findViewById(R.id.ecg_view);
-        ecgView.setup(device.getSampleRate(), DEFAULT_ECG_GAIN, DEFAULT_ZERO_LOCATION);
+        ecgView.setup(device.getSampleRate(), DEFAULT_ECG_GAIN);
 
         ppgView = view.findViewById(R.id.ppg_view);
-        ppgView.setup(device.getSampleRate(), DEFAULT_PPG_GAIN, DEFAULT_ZERO_LOCATION);
+        ppgView.setup(device.getSampleRate(), DEFAULT_PPG_GAIN);
 
         pager = view.findViewById(R.id.ptt_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.ptt_control_panel_tab);
@@ -138,13 +137,13 @@ public class PttFragment extends DeviceFragment implements OnPttListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int ecgCaliValue, final int ppgCaliValue, final float zeroLocation) {
+    public void onFragmentUpdated(final int sampleRate, final int ecgCaliValue, final int ppgCaliValue) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ecgView.setup(sampleRate, ecgCaliValue, zeroLocation);
-                    ppgView.setup(sampleRate, ppgCaliValue, zeroLocation);
+                    ecgView.setup(sampleRate, ecgCaliValue);
+                    ppgView.setup(sampleRate, ppgCaliValue);
                 }
             });
         }

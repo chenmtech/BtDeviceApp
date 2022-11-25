@@ -14,7 +14,7 @@ package com.cmtech.android.bledevice.ppg.model;
  */
 
 public interface OnPpgListener {
-    void onFragmentUpdated(int sampleRate, int value1mV, float zeroLocation); // fragment updated
+    void onFragmentUpdated(int sampleRate, int gain); // fragment updated
     void onPpgSignalShowed(int ppgSignal); // ppg signal showed
     void onPpgSignalRecordStatusChanged(boolean isRecord); // ppg signal record status changed
     void onPpgSignalRecordTimeUpdated(int second); // ppg signal record time updated

@@ -21,13 +21,11 @@ import com.cmtech.android.bledeviceapp.R;
 
 public abstract class WaveView extends View {
     //----------------------------------------------常量
-    //public static final float DEFAULT_ZERO_LOCATION = 0.5f; // 缺省的零值位置在纵向的高度比
     private static final int[] WAVE_COLORS = new int[]{Color.YELLOW, Color.WHITE}; // 波形颜色
 
     private static final int SMALL_GRID_NUM_PER_LARGE_GRID = 5; // 每个大栅格包含多少个小栅格
     private static final int DEFAULT_SIZE = 100; // 缺省View的大小
     private static final int DEFAULT_PIXEL_PER_DATA = 2; // 缺省横向每个数据占的像素数
-    private static final float DEFAULT_VALUE_PER_PIXEL = 1.0f; // 缺省纵向每个像素代表的数值
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 每个小栅格的像素个数
     private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK; // 背景色
     private static final int DEFAULT_LARGE_GRID_COLOR = Color.RED; // 大栅格线颜色
@@ -52,18 +50,20 @@ public abstract class WaveView extends View {
 
     protected int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每个栅格的像素个数
     protected int pixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，即X方向每个数据点占多少个像素，pixel/data
-    protected float valuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，即Y方向每个像素代表的信号值，value/pixel
 
     protected int initX; //起始横坐标
     protected int preX; //画线的前一个点横坐标
 
-    protected final int waveNum; // 波形数
-    private int[] waveColors; // 波形颜色
+    //-------------------------------------与波形个数相关的变量
+    protected int waveNum; // 波形数
     protected Paint[] wavePaints; // 波形画笔
-    private float[] zeroLocs; //波形零值位置占视图高度的百分比
-
     protected int[] initYs; //波形的起始纵坐标
     protected int[] preYs; //波形线的前一个点纵坐标
+    protected float[] valuePerPixel; //纵向分辨率，即Y方向每个像素代表的信号值，value/pixel
+
+    private int[] waveColors; // 波形颜色
+    private float[] waveZeroLocs; //波形零值位置占视图高度的百分比
+    ///////////////////////////////////////////////////////////////////////
 
     protected OnWaveViewListener listener; // 监听器
 
@@ -78,10 +78,7 @@ public abstract class WaveView extends View {
         largeGridLineWidth = DEFAULT_LARGE_GRID_LINE_WIDTH;
         smallGridLineWidth = DEFAULT_SMALL_GRID_LINE_WIDTH;
 
-        waveNum = 1;
-        waveColors = new int[]{WAVE_COLORS[0]};
-        wavePaints = new Paint[]{new Paint()};
-        zeroLocs = new float[]{0.5f};
+        initWave(1);
     }
 
     public WaveView(Context context, AttributeSet attrs) {
@@ -97,16 +94,25 @@ public abstract class WaveView extends View {
         smallGridLineWidth = styledAttributes.getInt(R.styleable.WaveView_small_grid_line_width, DEFAULT_SMALL_GRID_LINE_WIDTH);
 
         waveNum = styledAttributes.getInt(R.styleable.WaveView_wave_num, 1);
-        waveColors = new int[waveNum];
-        wavePaints = new Paint[waveNum];
-        zeroLocs = new float[waveNum];
-        for(int i = 0; i < waveNum; i++) {
-            waveColors[i] = WAVE_COLORS[i];
-            wavePaints[i] = new Paint();
-            zeroLocs[i] = (1.0f+2*i) / (2*waveNum);
-        }
+        initWave(waveNum);
 
         styledAttributes.recycle();
+    }
+
+    public void initWave(int waveNum) {
+        this.waveNum = waveNum;
+        waveColors = new int[waveNum];
+        wavePaints = new Paint[waveNum];
+        waveZeroLocs = new float[waveNum];
+        valuePerPixel = new float[waveNum];
+        initYs = new int[waveNum];
+        preYs = new int[waveNum];
+        for(int i = 0; i < waveNum; i++) {
+            waveColors[i] = WAVE_COLORS[i%WAVE_COLORS.length];
+            wavePaints[i] = new Paint();
+            waveZeroLocs[i] = (1.0f+2*i) / (2*waveNum);
+            valuePerPixel[i] = 1.0f;
+        }
     }
 
     @Override
@@ -126,22 +132,30 @@ public abstract class WaveView extends View {
     }
 
     // 设置分辨率
-    public void setResolution(int pixelPerData, float valuePerPixel)
+    public void setResolution(int pixelPerData, float[] valuePerPixel)
     {
-        if((pixelPerData < 1) || (valuePerPixel <= 0.0)) {
+        assert valuePerPixel.length == waveNum;
+
+        if((pixelPerData < 1))
             throw new IllegalArgumentException();
+        else
+            this.pixelPerData = pixelPerData;
+
+        for(int i = 0; i < waveNum; i++) {
+            if(valuePerPixel[i] <= 0.0)
+                throw new IllegalArgumentException();
+            this.valuePerPixel[i] = valuePerPixel[i];
         }
-        this.pixelPerData = pixelPerData;
-        this.valuePerPixel = valuePerPixel;
     }
 
     // 设置零值位置
-    public void setZeroLocation(float[] zeroLocs)
+    public void setWaveZeroLocs(float[] waveZeroLocs)
     {
-        assert this.zeroLocs.length == zeroLocs.length;
-        for(int i = 0; i < zeroLocs.length; i++) {
-            this.zeroLocs[i] = zeroLocs[i];
-            initYs[i] = (int) (viewHeight * this.zeroLocs[i]);
+        initWave(waveZeroLocs.length);
+
+        for(int i = 0; i < waveNum; i++) {
+            this.waveZeroLocs[i] = waveZeroLocs[i];
+            initYs[i] = (int) (viewHeight * this.waveZeroLocs[i]);
         }
     }
 
@@ -150,16 +164,16 @@ public abstract class WaveView extends View {
     }
 
     // 重置view
-    // includeBackground: 是否重绘背景bitmap
-    public void resetView(boolean includeBackground)
+    // resetBackground: 是否重绘背景bitmap
+    public void resetView(boolean resetBackground)
     {
         initX = 0;
         for(int i = 0; i < waveNum; i++) {
-            initYs[i] = (int) (viewHeight * this.zeroLocs[i]);
+            initYs[i] = (int) (viewHeight * this.waveZeroLocs[i]);
         }
 
         //重新创建背景Bitmap
-        if(includeBackground) {
+        if(resetBackground) {
             backBitmap = createBackBitmap();
             setBackground(new BitmapDrawable(getResources(), backBitmap));
         }
@@ -206,10 +220,13 @@ public abstract class WaveView extends View {
 
         // 画零位线
         setPaint(paint, largeGridColor, zeroLineWidth);
-        backCanvas.drawLine(initX, initY, initX + viewWidth, initY, paint);
+        for(int i = 0; i < waveNum; i++)
+            backCanvas.drawLine(initX, initYs[i], initX + viewWidth, initYs[i], paint);
 
         // 画水平线
         int deltaY;
+        int waveHalfHeight = viewHeight/(waveNum*2);
+
         for(int drawed = 0; drawed < 2; drawed++ ) {
             if(drawed == 0) { // 零线以上
                 deltaY = -pixelPerGrid;
@@ -217,18 +234,21 @@ public abstract class WaveView extends View {
                 deltaY = pixelPerGrid;
             }
 
-            setPaint(paint, smallGridColor, smallGridLineWidth);
-            int y = initY + deltaY;
-            int n = 1;
-            while((drawed == 0 && y >= 0) || (drawed == 1 && y <= viewHeight) ) {
-                backCanvas.drawLine(initX, y, initX + viewWidth, y, paint);
-                y += deltaY;
-                if(++n == SMALL_GRID_NUM_PER_LARGE_GRID) {
-                    setPaint(paint, largeGridColor, largeGridLineWidth);
-                    n = 0;
-                }
-                else {
-                    setPaint(paint, smallGridColor, smallGridLineWidth);
+            for(int i = 0; i < waveNum; i++) {
+                int uplimit = initYs[i]-waveHalfHeight;
+                int downlimit = initYs[i]+waveHalfHeight;
+                setPaint(paint, smallGridColor, smallGridLineWidth);
+                int y = initYs[i] + deltaY;
+                int n = 1;
+                while ((drawed == 0 && y >= uplimit) || (drawed == 1 && y <= downlimit)) {
+                    backCanvas.drawLine(initX, y, initX + viewWidth, y, paint);
+                    y += deltaY;
+                    if (++n == SMALL_GRID_NUM_PER_LARGE_GRID) {
+                        setPaint(paint, largeGridColor, largeGridLineWidth);
+                        n = 0;
+                    } else {
+                        setPaint(paint, smallGridColor, smallGridLineWidth);
+                    }
                 }
             }
         }

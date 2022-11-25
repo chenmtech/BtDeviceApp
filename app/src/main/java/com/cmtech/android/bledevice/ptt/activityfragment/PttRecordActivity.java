@@ -21,7 +21,6 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
 import com.cmtech.android.bledeviceapp.view.RollPpgView;
-import com.cmtech.android.bledeviceapp.view.RollWaveView;
 
 import org.litepal.LitePal;
 import org.litepal.crud.callback.FindCallback;
@@ -73,7 +72,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         BleEcgRecord ecgRecord = (BleEcgRecord) RecordFactory.create(RecordType.ECG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress(),
                 record.getSampleRate(), record.getChannelNum(), record.getGainString(), record.getUnitString());
         //ecgRecord.setEcgData(((BlePttRecord)record).getEcgData());
-        ecgView.setup(ecgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView.setup(ecgRecord);
         ecgView.setGestureDetector(null);
 
         ppgView = findViewById(R.id.roll_ppg_view);
@@ -81,7 +80,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
         BlePpgRecord ppgRecord = (BlePpgRecord) RecordFactory.create(RecordType.PPG, BasicRecord.DEFAULT_RECORD_VER, record.getAccountId(), record.getCreateTime(), record.getDevAddress(),
                 record.getSampleRate(), record.getChannelNum(), record.getGainString(), record.getUnitString());
         //ppgRecord.setPpgData(((BlePttRecord)record).getPpgData());
-        ppgView.setup(ppgRecord, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ppgView.setup(ppgRecord);
         ppgView.setGestureDetector(null);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);

@@ -32,7 +32,6 @@ import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollEcgView;
-import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.layout.EcgRecordReportLayout;
 import com.cmtech.android.bledeviceapp.view.layout.EcgReportOutputLayout;
 import com.vise.log.ViseLog;
@@ -133,7 +132,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         ecgView = findViewById(R.id.roll_ecg_view);
         ecgView.setListener(this);
-        ecgView.setup((BleEcgRecord) record, RollWaveView.DEFAULT_ZERO_LOCATION);
+        ecgView.setup((BleEcgRecord) record);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));

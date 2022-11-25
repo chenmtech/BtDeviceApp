@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -92,7 +91,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         flInEcgMode.setVisibility(View.GONE);
 
         ecgView = view.findViewById(R.id.ecg_view);
-        ecgView.setup(device.getSampleRate(), device.getGain(), DEFAULT_ZERO_LOCATION);
+        ecgView.setup(device.getSampleRate(), device.getGain());
 
         tvSwitchMode = view.findViewById(R.id.tv_switch_mode);
         tvSwitchMode.setOnClickListener(new View.OnClickListener() {
@@ -215,7 +214,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onUIUpdated(final int sampleRate, final int caliValue, final float zeroLocation, final boolean inHrMode) {
+    public void onUIUpdated(final int sampleRate, final int gain, final boolean inHrMode) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -232,7 +231,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         tvSwitchMode.setCompoundDrawablesWithIntrinsicBounds(null,
                                 ResourcesCompat.getDrawable(getResources(), R.mipmap.ic_hr_24px, null), null, null);
                     } else {
-                        ecgView.setup(sampleRate, caliValue, zeroLocation);
+                        ecgView.setup(sampleRate, gain);
                         hrRecFragContainer.setVisibility(View.GONE);
                         ecgRecFragContainer.setVisibility(View.VISIBLE);
                         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);

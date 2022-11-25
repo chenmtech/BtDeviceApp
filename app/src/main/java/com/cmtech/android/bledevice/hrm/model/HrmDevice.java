@@ -8,7 +8,6 @@ import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -37,10 +36,8 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 import ai.onnxruntime.OrtException;
@@ -581,7 +578,7 @@ public class HrmDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if(hrMode) {
                         if (listener != null)
-                            listener.onUIUpdated(sampleRate, gain, DEFAULT_ZERO_LOCATION, true);
+                            listener.onUIUpdated(sampleRate, gain, true);
 
                         setEcgOn(false);
                     }
@@ -859,7 +856,7 @@ public class HrmDevice extends AbstractDevice {
 
                 // 更新设备监听器
                 if (listener != null)
-                    listener.onUIUpdated(sampleRate, gain, DEFAULT_ZERO_LOCATION, hrMode);
+                    listener.onUIUpdated(sampleRate, gain, hrMode);
             }
 
             @Override

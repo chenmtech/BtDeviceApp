@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.interfac.ISimpleCallback;
-import com.cmtech.android.bledeviceapp.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 
 import java.io.IOException;
@@ -153,7 +152,7 @@ public class EcgReportOutputLayout extends LinearLayout {
 
             int begin = 0;
             for (ScanEcgView scanEcgView : ECG_VIEWS) {
-                scanEcgView.setup(record.getSampleRate(), record.getGain().get(0), RollWaveView.DEFAULT_ZERO_LOCATION);
+                scanEcgView.setup(record.getSampleRate(), record.getGain().get(0));
                 int dataNum = scanEcgView.getWidth() / scanEcgView.getPixelPerData();
                 if (record.getDataNum() > begin) {
                     scanEcgView.startShow();

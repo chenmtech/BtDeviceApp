@@ -5,7 +5,6 @@ import static com.cmtech.android.bledeviceapp.data.record.RecordType.EEG;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
-import static com.cmtech.android.bledeviceapp.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -28,9 +27,7 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import org.litepal.crud.callback.SaveCallback;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -142,7 +139,7 @@ public class EegDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if (listener != null)
-                        listener.onFragmentUpdated(sampleRate, gain, DEFAULT_ZERO_LOCATION);
+                        listener.onFragmentUpdated(sampleRate, gain);
 
                     updateSignalShowState(true);
 

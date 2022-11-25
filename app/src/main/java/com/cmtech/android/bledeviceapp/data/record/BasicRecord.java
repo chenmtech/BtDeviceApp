@@ -422,6 +422,7 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         this.sigLen = sigLen;
     }
 
+    @Override
     public int getChannelNum() {
         return channelNum;
     }
