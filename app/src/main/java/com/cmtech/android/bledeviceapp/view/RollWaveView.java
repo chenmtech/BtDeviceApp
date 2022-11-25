@@ -123,11 +123,11 @@ public abstract class RollWaveView extends WaveView {
                 int beginPos = dataNumInView - oneWaveData.size();
 
                 preX = initX + pixelPerData * beginPos;
-                preYs[i] = initYs[i] - Math.round(oneWaveData.get(0) / valuePerPixel[i]);
+                preYs[i] = initYs[i] - Math.round(oneWaveData.get(0) / aduPerPixel[i]);
                 path.moveTo(preX, preYs[i]);
                 for (int j = 1; j < oneWaveData.size(); j++) {
                     preX += pixelPerData;
-                    preYs[i] = initYs[i] - Math.round(oneWaveData.get(j) / valuePerPixel[i]);
+                    preYs[i] = initYs[i] - Math.round(oneWaveData.get(j) / aduPerPixel[i]);
                     path.lineTo(preX, preYs[i]);
                 }
                 canvas.drawPath(path, wavePaints[i]);

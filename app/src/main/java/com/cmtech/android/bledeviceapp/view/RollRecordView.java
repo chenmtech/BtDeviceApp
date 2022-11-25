@@ -140,28 +140,25 @@ public class RollRecordView extends RollWaveView {
         return true;
     }
 
-    public void setup(ISignalRecord record, float[] zeroLocs, float secPerGrid, float physicValuePerGrid, int pixelPerGrid) {
+    public void setup(ISignalRecord record, float[] zeroLocs, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid) {
         assert record.getChannelNum() == zeroLocs.length;
 
         setRecord(record);
 
-        setWaveZeroLocs(zeroLocs);
-
-        // 计算并设置横向和纵向分辨率
+        // 计算横向分辨率
         int pixelPerData = Math.round(pixelPerGrid / (secPerGrid * record.getSampleRate())); // 计算横向分辨率
-        float[] valuePerPixel = new float[waveNum];
+
+        // 计算纵向分辨率
+        float[] aduPerPixel = new float[waveNum];
         List<Integer> gain = record.getGain();
-        ViseLog.e(gain);
         for(int i = 0; i < waveNum; i++)
-            valuePerPixel[i] = gain.get(i) * physicValuePerGrid / pixelPerGrid; // 纵向分辨率
-        setResolution(pixelPerData, valuePerPixel);
+            aduPerPixel[i] = gain.get(i) * physicValuePerGrid[i] / pixelPerGrid;
 
-        setPixelPerGrid(pixelPerGrid);
-
-        resetView(true);
+        setup(zeroLocs, aduPerPixel, pixelPerData, pixelPerGrid);
     }
 
-    public void setup(ISignalRecord record, float secPerGrid, float physicValuePerGrid, int pixelPerGrid) {
+    public void setup(ISignalRecord record, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid) {
+        // 用通道数计算零值位置
         float[] zeroLocs = new float[record.getChannelNum()];
         for(int i = 0; i < zeroLocs.length; i++)
             zeroLocs[i] = (1.0f+2*i) / (2*zeroLocs.length);
@@ -169,7 +166,7 @@ public class RollRecordView extends RollWaveView {
         setup(record, zeroLocs, secPerGrid, physicValuePerGrid, pixelPerGrid);
     }
 
-    public void setRecord(ISignalRecord record) {
+    private void setRecord(ISignalRecord record) {
         if(record == null) {
             throw new IllegalArgumentException();
         }

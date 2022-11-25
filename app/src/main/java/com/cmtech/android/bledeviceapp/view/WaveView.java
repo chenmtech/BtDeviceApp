@@ -59,10 +59,10 @@ public abstract class WaveView extends View {
     protected Paint[] wavePaints; // 波形画笔
     protected int[] initYs; //波形的起始纵坐标
     protected int[] preYs; //波形线的前一个点纵坐标
-    protected float[] valuePerPixel; //纵向分辨率，即Y方向每个像素代表的信号值，value/pixel
+    protected float[] aduPerPixel; //纵向分辨率，即Y方向每个像素代表的信号ADU值，ADU/pixel
 
     private int[] waveColors; // 波形颜色
-    private float[] waveZeroLocs; //波形零值位置占视图高度的百分比
+    private float[] zeroLocs; //波形零值位置占视图高度的百分比
     ///////////////////////////////////////////////////////////////////////
 
     protected OnWaveViewListener listener; // 监听器
@@ -103,15 +103,15 @@ public abstract class WaveView extends View {
         this.waveNum = waveNum;
         waveColors = new int[waveNum];
         wavePaints = new Paint[waveNum];
-        waveZeroLocs = new float[waveNum];
-        valuePerPixel = new float[waveNum];
+        zeroLocs = new float[waveNum];
+        aduPerPixel = new float[waveNum];
         initYs = new int[waveNum];
         preYs = new int[waveNum];
         for(int i = 0; i < waveNum; i++) {
             waveColors[i] = WAVE_COLORS[i%WAVE_COLORS.length];
             wavePaints[i] = new Paint();
-            waveZeroLocs[i] = (1.0f+2*i) / (2*waveNum);
-            valuePerPixel[i] = 1.0f;
+            zeroLocs[i] = (1.0f+2*i) / (2*waveNum);
+            aduPerPixel[i] = 1.0f;
         }
     }
 
@@ -127,36 +127,37 @@ public abstract class WaveView extends View {
         return pixelPerData;
     }
 
-    public void setPixelPerGrid(int pixelPerGrid) {
-        this.pixelPerGrid = pixelPerGrid;
-    }
-
-    // 设置分辨率
-    public void setResolution(int pixelPerData, float[] valuePerPixel)
-    {
-        assert valuePerPixel.length == waveNum;
+    /**
+     * 设置视图的可调参数，并重绘视图
+     * @param zeroLocs 每个波形的零值位置，占视图高度的百分比
+     * @param aduPerPixel 纵向分辨率，即每个像素对应的数据ADU值。每个波形可以不一样
+     * @param pixelPerData 横向分辨率，即每个数据对应的像素个数
+     * @param pixelPerGrid 每个小栅格占像素个数
+     */
+    protected void setup(float[] zeroLocs, float[] aduPerPixel, int pixelPerData, int pixelPerGrid) {
+        if(zeroLocs.length != aduPerPixel.length)
+            throw new IllegalArgumentException();
 
         if((pixelPerData < 1))
             throw new IllegalArgumentException();
-        else
-            this.pixelPerData = pixelPerData;
 
-        for(int i = 0; i < waveNum; i++) {
-            if(valuePerPixel[i] <= 0.0)
+        for (float v : aduPerPixel) {
+            if (v <= 0.0)
                 throw new IllegalArgumentException();
-            this.valuePerPixel[i] = valuePerPixel[i];
         }
-    }
 
-    // 设置零值位置
-    public void setWaveZeroLocs(float[] waveZeroLocs)
-    {
-        initWave(waveZeroLocs.length);
+        initWave(zeroLocs.length);
 
         for(int i = 0; i < waveNum; i++) {
-            this.waveZeroLocs[i] = waveZeroLocs[i];
-            initYs[i] = (int) (viewHeight * this.waveZeroLocs[i]);
+            this.zeroLocs[i] = zeroLocs[i];
+            initYs[i] = (int) (viewHeight * this.zeroLocs[i]);
+            this.aduPerPixel[i] = aduPerPixel[i];
         }
+
+        this.pixelPerData = pixelPerData;
+        this.pixelPerGrid = pixelPerGrid;
+
+        resetView(true);
     }
 
     public void setListener(OnWaveViewListener listener) {
@@ -169,7 +170,7 @@ public abstract class WaveView extends View {
     {
         initX = 0;
         for(int i = 0; i < waveNum; i++) {
-            initYs[i] = (int) (viewHeight * this.waveZeroLocs[i]);
+            initYs[i] = (int) (viewHeight * this.zeroLocs[i]);
         }
 
         //重新创建背景Bitmap

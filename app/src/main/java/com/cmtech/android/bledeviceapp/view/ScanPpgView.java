@@ -56,10 +56,10 @@ public class ScanPpgView extends ScanSignalView {
     }
 
     public void setup(int sampleRate, int gain) {
-        super.setup(1, sampleRate, new int[]{gain}, SECOND_PER_GRID, PHYSIC_PER_GRID, PIXEL_PER_GRID);
+        super.setup(1, sampleRate, new int[]{gain}, SECOND_PER_GRID, new float[]{PHYSIC_PER_GRID}, PIXEL_PER_GRID);
     }
 
     private void setYScale(float yScale) {
-        this.valuePerPixel[0] *= yScale;
+        this.aduPerPixel[0] *= yScale;
     }
 }

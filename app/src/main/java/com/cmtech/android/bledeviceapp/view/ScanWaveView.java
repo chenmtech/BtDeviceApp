@@ -202,7 +202,7 @@ public class ScanWaveView extends WaveView {
     private void drawData(int[] data, boolean updateView) {
         int[] dataYs = new int[waveNum];
         for(int i = 0; i < waveNum; i++)
-            dataYs[i] = initYs[i] - Math.round(data[i] / valuePerPixel[i]);
+            dataYs[i] = initYs[i] - Math.round(data[i] / aduPerPixel[i]);
 
         if (first) {
             for(int i = 0; i < waveNum; i++)

@@ -5,6 +5,8 @@ import android.util.AttributeSet;
 
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 
+import java.util.Arrays;
+
 public class RollEcgView extends RollRecordView {
     private static final float SECOND_PER_GRID = 0.04f; // 横向每个栅格代表的秒数，对应于走纸速度
     private static final float MV_PER_GRID = 0.1f; // 纵向每个栅格代表的mV，对应于灵敏度
@@ -19,10 +21,14 @@ public class RollEcgView extends RollRecordView {
     }
 
     public void setup(BleEcgRecord record, float[] zeroLocs) {
-        super.setup(record, zeroLocs, SECOND_PER_GRID, MV_PER_GRID, PIXEL_PER_GRID);
+        float[] mvPerGrid = new float[record.getChannelNum()];
+        Arrays.fill(mvPerGrid, MV_PER_GRID);
+        super.setup(record, zeroLocs, SECOND_PER_GRID, mvPerGrid, PIXEL_PER_GRID);
     }
 
     public void setup(BleEcgRecord record) {
-        super.setup(record, SECOND_PER_GRID, MV_PER_GRID, PIXEL_PER_GRID);
+        float[] mvPerGrid = new float[record.getChannelNum()];
+        Arrays.fill(mvPerGrid, MV_PER_GRID);
+        super.setup(record, SECOND_PER_GRID, mvPerGrid, PIXEL_PER_GRID);
     }
 }
