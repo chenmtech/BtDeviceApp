@@ -33,14 +33,13 @@ public class AccountManager {
     }
 
     /**
-     * 本地账户登录
+     * 账户是否成功本地登录
      * 当应用程序启动时，会先检查账户本地登录是否成功
      * 如果本地登录成功，则允许用户继续使用app的本地功能，保证在没有网络的情况下继续使用
      * 如果本地登录失败，则要求用户必须重新进行网络登录
      * @return true: 本地登录成功； false：本地登录失败
      */
     public boolean isLocalLoginSuccess() {
-        ViseLog.e(account);
         return isValid();
     }
 

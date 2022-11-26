@@ -108,10 +108,11 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             notifyService = ((NotificationService.NotificationServiceBinder) iBinder).getService();
-            // 成功绑定后初始化UI，否则请求退出
+            // 成功绑定服务：初始化UI，否则退出app
             if (notifyService != null) {
                 MyApplication.getDeviceManager().addCommonListenerForAllDevices(notifyService);
 
+                // 初始化UI
                 initializeUI();
 
                 // 为已经打开的设备创建并打开Fragment
@@ -146,13 +147,23 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 确定账户已经登录
-        if (!MyApplication.getAccountManager().isValid()) {
+        // 确定账户已经本地登录
+        if (!MyApplication.getAccountManager().isLocalLoginSuccess()) {
             Toast.makeText(this, "无效账户", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
+        // 如果蓝牙功能关闭，开启蓝牙连接功能
+        if (BleScanner.isBleDisabled()) {
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            startActivity(intent);
+        }
+
+        // 从本地读取联系人信息
         MyApplication.getAccount().readContactFromLocalDb();
 
         // 启动通知服务
@@ -163,14 +174,6 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             startService(serviceIntent);
         }
         bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
-
-        if (BleScanner.isBleDisabled()) {
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            startActivity(intent);
-        }
     }
 
     // 主界面初始化
@@ -181,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         TextView tvBattery = findViewById(R.id.tv_device_battery);
         tbManager = new MainToolbarManager(this, toolbar, tvBattery);
 
-        // init device control panel
+        // 初始化设备控制面板
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDevices = findViewById(R.id.rv_device_list);
         rvDevices.setLayoutManager(layoutManager);
@@ -189,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         localDeviceAdapter = new LocalDeviceAdapter(this);
         rvDevices.setAdapter(localDeviceAdapter);
 
-        // init navigation view
+        // 初始化导航视图
         initNavigation();
         updateNavigationHeader();
         tbManager.setNavIcon(MyApplication.getAccount().getIcon());
@@ -218,6 +221,14 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
         // init main layout
         initMainLayout();
 
+        //获取app升级信息
+        AppUpdateManager appUpdateManager = MyApplication.getAppUpdateManager();
+        appUpdateManager.retrieveAppUpdateInfo(this, (code, msg) -> {
+            if (code == RCODE_SUCCESS && appUpdateManager.existUpdate()) {
+                appUpdateManager.updateApp(this);
+            }
+        });
+
         // 下载账户信息，因为下载后需要更新界面，所以放在这个函数中运行
         MyApplication.getAccount().download(this, null, new ICodeCallback() {
             @Override
@@ -226,14 +237,6 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                     updateNavigationHeader();
                     tbManager.setNavIcon(MyApplication.getAccount().getIcon());
                 }
-            }
-        });
-
-        //获取应用升级信息
-        AppUpdateManager appUpdateManager = MyApplication.getAppUpdateManager();
-        appUpdateManager.retrieveNewestAppInfo(this, (code, msg) -> {
-            if (code == RCODE_SUCCESS && appUpdateManager.existUpdate()) {
-                appUpdateManager.updateApp(this);
             }
         });
     }
@@ -288,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                         return true;
                     case R.id.nav_update_app: // 检查更新
                         AppUpdateManager appUpdateManager = MyApplication.getAppUpdateManager();
-                        appUpdateManager.retrieveNewestAppInfo(MainActivity.this, (code, msg) -> {
+                        appUpdateManager.retrieveAppUpdateInfo(MainActivity.this, (code, msg) -> {
                             if (code == RCODE_SUCCESS) {
                                 if(appUpdateManager.existUpdate()) {
                                     appUpdateManager.updateApp(MainActivity.this);

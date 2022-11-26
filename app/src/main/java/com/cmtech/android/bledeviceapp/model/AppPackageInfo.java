@@ -37,8 +37,11 @@ import java.io.Serializable;
  * Version:        1.0
  */
 public class AppPackageInfo implements Serializable, IJsonable {
+    private static final File LOCAL_APK_FILE = new File(DIR_CACHE, "kmic.apk");
+
     private int verCode;        // 版本号
     private String verName;     // 版本名
+    private int supportedVerCode; // 支持的最小版本号，如果当前版本号比这个要小，就必须升级，否则无法使用
     private String note;        // 备注
     private String url;         // 安装包下载URL
     private double size;        // 安装包大小，单位: MB
@@ -55,6 +58,10 @@ public class AppPackageInfo implements Serializable, IJsonable {
         return verName;
     }
 
+    public int getSupportedVerCode() {
+        return supportedVerCode;
+    }
+
     public String getNote() {
         return note;
     }
@@ -63,14 +70,11 @@ public class AppPackageInfo implements Serializable, IJsonable {
         return size;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
     @Override
     public void fromJson(JSONObject json) throws JSONException {
         verCode = json.getInt("verCode");
         verName = json.getString("verName");
+        supportedVerCode = json.getInt("supportedVerCode");
         note = json.getString("note");
         url = json.getString("url");
         size = json.getDouble("size");
@@ -105,13 +109,12 @@ public class AppPackageInfo implements Serializable, IJsonable {
         }).execute(this);
     }
 
-    // 下载并安装apk文件
+    // 下载安装apk文件
     public void downloadApkFileAndInstall(Context context) {
-        File apkFile = new File(DIR_CACHE, "kmic.apk");
-        UploadDownloadFileUtil.downloadFile(context, url, apkFile, new ICodeCallback() {
+        UploadDownloadFileUtil.downloadFile(context, url, LOCAL_APK_FILE, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
-                installApk(context, apkFile);
+                installApk(context, LOCAL_APK_FILE);
             }
         });
     }
@@ -133,6 +136,7 @@ public class AppPackageInfo implements Serializable, IJsonable {
     @NonNull
     @Override
     public String toString() {
-        return "verCode:" + verCode + " verName:" + verName + " note:" + note + " size:" + size + " url:" + url;
+        return "verCode:" + verCode + " verName:" + verName + " supportedVerCode:" + supportedVerCode +
+                " note:" + note + " size:" + size + " url:" + url;
     }
 }
