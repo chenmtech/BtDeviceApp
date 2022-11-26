@@ -25,7 +25,7 @@ import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector11;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.SignalAnnotation;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -450,6 +450,7 @@ public class HrmDevice extends AbstractDevice {
      * @param ecgSignal：一个心电信号值
      */
     public void processEcgSignal(int ecgSignal) {
+        // 如果因为设备中断，需要插入零值，则设ecgSignal=0
         if(insertZeroWhenReconnect != 0) {
             ecgSignal = 0;
             insertZeroWhenReconnect--;
@@ -509,10 +510,10 @@ public class HrmDevice extends AbstractDevice {
      * 更新心律检测条目
      * @param rhythmItem 一条心律异常检测条目
      */
-    private void updateRhythmDetectItem(EcgRhythmDetectItem rhythmItem) {
+    private void updateRhythmDetectItem(SignalAnnotation rhythmItem) {
         if(MyApplication.isRunInForeground()) {
             if (listener != null) {
-                int label = rhythmItem.getLabel();
+                int label = rhythmItem.getSymbol();
                 listener.onEcgRhythmDetectInfoUpdated(label, RHYTHM_DESC_MAP.get(label));
                 if(label == AFIB_LABEL) {
                     MyApplication.getTts().speak("发现房颤");

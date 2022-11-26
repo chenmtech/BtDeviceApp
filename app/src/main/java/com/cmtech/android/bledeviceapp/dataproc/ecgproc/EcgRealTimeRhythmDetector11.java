@@ -1,21 +1,15 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AFIB_LABEL;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.NSR_LABEL;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.OTHER_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_DESC_MAP;
 import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.SB_LABEL;
-import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.util.Pair;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
-import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.vise.log.ViseLog;
@@ -27,7 +21,6 @@ import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -156,7 +149,7 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
                     if (sigTime == INVALID_TIME)
                         sigTime = new Date().getTime();
                     startTime = sigTime - SIG_LEN * 1000;
-                    EcgRhythmDetectItem item = new EcgRhythmDetectItem(startTime, label);
+                    SignalAnnotation item = new SignalAnnotation(startTime, label);
                     // 用回调处理检测条目
                     if (callback != null)
                         callback.onRhythmInfoUpdated(item);

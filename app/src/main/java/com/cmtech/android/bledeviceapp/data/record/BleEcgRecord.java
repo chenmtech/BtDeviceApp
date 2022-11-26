@@ -18,7 +18,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmDetectItem;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.SignalAnnotation;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
@@ -60,17 +60,17 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
     // 平均心率值
     private int aveHr = INVALID_HR;
 
-    // 采集时设备断开重连的信号记录位置值列表，表示每一段记录的开始位置
+    // 分段信号开始位置列表，用样本序号来表示位置
     private final List<Integer> segPoses = new ArrayList<>();
 
-    // 采集时设备断开重连的信号记录时刻点列表，表示每一段记录的开始时间
+    // 每一段信号开始时刻
     private final List<Long> segTimes = new ArrayList<>();
 
-    // 每一次心律检测的条目起始时刻列表
-    private final List<Long> rhythmTimes = new ArrayList<>();
+    // 注解位置列表，用样本序号来表示位置
+    private final List<Integer> annPoses = new ArrayList<>();
 
-    // 每一次心律检测的条目标记列表
-    private final List<Integer> rhythmLabels = new ArrayList<>();
+    // 注解符号，用来表示注解的类型和备用信息
+    private final List<String> annSymbols = new ArrayList<>();
 
     //------------------------------------------实例变量，这些变量值不会保存到本地或远程数据库中
     // 采集时设备连接是否断开
@@ -122,8 +122,8 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         this.interrupt = interrupt;
     }
 
-    public List<Integer> getRhythmLabels() {
-        return rhythmLabels;
+    public List<String> getAnnSymbols() {
+        return annSymbols;
     }
 
     /**
@@ -168,14 +168,18 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
             strHrResult = "平均心率" + strHrResult + ":" + aveHr + "次/分钟;";
         }
 
-        // 再生成心律异常的内容
+        // 再生成心律的内容
         int AFIB_times = 0;
         int other_times = 0;
-        for(int label : rhythmLabels) {
-            if(label == AFIB_LABEL)
-                AFIB_times++;
-            else if(label == OTHER_LABEL) {
-                other_times++;
+        for(String symbol : annSymbols) {
+            String type = symbol.substring(0,1);
+            if(type.equals("+")) {
+                type = symbol.substring(1);
+                if(type.equals("(AFIB")) {
+                    AFIB_times++;
+                } else if(!type.equals("(N")) {
+                    other_times++;
+                }
             }
         }
 
@@ -199,24 +203,17 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
      * 添加一条心律异常检测项
      * @param item 一条检测项
      */
-    public void addRhythmItem(EcgRhythmDetectItem item) {
-        int label = item.getLabel();
-        if(label == INVALID_LABEL)
-            return;
+    public void addRhythmItem(SignalAnnotation item) {
+        String symbol = item.getSymbol();
 
         // 如果前一个标记和当前的条目标记一样，就放弃添加
-        if(!rhythmLabels.isEmpty() && rhythmLabels.get(rhythmLabels.size()-1) == label) {
+        if(!annSymbols.isEmpty() && annSymbols.get(annSymbols.size()-1).equals(symbol)) {
             return;
         }
 
-        long startTime = item.getStartTime();
-        // 防止条目起始时间比记录创建时间还要早
-        if(startTime < getCreateTime()) {
-            startTime = getCreateTime();
-        }
-
-        rhythmTimes.add(startTime);
-        rhythmLabels.add(label);
+        int pos = item.getPos();
+        annPoses.add(pos);
+        annSymbols.add(symbol);
     }
 
     /**

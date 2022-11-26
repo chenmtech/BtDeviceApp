@@ -157,7 +157,7 @@ public class EcgRealTimeRhythmDetector10 implements IEcgRealTimeRhythmDetector{
                     if (sigTime == INVALID_TIME)
                         sigTime = new Date().getTime();
                     startTime = sigTime - SIG_LEN * 1000;
-                    EcgRhythmDetectItem item = new EcgRhythmDetectItem(startTime, label);
+                    SignalAnnotation item = new SignalAnnotation(startTime, label);
                     // 用回调处理检测条目
                     if (callback != null)
                         callback.onRhythmInfoUpdated(item);
