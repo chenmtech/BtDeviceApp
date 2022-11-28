@@ -15,7 +15,7 @@ public interface IEcgRealTimeRhythmDetector {
     String getProvider();
 
     // 处理一个心电信号值，要求归一化为信号物理量，即毫伏值
-    void process(float ecgSignalmV);
+    void process(float ecgSignalmV, int pos);
 
     // 重置
     void reset();

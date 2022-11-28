@@ -1,10 +1,5 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AFIB_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.NOISE_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.NSR_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.OTHER_LABEL;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.util.Pair;
@@ -60,10 +55,10 @@ public class EcgRealTimeRhythmDetector10 implements IEcgRealTimeRhythmDetector{
 
     // 检测模型输出标签与全局标签的映射关系
     private static final Map<Integer, Integer> LABEL_MAP = new HashMap<>() {{
-        put(0, NSR_LABEL);
+/*        put(0, NSR_LABEL);
         put(1, AFIB_LABEL);
         put(2, OTHER_LABEL);
-        put(3, NOISE_LABEL);
+        put(3, NOISE_LABEL);*/
     }};
 
     //------------------------------------------------------------实例变量
@@ -126,7 +121,7 @@ public class EcgRealTimeRhythmDetector10 implements IEcgRealTimeRhythmDetector{
      * @param ecgSignalmV 心电信号毫伏值
      */
     @Override
-    public void process(float ecgSignalmV) {
+    public void process(float ecgSignalmV, int position) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override
@@ -138,6 +133,7 @@ public class EcgRealTimeRhythmDetector10 implements IEcgRealTimeRhythmDetector{
     }
 
     public void postprocess(float ecgSignalmV, long sigTime) {
+        /*
         // 先做重采样，获取输出信号，并将信号放入缓存
         List<Float> resampleSignal = resample.process(ecgSignalmV);
         for(float sig : resampleSignal) {
@@ -171,6 +167,7 @@ public class EcgRealTimeRhythmDetector10 implements IEcgRealTimeRhythmDetector{
                 pos = 0;
             }
         }
+        */
     }
 
     /**

@@ -308,7 +308,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onEcgRhythmDetectInfoUpdated(int label, String rhythmInfo) {
+    public void onEcgRhythmDetectInfoUpdated(String annSymbol, String rhythmInfo) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

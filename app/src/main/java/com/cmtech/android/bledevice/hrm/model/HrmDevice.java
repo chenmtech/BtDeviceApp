@@ -3,9 +3,10 @@ package com.cmtech.android.bledevice.hrm.model;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AFIB_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_DESC_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_AFIB_SYMBOL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.STANDARD_BLE_UUID;
 
@@ -460,8 +461,9 @@ public class HrmDevice extends AbstractDevice {
         showEcgSignal(ecgSignal);
 
         // 记录信号
+        int pos = INVALID_POS;
         if(ecgRecordStatus && ecgRecord != null) {
-            ecgRecord.record((short)ecgSignal);
+            pos = ecgRecord.record((short)ecgSignal);
 
             // 每记录一秒钟，就修改一次心电记录时间值
             if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
@@ -478,7 +480,7 @@ public class HrmDevice extends AbstractDevice {
 
         // 心律检测
         if(rhythmDetector != null) {
-            rhythmDetector.process((float)ecgSignal/gain);
+            rhythmDetector.process((float)ecgSignal/gain, pos);
         }
 
         /*
@@ -513,16 +515,16 @@ public class HrmDevice extends AbstractDevice {
     private void updateRhythmDetectItem(SignalAnnotation rhythmItem) {
         if(MyApplication.isRunInForeground()) {
             if (listener != null) {
-                int label = rhythmItem.getSymbol();
-                listener.onEcgRhythmDetectInfoUpdated(label, RHYTHM_DESC_MAP.get(label));
-                if(label == AFIB_LABEL) {
+                String annSymbol = rhythmItem.getSymbol();
+                listener.onEcgRhythmDetectInfoUpdated(annSymbol, ANNOTATION_DESCRIPTION_MAP.get(annSymbol));
+                if(ANN_AFIB_SYMBOL.equals(annSymbol)) {
                     MyApplication.getTts().speak("发现房颤");
                 }
             }
         }
 
         if(ecgRecordStatus && ecgRecord != null) {
-            ecgRecord.addRhythmItem(rhythmItem);
+            ecgRecord.addAnnotation(rhythmItem);
         }
     }
 

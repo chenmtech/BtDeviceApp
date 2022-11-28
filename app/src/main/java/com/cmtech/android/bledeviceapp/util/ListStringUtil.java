@@ -57,9 +57,8 @@ public class ListStringUtil {
         return builder.toString();
     }
 
-    public static List<String> stringToStrList(String str) {
-        List<String> strList = new ArrayList<>();
+    public static void stringToStrList(String str, List<String> strList) {
+        strList.clear();
         Collections.addAll(strList, str.split(","));
-        return strList;
     }
 }

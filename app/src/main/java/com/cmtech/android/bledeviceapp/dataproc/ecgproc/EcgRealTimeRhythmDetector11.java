@@ -1,10 +1,10 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AFIB_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.NSR_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.OTHER_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.SB_LABEL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_AFIB_SYMBOL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_NSR_SYMBOL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_OTHER_ARRHYTHMIA_SYMBOL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_SB_SYMBOL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.INVALID_ANN_SYMBOL;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 
 import android.util.Pair;
@@ -51,12 +51,12 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
     // 存放信号的缓存长度
     private static final int BUF_LEN = SIG_LEN * SIG_SR;
 
-    // 将模型输出label与全局标签的映射关系
-    private static final Map<Integer, Integer> LABEL_MAP = new HashMap<>() {{
-        put(0, AFIB_LABEL);
-        put(1, NSR_LABEL);
-        put(2, SB_LABEL);
-        put(3, OTHER_LABEL);
+    // 将模型输出label与ECG注解的映射关系
+    private static final Map<Integer, String> LABEL_ANN_MAP = new HashMap<>() {{
+        put(0, ANN_AFIB_SYMBOL);
+        put(1, ANN_NSR_SYMBOL);
+        put(2, ANN_SB_SYMBOL);
+        put(3, ANN_OTHER_ARRHYTHMIA_SYMBOL);
     }};
 
     //------------------------------------------------------------实例变量
@@ -116,12 +116,12 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
      * @param ecgSignalmV 心电信号毫伏值
      */
     @Override
-    public void process(float ecgSignalmV) {
+    public void process(float ecgSignalmV, int position) {
         if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    postprocess(ecgSignalmV, INVALID_TIME);
+                    postprocess(ecgSignalmV, position);
                 }
             });
         }
@@ -130,9 +130,9 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
     /**
      * 处理一个心电信号值，单线程版本
      * @param ecgSignalmV 心电信号毫伏值
-     * @param sigTime 该信号值的采集时间，毫秒
+     * @param position 该信号值在记录中的数据位置
      */
-    public void postprocess(float ecgSignalmV, long sigTime) {
+    public void postprocess(float ecgSignalmV, int position) {
         // 将信号放入缓存
         sigBuf[pos++] = ecgSignalmV;
 
@@ -142,14 +142,9 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
                 // 用模型进行检测，输出结果
                 int label = detectRhythm(sigBuf);
                 // 通过标签映射，获取应用定义的异常标签值
-                label = LABEL_MAP.get(label);
-                if(label != INVALID_LABEL) {
-                    // 生成检测条目
-                    long startTime;
-                    if (sigTime == INVALID_TIME)
-                        sigTime = new Date().getTime();
-                    startTime = sigTime - SIG_LEN * 1000;
-                    SignalAnnotation item = new SignalAnnotation(startTime, label);
+                String annSymbol = LABEL_ANN_MAP.get(label);
+                if(!INVALID_ANN_SYMBOL.equals(annSymbol)) {
+                    SignalAnnotation item = new SignalAnnotation(position, annSymbol);
                     // 用回调处理检测条目
                     if (callback != null)
                         callback.onRhythmInfoUpdated(item);

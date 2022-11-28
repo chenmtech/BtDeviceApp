@@ -409,7 +409,9 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     }
 
     public List<String> getUnit() {
-        return ListStringUtil.stringToStrList(unit);
+        List<String> strUnit = new ArrayList<>();
+        ListStringUtil.stringToStrList(unit, strUnit);
+        return strUnit;
     }
 
     public String getUnitString() {

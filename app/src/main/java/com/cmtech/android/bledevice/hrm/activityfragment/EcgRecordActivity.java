@@ -1,8 +1,7 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ALL_ARRHYTHM_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_DESC_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.INVALID_ANN_SYMBOL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
@@ -138,7 +137,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
 
         tvCurrentLongTime = findViewById(R.id.tv_current_long_time);
-        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getTimeAtCurrentPosition()));
+        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getTimeAtCurPos()));
 
         tvTimeLength = findViewById(R.id.tv_time_length);
         int timeLength = record.getSigLen()/record.getSampleRate();
@@ -208,7 +207,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getPreItemPositionFromCurrentPosition(ALL_ARRHYTHM_LABEL);
+                int pos = ecgRecord.getPreAnnPosFromCurPos("");
                 if(pos != INVALID_POS)
                     ecgView.showAt(pos);
                 else
@@ -223,7 +222,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
             public void onClick(View v) {
                 ecgView.stopShow();
                 BleEcgRecord ecgRecord = (BleEcgRecord) record;
-                int pos = ecgRecord.getNextItemPositionFromCurrentPosition(ALL_ARRHYTHM_LABEL);
+                int pos = ecgRecord.getNextAnnPosFromCurPos("");
                 if(pos != INVALID_POS)
                     ecgView.showAt(pos);
                 else
@@ -387,13 +386,13 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     @Override
     public void onDataLocationUpdated(long location, int second) {
         tvCurrentTime.setText(DateTimeUtil.secToTime(second));
-        long currentTime = ((BleEcgRecord)record).getTimeAtCurrentPosition();
-        String labelStr = "";
-        int label = ((BleEcgRecord)record).getLabelAtTime(currentTime);
-        if(label != INVALID_LABEL)
-            labelStr = RHYTHM_DESC_MAP.get(label);
-        tvCurrentLongTime.setText(
-                DateTimeUtil.timeToStringWithTodayYesterday(currentTime)+" "+labelStr);
+        long currentTime = ((BleEcgRecord)record).getTimeAtCurPos();
+        String labelStr = DateTimeUtil.timeToStringWithTodayYesterday(currentTime);
+
+        String annSymbol = ((BleEcgRecord)record).getAnnSymbolAtCurPos();
+        if(!annSymbol.equals(INVALID_ANN_SYMBOL))
+            labelStr += ANNOTATION_DESCRIPTION_MAP.get(annSymbol);
+        tvCurrentLongTime.setText(labelStr);
         sbReplay.setProgress(second);
     }
 

@@ -3,12 +3,9 @@ package com.cmtech.android.bledeviceapp.data.record;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.AFIB_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ALL_ARRHYTHM_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.ARRHYTHMIA_DESC_MAP;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.INVALID_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.OTHER_LABEL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRhythmConstant.RHYTHM_DESC_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_AFIB_SYMBOL;
+import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.INVALID_ANN_SYMBOL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
@@ -18,8 +15,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.SignalAnnotation;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.SignalAnnotation;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
@@ -131,8 +128,8 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
      * @param ecg 要记录的一个ECG信号数据
      * @return 是否正常处理
      */
-    public boolean record(short ecg) {
-        boolean success = false;
+    public int record(short ecg) {
+        int pos = INVALID_POS;
         try {
             if(sigFile != null) {
                 sigFile.writeShort(new short[]{ecg});
@@ -141,12 +138,12 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
                     segTimes.add(new Date().getTime());
                     interrupt = false;
                 }
-                success = true;
+                pos = sigFile.size() - 1;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return success;
+        return pos;
     }
 
     /**
@@ -185,13 +182,13 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
 
         String strRhythmResult = "";
         if(AFIB_times == 0 && other_times == 0) {
-            strRhythmResult = "未发现房颤异常;";
+            strRhythmResult = "未发现心律异常;";
         } else {
             if(AFIB_times != 0) {
-                strRhythmResult += RHYTHM_DESC_MAP.get(AFIB_LABEL)+AFIB_times+"次;";
+                strRhythmResult += ANNOTATION_DESCRIPTION_MAP.get(ANN_AFIB_SYMBOL)+AFIB_times+"次;";
             }
             if(other_times != 0) {
-                strRhythmResult += RHYTHM_DESC_MAP.get(OTHER_LABEL)+other_times+"次;";
+                strRhythmResult += "其他心律异常"+other_times+"次;";
             }
         }
         String reportContent = strHrResult+strRhythmResult;
@@ -200,18 +197,18 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
     }
 
     /**
-     * 添加一条心律异常检测项
-     * @param item 一条检测项
+     * 添加一条注解项
+     * @param ann 注解
      */
-    public void addRhythmItem(SignalAnnotation item) {
-        String symbol = item.getSymbol();
+    public void addAnnotation(SignalAnnotation ann) {
+        String symbol = ann.getSymbol();
 
         // 如果前一个标记和当前的条目标记一样，就放弃添加
         if(!annSymbols.isEmpty() && annSymbols.get(annSymbols.size()-1).equals(symbol)) {
             return;
         }
 
-        int pos = item.getPos();
+        int pos = ann.getPos();
         annPoses.add(pos);
         annSymbols.add(symbol);
     }
@@ -220,7 +217,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
      * 获取记录的信号文件中当前位置上的数据的采集时刻
      * @return 数据采集时刻，单位ms
      */
-    public long getTimeAtCurrentPosition() {
+    public long getTimeAtCurPos() {
         if(sigFile == null)
             return INVALID_TIME;
         try {
@@ -240,145 +237,103 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
     private long getTimeAtPosition(int pos) {
         if(pos < 0) return INVALID_TIME;
 
-        int startPos;
-        long startTime;
+        int segPos;
+        long segTime;
         if(segPoses.isEmpty()) {
-            startPos = 0;
-            startTime = getCreateTime();
+            segPos = 0;
+            segTime = getCreateTime();
         } else {
             int i;
             for (i = 0; i < segPoses.size(); i++) {
                 if (segPoses.get(i) > pos) break;
             }
             if(i==0) return INVALID_TIME;
-            startPos = segPoses.get(i-1);
-            startTime = segTimes.get(i-1);
+            segPos = segPoses.get(i-1);
+            segTime = segTimes.get(i-1);
         }
-        return startTime + (pos - startPos)*1000L/getSampleRate();
+        return segTime + (pos - segPos)*1000L/getSampleRate();
     }
 
-    /**
-     * 获取指定采集时刻time对应的记录信号文件中的数据位置pos
-     * 为了正确获取数据位置，必须用到breakPos和breakTime
-     * @param time 采集时刻
-     * @return 信号文件中的数据位置
-     */
-    public int getPositionAtTime(long time) {
-        if(time < 0) return INVALID_POS;
+    public String getAnnSymbolAtCurPos() {
+        if(annSymbols.isEmpty() || sigFile == null) return INVALID_ANN_SYMBOL;
 
-        int startPos;
-        long startTime;
-        if(segPoses.isEmpty()) {
-            startPos = 0;
-            startTime = getCreateTime();
-        } else {
-            if(time < segTimes.get(0)) {
-                return 0;
-            }
-
+        try {
+            int curPos = sigFile.getCurrentPos();
             int i;
-            for (i = 0; i < segTimes.size(); i++) {
-                if (segTimes.get(i) > time) break;
+            for(i = 0; i < annPoses.size(); i++) {
+                if(annPoses.get(i) > curPos) break;
             }
-            startPos = segPoses.get(i-1);
-            startTime = segTimes.get(i-1);
+            if(i == 0) return INVALID_ANN_SYMBOL;
+            return annSymbols.get(i-1);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return INVALID_ANN_SYMBOL;
         }
-        return (int) (startPos + (time - startTime)*getSampleRate()/1000);
     }
 
     /**
-     * 获取指定采集时刻time对应的记录中信号在该时刻的诊断标签
-     * @param time 采集时刻
-     * @return 信号在该时刻的诊断标签
+     * 从信号文件当前数据位置向前寻找具有指定符号的注解项的数据位置
+     * 当annSymbol==""，则寻找任意注解；
+     * 当annSymbol为其他值时，则寻找指定注解。
+     * @param annSymbol 要寻找的注解符号。
+     * @return 前一个具有指定注解的数据位置
      */
-    public int getLabelAtTime(long time) {
-        if(rhythmLabels.isEmpty()) return INVALID_LABEL;
+    public int getPreAnnPosFromCurPos(String annSymbol) {
+        if(annSymbols.isEmpty() || sigFile == null) return INVALID_POS;
 
-        int i;
-        for(i = 0; i < rhythmTimes.size(); i++) {
-            if(rhythmTimes.get(i) > time) break;
+        try {
+            int curPos = sigFile.getCurrentPos();
+            int i;
+            for(i = 0; i < annPoses.size(); i++) {
+                if(annPoses.get(i) > curPos) break;
+            }
+            if(i-2 < 0) return INVALID_POS;
+            if(annSymbol.equals(""))
+                return annPoses.get(i-2);
+
+            // 返回前一个具有指定注解符号的数据位置
+            for (int j = i - 2; j >= 0; j--) {
+                if(annSymbols.get(j).contains(annSymbol))
+                    return annPoses.get(j);
+            }
+            return INVALID_POS;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return INVALID_POS;
         }
-        if(i == 0) return INVALID_LABEL;
-        return rhythmLabels.get(i-1);
     }
 
     /**
-     * 从信号文件当前数据位置向前寻找具有指定诊断标签项的数据段起始位置
-     * 当label==INVALID_LABEL时，则寻找任意标签；
-     * 当label==ALL_RHYTHM_LABEL时，则寻找任意异常标签；
-     * 当label为其他值时，则寻找指定标签。
-     * @param label 要寻找的信号诊断标签。
-     * @return 前一个具有指定诊断标签的信号数据段起始位置
+     * 从信号文件当前数据位置向后寻找具有指定符号的注解项的数据位置
+     * 当annSymbol==""，则寻找任意注解；
+     * 当annSymbol为其他值时，则寻找指定注解。
+     * @param annSymbol 要寻找的注解符号。
+     * @return 后一个具有指定注解的数据位置
      */
-    public int getPreItemPositionFromCurrentPosition(int label) {
-        if(rhythmLabels.isEmpty()) return INVALID_POS;
-        // 先得到当前位置的采集时刻
-        long curTime = getTimeAtCurrentPosition();
-        if(curTime == INVALID_TIME) return INVALID_POS;
+    public int getNextAnnPosFromCurPos(String annSymbol) {
+        if(annSymbols.isEmpty() || sigFile == null) return INVALID_POS;
 
-        int i;
-        for(i = 0; i < rhythmTimes.size(); i++) {
-            if(rhythmTimes.get(i) > curTime) break;
-        }
-        if(i-2 < 0) return INVALID_POS;
-
-        // 返回前一个任意标签信号段起始时刻的数据位置
-        if(label == INVALID_LABEL)
-            return getPositionAtTime(rhythmTimes.get(i-2));
-
-        // 返回前一个具有指定标签的信号段起始时刻的数据位置
-        for (int j = i - 2; j >= 0; j--) {
-            boolean found;
-            // 标签既不是NSR，也不是NOISE
-            if(label == ALL_ARRHYTHM_LABEL)
-                found = ARRHYTHMIA_DESC_MAP.containsKey(rhythmLabels.get(j));
-            else
-                found = (rhythmLabels.get(j) == label);
-
-            if(found) {
-                return getPositionAtTime(rhythmTimes.get(j));
+        try {
+            int curPos = sigFile.getCurrentPos();
+            int i;
+            for(i = 0; i < annPoses.size(); i++) {
+                if(annPoses.get(i) > curPos) break;
             }
-        }
-        return INVALID_POS;
-    }
+            if(i == annPoses.size()) return INVALID_POS;
 
-    /**
-     * 从信号文件当前数据位置向后寻找具有指定诊断标签项的数据段起始位置
-     * 当label==INVALID_LABEL时，则寻找任意标签；
-     * 当label==ALL_RHYTHM_LABEL时，则寻找任意异常标签；
-     * 当label为其他值时，则寻找指定标签。
-     * @param label 要寻找的信号诊断标签。
-     * @return 后一个具有指定诊断标签的信号数据段起始位置
-     */
-    public int getNextItemPositionFromCurrentPosition(int label) {
-        if(rhythmLabels.isEmpty()) return INVALID_POS;
+            if(annSymbol.equals(""))
+                return annPoses.get(i);
 
-        long curTime = getTimeAtCurrentPosition();
-        if(curTime == INVALID_TIME) return INVALID_POS;
-
-        int i;
-        for(i = 0; i < rhythmTimes.size(); i++) {
-            if(rhythmTimes.get(i) > curTime) break;
-        }
-
-        if(i == rhythmTimes.size()) return INVALID_POS;
-
-        if(label == INVALID_LABEL)
-            return getPositionAtTime(rhythmTimes.get(i));
-
-        for (int j = i; j < rhythmLabels.size(); j++) {
-            boolean found;
-            // 标签既不是NSR，也不是NOISE
-            if(label == ALL_ARRHYTHM_LABEL)
-                found = ARRHYTHMIA_DESC_MAP.containsKey(rhythmLabels.get(j));
-            else
-                found = (rhythmLabels.get(j) == label);
-
-            if(found) {
-                return getPositionAtTime(rhythmTimes.get(j));
+            // 返回前一个具有指定注解符号的数据位置
+            for (int j = i; j < annSymbols.size(); j++) {
+                if(annSymbols.get(j).contains(annSymbol))
+                    return annPoses.get(j);
             }
+            return INVALID_POS;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return INVALID_POS;
         }
-        return INVALID_POS;
     }
 
     // 从信号文件中读取一个数据
@@ -416,8 +371,8 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         aveHr = json.getInt("aveHr");
         ListStringUtil.stringToList(json.getString("segPoses"), segPoses, Integer.class);
         ListStringUtil.stringToList(json.getString("segTimes"), segTimes, Long.class);
-        ListStringUtil.stringToList(json.getString("rhythmTimes"), rhythmTimes, Long.class);
-        ListStringUtil.stringToList(json.getString("rhythmLabels"), rhythmLabels, Integer.class);
+        ListStringUtil.stringToList(json.getString("annPoses"), annPoses, Integer.class);
+        ListStringUtil.stringToStrList(json.getString("annSymbols"), annSymbols);
     }
 
     @Override
@@ -427,8 +382,8 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         json.put("aveHr", aveHr);
         json.put("segPoses", ListStringUtil.listToString(segPoses));
         json.put("segTimes", ListStringUtil.listToString(segTimes));
-        json.put("rhythmTimes", ListStringUtil.listToString(rhythmTimes));
-        json.put("rhythmLabels", ListStringUtil.listToString(rhythmLabels));
+        json.put("annPoses", ListStringUtil.listToString(annPoses));
+        json.put("annSymbols", ListStringUtil.strListToString(annSymbols));
         return json;
     }
 
@@ -436,7 +391,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
     @Override
     public String toString() {
         return super.toString() + "-" + leadTypeCode +
-                "-" + segPoses + "-" + segTimes + "-" + rhythmTimes + "-" + rhythmLabels;
+                "-" + segPoses + "-" + segTimes + "-" + annPoses + "-" + annSymbols;
     }
 
     /**
