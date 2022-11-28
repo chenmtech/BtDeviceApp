@@ -3,8 +3,8 @@ package com.cmtech.android.bledevice.hrm.model;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_AFIB_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_AFIB_SYMBOL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
@@ -26,7 +26,7 @@ import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector11;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.SignalAnnotation;
+import com.cmtech.android.bledeviceapp.data.record.SignalAnnotation;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -463,7 +463,7 @@ public class HrmDevice extends AbstractDevice {
         // 记录信号
         int pos = INVALID_POS;
         if(ecgRecordStatus && ecgRecord != null) {
-            pos = ecgRecord.record((short)ecgSignal);
+            pos = ecgRecord.record(new short[]{(short)ecgSignal});
 
             // 每记录一秒钟，就修改一次心电记录时间值
             if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
@@ -509,13 +509,13 @@ public class HrmDevice extends AbstractDevice {
     }
 
     /**
-     * 更新心律检测条目
-     * @param rhythmItem 一条心律异常检测条目
+     * 处理一条信号注解
+     * @param ann 一条信号注解
      */
-    private void updateRhythmDetectItem(SignalAnnotation rhythmItem) {
+    private void processSignalAnnotation(SignalAnnotation ann) {
         if(MyApplication.isRunInForeground()) {
             if (listener != null) {
-                String annSymbol = rhythmItem.getSymbol();
+                String annSymbol = ann.getSymbol();
                 listener.onEcgRhythmDetectInfoUpdated(annSymbol, ANNOTATION_DESCRIPTION_MAP.get(annSymbol));
                 if(ANN_AFIB_SYMBOL.equals(annSymbol)) {
                     MyApplication.getTts().speak("发现房颤");
@@ -524,7 +524,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(ecgRecordStatus && ecgRecord != null) {
-            ecgRecord.addAnnotation(rhythmItem);
+            ecgRecord.addAnnotation(ann);
         }
     }
 
@@ -843,7 +843,7 @@ public class HrmDevice extends AbstractDevice {
                 if(rhythmDetector == null) {
                     try {
                         //rhythmDetector = new EcgRealTimeRhythmDetector(RHYTHM_DETECT_MODEL, item -> updateRhythmDetectItem(item));
-                        rhythmDetector = new EcgRealTimeRhythmDetector11(RHYTHM_DETECT_MODEL, item -> updateRhythmDetectItem(item));
+                        rhythmDetector = new EcgRealTimeRhythmDetector11(RHYTHM_DETECT_MODEL, item -> processSignalAnnotation(item));
                     } catch (OrtException e) {
                         rhythmDetector = null;
                         ThreadUtil.runOnUiThread(new Runnable() {

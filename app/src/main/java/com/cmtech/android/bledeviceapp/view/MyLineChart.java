@@ -47,7 +47,7 @@ public class MyLineChart extends LineChart {
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return DateTimeUtil.secToMinute((int)value * interval);
+                return DateTimeUtil.secToTime((int)value * interval);
             }
         });
     }

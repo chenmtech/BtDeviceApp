@@ -173,7 +173,7 @@ public class HrHistogramChart extends BarChart {
         hrBarDataSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                return DateTimeUtil.secToMinute((int)value);//String.format(Locale.getDefault(), "%d", (int)value);
+                return DateTimeUtil.secToTime((int)value);//String.format(Locale.getDefault(), "%d", (int)value);
             }
         });
     }

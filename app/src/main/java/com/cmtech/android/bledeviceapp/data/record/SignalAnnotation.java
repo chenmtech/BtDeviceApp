@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
+package com.cmtech.android.bledeviceapp.data.record;
 
 /**
  * 信号注解类

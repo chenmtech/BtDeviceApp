@@ -18,9 +18,10 @@ import java.util.List;
 public interface ISignalRecord {
     int getSampleRate();
     int getChannelNum();
+    int getDataNum();
     List<Integer> getGain();
+    List<String> getUnit();
     boolean isEOD();
     void seek(int pos);
     int[] readData() throws IOException;
-    int getDataNum();
 }

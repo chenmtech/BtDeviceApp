@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.INVALID_ANN_SYMBOL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.INVALID_ANN_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;

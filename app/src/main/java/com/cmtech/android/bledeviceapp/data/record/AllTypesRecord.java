@@ -52,4 +52,5 @@ public class AllTypesRecord extends BasicRecord {
     public void seek(int pos) {
         throw new IllegalStateException("");
     }
+
 }

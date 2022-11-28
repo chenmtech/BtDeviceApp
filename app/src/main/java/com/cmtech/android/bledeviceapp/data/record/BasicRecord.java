@@ -408,6 +408,7 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         return bytePerDatum;
     }
 
+    @Override
     public List<String> getUnit() {
         List<String> strUnit = new ArrayList<>();
         ListStringUtil.stringToStrList(unit, strUnit);

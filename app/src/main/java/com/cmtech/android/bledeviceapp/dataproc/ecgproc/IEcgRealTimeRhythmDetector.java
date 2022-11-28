@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
+import com.cmtech.android.bledeviceapp.data.record.SignalAnnotation;
+
 public interface IEcgRealTimeRhythmDetector {
     //------------------------------------------------------------内部接口
     // 心律检测结果回调接口

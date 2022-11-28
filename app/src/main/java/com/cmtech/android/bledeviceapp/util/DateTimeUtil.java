@@ -26,12 +26,12 @@ public class DateTimeUtil {
         int minute = 0;
         int second = 0;
         if (time <= 0)
-            return "00:00:00";
+            return "00:00";
         else {
             minute = time / 60;
             if (minute < 60) {
                 second = time % 60;
-                timeStr = "00:" + unitFormat(minute) + ":" + unitFormat(second);
+                timeStr = unitFormat(minute) + ":" + unitFormat(second);
             } else {
                 hour = minute / 60;
                 if (hour > 99)
@@ -42,17 +42,6 @@ public class DateTimeUtil {
             }
         }
         return timeStr;
-    }
-
-    // a integer to xx m xx s
-    public static String secToMinute(int time) {
-        int minute = 0;
-        int second = 0;
-        if(time > 0) {
-            minute = time / 60;
-            second = time % 60;
-        }
-        return unitFormat(minute)+"'"+unitFormat(second)+"''";
     }
 
     // a integer to xx时xx分xx秒

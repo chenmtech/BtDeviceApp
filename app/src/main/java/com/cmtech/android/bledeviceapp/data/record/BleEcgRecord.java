@@ -3,9 +3,9 @@ package com.cmtech.android.bledeviceapp.data.record;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_AFIB_SYMBOL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.INVALID_ANN_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_AFIB_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.INVALID_ANN_SYMBOL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.data.report.EcgReport;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.SignalAnnotation;
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
 import com.cmtech.android.bledeviceapp.interfac.IWebResponseCallback;
 import com.cmtech.android.bledeviceapp.util.ListStringUtil;
@@ -63,10 +62,10 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
     // 每一段信号开始时刻
     private final List<Long> segTimes = new ArrayList<>();
 
-    // 注解位置列表，用样本序号来表示位置
+    // 注解位置列表，注解位置用样本序号来表示
     private final List<Integer> annPoses = new ArrayList<>();
 
-    // 注解符号，用来表示注解的类型和备用信息
+    // 注解符号列表，用来表示注解的类型及备用信息
     private final List<String> annSymbols = new ArrayList<>();
 
     //------------------------------------------实例变量，这些变量值不会保存到本地或远程数据库中
@@ -128,11 +127,11 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
      * @param ecg 要记录的一个ECG信号数据
      * @return 是否正常处理
      */
-    public int record(short ecg) {
+    public int record(short[] ecg) {
         int pos = INVALID_POS;
         try {
             if(sigFile != null) {
-                sigFile.writeShort(new short[]{ecg});
+                sigFile.writeShort(ecg);
                 if (interrupt) {
                     segPoses.add(sigFile.size() - 1);
                     segTimes.add(new Date().getTime());

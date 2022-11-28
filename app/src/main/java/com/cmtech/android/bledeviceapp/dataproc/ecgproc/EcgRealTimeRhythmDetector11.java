@@ -1,15 +1,15 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_AFIB_SYMBOL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_NSR_SYMBOL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_OTHER_ARRHYTHMIA_SYMBOL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.ANN_SB_SYMBOL;
-import static com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgAnnotationConstant.INVALID_ANN_SYMBOL;
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_AFIB_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_NSR_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_OTHER_ARRHYTHMIA_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_SB_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.INVALID_ANN_SYMBOL;
 
 import android.util.Pair;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledeviceapp.data.record.SignalAnnotation;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.MathUtil;
 import com.vise.log.ViseLog;
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -144,7 +143,7 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
                 // 通过标签映射，获取应用定义的异常标签值
                 String annSymbol = LABEL_ANN_MAP.get(label);
                 if(!INVALID_ANN_SYMBOL.equals(annSymbol)) {
-                    SignalAnnotation item = new SignalAnnotation(position, annSymbol);
+                    SignalAnnotation item = new SignalAnnotation(position-BUF_LEN+1, annSymbol);
                     // 用回调处理检测条目
                     if (callback != null)
                         callback.onRhythmInfoUpdated(item);

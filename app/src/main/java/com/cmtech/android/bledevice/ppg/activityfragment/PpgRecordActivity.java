@@ -68,11 +68,11 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
         ppgView.setup((BlePpgRecord) record);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
-        tvCurrentTime.setText(DateTimeUtil.secToMinute(0));
+        tvCurrentTime.setText(DateTimeUtil.secToTime(0));
 
         tvTotalTime = findViewById(R.id.tv_total_time);
         int timeLength = record.getSigLen()/record.getSampleRate();
-        tvTotalTime.setText(DateTimeUtil.secToMinute(timeLength));
+        tvTotalTime.setText(DateTimeUtil.secToTime(timeLength));
 
         sbReplay = findViewById(R.id.sb_replay);
         sbReplay.setMax(timeLength);
@@ -106,7 +106,7 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
     @Override
     public void onDataLocationUpdated(long location, int second) {
-        tvCurrentTime.setText(DateTimeUtil.secToMinute(second));
+        tvCurrentTime.setText(DateTimeUtil.secToTime(second));
         sbReplay.setProgress(second);
     }
 

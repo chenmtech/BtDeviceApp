@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 style="@style/button_circle_blue_style"
                 android:layout_margin="1dp"
-                android:text="上一条异常"/>
+                android:text="上一心律"/>
 
             <Button
                 android:id="@+id/btn_next_rhythm"
@@ -84,7 +84,7 @@
                 android:layout_height="wrap_content"
                 style="@style/button_circle_blue_style"
                 android:layout_margin="1dp"
-                android:text="下一条异常"/>
+                android:text="下一心律"/>
 
             <SeekBar
                 android:id="@+id/sb_replay"
