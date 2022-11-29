@@ -34,6 +34,20 @@ public class ScanSignalView extends ScanWaveView {
      * @param pixelPerGrid 每个栅格的像素个数，横向和纵向一样
      */
     public void setup(float[] zeroLocs, int sampleRate, int[] gain, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid) {
+        setup(zeroLocs, sampleRate, gain, secPerGrid, physicValuePerGrid, pixelPerGrid, true);
+    }
+
+    /**
+     * 设置信号波形视图
+     * @param zeroLocs 每个波形的零位置，它的长度代表波形个数
+     * @param sampleRate 采样频率，每个波形数据的采样频率必须相同
+     * @param gain 增益，即每个波形中的一个单位物理量对应的ADU值
+     * @param secPerGrid 横向每个栅格对应的时间秒数
+     * @param physicValuePerGrid 纵向每个栅格对应的物理量,比如：mv/grid
+     * @param pixelPerGrid 每个栅格的像素个数，横向和纵向一样
+     * @param showGridLine 是否显示栅格线
+     */
+    public void setup(float[] zeroLocs, int sampleRate, int[] gain, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid, boolean showGridLine) {
         // 计算横向分辨率
         int pixelPerData = Math.round(pixelPerGrid / (secPerGrid * sampleRate)); // 横向分辨率
 
@@ -42,7 +56,7 @@ public class ScanSignalView extends ScanWaveView {
         for(int i = 0; i < gain.length; i++)
             aduPerPixel[i] = gain[i] * physicValuePerGrid[i] / pixelPerGrid;
 
-        setup(zeroLocs, aduPerPixel, pixelPerData, pixelPerGrid);
+        setup(zeroLocs, aduPerPixel, pixelPerData, pixelPerGrid, showGridLine);
     }
 
     /**
@@ -55,6 +69,19 @@ public class ScanSignalView extends ScanWaveView {
      * @param pixelPerGrid 每个栅格的像素个数，横向和纵向一样
      */
     public void setup(int waveNum, int sampleRate, int[] gain, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid) {
+        setup(waveNum, sampleRate, gain, secPerGrid, physicValuePerGrid, pixelPerGrid, true);
+    }
+
+    /**
+     * 设置信号波形视图
+     * @param waveNum 波形个数
+     * @param sampleRate 采样频率，每个波形数据的采样频率必须相同
+     * @param gain 增益，即每个波形中的一个单位物理量对应的ADU值
+     * @param secPerGrid 横向每个栅格对应的时间秒数
+     * @param physicValuePerGrid 纵向每个栅格对应的物理量,比如：mv/grid
+     * @param pixelPerGrid 每个栅格的像素个数，横向和纵向一样
+     */
+    public void setup(int waveNum, int sampleRate, int[] gain, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid, boolean showGridLine) {
         assert gain.length == waveNum;
 
         // 用波形个数计算零值位置
@@ -62,6 +89,6 @@ public class ScanSignalView extends ScanWaveView {
         for(int i = 0; i < waveNum; i++)
             zeroLocs[i] = (1.0f+2*i) / (2*waveNum);
 
-        setup(zeroLocs, sampleRate, gain, secPerGrid, physicValuePerGrid, pixelPerGrid);
+        setup(zeroLocs, sampleRate, gain, secPerGrid, physicValuePerGrid, pixelPerGrid, showGridLine);
     }
 }

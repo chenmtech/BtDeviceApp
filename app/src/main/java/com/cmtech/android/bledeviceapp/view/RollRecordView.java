@@ -10,7 +10,7 @@ import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 
-import com.cmtech.android.bledeviceapp.data.record.ISignalRecord;
+import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class RollRecordView extends RollWaveView {
     private static final int MSG_UPDATE_SHOW_STATE = 2;
     private static final int MSG_STOP_SHOW = 3;
 
-    private ISignalRecord record; // 要播放的信号记录
+    private BasicRecord record; // 要播放的信号记录
     private boolean showing = false; // 是否正在播放
     private int curIndex = 0; // 当前读取记录文件中的第几个数据
     private int dataNumReadEachUpdate = 1; // 每次更新显示时需要读取的数据个数
@@ -140,7 +140,7 @@ public class RollRecordView extends RollWaveView {
         return true;
     }
 
-    public void setup(ISignalRecord record, float[] zeroLocs, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid) {
+    public void setup(BasicRecord record, float[] zeroLocs, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid) {
         assert record.getChannelNum() == zeroLocs.length;
 
         setRecord(record);
@@ -157,7 +157,7 @@ public class RollRecordView extends RollWaveView {
         setup(zeroLocs, aduPerPixel, pixelPerData, pixelPerGrid);
     }
 
-    public void setup(ISignalRecord record, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid) {
+    public void setup(BasicRecord record, float secPerGrid, float[] physicValuePerGrid, int pixelPerGrid) {
         // 用通道数计算零值位置
         float[] zeroLocs = new float[record.getChannelNum()];
         for(int i = 0; i < zeroLocs.length; i++)
@@ -166,7 +166,7 @@ public class RollRecordView extends RollWaveView {
         setup(record, zeroLocs, secPerGrid, physicValuePerGrid, pixelPerGrid);
     }
 
-    private void setRecord(ISignalRecord record) {
+    private void setRecord(BasicRecord record) {
         if(record == null) {
             throw new IllegalArgumentException();
         }

@@ -56,7 +56,7 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public abstract class BasicRecord extends LitePalSupport implements ISignalRecord, IJsonable, IWebOperation {
+public abstract class BasicRecord extends LitePalSupport implements IJsonable, IWebOperation {
     //-----------------------------------------常量
     // 缺省记录版本号
     public static final String DEFAULT_RECORD_VER = "1.0";
@@ -388,7 +388,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         this.comment = comment;
     }
 
-    @Override
     public List<Integer> getGain() {
         List<Integer> intGain = new ArrayList<>();
         ListStringUtil.stringToList(gain, intGain, Integer.class);
@@ -399,7 +398,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         return gain;
     }
 
-    @Override
     public int getSampleRate() {
         return sampleRate;
     }
@@ -408,7 +406,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         return bytePerDatum;
     }
 
-    @Override
     public List<String> getUnit() {
         List<String> strUnit = new ArrayList<>();
         ListStringUtil.stringToStrList(unit, strUnit);
@@ -427,7 +424,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
         this.sigLen = sigLen;
     }
 
-    @Override
     public int getChannelNum() {
         return channelNum;
     }
@@ -548,7 +544,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     }
 
     // 是否到达信号末尾
-    @Override
     public boolean isEOD() {
         if(sigFile != null) {
             try {
@@ -563,7 +558,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     }
 
     // 在信号文件中定位
-    @Override
     public void seek(int pos) {
         if(sigFile!= null) {
             try {
@@ -575,7 +569,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     }
 
     // 获取信号数据帧数
-    @Override
     public int getDataNum() {
         if(sigFile == null) return 0;
         return sigFile.size();
@@ -698,4 +691,6 @@ public abstract class BasicRecord extends LitePalSupport implements ISignalRecor
     public int hashCode() {
         return getName().hashCode();
     }
+
+    public abstract int[] readData() throws IOException;
 }

@@ -10,18 +10,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.vise.log.ViseLog;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -40,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 public class ScanWaveView extends WaveView {
     private int curX; // 波形线的当前横坐标
     private int[] curYs; //每个波形线的当前纵坐标
-    private final Rect deleteRect = new Rect(); // 要抹去的小矩形
+    private final Rect delRect = new Rect(); // 要抹去的小矩形
 
     private Bitmap waveBitmap;	//波形bitmap
     private Canvas waveCanvas;	//波形canvas
@@ -48,8 +44,8 @@ public class ScanWaveView extends WaveView {
     private boolean first = true; // 是否是第一个数据
     protected boolean showWave = true; // 是否显示波形，还是暂停显示
 
-    private final PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
-    private final PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
+    //private final PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
+    //private final PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
     protected GestureDetector gestureDetector; // 手势探测器
     private class MyGestureListener implements GestureDetector.OnGestureListener {
@@ -95,8 +91,8 @@ public class ScanWaveView extends WaveView {
     }
 
     @Override
-    public void initWave(int waveNum) {
-        super.initWave(waveNum);
+    public void initWave() {
+        super.initWave();
         curYs = new int[waveNum];
     }
 
@@ -131,9 +127,9 @@ public class ScanWaveView extends WaveView {
     // 重置view
     // resetBackground: 是否重绘背景bitmap
     @Override
-    public void resetView(boolean resetBackground)
+    public void resetView(boolean resetBgbitmap)
     {
-        super.resetView(resetBackground);
+        super.resetView(resetBgbitmap);
 
         // 创建波形bitmap和canvas
         waveBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
@@ -148,50 +144,6 @@ public class ScanWaveView extends WaveView {
         setShowWave(showWave);
     }
 
-    // 开始显示
-    @Override
-    public void startShow() {
-        if(showService == null || showService.isTerminated()) {
-            ViseLog.e("启动ScanWaveView");
-            showService = ExecutorUtil.newSingleExecutor("MT_Wave_Show");
-        }
-    }
-
-    // 停止显示
-    @Override
-    public void stopShow() {
-        if (showService != null && !showService.isTerminated()) {
-            ViseLog.e("停止ScanWaveView");
-            showService.shutdown();
-            try {
-                if(!showService.awaitTermination(10, TimeUnit.SECONDS)) {
-                    showService.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                showService.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    // 显示数据
-    public void addData(final int[] data) {
-        addData(data, true);
-    }
-
-    @Override
-    public void addData(final int[] data, boolean show) {
-        if(showWave && !ExecutorUtil.isDead(showService)) {
-            showService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    drawData(data, show);
-                }
-            });
-        }
-    }
-
     @Override
     public void initWavePaint() {
         super.initWavePaint();
@@ -200,6 +152,7 @@ public class ScanWaveView extends WaveView {
     }
 
     private void drawData(int[] data, boolean updateView) {
+        // 将ADU数据转化为波形纵坐标，像素为单位
         int[] dataYs = new int[waveNum];
         for(int i = 0; i < waveNum; i++)
             dataYs[i] = initYs[i] - Math.round(data[i] / aduPerPixel[i]);
@@ -223,21 +176,53 @@ public class ScanWaveView extends WaveView {
         if(preX == viewWidth)	//最后一个像素，抹去第一列
         {
             curX = initX;
-            deleteRect.set(initX, 0, initX + pixelPerGrid, viewHeight);
+            delRect.set(initX, 0, initX + pixelPerGrid, viewHeight);
         }
         else	//画线
         {
             curX += pixelPerData;
             for(int i = 0; i < waveNum; i++)
                 waveCanvas.drawLine(preX, preYs[i], curX, curYs[i], wavePaints[i]);
-            deleteRect.set(curX +1, 0, curX + pixelPerGrid, viewHeight);
+            delRect.set(curX +1, 0, curX + pixelPerGrid, viewHeight);
         }
         preX = curX;
         for(int i = 0; i < waveNum; i++)
             preYs[i] = curYs[i];
-        //抹去前面一个矩形区域
+        //抹去矩形区域delRect
         //wavePaints[0].setXfermode(srcInMode);
-        waveCanvas.drawBitmap(backBitmap, deleteRect, deleteRect, null);
+        waveCanvas.drawBitmap(bgBitmap, delRect, delRect, null);
         //wavePaints[0].setXfermode(srcOverMode);
+    }
+
+    //---------------------------------------------------实现抽象方法
+    // 开始显示
+    @Override
+    public void startShow() {
+        if(ExecutorUtil.isDead(showService)) {
+            showService = ExecutorUtil.newSingleExecutor("MT_Wave_Show");
+        }
+    }
+
+    // 停止显示
+    @Override
+    public void stopShow() {
+        ExecutorUtil.shutdownAndAwaitTerminate(showService);
+    }
+
+    @Override
+    public void addData(final int[] data, boolean show) {
+        if(showWave && !ExecutorUtil.isDead(showService)) {
+            showService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    drawData(data, show);
+                }
+            });
+        }
+    }
+
+    // 显示数据
+    public void addData(final int[] data) {
+        addData(data, true);
     }
 }

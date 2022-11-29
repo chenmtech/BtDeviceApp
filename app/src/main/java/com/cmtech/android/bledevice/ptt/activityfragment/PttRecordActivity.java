@@ -11,11 +11,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordActivity;
-import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
-import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BlePttRecord;
-import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.data.record.RecordType;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.view.OnRollWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.RollPttView;
@@ -66,7 +62,7 @@ public class PttRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         pttView = findViewById(R.id.roll_ptt_view);
         pttView.setListener(this);
-        pttView.setup((BlePttRecord) record);
+        pttView.setup((BlePttRecord) record, new float[]{0.4f,0.6f});
         //pttView.setGestureDetector(null);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);

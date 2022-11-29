@@ -58,9 +58,9 @@ public abstract class RollWaveView extends WaveView {
     // 重置view
     // includeBackground: 是否重绘背景bitmap
     @Override
-    public void resetView(boolean includeBackground)
+    public void resetView(boolean resetBgbitmap)
     {
-        super.resetView(includeBackground);
+        super.resetView(resetBgbitmap);
         setDataNumInView(viewWidth, pixelPerData);
     }
 
@@ -115,19 +115,19 @@ public abstract class RollWaveView extends WaveView {
     {
         synchronized (viewData) {
             for(int i = 0; i < waveNum; i++) {
-                FixSizeLinkedList<Integer> oneWaveData = viewData.get(i);
-                if (oneWaveData.size() <= 1) {
+                FixSizeLinkedList<Integer> oneWave = viewData.get(i);
+                if (oneWave.size() <= 1) {
                     return;
                 }
                 Path path = new Path();
-                int beginPos = dataNumInView - oneWaveData.size();
+                int beginPos = dataNumInView - oneWave.size();
 
                 preX = initX + pixelPerData * beginPos;
-                preYs[i] = initYs[i] - Math.round(oneWaveData.get(0) / aduPerPixel[i]);
+                preYs[i] = initYs[i] - Math.round(oneWave.get(0) / aduPerPixel[i]);
                 path.moveTo(preX, preYs[i]);
-                for (int j = 1; j < oneWaveData.size(); j++) {
+                for (int j = 1; j < oneWave.size(); j++) {
                     preX += pixelPerData;
-                    preYs[i] = initYs[i] - Math.round(oneWaveData.get(j) / aduPerPixel[i]);
+                    preYs[i] = initYs[i] - Math.round(oneWave.get(j) / aduPerPixel[i]);
                     path.lineTo(preX, preYs[i]);
                 }
                 canvas.drawPath(path, wavePaints[i]);
