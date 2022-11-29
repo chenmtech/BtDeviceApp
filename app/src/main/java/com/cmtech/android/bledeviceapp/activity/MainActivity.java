@@ -62,7 +62,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
-import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
+import com.cmtech.android.bledeviceapp.util.AppVersionUtils;
 import com.cmtech.android.bledeviceapp.util.ClickCheckUtil;
 import com.cmtech.android.bledeviceapp.util.MyBitmapUtil;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -115,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                 // 初始化UI
                 initializeUI();
 
+                // 初始化账户信息
+                initAccountInfo();
+
                 // 为已经打开的设备创建并打开Fragment
                 List<IDevice> openedDevices = MyApplication.getDeviceManager().getOpenedDevice();
                 for (IDevice device : openedDevices) {
@@ -162,9 +165,6 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
             }
             startActivity(intent);
         }
-
-        // 从本地读取联系人信息
-        MyApplication.getAccount().readContactFromLocalDb();
 
         // 启动通知服务
         Intent serviceIntent = new Intent(this, NotificationService.class);
@@ -228,14 +228,26 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
                 appUpdateManager.updateApp(this);
             }
         });
+    }
 
-        // 下载账户信息，因为下载后需要更新界面，所以放在这个函数中运行
+    private void initAccountInfo() {
+        // 下载账户信息
         MyApplication.getAccount().download(this, null, new ICodeCallback() {
             @Override
             public void onFinish(int code, String msg) {
                 if(code == RCODE_SUCCESS) {
                     updateNavigationHeader();
                     tbManager.setNavIcon(MyApplication.getAccount().getIcon());
+                }
+            }
+        });
+
+        // 下载账户联系人信息
+        MyApplication.getAccount().downloadContactInfo(this, null, new ICodeCallback() {
+            @Override
+            public void onFinish(int code, String msg) {
+                if(code != RCODE_SUCCESS) {
+                    MyApplication.getAccount().readContactFromLocalDb();
                 }
             }
         });
@@ -651,7 +663,7 @@ public class MainActivity extends AppCompatActivity implements OnDeviceListener,
 
     private void initMainLayout() {
         TextView tvVersionName = noDeviceOpenLayout.findViewById(R.id.tv_version);
-        tvVersionName.setText(APKVersionCodeUtils.getVerName());
+        tvVersionName.setText(AppVersionUtils.getVerName());
         updateMainLayout(null);
     }
 

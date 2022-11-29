@@ -4,8 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * 日期与时间格式变换
+ */
 public class DateTimeUtil {
-    public static final long INVALID_TIME = -1;
 
     public static String timeToString(long timeInMillis) {
         return new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒", Locale.CHINA).format(new Date(timeInMillis));
@@ -19,7 +21,7 @@ public class DateTimeUtil {
         return todayYesterday(timeInMillis) + new SimpleDateFormat(" HH:mm:ss", Locale.CHINA).format(timeInMillis);
     }
 
-    // a integer to xx:xx:xx
+    // a integer to xx:xx:xx if hour!=0, else xx:xx
     public static String secToTime(int time) {
         String timeStr = null;
         int hour = 0;
@@ -44,7 +46,7 @@ public class DateTimeUtil {
         return timeStr;
     }
 
-    // a integer to xx时xx分xx秒
+    // a integer to xx时xx分xx秒 if hour!=0, otherwise xx分xx秒
     public static String secToTimeInChinese(int time) {
         String timeStr = null;
         int hour = 0;

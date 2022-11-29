@@ -65,7 +65,7 @@ public class MyFileUtil {
 
                 filePath = getDataColumn(context, contentUri, selection, selectionArgs);
             } else if (isDownloadsDocument(uri)) { // DownloadsProvider
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(documentId));
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(documentId));
                 filePath = getDataColumn(context, contentUri, null, null);
             }else if (isExternalStorageDocument(uri)) {
                 // ExternalStorageProvider

@@ -38,6 +38,8 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 public class AppConstant {
     public static final int INVALID_ID = -1;
+    public static final int INVALID_POS = -1;
+    public static final long INVALID_TIME = -1;
 
     // 无效心率值
     public static final short INVALID_HR = -1;
@@ -79,5 +81,4 @@ public class AppConstant {
     //public static final String KMIC_URL = "http://203.195.137.198/BtDeviceWebApp/";
     public static final String KMIC_URL = "http://kmic.xyz/BtDeviceWebApp/";
 
-    public static final int INVALID_POS = -1;
 }

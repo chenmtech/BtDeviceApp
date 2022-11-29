@@ -4,8 +4,6 @@ import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_DATA_
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_INVALID_PARA_ERR;
 import static com.cmtech.android.bledeviceapp.interfac.IWebOperation.RCODE_WEB_FAILURE;
 
-import com.vise.log.ViseLog;
-
 public class WebFailureHandler {
     public static String toString(int rtnCode) {
         String errString = "";
@@ -59,7 +57,7 @@ public class WebFailureHandler {
                 errString = "未知错误";
                 break;
         }
-        ViseLog.e("error code: " + rtnCode);
+        //ViseLog.e("error code: " + rtnCode);
         return errString;
     }
 }

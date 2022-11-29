@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.util;
 import java.nio.charset.Charset;
 
 /**
- * Java基本数据类型和byte数组相互转化
+ * Java基本数据类型和byte数组间相互转化
  * 注意：byte[]中的数据，byte[0]是最低位数据
  * Created by bme on 2018/3/10.
  */
@@ -17,12 +17,12 @@ public class ByteUtil {
         return bytes;
     }
 
-    public static byte[] getBytes(char data) {
+/*    public static byte[] getBytes(char data) {
         byte[] bytes = new byte[2];
         bytes[0] = (byte) (data);
         bytes[1] = (byte) (data >> 8);
         return bytes;
-    }
+    }*/
 
     public static byte[] getBytes(int data) {
         byte[] bytes = new byte[4];
@@ -69,9 +69,9 @@ public class ByteUtil {
         return (short) ((0xff & bytes[0]) | (0xff00 & (bytes[1] << 8)));
     }
 
-    public static char getChar(byte[] bytes) {
+/*    public static char getChar(byte[] bytes) {
         return (char) ((0xff & bytes[0]) | (0xff00 & (bytes[1] << 8)));
-    }
+    }*/
 
     public static int getInt(byte[] bytes) {
         return (0xff & bytes[0]) | (0xff00 & (bytes[1] << 8)) | (0xff0000 & (bytes[2] << 16))
@@ -101,6 +101,10 @@ public class ByteUtil {
         return getString(bytes, "GBK");
     }
 
+    /**
+     * 字节数组翻转
+     * @param bytes 字节数组
+     */
     public static void reverse(byte[] bytes) {
         for (int i = 0; i < bytes.length / 2; i++) {
             byte temp = bytes[i];

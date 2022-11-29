@@ -8,7 +8,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 
 import com.cmtech.android.bledeviceapp.interfac.ICodeCallback;
-import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
+import com.cmtech.android.bledeviceapp.util.AppVersionUtils;
 
 public class AppUpdateManager {
     private final AppPackageInfo appUpdateInfo;
@@ -35,14 +35,14 @@ public class AppUpdateManager {
      * @return
      */
     public boolean existUpdate() {
-        int curVerCode = APKVersionCodeUtils.getVersionCode();
+        int curVerCode = AppVersionUtils.getVersionCode();
         return curVerCode < appUpdateInfo.getVerCode();
     }
 
     public void updateApp(Context context) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         String msgBuilder =
-                "当前版本：" + APKVersionCodeUtils.getVerName() + "\n" +
+                "当前版本：" + AppVersionUtils.getVerName() + "\n" +
                 "新版本：" + appUpdateInfo.getVerName() + "\n" +
                 "更新内容：" + appUpdateInfo.getNote() + "\n" +
                 "安装包大小：" + appUpdateInfo.getSize() + "MB";
@@ -66,7 +66,7 @@ public class AppUpdateManager {
             @Override
             public void onClick(View v)
             {
-                int curVerCode = APKVersionCodeUtils.getVersionCode();
+                int curVerCode = AppVersionUtils.getVersionCode();
                 if(curVerCode < appUpdateInfo.getSupportedVerCode()) {
                     Toast.makeText(context, "当前版本太低，不升级将无法正常使用", Toast.LENGTH_SHORT).show();
                 } else

@@ -26,7 +26,7 @@ import okhttp3.Response;
 /**
  * ClassName:      WebService11Util
  * Description:    提供网络服务的类，服务协议版本号为1.1,包括账号，记录等的网络操作
- *                 只负责打包数据，发送http网络请求，并将接收到的JSON数据解包为WebResponse响应，包括code和content
+ *                 只负责打包数据，发送http网络请求，并将接收到的JSON数据包解析为WebResponse响应
  * Author:         chenm
  * CreateDate:     2020/4/14 上午10:51
  * UpdateUser:     更新者
@@ -62,7 +62,7 @@ public class WebService11Util {
     public static final int CMD_DOWNLOAD_RECORD = 3;
     // 删除一条记录
     public static final int CMD_DELETE_RECORD = 4;
-    // 下载多条记录
+    // 下载满足条件的多条记录
     public static final int CMD_DOWNLOAD_RECORDS = 5;
     // 分享一条记录
     public static final int CMD_SHARE_RECORD = 6;
@@ -72,21 +72,21 @@ public class WebService11Util {
     public static final int CMD_UPLOAD_ACCOUNT = 8;
     // 下载账户信息
     public static final int CMD_DOWNLOAD_ACCOUNT = 9;
-    // 注册账户
+    // 注册一个新账户
     public static final int CMD_SIGNUP = 10;
-    // 登录账户
+    // 账户登录
     public static final int CMD_LOGIN = 11;
     // 重置账户密码
     public static final int CMD_RESET_PASSWORD = 12;
-    // 下载账户联系人信息，仅包括发起者ID，接收者ID，以及申请状态
+    // 下载联系人信息，仅包括发起者ID，接收者ID，以及申请状态
     public static final int CMD_DOWNLOAD_CONTACT_INFO = 13;
-    // 下载联系人的一些账户信息，包括账户ID，昵称，简介和头像
+    // 下载现有联系人的一些账户信息，包括账户ID，昵称，简介和头像
     public static final int CMD_DOWNLOAD_CONTACT_ACCOUNT_INFO = 14;
-    // 添加一条申请联系人信息
+    // 申请新的联系人
     public static final int CMD_ADD_CONTACT = 15;
-    // 同意一条联系人申请信息
+    // 同意一个联系人申请
     public static final int CMD_AGREE_CONTACT = 16;
-    // 删除一条联系人信息
+    // 删除一个联系人
     public static final int CMD_DELETE_CONTACT = 17;
     // 下载APP更新信息
     public static final int CMD_DOWNLOAD_APP_INFO = 18;

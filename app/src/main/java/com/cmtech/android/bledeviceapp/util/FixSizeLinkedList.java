@@ -16,6 +16,8 @@ import java.util.LinkedList;
  * Version:        1.0
  */
 public class FixSizeLinkedList<T> extends LinkedList<T> {
+    // list的容量，即这个list最大能保存的数据长度
+    // 当数据长度超过这个值时，将删除最先放入的数据
     private int capacity;
 
     public FixSizeLinkedList(int capacity) {

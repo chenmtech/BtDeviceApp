@@ -1,8 +1,6 @@
 package com.cmtech.android.bledeviceapp.util;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class ListStringUtil {
@@ -10,9 +8,10 @@ public class ListStringUtil {
     }
 
     /**
-     * to transfer the List<T> to a string
+     * 将List<T>转换为String,每个元素转为String，用逗号分开
+     * 但是T必须为数值型，不能为String类型
      * @param list
-     * @param <T>
+     * param <T>
      * @return
      */
     public static <T extends Number> String listToString(List<T> list) {
@@ -27,7 +26,8 @@ public class ListStringUtil {
     }
 
     /**
-     * to transfer the string to a List<T>
+     * 将String转换为一个List<T>
+     * T必须为数值型，不能为String
      * @param str
      * @param list
      * @param type
@@ -59,6 +59,8 @@ public class ListStringUtil {
 
     public static void stringToStrList(String str, List<String> strList) {
         strList.clear();
-        Collections.addAll(strList, str.split(","));
+        String[] strArr = str.split(",");
+        for(String s : strArr)
+            strList.add(s.trim());
     }
 }

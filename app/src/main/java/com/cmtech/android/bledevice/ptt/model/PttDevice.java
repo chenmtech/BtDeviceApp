@@ -30,9 +30,7 @@ import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -51,8 +49,8 @@ import java.util.UUID;
 
 public class PttDevice extends AbstractDevice {
     private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
-    public static final int DEFAULT_ECG_GAIN = 160; // default ecg 1mV calibration value
-    public static final int DEFAULT_PPG_GAIN = 100; // default ppg calibration value
+    public static final int DEFAULT_ECG_GAIN = 160; // default ecg 1mV ADU value
+    public static final int DEFAULT_PPG_GAIN = 100; // default ppg gain
     private static final int PTT_RECORD_MAX_SECOND = 30;
 
     // ppg service

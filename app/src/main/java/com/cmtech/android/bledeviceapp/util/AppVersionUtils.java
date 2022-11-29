@@ -5,11 +5,11 @@ import android.content.pm.PackageManager;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 
 /**
- * APK版本Utils
+ * App版本Utils
  */
 
-public class APKVersionCodeUtils {
-
+public class AppVersionUtils {
+    // 获取版本号
     public static int getVersionCode() {
         int versionCode = 0;
         try {
@@ -21,6 +21,7 @@ public class APKVersionCodeUtils {
         return versionCode;
     }
 
+    // 获取版本名
     public static String getVerName() {
         String verName = "";
         try {

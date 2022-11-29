@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.view.layout;
 
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_TIME;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -1,14 +1,14 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
-import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
-import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
 import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_AFIB_SYMBOL;
 import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.INVALID_ANN_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
+import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_HR;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_TIME;
 
 import android.content.Context;
 

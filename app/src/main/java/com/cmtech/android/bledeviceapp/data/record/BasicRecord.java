@@ -2,8 +2,8 @@ package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_DOC;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.SUPPORT_RECORD_TYPES;
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
 import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DELETE_RECORD;
 import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_RECORD;
 import static com.cmtech.android.bledeviceapp.util.WebService11Util.CMD_DOWNLOAD_RECORDS;

@@ -20,7 +20,9 @@
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/dialog_choose_share_person.xml" value="0.15177426250534418" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/dialog_device_info.xml" value="0.195382642154767" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_account_info.xml" value="0.195382642154767" />
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_calibrate_ptt.xml" value="0.20350577169730655" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_device_hrm.xml" value="0.19427083333333334" />
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_ecg.xml" value="0.20350577169730655" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_record_hrm_ecg.xml" value="0.33" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_record_hrm_hr.xml" value="0.2515625" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/fragment_record_ppg.xml" value="0.16973065412569474" />

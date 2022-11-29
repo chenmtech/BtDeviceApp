@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.data.report;
 
-import static com.cmtech.android.bledeviceapp.util.DateTimeUtil.INVALID_TIME;
+import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_TIME;
 
 import androidx.annotation.NonNull;
 

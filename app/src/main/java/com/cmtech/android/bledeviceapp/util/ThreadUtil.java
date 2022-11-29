@@ -6,16 +6,7 @@ import android.os.Looper;
 import android.widget.Toast;
 
 /**
- * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledeviceapp.util
- * ClassName:      ThreadUtil
- * Description:    java类作用描述
- * Author:         作者名
- * CreateDate:     2021/6/29 上午5:16
- * UpdateUser:     更新者
- * UpdateDate:     2021/6/29 上午5:16
- * UpdateRemark:   更新说明
- * Version:        1.0
+ * 线程类Util
  */
 public class ThreadUtil {
     private static final Handler mHandler = new Handler(Looper.getMainLooper());

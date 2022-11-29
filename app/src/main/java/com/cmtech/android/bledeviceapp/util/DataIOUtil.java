@@ -1,12 +1,15 @@
 package com.cmtech.android.bledeviceapp.util;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-import static java.nio.ByteOrder.BIG_ENDIAN;
-
+/**
+ * 考虑字节序的数据读写
+ */
 public class DataIOUtil {
     public static String readFixedString(DataInput in, int size) throws IOException {
         StringBuilder b = new StringBuilder(size);

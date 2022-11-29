@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.util;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -13,7 +14,7 @@ import java.io.IOException;
 
 public class MyBitmapUtil {
     public static Bitmap scaleToDp(String file, int dp) {
-        int px = DensityUtil.dip2px(MyApplication.getContext(), dp);
+        int px = dip2px(MyApplication.getContext(), dp);
         px = Math.min(px, 130);
         Bitmap bitmap = BitmapFactory.decodeFile(file);
         ViseLog.e(file + ":" + bitmap);
@@ -26,7 +27,7 @@ public class MyBitmapUtil {
     }
 
     public static Bitmap showToDp(String file, int dp) {
-        int px = DensityUtil.dip2px(MyApplication.getContext(), dp);
+        int px = dip2px(MyApplication.getContext(), dp);
         Bitmap bitmap = BitmapFactory.decodeFile(file);
         int degree = getBitmapDegree(file);
         if(degree != 0) {
@@ -114,5 +115,21 @@ public class MyBitmapUtil {
             bm.recycle();
         }
         return returnBm;
+    }
+
+    /**
+     * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
+     */
+    public static int dip2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
+    /**
+     * 根据手机的分辨率从 px(像素) 的单位 转成为 dp
+     */
+    public static int px2dip(Context context, float pxValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (pxValue / scale + 0.5f);
     }
 }
