@@ -384,8 +384,8 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     }
 
     @Override
-    public void onDataLocationUpdated(long location, int second) {
-        tvCurrentTime.setText(DateTimeUtil.secToTime(second));
+    public void onDataLocationUpdated(long loc, int sec) {
+        tvCurrentTime.setText(DateTimeUtil.secToTime(sec));
         long currentTime = ((BleEcgRecord)record).getTimeAtCurPos();
         String labelStr = DateTimeUtil.timeToStringWithTodayYesterday(currentTime);
 
@@ -393,7 +393,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         if(!annSymbol.equals(INVALID_ANN_SYMBOL))
             labelStr += ANNOTATION_DESCRIPTION_MAP.get(annSymbol);
         tvCurrentLongTime.setText(labelStr);
-        sbReplay.setProgress(second);
+        sbReplay.setProgress(sec);
     }
 
     @Override

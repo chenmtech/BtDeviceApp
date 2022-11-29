@@ -104,9 +104,9 @@ public class EegRecordActivity extends RecordActivity implements OnRollWaveViewL
     }
 
     @Override
-    public void onDataLocationUpdated(long location, int second) {
-        tvCurrentTime.setText(DateTimeUtil.secToTime(second));
-        sbReplay.setProgress(second);
+    public void onDataLocationUpdated(long loc, int sec) {
+        tvCurrentTime.setText(DateTimeUtil.secToTime(sec));
+        sbReplay.setProgress(sec);
     }
 
     @Override

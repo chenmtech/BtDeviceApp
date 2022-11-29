@@ -2,8 +2,9 @@ package com.cmtech.android.bledeviceapp.view;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
+
+import androidx.core.content.ContextCompat;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -21,7 +22,9 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * 曲线图，用于画心率和体温变化曲线
+ */
 public class MyLineChart extends LineChart {
     private static final int DEFAULT_X_VALUE_INTERVAL = 10;
 

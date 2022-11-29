@@ -13,5 +13,10 @@ package com.cmtech.android.bledeviceapp.view;
  * Version:        1.0
  */
 public interface OnRollWaveViewListener extends OnWaveViewListener{
-    void onDataLocationUpdated(long location, int second); // 数据位置更新
+    /**
+     * 更新当前显示的数据点在整个数据集中的位置和经过的时间
+     * @param loc 数据位置，用当前数据的样本序号表示
+     * @param sec 经过的时间，单位秒
+     */
+    void onDataLocationUpdated(long loc, int sec);
 }

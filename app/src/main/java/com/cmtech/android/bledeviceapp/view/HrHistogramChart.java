@@ -28,7 +28,7 @@ import java.util.List;
 
 
 /**
- * HrStatisticProcessor: 心率直方图
+ * HrHistogramChart: 心率直方图
  * Created by bme on 2019/1/9.
  */
 
@@ -37,8 +37,8 @@ public class HrHistogramChart extends BarChart {
     private static final int TEXT_COLOR = Color.GRAY;
 
     private BarDataSet hrBarDataSet;
-    private List<BarEntry> hrBarEntries = new ArrayList<>();
-    private List<String> hrBarXStrings = new ArrayList<>();
+    private final List<BarEntry> hrBarEntries = new ArrayList<>();
+    private final List<String> hrBarXStrings = new ArrayList<>();
 
     private final String legendString;
 
@@ -60,23 +60,16 @@ public class HrHistogramChart extends BarChart {
     public HrHistogramChart(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        //第二个参数就是我们在attrs.xml文件中的<declare-styleable>标签
+        //第二个参数就是在attrs.xml文件中的<declare-styleable>标签
         //即属性集合的标签，在R文件中名称为R.styleable+name
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.HrHistogramChart);
 
         //第一个参数为属性集合里面的属性，R文件名称：R.styleable+属性集合名称+下划线+属性名称
-        //第二个参数为，如果没有设置这个属性，则设置的默认的值
         legendString = a.getString(R.styleable.HrHistogramChart_legend_string);
 
         //最后记得将TypedArray对象回收
         a.recycle();
 
-        initialize();
-    }
-
-    public HrHistogramChart(Context context, AttributeSet attrs, int defStyle, String legendString) {
-        super(context, attrs, defStyle);
-        this.legendString = legendString;
         initialize();
     }
 
@@ -192,7 +185,7 @@ public class HrHistogramChart extends BarChart {
 
 
     private static class StringAxisValueFormatter implements IAxisValueFormatter {
-        private List<String> values;
+        private final List<String> values;
 
         StringAxisValueFormatter(List<String> values){
             this.values = values;

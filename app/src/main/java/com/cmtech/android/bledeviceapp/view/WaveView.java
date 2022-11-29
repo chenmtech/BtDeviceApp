@@ -1,9 +1,3 @@
-/*
- * * SignalScanView: ��ɨ��ķ�ʽ������ʾ��������ʾ�ź�
- * Ŀǰû�м����κ��˲�����
- * Wrote by chenm, BME, GDMC
- * 2013.09.25
- */
 package com.cmtech.android.bledeviceapp.view;
 
 import android.content.Context;

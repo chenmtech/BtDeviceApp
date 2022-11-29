@@ -13,5 +13,9 @@ package com.cmtech.android.bledeviceapp.view;
  * Version:        1.0
  */
 public interface OnWaveViewListener {
-    void onShowStateUpdated(boolean show); // 显示状态更新
+    /**
+     * 更新显示状态
+     * @param show 当前是否显示，true-显示，false-不显示
+     */
+    void onShowStateUpdated(boolean show);
 }
