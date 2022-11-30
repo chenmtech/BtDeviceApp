@@ -122,6 +122,10 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         return annSymbols;
     }
 
+    public List<Integer> getAnnPoses() {
+        return annPoses;
+    }
+
     /**
      * 记录一个ECG信号值，主要是将其保存到信号文件中，另外要处理设备断开操作
      * @param ecg 要记录的一个ECG信号数据

@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.view;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -10,6 +11,7 @@ import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 
+import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledeviceapp.data.record.BasicRecord;
 import com.vise.log.ViseLog;
 
@@ -32,11 +34,21 @@ public class RollRecordView extends RollWaveView {
     private static final int MSG_UPDATE_SHOW_STATE = 2;
     private static final int MSG_STOP_SHOW = 3;
 
-    private BasicRecord record; // 要播放的信号记录
-    private boolean showing = false; // 是否正在播放
-    private int curIndex = 0; // 当前读取记录文件中的第几个数据
-    private int dataNumReadEachUpdate = 1; // 每次更新显示时需要读取的数据个数
-    private ScheduledExecutorService showExecutor; // 定时更新显示线程池
+    // 要显示的记录
+    protected BasicRecord record;
+
+    // 是否正在播放
+    private boolean showing = false;
+
+    // 当前读取记录文件中的第几个数据
+    protected int curPos = 0;
+
+    // 每次更新显示时需要读取的数据个数
+    private int dataNumReadEachUpdate = 1;
+
+    // 定时更新显示线程池
+    private ScheduledExecutorService showExecutor;
+
     private final Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
@@ -47,9 +59,9 @@ public class RollRecordView extends RollWaveView {
                     listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
                 }
             } else if(msg.what == MSG_UPDATE_SHOW_STATE) {
-                boolean isShow = (msg.arg1 == 1);
+                boolean show = (msg.arg1 == 1);
                 if(listener != null) {
-                    listener.onShowStateUpdated(isShow);
+                    listener.onShowStateUpdated(show);
                 }
             } else if(msg.what == MSG_STOP_SHOW) {
                 stopShow();
@@ -67,13 +79,13 @@ public class RollRecordView extends RollWaveView {
                     Message.obtain(handler, MSG_STOP_SHOW).sendToTarget();
                 } else {
                     // 读出数据
-                    for (int i = 0; i < dataNumReadEachUpdate; i++, curIndex++) {
+                    for (int i = 0; i < dataNumReadEachUpdate; i++, curPos++) {
                         addData(record.readData(), false);
                         if (record.isEOD()) {
                             break;
                         }
                     }
-                    Message.obtain(handler, MSG_UPDATE_VIEW, curIndex, 0).sendToTarget();
+                    Message.obtain(handler, MSG_UPDATE_VIEW, curPos, 0).sendToTarget();
                 }
             } catch (IOException e) {
                 stopShow();
@@ -106,7 +118,7 @@ public class RollRecordView extends RollWaveView {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float v, float v1) {
             stopShow();
-            showAt((long)(curIndex +v));
+            showAt((long)(curPos +v));
             return true;
         }
 
@@ -172,8 +184,8 @@ public class RollRecordView extends RollWaveView {
         }
         stopShow();
         this.record = record;
-        curIndex = 0;
-        record.seek(curIndex);
+        curPos = 0;
+        record.seek(curPos);
 
         int sampleInterval = 1000/ record.getSampleRate();
         dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_TIME_INTERVAL /sampleInterval));
@@ -185,10 +197,9 @@ public class RollRecordView extends RollWaveView {
 
     public void startShow() {
         if(!showing && record != null) {
-            ViseLog.e("启动RollRecordView");
             if(record.isEOD()) {
-                curIndex = 0;
-                record.seek(curIndex);
+                curPos = 0;
+                record.seek(curPos);
                 resetView(true);
             }
 
@@ -212,18 +223,7 @@ public class RollRecordView extends RollWaveView {
         if(showing) {
             ViseLog.e("停止RollRecordView");
 
-            if(showExecutor != null && !showExecutor.isTerminated()) {
-                showExecutor.shutdown();
-                try {
-                    while (!showExecutor.awaitTermination(1, TimeUnit.SECONDS)) {
-                        ViseLog.e("The thread pool is not terminated. Wait again");
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    showExecutor.shutdownNow();
-                    Thread.currentThread().interrupt();
-                }
-            }
+            ExecutorUtil.shutdownAndAwaitTerminate(showExecutor);
 
             handler.removeCallbacksAndMessages(null);
 
@@ -264,10 +264,10 @@ public class RollRecordView extends RollWaveView {
             }
         }
         showView();
-        curIndex = (int)location;
+        curPos = (int)location;
 
         if(listener != null) {
-            listener.onDataLocationUpdated(curIndex, curIndex/record.getSampleRate());
+            listener.onDataLocationUpdated(curPos, curPos /record.getSampleRate());
         }
     }
 

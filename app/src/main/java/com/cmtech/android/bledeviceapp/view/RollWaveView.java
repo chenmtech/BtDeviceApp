@@ -23,10 +23,13 @@ import java.util.List;
  */
 
 public abstract class RollWaveView extends WaveView {
-    protected int dataNumInView; // View一屏包含的数据点数
+    // View一屏包含的数据点数
+    protected int dataNumInView;
 
-    protected final List<FixSizeLinkedList<Integer>> viewData; //要显示的波形数据缓冲
+    //要显示的波形数据缓冲
+    protected final List<FixSizeLinkedList<Integer>> viewData;
 
+    // 监听器
     protected OnRollWaveViewListener listener;
 
     public RollWaveView(Context context) {
