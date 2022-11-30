@@ -31,6 +31,8 @@ public class HrmCfg extends LitePalSupport implements Serializable {
     private boolean needWarn = DEFAULT_HR_WARN; // need warn when hr exception occurred
     private int speakPeriod = DEFAULT_HR_SPEAK_PERIOD;
     private boolean isSpeak = DEFAULT_HR_SPEAK;
+    private boolean isWarnAfib = true;
+    private boolean isWarnSb = true;
 
     public int getId() {
         return id;
@@ -74,6 +76,18 @@ public class HrmCfg extends LitePalSupport implements Serializable {
     public void setSpeak(boolean isSpeak) {
         this.isSpeak = isSpeak;
     }
+    public boolean isWarnAfib() {
+        return isWarnAfib;
+    }
+    public void setWarnAfib(boolean isWarnAfib) {
+        this.isWarnAfib = isWarnAfib;
+    }
+    public boolean isWarnSb() {
+        return isWarnSb;
+    }
+    public void setWarnSb(boolean isWarnSb) {
+        this.isWarnSb = isWarnSb;
+    }
 
     public void copyFrom(HrmCfg config) {
         needWarn = config.needWarn;
@@ -81,5 +95,7 @@ public class HrmCfg extends LitePalSupport implements Serializable {
         hrHigh = config.hrHigh;
         speakPeriod = config.speakPeriod;
         isSpeak = config.isSpeak;
+        isWarnAfib = config.isWarnAfib;
+        isWarnSb = config.isWarnSb;
     }
 }

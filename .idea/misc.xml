@@ -10,11 +10,13 @@
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout-port/fragment_record_hrm_ecg.xml" value="0.20677083333333332" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout-port/fragment_record_hrm_ecg_land.xml" value="0.20677083333333332" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout-port/fragment_record_hrm_ecg_port.xml" value="0.20677083333333332" />
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_cfg_hrm.xml" value="0.20350577169730655" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_device_scan.xml" value="0.334330910645575" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_login.xml" value="0.16973065412569474" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_person_info.xml" value="0.1778537836682343" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_record_ecg.xml" value="0.16339323025491015" />
+        <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_record_eeg.xml" value="0.17058572039333048" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_record_explorer.xml" value="0.16339323025491015" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_record_ppg.xml" value="0.28266913809082483" />
         <entry key="..\:/Program/ProgAndroid/BtDeviceApp/app/src/main/res/layout/activity_share_manage.xml" value="0.18" />

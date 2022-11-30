@@ -1,9 +1,10 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
+import static com.cmtech.android.bledevice.hrm.model.HrmCfg.DEFAULT_HR_HIGH_LIMIT;
+import static com.cmtech.android.bledevice.hrm.model.HrmCfg.DEFAULT_HR_LOW_LIMIT;
+
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -11,18 +12,18 @@ import android.widget.CheckBox;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.cmtech.android.bledevice.hrm.model.HrmCfg;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.hrm.model.HrmCfg.DEFAULT_HR_HIGH_LIMIT;
-import static com.cmtech.android.bledevice.hrm.model.HrmCfg.DEFAULT_HR_LOW_LIMIT;
-
 public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Formatter, NumberPicker.OnScrollListener, NumberPicker.OnValueChangeListener {
     private static final int HR_LIMIT_INTERVAL = 5;
-    private HrmCfg hrCfg;
+    private HrmCfg hrmCfg;
 
     private CheckBox cbSpeak;
     private NumberPicker npSpeechFrequency;
@@ -30,6 +31,9 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
     private CheckBox cbWarn;
     private NumberPicker npHrLow;
     private NumberPicker npHrHigh;
+
+    private CheckBox cbAfib;
+    private CheckBox cbSb;
 
     private Button btnOk;
 
@@ -44,19 +48,19 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
 
         Intent intent = getIntent();
         if(intent != null) {
-            hrCfg = (HrmCfg) intent.getSerializableExtra("hr_cfg");
+            hrmCfg = (HrmCfg) intent.getSerializableExtra("hrm_cfg");
         }
 
         cbSpeak = findViewById(R.id.cb_hr_speak);
-        cbSpeak.setChecked(hrCfg.isSpeak());
+        cbSpeak.setChecked(hrmCfg.isSpeak());
 
         npSpeechFrequency = findViewById(R.id.np_speech_frequency);
         npSpeechFrequency.setMaxValue(10);
         npSpeechFrequency.setMinValue(1);
-        npSpeechFrequency.setValue(hrCfg.getSpeakPeriod());
+        npSpeechFrequency.setValue(hrmCfg.getSpeakPeriod());
 
         cbWarn = findViewById(R.id.cb_hr_warn);
-        cbWarn.setChecked(hrCfg.needWarn());
+        cbWarn.setChecked(hrmCfg.needWarn());
 
         List<String> hrLimitValues = new ArrayList<>();
         for(int i = DEFAULT_HR_LOW_LIMIT; i <= DEFAULT_HR_HIGH_LIMIT; i+=HR_LIMIT_INTERVAL) {
@@ -69,7 +73,7 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrLow.setOnValueChangedListener(this);
         npHrLow.setMinValue(0);
         npHrLow.setMaxValue(hrLimitValues.size()-1);
-        npHrLow.setValue((hrCfg.getHrLow() - DEFAULT_HR_LOW_LIMIT)/HR_LIMIT_INTERVAL);
+        npHrLow.setValue((hrmCfg.getHrLow() - DEFAULT_HR_LOW_LIMIT)/HR_LIMIT_INTERVAL);
         npHrHigh = findViewById(R.id.np_hr_high);
         npHrHigh.setDisplayedValues(hrLimitValues.toArray(new String[0]));
         npHrHigh.setFormatter(this);
@@ -77,7 +81,12 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrHigh.setOnValueChangedListener(this);
         npHrHigh.setMinValue(0);
         npHrHigh.setMaxValue(hrLimitValues.size()-1);
-        npHrHigh.setValue((hrCfg.getHrHigh() - DEFAULT_HR_LOW_LIMIT)/HR_LIMIT_INTERVAL);
+        npHrHigh.setValue((hrmCfg.getHrHigh() - DEFAULT_HR_LOW_LIMIT)/HR_LIMIT_INTERVAL);
+
+        cbAfib = findViewById(R.id.cb_rhythm_afib);
+        cbAfib.setChecked(hrmCfg.isWarnAfib());
+        cbSb = findViewById(R.id.cb_rhythm_sb);
+        cbSb.setChecked(hrmCfg.isWarnSb());
 
         btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -94,14 +103,17 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
                     return;
                 }
 
-                hrCfg.setSpeak(isSpeak);
-                hrCfg.setSpeakPeriod(speakPeriod);
-                hrCfg.setNeedWarn(isWarn);
-                hrCfg.setHrLow(low);
-                hrCfg.setHrHigh(high);
+                hrmCfg.setSpeak(isSpeak);
+                hrmCfg.setSpeakPeriod(speakPeriod);
+                hrmCfg.setNeedWarn(isWarn);
+                hrmCfg.setHrLow(low);
+                hrmCfg.setHrHigh(high);
+
+                hrmCfg.setWarnAfib(cbAfib.isChecked());
+                hrmCfg.setWarnSb(cbSb.isChecked());
 
                 Intent intent = new Intent();
-                intent.putExtra("hr_cfg", hrCfg);
+                intent.putExtra("hr_cfg", hrmCfg);
                 setResult(RESULT_OK, intent);
                 finish();
             }

@@ -226,7 +226,7 @@ public class HrmDevice extends AbstractDevice {
         super(context, registerInfo);
 
         // 获取或产生设备配置
-        HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
+        HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class, true);
         if (config == null) {
             config = new HrmCfg();
             config.setAddress(getAddress());

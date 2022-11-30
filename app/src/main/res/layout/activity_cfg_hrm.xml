@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:toolbar="http://schemas.android.com/apk/res-auto"
@@ -13,137 +14,167 @@
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <androidx.core.widget.NestedScrollView
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@color/primary_dark"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/hr_voice_speech"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/black"/>
+
+    <CheckBox
+        android:id="@+id/cb_hr_speak"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:minHeight="48dp"
+        android:text="@string/enable"
+        android:textSize="@dimen/big_font" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <NumberPicker
+            android:id="@+id/np_speech_frequency"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:background="@color/primary_dark"/>
+            android:gravity="center_vertical"
+            android:focusable="false"
+            android:focusableInTouchMode="false"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="@string/minute_per_time"
+            android:textColor="@color/black"
+            android:textSize="@dimen/normal_font"/>
+
+    </LinearLayout>
+
+    <include layout="@layout/divider_line"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="@string/hr_abnormal_alarm"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/black"/>
+
+    <CheckBox
+        android:id="@+id/cb_hr_warn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:minHeight="48dp"
+        android:text="@string/enable"
+        android:textSize="@dimen/big_font" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text="@string/hr_voice_speech"
-                android:textSize="@dimen/normal_font"
-                android:textColor="@color/black"/>
+                android:layout_gravity="center_vertical"
+                android:gravity="center_horizontal"
+                android:text="@string/low_limit"
+                android:textSize="@dimen/smallest_font"/>
 
-            <CheckBox
-                android:id="@+id/cb_hr_speak"
+            <NumberPicker
+                android:id="@+id/np_hr_low"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/enable"
-                android:textSize="@dimen/big_font"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <NumberPicker
-                    android:id="@+id/np_speech_frequency"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"/>
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
+        </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:text="@string/minute_per_time"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/normal_font"/>
 
-            </LinearLayout>
-
-            <include layout="@layout/divider_line"/>
-
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text="@string/hr_abnormal_alarm"
-                android:textSize="@dimen/normal_font"
-                android:textColor="@color/black"/>
-
-            <CheckBox
-                android:id="@+id/cb_hr_warn"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_horizontal"
+                android:text="@string/high_limit"
+                android:textSize="@dimen/smallest_font"/>
+            <NumberPicker
+                android:id="@+id/np_hr_high"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/enable"
-                android:textSize="@dimen/big_font"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal"
-                    android:focusable="true"
-                    android:focusableInTouchMode="true">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:gravity="center_horizontal"
-                        android:text="@string/low_limit"
-                        android:textSize="@dimen/smallest_font"/>
-
-                    <NumberPicker
-                        android:id="@+id/np_hr_low"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"/>
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:gravity="center_horizontal"
-                        android:text="@string/high_limit"
-                        android:textSize="@dimen/smallest_font"/>
-                    <NumberPicker
-                        android:id="@+id/np_hr_high"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:focusable="false"
-                        android:focusableInTouchMode="false"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btn_ok"
-                style="@style/button_circle_blue_style"
-                android:layout_width="100dp"
-                android:layout_gravity="center_horizontal"
-                android:text="@string/ok"/>
-
+                android:gravity="center_vertical"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+    <include layout="@layout/divider_line"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="心律异常报警"
+        android:textSize="@dimen/normal_font"
+        android:textColor="@color/black"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+        <CheckBox
+            android:id="@+id/cb_rhythm_afib"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:minHeight="48dp"
+            android:text="房颤"
+            android:textSize="@dimen/big_font" />
+
+        <CheckBox
+            android:id="@+id/cb_rhythm_sb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:minHeight="48dp"
+            android:text="窦性心动过缓"
+            android:textSize="@dimen/big_font" />
+
+    </LinearLayout>
+
+
+    <include layout="@layout/divider_line"/>
+
+    <Button
+        android:id="@+id/btn_ok"
+        style="@style/button_circle_blue_style"
+        android:layout_width="100dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/ok"/>
 </LinearLayout>

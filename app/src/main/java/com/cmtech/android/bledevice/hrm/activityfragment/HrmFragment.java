@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static android.app.Activity.RESULT_OK;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_AFIB_SYMBOL;
 import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_SB_SYMBOL;
 
 import android.content.DialogInterface;
@@ -171,7 +172,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         HrmCfg cfg = device.getConfig();
 
         Intent intent = new Intent(getActivity(), HrmCfgActivity.class);
-        intent.putExtra("hr_cfg", cfg);
+        intent.putExtra("hrm_cfg", cfg);
         startActivityForResult(intent, RC_CONFIG);
     }
 
@@ -326,7 +327,9 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         ecgView.addAnnotation(annDescription);
                     }
 
-                    if(ANN_SB_SYMBOL.equals(annSymbol)) {
+                    boolean warnSb = annSymbol.equals(ANN_SB_SYMBOL) && device.getConfig().isWarnSb();
+                    boolean warnAfib = annSymbol.equals(ANN_AFIB_SYMBOL) && device.getConfig().isWarnAfib();
+                    if(warnSb || warnAfib) {
                         MyApplication.getTts().speak(annDescription);
                         toneGenerator.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 200);
                         new Handler().postDelayed(new Runnable(){
