@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.util;
 
+import com.vise.log.ViseLog;
+
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -45,8 +47,8 @@ public class FixSizeLinkedList<T> extends LinkedList<T> {
     }
 
     public void setCapacity(int capacity) {
-        clear();
         this.capacity = capacity;
+        ViseLog.e("capacity="+this.capacity);
     }
 }
 

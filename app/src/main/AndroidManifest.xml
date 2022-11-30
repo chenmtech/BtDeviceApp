@@ -150,7 +150,7 @@
         <activity
             android:name="com.cmtech.android.bledevice.ppg.activityfragment.PpgRecordActivity"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="landscape" />
         <activity
             android:name="com.cmtech.android.bledevice.ptt.activityfragment.PttRecordActivity"
             android:launchMode="singleTask"

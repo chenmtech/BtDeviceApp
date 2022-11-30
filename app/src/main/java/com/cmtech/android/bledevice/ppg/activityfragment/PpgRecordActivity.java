@@ -120,6 +120,9 @@ public class PpgRecordActivity extends RecordActivity implements OnRollWaveViewL
         if(ppgView != null)
             ppgView.stopShow();
 
+        if(record != null)
+            record.closeSigFile();
+
         super.onBackPressed();
     }
 
