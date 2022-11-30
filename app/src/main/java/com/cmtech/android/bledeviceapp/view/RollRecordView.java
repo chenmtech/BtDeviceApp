@@ -1,7 +1,6 @@
 package com.cmtech.android.bledeviceapp.view;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -200,6 +199,7 @@ public class RollRecordView extends RollWaveView {
             if(record.isEOD()) {
                 curPos = 0;
                 record.seek(curPos);
+                clearData();
                 resetView(true);
             }
 
