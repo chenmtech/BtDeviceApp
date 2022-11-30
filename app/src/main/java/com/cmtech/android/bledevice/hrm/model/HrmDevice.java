@@ -183,6 +183,7 @@ public class HrmDevice extends AbstractDevice {
     // 每次当设备断开后重新连接，需要插入的信号零值个数
     private int insertZeroWhenReconnect = 2*DEFAULT_SAMPLE_RATE;
 
+
     //-----------------------------------------------静态类
     // 心率播报器类
     private static class HRSpeaker {
@@ -512,11 +513,10 @@ public class HrmDevice extends AbstractDevice {
      * @param ann 一条信号注解
      */
     private void processSignalAnnotation(SignalAnnotation ann) {
-        if(MyApplication.isRunInForeground()) {
-            if (listener != null) {
-                String annSymbol = ann.getSymbol();
-                listener.onEcgAnnotationUpdated(annSymbol, ANNOTATION_DESCRIPTION_MAP.get(annSymbol));
-            }
+        String annSymbol = ann.getSymbol();
+
+        if (listener != null) {
+            listener.onEcgAnnotationUpdated(annSymbol, ANNOTATION_DESCRIPTION_MAP.get(annSymbol));
         }
 
         if(ecgRecordStatus && ecgRecord != null) {

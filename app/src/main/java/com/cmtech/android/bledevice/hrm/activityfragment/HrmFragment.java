@@ -56,7 +56,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     private TextView tvHrInHrMode; // hr view in HR Mode
     private TextView tvHrInEcgMode; // hr view in ECG Mode
     private TextView tvMessage; // message
-    private TextView tvRhythm;
+    private TextView tvAnnotation;
     private TextView tvSwitchMode; // switch Mode
     private FrameLayout flInHrMode; // frame layout in HR Mode
     private FrameLayout flInEcgMode; // frame layout in ECG Mode
@@ -68,7 +68,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
     //private boolean isEcgOn = false;
 
-    private ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 200);
+    // 报警声生成器
+    private final ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 200);
 
     public HrmFragment() {
         super();
@@ -90,7 +91,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         tvHrInHrMode = view.findViewById(R.id.tv_hr_in_hr_mode);
         tvHrInEcgMode = view.findViewById(R.id.tv_hr_in_ecg_mode);
         tvMessage = view.findViewById(R.id.tv_message);
-        tvRhythm = view.findViewById(R.id.tv_rhythm_info);
+        tvAnnotation = view.findViewById(R.id.tv_annotation);
 
         flInHrMode = view.findViewById(R.id.fl_in_hr_mode);
         flInHrMode.setVisibility(View.VISIBLE);
@@ -320,8 +321,11 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvRhythm.setText(annDescription);
-                    ecgView.addAnnotation(annDescription);
+                    if(MyApplication.isRunInForeground()) {
+                        tvAnnotation.setText(annDescription);
+                        ecgView.addAnnotation(annDescription);
+                    }
+
                     if(ANN_SB_SYMBOL.equals(annSymbol)) {
                         MyApplication.getTts().speak(annDescription);
                         toneGenerator.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 200);
