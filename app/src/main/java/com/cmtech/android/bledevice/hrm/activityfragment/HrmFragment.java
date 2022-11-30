@@ -1,12 +1,16 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static android.app.Activity.RESULT_OK;
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_SB_SYMBOL;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +31,7 @@ import com.cmtech.android.bledevice.hrm.model.OnHrmListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.fragment.DeviceFragment;
+import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.view.ScanEcgView;
 import com.vise.log.ViseLog;
@@ -62,6 +67,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     private FragmentContainerView ecgRecFragContainer; // ecg record fragment
 
     //private boolean isEcgOn = false;
+
+    private ToneGenerator toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 200);
 
     public HrmFragment() {
         super();
@@ -308,16 +315,25 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onEcgRhythmDetectInfoUpdated(String annSymbol, String rhythmInfo) {
+    public void onEcgAnnotationUpdated(String annSymbol, String annDescription) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvRhythm.setText(rhythmInfo);
+                    tvRhythm.setText(annDescription);
+                    ecgView.addAnnotation(annDescription);
+                    if(ANN_SB_SYMBOL.equals(annSymbol)) {
+                        MyApplication.getTts().speak(annDescription);
+                        toneGenerator.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 200);
+                        new Handler().postDelayed(new Runnable(){
+                            public void run() {
+                                toneGenerator.stopTone();
+                            }
+                        }, 200);
+                    }
                 }
             });
         }
-        ViseLog.e(rhythmInfo);
     }
 
     @Override

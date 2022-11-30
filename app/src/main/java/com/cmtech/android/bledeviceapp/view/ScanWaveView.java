@@ -34,12 +34,12 @@ import java.util.concurrent.ExecutorService;
  */
 
 public class ScanWaveView extends WaveView {
-    private int curX; // 波形线的当前横坐标
+    protected int curX; // 波形线的当前横坐标
     private int[] curYs; //每个波形线的当前纵坐标
     private final Rect delRect = new Rect(); // 要抹去的小矩形
 
     private Bitmap waveBitmap;	//波形bitmap
-    private Canvas waveCanvas;	//波形canvas
+    protected Canvas waveCanvas;	//波形canvas
 
     private boolean first = true; // 是否是第一个数据
     protected boolean showWave = true; // 是否显示波形，还是暂停显示

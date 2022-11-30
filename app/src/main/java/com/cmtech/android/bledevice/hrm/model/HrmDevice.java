@@ -1,10 +1,9 @@
 package com.cmtech.android.bledevice.hrm.model;
 
+import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_AFIB_SYMBOL;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.MY_BASE_UUID;
@@ -25,8 +24,8 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.BleEcgRecord;
 import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
 import com.cmtech.android.bledeviceapp.data.record.RecordFactory;
-import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector11;
 import com.cmtech.android.bledeviceapp.data.record.SignalAnnotation;
+import com.cmtech.android.bledeviceapp.dataproc.ecgproc.EcgRealTimeRhythmDetector11;
 import com.cmtech.android.bledeviceapp.dataproc.ecgproc.IEcgRealTimeRhythmDetector;
 import com.cmtech.android.bledeviceapp.global.MyApplication;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -516,10 +515,7 @@ public class HrmDevice extends AbstractDevice {
         if(MyApplication.isRunInForeground()) {
             if (listener != null) {
                 String annSymbol = ann.getSymbol();
-                listener.onEcgRhythmDetectInfoUpdated(annSymbol, ANNOTATION_DESCRIPTION_MAP.get(annSymbol));
-                if(ANN_AFIB_SYMBOL.equals(annSymbol)) {
-                    MyApplication.getTts().speak("发现房颤");
-                }
+                listener.onEcgAnnotationUpdated(annSymbol, ANNOTATION_DESCRIPTION_MAP.get(annSymbol));
             }
         }
 
