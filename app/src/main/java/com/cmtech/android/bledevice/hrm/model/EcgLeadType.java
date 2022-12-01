@@ -15,8 +15,8 @@ public enum EcgLeadType {
         this.description = description;
     }
 
-    private int code;
-    private String description;
+    private final int code;
+    private final String description;
 
     public int getCode() {
         return code;

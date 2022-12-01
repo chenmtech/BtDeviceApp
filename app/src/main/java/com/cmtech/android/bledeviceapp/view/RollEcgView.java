@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.view;
 
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.SYMBOL_DESCRIPTION_MAP;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -67,7 +67,7 @@ public class RollEcgView extends RollRecordView {
                 if(symbol.startsWith("+(")) {
                     int x = (pos - beginPos) * pixelPerData;
                     canvas.drawLine(x,0,x,viewHeight, ANN_PAINT);
-                    canvas.drawText(Objects.requireNonNull(ANNOTATION_DESCRIPTION_MAP.get(symbol)), x, viewHeight-10, ANN_PAINT);
+                    canvas.drawText(Objects.requireNonNull(SYMBOL_DESCRIPTION_MAP.get(symbol)), x, viewHeight-10, ANN_PAINT);
                 }
             } else {
                 break;

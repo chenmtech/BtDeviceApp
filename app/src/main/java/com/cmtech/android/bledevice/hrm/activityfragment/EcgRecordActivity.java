@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.INVALID_ANN_SYMBOL;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.INVALID_ANN_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.SYMBOL_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_POS;
@@ -391,7 +391,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
 
         String annSymbol = ((BleEcgRecord)record).getAnnSymbolAtCurPos();
         if(!annSymbol.equals(INVALID_ANN_SYMBOL))
-            labelStr += ANNOTATION_DESCRIPTION_MAP.get(annSymbol);
+            labelStr += SYMBOL_DESCRIPTION_MAP.get(annSymbol);
         tvCurrentLongTime.setText(labelStr);
         sbReplay.setProgress(sec);
     }

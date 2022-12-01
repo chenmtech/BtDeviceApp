@@ -1,8 +1,9 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_AFIB_SYMBOL;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.INVALID_ANN_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_NSR;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.SYMBOL_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_AFIB;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.INVALID_ANN_SYMBOL;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_HIGH_LIMIT;
 import static com.cmtech.android.bledeviceapp.data.report.EcgReport.HR_TOO_LOW_LIMIT;
@@ -65,8 +66,11 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
     // 注解位置列表，注解位置用样本序号来表示
     private final List<Integer> annPoses = new ArrayList<>();
 
-    // 注解符号列表，用来表示注解的类型及备用信息
+    // 注解符号列表，用来表示注解的类型
     private final List<String> annSymbols = new ArrayList<>();
+
+    // 注解内容，某些注解类会带内容，比如measurement和comment类注解
+    private final List<String> annContents = new ArrayList<>();
 
     //------------------------------------------实例变量，这些变量值不会保存到本地或远程数据库中
     // 采集时设备连接是否断开
@@ -126,6 +130,10 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         return annPoses;
     }
 
+    public List<String> getAnnContents() {
+        return annContents;
+    }
+
     /**
      * 记录一个ECG信号值，主要是将其保存到信号文件中，另外要处理设备断开操作
      * @param ecg 要记录的一个ECG信号数据
@@ -172,12 +180,10 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         int AFIB_times = 0;
         int other_times = 0;
         for(String symbol : annSymbols) {
-            String type = symbol.substring(0,1);
-            if(type.equals("+")) {
-                type = symbol.substring(1);
-                if(type.equals("(AFIB")) {
+            if(symbol.startsWith("+")) {
+                if(symbol.equals(ANN_AFIB)) {
                     AFIB_times++;
-                } else if(!type.equals("(N")) {
+                } else if(!symbol.equals(ANN_NSR)) {
                     other_times++;
                 }
             }
@@ -188,7 +194,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
             strRhythmResult = "未发现心律异常;";
         } else {
             if(AFIB_times != 0) {
-                strRhythmResult += ANNOTATION_DESCRIPTION_MAP.get(ANN_AFIB_SYMBOL)+AFIB_times+"次;";
+                strRhythmResult += SYMBOL_DESCRIPTION_MAP.get(ANN_AFIB)+AFIB_times+"次;";
             }
             if(other_times != 0) {
                 strRhythmResult += "其他心律异常"+other_times+"次;";
@@ -214,6 +220,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         int pos = ann.getPos();
         annPoses.add(pos);
         annSymbols.add(symbol);
+        annContents.add(ann.getContent());
     }
 
     /**
@@ -376,6 +383,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         ListStringUtil.stringToList(json.getString("segTimes"), segTimes, Long.class);
         ListStringUtil.stringToList(json.getString("annPoses"), annPoses, Integer.class);
         ListStringUtil.stringToStrList(json.getString("annSymbols"), annSymbols);
+        ListStringUtil.stringToStrList(json.getString("annContents"), annContents);
     }
 
     @Override
@@ -387,6 +395,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         json.put("segTimes", ListStringUtil.listToString(segTimes));
         json.put("annPoses", ListStringUtil.listToString(annPoses));
         json.put("annSymbols", ListStringUtil.strListToString(annSymbols));
+        json.put("annContents", ListStringUtil.strListToString(annContents));
         return json;
     }
 
@@ -394,7 +403,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
     @Override
     public String toString() {
         return super.toString() + "-" + leadTypeCode +
-                "-" + segPoses + "-" + segTimes + "-" + annPoses + "-" + annSymbols;
+                "-" + segPoses + "-" + segTimes + "-" + annPoses + "-" + annSymbols + "-" + annContents;
     }
 
     /**

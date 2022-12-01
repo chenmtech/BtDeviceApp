@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.hrm.model;
 
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANNOTATION_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.SYMBOL_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
@@ -516,7 +516,7 @@ public class HrmDevice extends AbstractDevice {
         String annSymbol = ann.getSymbol();
 
         if (listener != null) {
-            listener.onEcgAnnotationUpdated(annSymbol, ANNOTATION_DESCRIPTION_MAP.get(annSymbol));
+            listener.onEcgAnnotationUpdated(annSymbol, SYMBOL_DESCRIPTION_MAP.get(annSymbol));
         }
 
         if(ecgRecordStatus && ecgRecord != null) {

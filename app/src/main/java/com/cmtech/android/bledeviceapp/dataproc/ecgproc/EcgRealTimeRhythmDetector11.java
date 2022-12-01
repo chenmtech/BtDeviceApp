@@ -1,10 +1,10 @@
 package com.cmtech.android.bledeviceapp.dataproc.ecgproc;
 
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_AFIB_SYMBOL;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_NSR_SYMBOL;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_OTHER_ARRHYTHMIA_SYMBOL;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.ANN_SB_SYMBOL;
-import static com.cmtech.android.bledeviceapp.data.record.AnnotationConstant.INVALID_ANN_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_AFIB;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_NSR;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_OTHER_ARRHYTHMIA;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_SB;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.INVALID_ANN_SYMBOL;
 
 import android.util.Pair;
 
@@ -52,10 +52,10 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
 
     // 将模型输出label与ECG注解的映射关系
     private static final Map<Integer, String> LABEL_ANN_MAP = new HashMap<>() {{
-        put(0, ANN_AFIB_SYMBOL);
-        put(1, ANN_NSR_SYMBOL);
-        put(2, ANN_SB_SYMBOL);
-        put(3, ANN_OTHER_ARRHYTHMIA_SYMBOL);
+        put(0, ANN_AFIB);
+        put(1, ANN_NSR);
+        put(2, ANN_SB);
+        put(3, ANN_OTHER_ARRHYTHMIA);
     }};
 
     //------------------------------------------------------------实例变量
