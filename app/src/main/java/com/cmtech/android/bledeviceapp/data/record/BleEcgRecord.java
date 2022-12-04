@@ -212,8 +212,8 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
     public void addAnnotation(SignalAnnotation ann) {
         String symbol = ann.getSymbol();
 
-        // 如果前一个标记和当前的标记一样，就放弃添加
-        if(!annSymbols.isEmpty() && annSymbols.get(annSymbols.size()-1).equals(symbol)) {
+        // 如果是一个心律注解起始符号，且前一个注解和当前的注解一样，就放弃添加
+        if(symbol.equals("+(") && !annSymbols.isEmpty() && annSymbols.get(annSymbols.size()-1).equals(symbol)) {
             return;
         }
 

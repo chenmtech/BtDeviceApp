@@ -359,12 +359,14 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         annStr = ANN_SYMBOL_DESCRIPTION_MAP.get(annSymbol);
                     }
 
+                    // 显示
                     if(MyApplication.isRunInForeground()) {
                         tvRhythmAnn.setText(annStr);
                         // 在ECGView中显示注解
                         ecgView.showAnnotation(annStr);
                     }
 
+                    // 报警
                     boolean warnSb = annSymbol.equals(ANN_SB) && device.getConfig().isWarnSb();
                     boolean warnAfib = annSymbol.equals(ANN_AFIB) && device.getConfig().isWarnAfib();
                     if(warnSb || warnAfib) {

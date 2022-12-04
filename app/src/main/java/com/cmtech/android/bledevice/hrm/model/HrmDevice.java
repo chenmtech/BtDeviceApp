@@ -479,7 +479,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         // 心律检测
-        if(rhythmDetector != null) {
+        if(rhythmDetector != null && insertZeroWhenReconnect == 0) {
             rhythmDetector.process((float)ecgSignal/gain, pos);
         }
 
@@ -519,9 +519,20 @@ public class HrmDevice extends AbstractDevice {
             listener.onEcgAnnotationUpdated(annSymbol, ann.getContent());
         }
 
+        addRecordAnnotation(ann);
+    }
+
+    public void addRecordAnnotation(SignalAnnotation ann) {
         if(ecgRecordStatus && ecgRecord != null) {
             ecgRecord.addAnnotation(ann);
         }
+    }
+
+    public int getRecordDataNum() {
+        if(ecgRecordStatus && ecgRecord != null) {
+            return ecgRecord.getDataNum();
+        } else
+            return 0;
     }
 
     @Override
