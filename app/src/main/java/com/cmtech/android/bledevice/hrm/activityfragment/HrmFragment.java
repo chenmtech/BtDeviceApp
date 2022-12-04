@@ -2,7 +2,9 @@ package com.cmtech.android.bledevice.hrm.activityfragment;
 
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_AFIB;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_COMMENT;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_SB;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_SYMBOL_DESCRIPTION_MAP;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,7 +43,7 @@ import com.vise.log.ViseLog;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.view
  * ClassName:      HrmFragment
- * Description:    heart rate monitor fragment
+ * Description:    心率(电)带 fragment
  * Author:         chenm
  * CreateDate:     2020-02-04 06:06
  * UpdateUser:     chenm
@@ -50,22 +52,50 @@ import com.vise.log.ViseLog;
  * Version:        1.0
  */
 public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWaveViewListener {
+    // 设置配置返回码
     private static final int RC_CONFIG = 1;
-    private HrmDevice device; // device
 
-    private ScanEcgView ecgView; // EcgView
-    private TextView tvHrInHrMode; // hr view in HR Mode
-    private TextView tvHrInEcgMode; // hr view in ECG Mode
-    private TextView tvMessage; // message
-    private TextView tvAnnotation;
-    private TextView tvSwitchMode; // switch Mode
-    private FrameLayout flInHrMode; // frame layout in HR Mode
-    private FrameLayout flInEcgMode; // frame layout in ECG Mode
+    // 设备
+    private HrmDevice device;
 
-    private HrRecordFragment hrRecFrag; // heart rate record Fragment
-    private EcgRecordFragment ecgRecFrag; // ecg record fragment
-    private FragmentContainerView hrRecFragContainer; // heart rate record Fragment
-    private FragmentContainerView ecgRecFragContainer; // ecg record fragment
+    // 心率/心电模式转换开关
+    private TextView tvSwitchMode;
+
+    //------------------------------------------下面为心率模式下包含的
+    // FrameLayout
+    private FrameLayout flInHrMode;
+
+    // 心率模式下的心率值
+    private TextView tvHrInHrMode;
+
+    // 心率记录Fragment
+    private HrRecordFragment hrRecFrag;
+
+    // HrRecordFragment Container
+    private FragmentContainerView hrRecFragContainer;
+
+    //------------------------------------------下面为心电模式下包含的
+    // FrameLayout
+    private FrameLayout flInEcgMode;
+
+    // ECG View
+    private ScanEcgView ecgView;
+
+    // 心电模式下的心率值
+    private TextView tvHrInEcgMode;
+
+    // 心律注解
+    private TextView tvRhythmAnn;
+
+    // 是否暂停显示的提示
+    private TextView tvPauseHint;
+
+    // 心电记录Fragment
+    private EcgRecordFragment ecgRecFrag;
+
+    // Container
+    private FragmentContainerView ecgRecFragContainer;
+    ////////////////////////////////////////////////////////////////////
 
     //private boolean isEcgOn = false;
 
@@ -91,8 +121,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
         tvHrInHrMode = view.findViewById(R.id.tv_hr_in_hr_mode);
         tvHrInEcgMode = view.findViewById(R.id.tv_hr_in_ecg_mode);
-        tvMessage = view.findViewById(R.id.tv_message);
-        tvAnnotation = view.findViewById(R.id.tv_annotation);
+        tvPauseHint = view.findViewById(R.id.tv_pause_hint);
+        tvRhythmAnn = view.findViewById(R.id.tv_rhythm_annotation);
 
         flInHrMode = view.findViewById(R.id.fl_in_hr_mode);
         flInHrMode.setVisibility(View.VISIBLE);
@@ -132,7 +162,6 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
         hrRecFragContainer = view.findViewById(R.id.frag_hrm_hr_view);
         ecgRecFragContainer = view.findViewById(R.id.frag_hrm_ecg_view);
-        ViseLog.e("onViewCreated");
 
         device.setListener(this);
         ecgView.setListener(this);
@@ -148,7 +177,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         if(requestCode == RC_CONFIG) { // cfg return
             if(resultCode == RESULT_OK) {
                 HrmCfg cfg = (HrmCfg) data.getSerializableExtra("hr_cfg");
-                device.updateConfig(cfg);
+                if(cfg!=null)
+                    device.updateConfig(cfg);
             }
         }
     }
@@ -164,7 +194,6 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     @Override
     public void onStop() {
         super.onStop();
-        //ViseLog.e("onStop");
     }
 
     @Override
@@ -177,7 +206,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHRUpdated(final BleHeartRateData hrData) {
+    public void onHrDataUpdated(final BleHeartRateData hrData) {
         if(hrData != null && getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -194,7 +223,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHRStatisticInfoUpdated(BleHrRecord record) {
+    public void onHrStatisticInfoUpdated(BleHrRecord record) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -206,7 +235,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHRSensLocUpdated(final int loc) {
+    public void onHrSensLocUpdated(final int loc) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -218,7 +247,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHRCtrlPtUpdated(final int ctrl) {
+    public void onHrCtrlPtUpdated(final int ctrl) {
 
     }
 
@@ -254,7 +283,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onHRRecordStatusUpdated(boolean record) {
+    public void onHrRecordStatusUpdated(boolean record) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -317,20 +346,29 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onEcgAnnotationUpdated(String annSymbol, String annDescription) {
+    public void onEcgAnnotationUpdated(String annSymbol, String annContent) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    String annStr;
+                    // 如果annotation是comment，就显示content，否则显示description
+                    if(annSymbol.equals(ANN_COMMENT)) {
+                        annStr = annContent;
+                    } else {
+                        annStr = ANN_SYMBOL_DESCRIPTION_MAP.get(annSymbol);
+                    }
+
                     if(MyApplication.isRunInForeground()) {
-                        tvAnnotation.setText(annDescription);
-                        ecgView.addAnnotation(annDescription);
+                        tvRhythmAnn.setText(annStr);
+                        // 在ECGView中显示注解
+                        ecgView.showAnnotation(annStr);
                     }
 
                     boolean warnSb = annSymbol.equals(ANN_SB) && device.getConfig().isWarnSb();
                     boolean warnAfib = annSymbol.equals(ANN_AFIB) && device.getConfig().isWarnAfib();
                     if(warnSb || warnAfib) {
-                        MyApplication.getTts().speak(annDescription);
+                        MyApplication.getTts().speak(annStr);
                         toneGenerator.startTone(ToneGenerator.TONE_CDMA_EMERGENCY_RINGBACK, 200);
                         new Handler().postDelayed(new Runnable(){
                             public void run() {
@@ -346,9 +384,9 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     @Override
     public void onShowStateUpdated(boolean show) {
         if(show) {
-            tvMessage.setVisibility(View.GONE);
+            tvPauseHint.setVisibility(View.GONE);
         } else {
-            tvMessage.setVisibility(View.VISIBLE);
+            tvPauseHint.setVisibility(View.VISIBLE);
         }
     }
 

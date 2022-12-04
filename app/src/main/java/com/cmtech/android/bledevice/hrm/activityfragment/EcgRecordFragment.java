@@ -40,9 +40,11 @@ public class EcgRecordFragment extends Fragment {
     // 记录时长
     EditText etRecordTime;
 
-    Button btnAddNote;
+    Button btnAdd;
 
-    EditText etNote;
+    EditText etContent;
+
+    EditText etTime;
 
     // 当前是否在记录
     boolean recording = false;
@@ -72,33 +74,33 @@ public class EcgRecordFragment extends Fragment {
 
         etRecordTime = view.findViewById(R.id.et_record_time);
 
-        etNote = view.findViewById(R.id.et_note);
-        etNote.setSelection(etNote.getText().length());
+        etContent = view.findViewById(R.id.et_note);
+        etContent.setSelection(etContent.getText().length());
 
-        btnAddNote = view.findViewById(R.id.btn_add_note);
-        btnAddNote.setOnClickListener(new View.OnClickListener() {
+        btnAdd = view.findViewById(R.id.btn_add);
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String time = new SimpleDateFormat("HH:mm:ss", Locale.CHINA).format(new Date());
                 String note = time + "->标记；";
-                etNote.append(note);
-                etNote.setSelection(etNote.getText().length());
+                etContent.append(note);
+                etContent.setSelection(etContent.getText().length());
                 assert getParentFragment() != null;
-                ((HrmFragment)getParentFragment()).setEcgRecordNote(etNote.getText().toString());
+                ((HrmFragment)getParentFragment()).setEcgRecordNote(etContent.getText().toString());
             }
         });
-        btnAddNote.setEnabled(false);
+        btnAdd.setEnabled(false);
     }
 
     // 更新记录状态
     public void updateRecordStatus(boolean record) {
         if(record) {
             ibRecord.setImageResource(R.mipmap.ic_stop_32px);
-            btnAddNote.setEnabled(true);
-            etNote.setText("");
+            btnAdd.setEnabled(true);
+            etContent.setText("");
         } else {
             ibRecord.setImageResource(R.mipmap.ic_start_32px);
-            btnAddNote.setEnabled(false);
+            btnAdd.setEnabled(false);
         }
         this.recording = record;
     }

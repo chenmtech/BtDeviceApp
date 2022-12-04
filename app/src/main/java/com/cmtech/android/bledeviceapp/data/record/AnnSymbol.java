@@ -13,6 +13,8 @@ public class AnnSymbol {
 
     public static final String ANN_NOISE = "~U";
 
+    public static final String ANN_COMMENT = "\"";
+
     public static final String ANN_AB = "+(AB";
     public static final String ANN_AFIB = "+(AFIB";
     public static final String ANN_AFL = "+(AFL";
@@ -31,11 +33,13 @@ public class AnnSymbol {
     public static final String ANN_OTHER_ARRHYTHMIA = "+(OA";
 
     // 注解符号和它对应的描述字符串
-    public static final Map<String, String> SYMBOL_DESCRIPTION_MAP = new HashMap<>(){{
+    public static final Map<String, String> ANN_SYMBOL_DESCRIPTION_MAP = new HashMap<>(){{
         put(ANN_LBBB, "左束支阻滞心搏");
         put(ANN_RBBB, "右束支阻滞心搏");
 
         put(ANN_NOISE, "噪声");
+
+        put(ANN_COMMENT, "评论");
 
         put(ANN_AB, "房性二联律");
         put(ANN_AFIB, "房颤");

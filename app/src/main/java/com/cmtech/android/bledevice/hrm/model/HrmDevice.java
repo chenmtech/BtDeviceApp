@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.hrm.model;
 
-import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.SYMBOL_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_SYMBOL_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.data.record.BasicRecord.DEFAULT_RECORD_VER;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.HR;
@@ -262,7 +262,7 @@ public class HrmDevice extends AbstractDevice {
                     1, 1, "1", "bpm");
             if(listener != null && hrRecord != null) {
                 recordingRecord = hrRecord;
-                listener.onHRStatisticInfoUpdated(hrRecord);
+                listener.onHrStatisticInfoUpdated(hrRecord);
                 Toast.makeText(getContext(), R.string.start_record, Toast.LENGTH_SHORT).show();
             }
         }
@@ -301,7 +301,7 @@ public class HrmDevice extends AbstractDevice {
 
         // 通知监听器更新心率记录状态
         if(listener != null) {
-            listener.onHRRecordStatusUpdated(this.hrRecordStatus);
+            listener.onHrRecordStatusUpdated(this.hrRecordStatus);
         }
     }
 
@@ -516,7 +516,7 @@ public class HrmDevice extends AbstractDevice {
         String annSymbol = ann.getSymbol();
 
         if (listener != null) {
-            listener.onEcgAnnotationUpdated(annSymbol, SYMBOL_DESCRIPTION_MAP.get(annSymbol));
+            listener.onEcgAnnotationUpdated(annSymbol, ann.getContent());
         }
 
         if(ecgRecordStatus && ecgRecord != null) {
@@ -698,7 +698,7 @@ public class HrmDevice extends AbstractDevice {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 if(listener != null) {
-                    listener.onHRSensLocUpdated(data[0]);
+                    listener.onHrSensLocUpdated(data[0]);
                 }
             }
 
@@ -739,10 +739,10 @@ public class HrmDevice extends AbstractDevice {
                         boolean hrStatisticUpdated = (hrRecordStatus && hrRecord.record((short) bpm, heartRateData.getTime()));
                         if (MyApplication.isRunInForeground()) {
                             if (listener != null) {
-                                listener.onHRUpdated(heartRateData);
+                                listener.onHrDataUpdated(heartRateData);
 
                                 if (hrStatisticUpdated) {
-                                    listener.onHRStatisticInfoUpdated(hrRecord);
+                                    listener.onHrStatisticInfoUpdated(hrRecord);
                                 }
                             }
                         }
@@ -838,7 +838,6 @@ public class HrmDevice extends AbstractDevice {
                 // 启动心律检测器
                 if(rhythmDetector == null) {
                     try {
-                        //rhythmDetector = new EcgRealTimeRhythmDetector(RHYTHM_DETECT_MODEL, item -> updateRhythmDetectItem(item));
                         rhythmDetector = new EcgRealTimeRhythmDetector11(RHYTHM_DETECT_MODEL, item -> processSignalAnnotation(item));
                     } catch (OrtException e) {
                         rhythmDetector = null;

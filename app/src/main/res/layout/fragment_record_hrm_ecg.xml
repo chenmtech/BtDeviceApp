@@ -33,31 +33,77 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
-        android:orientation="horizontal">
-        <EditText
-            android:id="@+id/et_note"
-            style="@style/edittext_circle_gray_style"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="start|top"
-            android:minLines="2"
-            android:inputType="textMultiLine"
-            android:autofillHints=""
-            android:maxLength="255"
-            android:scrollbars="vertical"
-            android:fadeScrollbars="false"
-            android:enabled="false"/>
-
-        <Button
-            android:id="@+id/btn_add_note"
-            style="@style/button_circle_blue_style"
-            android:layout_width="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="1dp"
-            android:minWidth="0dp"
-            android:text="添加\n标记"
-            android:textSize="@dimen/smallest_font"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="评论时间："/>
+            <EditText
+                android:id="@+id/et_comment_time"
+                style="@style/edittext_circle_gray_style"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:autofillHints=""
+                android:enabled="false"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="内容："/>
+            <EditText
+                android:id="@+id/et_comment_content"
+                style="@style/edittext_circle_gray_style"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:autofillHints=""
+                android:maxLength="10"
+                android:enabled="false"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <Button
+                android:id="@+id/btn_cancel"
+                style="@style/button_circle_blue_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:text="取消"
+                android:textSize="@dimen/smallest_font"/>
+            <Button
+                android:id="@+id/btn_add"
+                style="@style/button_circle_blue_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:text="添加"
+                android:textSize="@dimen/smallest_font"/>
+            <Button
+                android:id="@+id/btn_ok"
+                style="@style/button_circle_blue_style"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:text="确定"
+                android:textSize="@dimen/smallest_font"/>
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

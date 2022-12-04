@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_NSR;
-import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.SYMBOL_DESCRIPTION_MAP;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_SYMBOL_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_AFIB;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.INVALID_ANN_SYMBOL;
 import static com.cmtech.android.bledeviceapp.data.record.RecordType.ECG;
@@ -194,7 +194,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
             strRhythmResult = "未发现心律异常;";
         } else {
             if(AFIB_times != 0) {
-                strRhythmResult += SYMBOL_DESCRIPTION_MAP.get(ANN_AFIB)+AFIB_times+"次;";
+                strRhythmResult += ANN_SYMBOL_DESCRIPTION_MAP.get(ANN_AFIB)+AFIB_times+"次;";
             }
             if(other_times != 0) {
                 strRhythmResult += "其他心律异常"+other_times+"次;";

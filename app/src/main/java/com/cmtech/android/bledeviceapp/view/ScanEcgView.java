@@ -46,7 +46,8 @@ public class ScanEcgView extends ScanSignalView {
         setup(1, sampleRate, new int[]{gain});
     }
 
-    public void addAnnotation(String annDescription) {
+    // 显示一条注解
+    public void showAnnotation(String annDescription) {
         this.annDescription = annDescription;
     }
 

@@ -15,22 +15,22 @@ import com.cmtech.android.bledeviceapp.data.record.BleHrRecord;
  */
 public interface OnHrmListener {
     // 心率数据更新
-    void onHRUpdated(BleHeartRateData hrData);
+    void onHrDataUpdated(BleHeartRateData hrData);
 
     // 心率统计信息更新
-    void onHRStatisticInfoUpdated(BleHrRecord record);
+    void onHrStatisticInfoUpdated(BleHrRecord record);
 
     // 设备传感器位置更新
-    void onHRSensLocUpdated(int loc);
+    void onHrSensLocUpdated(int loc);
 
     // control point更新，见蓝牙协议
-    void onHRCtrlPtUpdated(int ctrl);
+    void onHrCtrlPtUpdated(int ctrl);
 
     // UI更新
     void onUIUpdated(int sampleRate, int gain, boolean inHrMode);
 
     // 心率记录状态更新
-    void onHRRecordStatusUpdated(boolean record);
+    void onHrRecordStatusUpdated(boolean record);
 
     // ECG信号显示
     void onEcgSignalShowed(int ecgSignal);
@@ -38,10 +38,12 @@ public interface OnHrmListener {
     // ECG信号记录状态更新
     void onEcgSignalRecordStatusUpdated(boolean record);
 
-
+    // ECG 功能开关状态更新
     void onEcgOnStatusUpdated(boolean ecgOn);
+
+    // ECG信号记录时长
     void onEcgRecordTimeUpdated(int second);
 
-    // 心律异常检测结果信息更新
-    void onEcgAnnotationUpdated(String annSymbol, String rhythmInfo);
+    // ECG注解更新
+    void onEcgAnnotationUpdated(String annSymbol, String annContent);
 }
