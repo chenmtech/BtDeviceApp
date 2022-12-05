@@ -34,10 +34,10 @@
                 cmtech:wave_num="1"/>
 
             <TextView
-                android:id="@+id/tv_current_long_time"
+                android:id="@+id/tv_time_and_rhythm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|top"
+                android:layout_gravity="end|top"
                 android:textColor="#ff0"
                 android:textSize="@dimen/normal_font"
                 android:background="#ff000000"/>
@@ -46,7 +46,7 @@
                 android:id="@+id/tv_current_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
+                android:layout_gravity="end|bottom"
                 android:textColor="#fff"
                 android:textSize="@dimen/normal_font"/>
         </FrameLayout>
@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content"
                 style="@style/button_circle_blue_style"
                 android:layout_margin="1dp"
-                android:text="上一心律"/>
+                android:text="上一条"/>
 
             <Button
                 android:id="@+id/btn_next_rhythm"
@@ -85,7 +85,7 @@
                 android:layout_height="wrap_content"
                 style="@style/button_circle_blue_style"
                 android:layout_margin="1dp"
-                android:text="下一心律"/>
+                android:text="下一条"/>
 
             <SeekBar
                 android:id="@+id/sb_replay"

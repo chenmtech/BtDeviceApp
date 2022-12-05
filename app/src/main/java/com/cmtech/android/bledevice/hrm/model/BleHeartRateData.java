@@ -74,7 +74,7 @@ public class BleHeartRateData {
     @Override
     public String toString() {
         return "BleHeartRateData{" +
-                "time=" + DateTimeUtil.timeToString(time) +
+                "time=" + DateTimeUtil.timeToChineseString(time) +
                 "flag=" + flag +
                 ", bpm=" + bpm +
                 ", energy=" + energy +

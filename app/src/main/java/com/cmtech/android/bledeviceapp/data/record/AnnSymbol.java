@@ -31,6 +31,7 @@ public class AnnSymbol {
     public static final String ANN_VFL = "+(VFL";
     public static final String ANN_VT = "+(VT";
     public static final String ANN_OTHER_ARRHYTHMIA = "+(OA";
+    public static final String ANN_RHYTHM_ONSET = "+(";
 
     // 注解符号和它对应的描述字符串
     public static final Map<String, String> ANN_SYMBOL_DESCRIPTION_MAP = new HashMap<>(){{

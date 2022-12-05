@@ -74,6 +74,8 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
     // 检测结果回调
     private final IEcgRhythmDetectCallback callback;
 
+    private String preAnnSymbol = INVALID_ANN_SYMBOL;
+
     //--------------------------------------------------------------构造器
     /**
      * 构造一个心电信号的心律检测器，并启动检测
@@ -106,6 +108,7 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
         stopDetect();
         Arrays.fill(sigBuf, (float) 0.0);
         pos = 0;
+        preAnnSymbol = INVALID_ANN_SYMBOL;
         if(rhythmDetectModel != null)
             startDetect();
     }
@@ -140,13 +143,14 @@ public class EcgRealTimeRhythmDetector11 implements IEcgRealTimeRhythmDetector{
             try {
                 // 用模型进行检测，输出结果
                 int label = detectRhythm(sigBuf);
-                // 通过标签映射，获取应用定义的异常标签值
+                // 通过标签映射，获取App定义的心律注解符号
                 String annSymbol = LABEL_ANN_MAP.get(label);
-                if(!INVALID_ANN_SYMBOL.equals(annSymbol)) {
-                    SignalAnnotation item = new SignalAnnotation(position-BUF_LEN+1, annSymbol);
+                if(!INVALID_ANN_SYMBOL.equals(annSymbol) && !preAnnSymbol.equals(annSymbol)) {
+                    SignalAnnotation ann = new SignalAnnotation(position-BUF_LEN+1, annSymbol);
                     // 用回调处理检测条目
                     if (callback != null)
-                        callback.onRhythmInfoUpdated(item);
+                        callback.onRhythmInfoUpdated(ann);
+                    preAnnSymbol = annSymbol;
                 }
                 // 更新信号缓存和位置
                 pos = 0;

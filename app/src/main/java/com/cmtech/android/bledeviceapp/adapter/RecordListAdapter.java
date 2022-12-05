@@ -110,7 +110,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         }
 
         holder.ivRecordType.setImageResource(RecordType.fromCode(record.getTypeCode()).getIconId());
-        String createTime = DateTimeUtil.timeToStringWithTodayYesterday(record.getCreateTime());
+        String createTime = DateTimeUtil.timeToString(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
 
         holder.tvAddress.setText(record.getDevAddress());

@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.hrm.activityfragment;
 
-import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.INVALID_ANN_SYMBOL;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_RHYTHM_ONSET;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_SYMBOL_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.global.AppConstant.INVALID_ID;
@@ -67,7 +67,7 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     private TextView tvCurrentTime;
 
     // 当前回放长时刻点
-    private TextView tvCurrentLongTime;
+    private TextView tvTimeAndRhythm;
 
     // 回放条
     private SeekBar sbReplay;
@@ -76,8 +76,6 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     private ImageButton ibReplayCtrl;
 
     //
-    //private Button btnPrevItem;
-    //private Button btnNextItem;
     private Button btnPrevRhythm;
     private Button btnNextRhythm;
 
@@ -136,8 +134,9 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
 
-        tvCurrentLongTime = findViewById(R.id.tv_current_long_time);
-        tvCurrentLongTime.setText(DateTimeUtil.timeToStringWithTodayYesterday(((BleEcgRecord)record).getTimeAtCurPos()));
+        tvTimeAndRhythm = findViewById(R.id.tv_time_and_rhythm);
+        //tvTimeAndRhythm.setText(DateTimeUtil.timeToString(((BleEcgRecord)record).getTimeAtCurPos(), false));
+        tvTimeAndRhythm.setText("");
 
         tvTimeLength = findViewById(R.id.tv_time_length);
         int timeLength = record.getSigLen()/record.getSampleRate();
@@ -387,12 +386,14 @@ public class EcgRecordActivity extends RecordActivity implements OnRollWaveViewL
     public void onDataLocationUpdated(long loc, int sec) {
         tvCurrentTime.setText(DateTimeUtil.secToTime(sec));
         long currentTime = ((BleEcgRecord)record).getTimeAtCurPos();
-        String labelStr = DateTimeUtil.timeToStringWithTodayYesterday(currentTime);
+        //String labelStr = DateTimeUtil.timeToString(currentTime, false);
+        String labelStr = "";
 
-        String annSymbol = ((BleEcgRecord)record).getAnnSymbolAtCurPos();
-        if(!annSymbol.equals(INVALID_ANN_SYMBOL))
+        String annSymbol = ((BleEcgRecord)record).getRhythmSymbolAtCurPos();
+        if(annSymbol.startsWith(ANN_RHYTHM_ONSET)) {
             labelStr += ANN_SYMBOL_DESCRIPTION_MAP.get(annSymbol);
-        tvCurrentLongTime.setText(labelStr);
+            tvTimeAndRhythm.setText(labelStr);
+        }
         sbReplay.setProgress(sec);
     }
 

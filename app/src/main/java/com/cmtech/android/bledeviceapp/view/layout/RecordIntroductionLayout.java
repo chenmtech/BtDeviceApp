@@ -128,7 +128,7 @@ public class RecordIntroductionLayout extends RelativeLayout {
             ivCreatorImage.setImageBitmap(bitmap);
         }
 
-        String createTime = DateTimeUtil.timeToStringWithTodayYesterday(record.getCreateTime());
+        String createTime = DateTimeUtil.timeToString(record.getCreateTime());
         tvCreateTime.setText(createTime);
 
         int length = record.getDevAddress().length();

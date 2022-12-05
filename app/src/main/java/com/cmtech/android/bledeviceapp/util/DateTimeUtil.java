@@ -9,7 +9,7 @@ import java.util.Locale;
  */
 public class DateTimeUtil {
 
-    public static String timeToString(long timeInMillis) {
+    public static String timeToChineseString(long timeInMillis) {
         return new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒", Locale.CHINA).format(new Date(timeInMillis));
     }
 
@@ -17,8 +17,15 @@ public class DateTimeUtil {
         return new SimpleDateFormat("yy-MM-dd HH:mm", Locale.CHINA).format(new Date(timeInMillis));
     }
 
-    public static String timeToStringWithTodayYesterday(long timeInMillis) {
-        return todayYesterday(timeInMillis) + new SimpleDateFormat(" HH:mm:ss", Locale.CHINA).format(timeInMillis);
+    public static String timeToString(long timeInMillis) {
+        return timeToString(timeInMillis, true);
+    }
+
+    public static String timeToString(long timeInMillis, boolean withTodayYesterday) {
+        if(withTodayYesterday)
+            return todayYesterday(timeInMillis) + new SimpleDateFormat(" HH:mm:ss", Locale.CHINA).format(timeInMillis);
+        else
+            return new SimpleDateFormat(" HH:mm:ss", Locale.CHINA).format(timeInMillis);
     }
 
     // a integer to xx:xx:xx if hour!=0, else xx:xx

@@ -20,9 +20,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.data.record.SignalAnnotation;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -45,10 +43,10 @@ public class EcgRecordFragment extends Fragment {
     private EditText etRecordTime;
 
     // 评论时间
-    private EditText etTime;
+    private EditText etCommentTime;
 
     // 评论内容
-    private EditText etContent;
+    private EditText etCommentContent;
 
     // 添加评论
     private Button btnAdd;
@@ -86,7 +84,10 @@ public class EcgRecordFragment extends Fragment {
         });
 
         etRecordTime = view.findViewById(R.id.et_record_time);
-        etContent = view.findViewById(R.id.et_note);
+
+        etCommentTime = view.findViewById(R.id.et_comment_time);
+        etCommentContent = view.findViewById(R.id.et_comment_content);
+        etCommentContent.setEnabled(false);
 
         btnAdd = view.findViewById(R.id.btn_add);
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -96,9 +97,10 @@ public class EcgRecordFragment extends Fragment {
                 commentPos = ((HrmDevice)((HrmFragment)getParentFragment()).getDevice()).getRecordDataNum()-1;
                 if(commentPos < 0) return;
                 long commentTime = new Date().getTime();
-                String timeStr = DateTimeUtil.timeToStringWithTodayYesterday(commentTime);
-                etTime.setText(timeStr);
-                etContent.setText("标记");
+                String timeStr = DateTimeUtil.timeToString(commentTime, false);
+                etCommentTime.setText(timeStr);
+                etCommentContent.setText("标记");
+                etCommentContent.setEnabled(true);
                 btnOk.setEnabled(true);
                 btnCancel.setEnabled(true);
             }
@@ -110,7 +112,8 @@ public class EcgRecordFragment extends Fragment {
             public void onClick(View v) {
                 assert getParentFragment() != null;
                 ((HrmDevice)((HrmFragment)getParentFragment()).getDevice()).
-                        addRecordAnnotation(new SignalAnnotation(commentPos, ANN_COMMENT, etContent.getText().toString()));
+                        addRecordAnnotation(new SignalAnnotation(commentPos, ANN_COMMENT, etCommentContent.getText().toString()));
+                etCommentContent.setEnabled(false);
                 btnOk.setEnabled(false);
                 btnCancel.setEnabled(false);
             }
@@ -122,6 +125,7 @@ public class EcgRecordFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 commentPos = -1;
+                etCommentContent.setEnabled(false);
                 btnOk.setEnabled(false);
                 btnCancel.setEnabled(false);
             }
@@ -134,7 +138,7 @@ public class EcgRecordFragment extends Fragment {
         if(record) {
             ibRecord.setImageResource(R.mipmap.ic_stop_32px);
             btnAdd.setEnabled(true);
-            etContent.setText("");
+            etCommentContent.setText("");
         } else {
             ibRecord.setImageResource(R.mipmap.ic_start_32px);
             btnAdd.setEnabled(false);

@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.view;
 
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_COMMENT;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_RHYTHM_ONSET;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_SYMBOL_DESCRIPTION_MAP;
 
 import android.content.Context;
@@ -59,15 +61,20 @@ public class RollEcgView extends RollRecordView {
 
         List<Integer> annPoses = ((BleEcgRecord)record).getAnnPoses();
         List<String> annSymbols = ((BleEcgRecord)record).getAnnSymbols();
+        List<String> annContents = ((BleEcgRecord)record).getAnnContents();
         for(int i = 0; i < annPoses.size(); i++) {
             int pos = annPoses.get(i);
             String symbol = annSymbols.get(i);
             if(pos < beginPos) continue;
             if(pos <= curPos) {
-                if(symbol.startsWith("+(")) {
+                if(symbol.startsWith(ANN_RHYTHM_ONSET)) {
                     int x = (pos - beginPos) * pixelPerData;
                     canvas.drawLine(x,0,x,viewHeight, ANN_PAINT);
                     canvas.drawText(Objects.requireNonNull(ANN_SYMBOL_DESCRIPTION_MAP.get(symbol)), x, viewHeight-10, ANN_PAINT);
+                } else if(symbol.equals(ANN_COMMENT) && annContents.size() > i) {
+                    int x = (pos - beginPos) * pixelPerData;
+                    canvas.drawLine(x,0,x,viewHeight, ANN_PAINT);
+                    canvas.drawText(annContents.get(i), x, viewHeight-50, ANN_PAINT);
                 }
             } else {
                 break;

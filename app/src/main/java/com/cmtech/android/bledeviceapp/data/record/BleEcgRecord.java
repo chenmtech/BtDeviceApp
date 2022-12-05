@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.data.record;
 
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_NSR;
+import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_RHYTHM_ONSET;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_SYMBOL_DESCRIPTION_MAP;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.ANN_AFIB;
 import static com.cmtech.android.bledeviceapp.data.record.AnnSymbol.INVALID_ANN_SYMBOL;
@@ -264,7 +265,7 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
         return segTime + (pos - segPos)*1000L/getSampleRate();
     }
 
-    public String getAnnSymbolAtCurPos() {
+    public String getRhythmSymbolAtCurPos() {
         if(annSymbols.isEmpty() || sigFile == null) return INVALID_ANN_SYMBOL;
 
         try {
@@ -274,7 +275,11 @@ public class BleEcgRecord extends BasicRecord implements IDiagnosable, Serializa
                 if(annPoses.get(i) > curPos) break;
             }
             if(i == 0) return INVALID_ANN_SYMBOL;
-            return annSymbols.get(i-1);
+            for(int j = i-1; j>=0; j--) {
+                if(annSymbols.get(j).startsWith(ANN_RHYTHM_ONSET))
+                    return annSymbols.get(j);
+            }
+            return INVALID_ANN_SYMBOL;
         } catch (IOException e) {
             e.printStackTrace();
             return INVALID_ANN_SYMBOL;
